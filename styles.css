@@ -37,20 +37,29 @@ footer {
     padding: 10px 0;
     text-align: center;
 }
-/* Style spécifique à la page des élèves */
+/* Style mis à jour spécifique à la page des élèves */
 .eleve {
     display: flex;
-    align-items: center;
-    border-bottom: 1px solid #fff;
+    border-bottom: 2px solid #1e90ff;
     margin: 20px 0;
     padding: 10px 0;
 }
 
-.eleve img {
-    width: 100px;
-    height: 100px;
+.eleve figure {
+    margin: 0;
     margin-right: 20px;
+}
+
+.eleve img {
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
+    border: 3px solid #1e90ff;
+}
+
+.eleve figcaption {
+    text-align: center;
+    font-weight: bold;
 }
 
 .etoiles {
@@ -62,4 +71,3 @@ nav a.active {
     font-weight: bold;
     text-decoration: underline;
 }
-
