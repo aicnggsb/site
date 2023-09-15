@@ -7,7 +7,7 @@ body {
 }
 
 header {
-    background-color: #0000ff;
+    background: linear-gradient(45deg, #0000ff, #1e90ff);
     padding: 20px 0;
     text-align: center;
 }
@@ -29,10 +29,11 @@ nav a {
 
 main {
     padding: 20px;
+    background: linear-gradient(45deg, #1e90ff, #87CEFA);
 }
 
 footer {
-    background-color: #0000ff;
+    background: linear-gradient(45deg, #0000ff, #1e90ff);
     padding: 10px 0;
     text-align: center;
 }
