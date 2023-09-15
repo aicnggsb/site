@@ -37,4 +37,29 @@ footer {
     padding: 10px 0;
     text-align: center;
 }
+/* Style spécifique à la page des élèves */
+.eleve {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #fff;
+    margin: 20px 0;
+    padding: 10px 0;
+}
+
+.eleve img {
+    width: 100px;
+    height: 100px;
+    margin-right: 20px;
+    border-radius: 50%;
+}
+
+.etoiles {
+    margin-top: 10px;
+    font-size: 1.5em;
+}
+
+nav a.active {
+    font-weight: bold;
+    text-decoration: underline;
+}
 
