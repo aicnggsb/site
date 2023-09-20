@@ -10,12 +10,12 @@ body {
 }
 
 header, main, footer {
-    background-color: rgba(0, 0, 0, 0.7); /* Noir avec 70% d'opacité */
+    background-color: rgba(0, 0, 0, 0.7);
+    /* Noir avec 70% d'opacité */
     padding: 20px;
     margin: 10px;
     border-radius: 8px;
 }
-
 
 nav ul {
     list-style-type: none;
@@ -32,14 +32,17 @@ nav a {
     text-decoration: none;
 }
 
-
 /* Style mis à jour spécifique à la page des élèves */
 .eleve {
     display: flex;
-    border-bottom: 2px solid #1e90ff;
+    border: 1px solid rgba(255, 255, 255, 0.5); /* Bordure autour de chaque bloc d'atelier */
+	border-radius: 8px; /* Arrondit les coins */
     margin: 20px 0;
-    padding: 10px 0;
-    background-color: rgba(0, 0, 255, 0.2); /* Bleu avec 20% d'opacité */
+    padding: 20px 10px;
+    background-color: rgba(0, 0, 255, 0.2);
+	
+	    
+
 }
 
 .eleve figure {
@@ -67,4 +70,74 @@ nav a {
 nav a.active {
     font-weight: bold;
     text-decoration: underline;
+}
+
+.competence {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: rgba(0, 0, 255, 0.4);
+    /* Bleu avec 40% d'opacité */
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    /* Bordure blanche avec 50% d'opacité */
+    border-radius: 5px;
+}
+
+.competence .etoiles {
+    font-size: 1.5em;
+}
+
+.eleve-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.infos {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.atelier {
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.5); /* Bordure autour de chaque bloc d'atelier */
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 8px; /* Arrondit les coins */
+    background-color: rgba(0, 0, 255, 0.2); /* Fond bleuté */
+}
+
+.atelier img {
+    flex-shrink: 0;  /* Évite que l'image soit réduite */
+    width: 150px;   /* Largeur de l'image */
+    height: 150px;  /* Hauteur de l'image */
+    object-fit: cover;  /* Assure que l'image couvre l'espace sans déformation */
+    border-radius: 50%;  /* Rend l'image circulaire */
+    margin-right: 20px;  /* Espace entre l'image et le contenu */
+}
+
+.atelier-content {
+    flex-grow: 1;  /* Permet au contenu de prendre tout l'espace restant */
+}
+
+.atelier h3 {
+    margin-top: 0;
+}
+
+.atelier a {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 5px 10px;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #fff;
+    background-color: #1e90ff;
+    transition: background-color 0.3s;
+}
+
+.atelier a:hover {
+    background-color: #0000ff;
 }
