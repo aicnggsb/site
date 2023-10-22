@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votre Histoire</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="scripts.js" defer></script>
+	<script type="application/xml" id="histoireXML">
+		<histoire>
+			<scene id="1">
+				<titre>Le réveil</titre>
+				<image>image/01.jfif</image>
+				<description>Vous vous éveillez dans une capsule en orbite autour d'une planète mystérieuse. Sans souvenir de comment vous êtes arrivé là, une alarme vous avertit que la capsule va s'auto-détruire dans 10 minutes.</description>
+				<description>
+				En cherchant une échappatoire, vous découvrez une combinaison spatiale à propulseur, une radio d'urgence et une capsule de sauvetage solaire. Que faites-vous ?</description>
+				<choix>
+					<option vers="35">Vous enfilez la combinaison spatiale et vous activez le propulseur dorsal pour sortir de la capsule et tenter d’atterrir sur la planète.</option>
+					<option vers="86">Vous prenez la radio portable et vous appelez à l’aide sur la fréquence d’urgence en espérant qu’un vaisseau passe dans les environs</option>
+					<option vers="99">Vous entrez dans la capsule de sauvetage et vous essayez de la réparer avec vos connaissances en électricité.</option>
+				</choix>
+			</scene>
+			<scene id="2">
+				<titre>l'origine du bruit</titre>
+				<image>image/02.jfif</image>
+				<description>Vous décidez de partir à la recherche de l'origine des bruits. Vous avancez avec prudence à travers les ruines, guidé par le bruit sourd qui se fait de plus en plus intense.</description>
+				<description>
+				Vous finissez par arriver devant une grande porte en métal, recouverte de symboles étranges. Vous remarquez également que le cristal que vous avez récupéré brille de plus en plus intensément. Vous vous demandez si vous êtes prêt à découvrir ce qui se cache derrière cette porte.</description>
+				<choix>
+					<option vers="36">Vous ouvrez la porte en metal</option>
+				</choix>
+			</scene>
+			<scene id="3">
+				<titre>Exploration</titre>
+				<image>image/03.jfif</image>
+				<description>Vous décidez d'explorer la planète inconnue sur laquelle vous vous trouvez. </description>
+				<description>Au loin, vous apercevez un nuage de fumée qui s'élève dans le ciel, obscurcissant le soleil déjà faible de cette planète lointaine. Vous décidez de vous rapprocher pour en savoir plus. </description>
+				<description>Au fur et à mesure que vous avancez, vous remarquez que la fumée provient d'un groupe de bâtiments en ruine. Leur apparence décrépite et abandonnée vous met mal à l'aise.</description>
+				<description>Vous vous demandez ce qui a bien pu se passer ici.</description>
+				<choix>
+					<option vers="27">Explorer les ruines</option>
+					<option vers="65">S'éloigner des ruines en allant vers l'ouest</option>
+					<option vers="99">S'éloigner des ruines en allant vers le sud</option>
+				</choix>
+			</scene>
+			<scene id="4">
+				<titre>Le laboratoire</titre>
+				<image>image/04.jfif</image>
+				<description>Alors que vous fouillez le laboratoire à la recherche d'indices, l'atmosphère se fait de plus en plus oppressante. Les plantes mortes jonchant le sol ajoutent à l'ambiance lugubre. </description>
+				<description>Vous tombez sur un calepin étrange décrivant des phénomènes inexpliqués, accompagné de croquis d'une créature qui vous glace le sang. En continuant vos recherches, vous trouvez des manuels d'électricité et d'informatique, mais le silence pesant n'est interrompu que par le bruit angoissant provenant des canalisations, qui vous fait sursauter et regretter d'être venu ici. </description>
+				<description>Que faites-vous ?</description>
+				<choix>
+					<option vers="21">vous vous approchez de la machine au fond du laboratoire</option>
+					<option vers="15">Vous feuilletez le calepin</option>
+					<option vers="16">Vous feuilletez le manuel d'électricité</option>
+				</choix>
+			</scene>
+			<scene id="5">
+				<titre>Le cratère</titre>
+				<image>image/05.jfif</image>
+				<description>Vous choisissez la résistance Bleue. Vous coupez le courant avec un interrupteur et vous remplacez la résistance brûlée par la nouvelle. Vous remettez le courant et vous appuyez sur le bouton d’ouverture de la porte. Mais rien ne se passe ! La porte reste fermée et de la fumée se dégage du boitier !</description>
+				<description>Vous avez fait un mauvais choix ! En effet, avec votre nouvelle résistance, l’intensité du courant est trop forte. </description>
+				<description>La porte est maintenant définitivement condamnée.</description>
+				<choix>
+					<option vers="3">Vous partez explorer la région</option>
+				</choix>
+			</scene>
+			<scene id="6">
+				<titre>La fuite !</titre>
+				<image>image/06.jfif</image>
+				<description>Vous décidez de fuir la créature effrayante et de sortir de la pièce. Vous courez à travers les ruines, en entendant les grognements et les cris de la créature résonner derrière vous. </description>
+				<description>Vous vous rendez compte que vous êtes désormais poursuivi par plusieurs de ces créatures, et vous devez vous frayer un chemin à travers les ruines pour vous échapper.  </description>
+				<description>Finalement, vous atteignez le vaisseau abandonné et vous vous précipitez à l'intérieur pour vous cacher et récupérer votre souffle. Vous vous demandez si vous avez pris la bonne décision en venant sur cette planète, et si vous pourrez jamais trouver un moyen de vous échapper.</description>
+				<choix>
+					<option vers="40">Essayer de faire décoller le vaisseau</option>
+				</choix>
+			</scene>
+			<scene id="7">
+				<titre>Le laboratoire</titre>
+				<image>image/07.jfif</image>
+				<description>vous franchissez la porte du laboratoire plongé dans les ténèbres.</description>
+				<description>Seuls quelques écrans vacillants sur un bureau vous permettent de distinguer vaguement les contours de la pièce. Au fond, une machine sinistre se dresse comme une menace silencieuse. Des plantes fanées jonchent le sol, témoins d’une vie passée. Le laboratoire semble abandonné depuis longtemps, mais aussi ravagé par une force inconnue. Vous ressentez une tension électrique dans l’air, comme si quelque chose allait se déclencher. </description>
+				<description>Vous espérez pouvoir trouver un moyen de communiquer avec l’extérieur grâce aux ordinateurs. Que faites-vous ?</description>
+				<choix>
+					<option vers="8">Vous avancez vers les écrans pour essayer d’émettre un signal de détresse</option>
+					<option vers="13">vous vous approchez de la machine</option>
+				</choix>
+			</scene>
+			<scene id="8">
+				<titre>Le laboratoire</titre>
+				<image>image/07.jfif</image>
+				<description>Vous avancez vers les écrans dans l’espoir de trouver un moyen de contacter quelqu’un. Un des écrans attire votre attention: il affiche un terminal de commande avec un langage que vous connaissez: le Python</description>
+				<description>Vous avez quelques notions de base en Python et vous pouvez décider de tenter votre chance en analysant le programme.</description>
+				<description>Que faites-vous ?</description>
+				<choix>
+					<option vers="800">Vous analysez le programme</option>
+					<option vers="13">Vous vous approchez de la machine présente au fond du laboratoire</option>
+				</choix>
+			</scene>
+			<scene id="800">
+				<titre>Le laboratoire</titre>
+				<image>image/07.jfif</image>
+				<description  img="image/08.jfif">Vous observez que le programme utilise des variables et des opérateurs. Une variable est un nom qui représente une valeur ou un objet. Un opérateur est un symbole qui permet de réaliser une action sur des variables ou des valeurs.</description>
+				<description>Vous analysez le code et vous comprenez qu’il s’agit d’un programme qui vérifie si le mot de passe saisi par l’utilisateur est correct pour accéder au système.</description>
+				<description>Un autre terminal demande un mot de passe, que faites-vous ?</description>
+				<choix>
+					<option vers="801">Vous saisissez un mot de passe sur l'autre terminal</option>
+					<option vers="13">Vous abandonnez le programme et vous approchez de la machine présente au fond du laboratoire</option>
+				</choix>
+			</scene>
+			<scene id="801">
+				<titre>Le laboratoire</titre>
+				<image>image/07.jfif</image>
+				<description img="image/08.jfif">Quel mot de passe allez vous saisir ?</description>
+				<choix>
+					<option vers="9" points="10">secret</option>
+					<option vers="802">password</option>
+					<option vers="803">granted</option>
+					<option vers="803">passe</option>
+					<option vers="803">1234</option>
+					<option vers="803">L@b0r@toire</option>
+				</choix>
+			</scene>
+			<scene id="802">
+				<titre>Le laboratoire</titre>
+				<image>image/07.jfif</image>
+				<description img="image/08.jfif">Ce n'est pas le bon mot de passe. "password" semble être le nom de la variable qui contient le mot de passe.</description>
+				<description>Quel mot de passe allez vous saisir ?</description>
+				<choix>
+					<option vers="9">secret</option>
+					<option vers="802">password</option>
+					<option vers="803">granted</option>
+					<option vers="803">passe</option>
+					<option vers="803">1234</option>
+					<option vers="803">L@b0r@toire</option>
+				</choix>
+			</scene>
+			<scene id="803">
+				<titre>Le laboratoire</titre>
+				<image>image/07.jfif</image>
+				<description img="image/08.jfif">Ce n'est pas le bon mot de passe.</description>
+				<description>Quel mot de passe allez vous saisir ?</description>
+				<choix>
+					<option vers="9">secret</option>
+					<option vers="802">password</option>
+					<option vers="803">granted</option>
+					<option vers="803">passe</option>
+					<option vers="803">1234</option>
+					<option vers="803">L@b0r@toire</option>
+				</choix>
+			</scene>
+			<scene id="9">
+				<titre>Le laboratoire</titre>
+				<image>image/07.jfif</image>
+				<description>Le système vous donne accès aux fichiers. Vous remarquez que beaucoup ont été effacés dans l’urgence, mais que d’autres sont encore exploitables car mal supprimés. </description>
+				<description>Vous décidez de lire les journaux de bord. Vous espérez y trouver des indices sur ce qui s’est passé ici. Vous ouvrez le premier fichier et vous lisez les entrées des derniers mois. </description>
+				<description>Le journal de bord parle d’un portail qui a été activé pour la première fois il y a six mois, et qui a envoyé un drone dans un autre univers. Le drone est revenu avec des échantillons de plantes et de minéraux bizarres, mais il n’était pas seul. En lisant le journal, vous avez du mal à suivre.</description>
+				<choix>
+					<option vers="10">vous continuez à fouiller les fichiers</option>
+				</choix>
+			</scene>
+			<scene id="10">
+				<titre>Le laboratoire</titre>
+				<image>image/07.jfif</image>
+				<description>Les entrées parlent de phénomènes étranges qui se sont produits depuis l’activation du portail. Des anomalies électromagnétiques et des distorsions temporelles ont commencé à se manifester, perturbant les systèmes du laboratoire et affectant la santé mentale de l’équipe de recherche. </description>
+				<description>Les chercheurs ont commencé à observer des créatures étranges et hostiles qui semblaient provenir d’un autre univers. Les dernières entrées font état d’une évacuation d’urgence due à une augmentation soudaine de l’activité du portail et des attaques des créatures. Vous comprenez maintenant que vous êtes dans un laboratoire de recherche qui a été abandonné suite à une expérience de voyage interdimensionnel qui a mal tourné.</description>
+				<choix>
+					<option vers="11">vous continuez à fouiller l'ordinateur à la recherche d'un moyen d'envoyer un signal de détresse</option>
+				</choix>
+			</scene>
+			<scene id="11">
+				<titre>Le laboratoire</titre>
+				<image>image/07.jfif</image>
+				<description>En explorant davantage l'ordinateur, vous tombez sur un programme en Python permettant d'envoyer un message vers l'extérieur via un satellite. Cependant, il y a une erreur dans le programme qui empêche son exécution.  </description>
+
+				<choix>
+					<option vers="11001">Analyser le programme</option>
+				</choix>
+			</scene>
+			<scene id="11001">
+				<titre>Le laboratoire</titre>
+				<image>image/07.jfif</image>
+				<description img="image/11.jfif">En examinant le programme en python, vous remarquez que la formule utilisée pour calculer la distance entre le laboratoire et le satellite est très similaire au théorème de Pythagore.</description>
+				<description>Vous réalisez que la variable "X" n'a pas été définie dans le programme. Vous devez donc la remplacer par une autre variable appropriée. Quel nom de variable conviendrait le mieux ?</description>
+				<choix>
+					<option vers="1100">vous proposez "D" comme nom de variable</option>
+					<option vers="1100">vous proposez "d" comme nom de variable</option>
+					<option vers="12" points="10">vous proposez "h" comme nom de variable</option>
+					<option vers="1100">vous proposez "X" comme nom de variable</option>
+					<option vers="1100">vous proposez "Y" comme nom de variable</option>
+				</choix>
+			</scene>
+			<scene id="1100">
+				<titre>Le laboratoire</titre>
+				<image>image/07.jfif</image>
+				<description img="image/11.jfif">Ce n'est pas ça. Proposez un autre nom de variable</description>
+				<choix>
+					<option vers="1100">vous proposez "D" comme nom de variable</option>
+					<option vers="1100">vous proposez "d" comme nom de variable</option>
+					<option vers="12"  >vous proposez "h" comme nom de variable</option>
+					<option vers="1100">vous proposez "X" comme nom de variable</option>
+					<option vers="1100">vous proposez "Y" comme nom de variable</option>
+				</choix>
+			</scene>
+			<scene id="12">
+				<titre>Le laboratoire</titre>
+				<image>image/07.jfif</image>
+				<description>Après avoir corrigé le programme, vous sauvegardez les modifications et lancez le programme. Les informations s'affichent rapidement à l'écran, vous confirmant que votre signal de détresse a été transmis avec succès. Une vague de soulagement vous envahit alors que vous réalisez que vous avez peut-être une chance d'être secouru.</description>
+				<description>Cependant, cette lueur d'espoir est de courte durée car vous commencez à ressentir une présence étrange et menaçante. Un frisson vous parcourt l'échine et vous décidez qu'il est temps de quitter ce laboratoire au plus vite</description>
+				<description>Que faites-vous ?</description>
+				<choix>
+					<option vers="21">vous vous approchez de la machine présente dans le laboratoire</option>
+					<option vers="4">vous explorez le laboratoire à la recherche d’indices</option>
+					
+				</choix>
+			</scene>
+			<scene id="13">
+				<titre>Le portail</titre>
+				<image>image/13.jfif</image>
+				<description>Vous vous approchez de la machine imposante. Vous réalisez alors qu'il s'agit d'un portail interdimensionnel. </description>
+				<description>Les câbles, qui pendaient autrefois au-dessus du portail, ont été arrachés dans la panique. Certains panneaux de contrôle sont gravement endommagés et les lumières qui scintillaient autrefois le long du bord du portail sont maintenant éteintes. La zone autour du portail est plongée dans l'obscurité la plus totale. Une odeur de brûlé flotte dans l'air et le silence est pesant. </description>
+				<description>Cette machine, qui a autrefois été un portail interdimensionnel, semble maintenant être devenue un symbole de la désolation et de l'abandon.</description>
+				<description>Que faites-vous ?</description>
+				<choix>
+					<option vers="8">Vous avancez vers les écrans pour essayer d’émettre un signal de détresse</option>				
+				</choix>
+			</scene>
+			<scene id="14">
+				<titre>Le laboratoire</titre>
+				<image>image/14.jfif</image>
+				<description>Vous choisissez la résistance Grise. Vous coupez le courant avec un interrupteur et vous remplacez la résistance brûlée par la nouvelle. Vous remettez le courant et vous entendez un déclic : la porte s’ouvre ! </description>
+				<description>Vous avez fait le bon choix ! Avec les autres résistances, l’intensité du courant aurait été trop forte, et donc la tension aux bornes du boîtier aurait été trop différente de celle d’origine.</description>
+				<description>Vous entrez dans le laboratoire en espérant y trouver des réponses à vos questions.</description>
+				<choix>
+					<option vers="7">Entrer dans le laboratoire</option>				
+				</choix>
+			</scene>
+			<scene id="15">
+				<titre>Le laboratoire</titre>
+				<image>image/15.jfif</image>
+				<description>Dans le calepin, vous pouvez lire des notes détaillées sur des phénomènes étranges, tels que des fluctuations de l'énergie et des perturbations de la gravité, ainsi que des croquis de ce qui semble être une créature effrayante. Les notes indiquent que ces phénomènes sont liés à des expériences menées sur le portail interdimensionnel.</description>
+				<description>Que faites-vous ?</description>
+				<choix>
+					<option vers="16">Vous feuilletez le manuel d'électricité</option>				
+				</choix>
+			</scene>
+			<scene id="16">
+				<titre>Le laboratoire</titre>
+				<image>image/16.png</image>
+				<description>Malgré les bruits qui deviennent de plus en plus proches, vous parcourez le manuel d'électricité et découvrez plusieurs informations intéressantes que vous prenez soigneusement en note. Vous avez l'intuition que ces connaissances pourront vous être utiles plus tard.</description>
+				<description>Que faites-vous ?</description>
+				<choix>
+					<option vers="1601" points="5">Vous regardez la définition du circuit electrique</option>	
+					<option vers="17">Vous continuez à feuilleter le manuel d'électricité</option>				
+				</choix>
+			</scene>
+			<scene id="1601">
+				<titre>Le laboratoire</titre>
+				<image>image/16.png</image>
+				<description>Vous lisez: </description>
+				<description>Un circuit électrique est comme un parcours que l'électricité emprunte pour circuler. Ce parcours est composé de fils conducteurs et d'autres éléments électriques.</description>
+				<description>Pour qu'il y ait du courant, il faut que ce parcours soit fermé, c'est-à-dire qu'il forme une boucle. Pour fermer le parcours, il faut un générateur, qui est un appareil capable de fournir de l'électricité. Les piles, les batteries, les panneaux solaires, les dynamos, les alternateurs sont des exemples de générateurs. En plus du générateur, il faut aussi un récepteur, qui est un appareil qui consomme de l'électricité.</description>
+				<choix>
+					<option vers="17">Vous continuez à feuilleter le manuel d'électricité</option>				
+				</choix>
+			</scene>
+			<scene id="17">
+				<titre>Le laboratoire</titre>
+				<image>image/16.png</image>
+				<description>Vous poursuivez votre lecture attentive du manuel d'électricité, inscrivant soigneusement les informations importantes dans votre calepin, même si l'atmosphère du laboratoire se fait de plus en plus oppressante.Vous êtes déterminé à en apprendre le plus possible malgré les bruits inquiétants qui continuent de résonner dans les canalisations.</description>
+				<description>Que faites-vous ?</description>
+				<choix>
+					<option vers="1701" points="5">Vous regardez la définition du courant electrique</option>	
+					<option vers="18">Vous continuez à feuilleter le manuel d'électricité</option>				
+				</choix>
+			</scene>
+			<scene id="1701">
+				<titre>Le laboratoire</titre>
+				<image>image/16.png</image>
+				<description>Le courant électrique est un mouvement de porteurs de charges électriques, tels que les électrons.</description>
+				<description img="image/17.png">Ce mouvement est représenté par la lettre I et se mesure en ampères. Par convention, le courant électrique est orienté dans le sens inverse du déplacement des électrons. Cela signifie que le courant sort de la borne positive (+) du générateur et se dirige vers la borne négative (-) de ce dernier.</description>
+				<description>Pour mesurer l'intensité du courant électrique, se mesure à l'aide d'un ampèremètre</description>
+				<choix>
+					<option vers="18">Vous continuez à feuilleter le manuel d'électricité</option>				
+				</choix>
+			</scene>
+			<scene id="18">
+				<titre>Le laboratoire</titre>
+				<image>image/16.png</image>
+				<description>Le manuel d'électricité est une mine d'informations précieuses sur les principes fondamentaux de l'électricité. Vous y découvrez les différentes lois régissant les circuits électriques, comme la loi d'Ohm. Vous apprenez également les notions de tension, de courant, de résistance et de puissance, ainsi que leurs unités de mesure. </description>
+				<description>Malgré les bruits de plus en plus inquiétants qui résonnent dans le laboratoire, vous continuez à vous plonger dans la lecture de ce manuel fascinant, conscient que ces connaissances pourraient vous être d'une grande utilité pour résoudre les mystères de ce lieu étrange.</description>
+				<description>Que faites-vous ?</description>
+				<choix>
+					<option vers="1801" points="5">Vous regardez la définition de la tension electrique</option>	
+					<option vers="22">Vous continuez à feuilleter le manuel d'électricité</option>		
+					<option vers="19">Vous feuilletez le manuel d'informatique</option>				
+				</choix>
+			</scene>
+			<scene id="1801">
+				<titre>Le laboratoire</titre>
+				<image>image/16.png</image>
+				<description>La tension electrique</description>
+				<description img="image/18.png">Le passage du courant électrique entre deux points A et B d'une portion de circuit n'est possible que s'il existe entre ces deux points une force capable de mettre en mouvement les charges électriques. Cette force s’appelle une différence de potentiel ou le plus souvent une tension.</description>
+				<description>Dans un schéma électrique, une tension (aux bornes d’un générateur par exemple) sera représentée par une flèche. Si la tension est positive, alors la pointe de la flèche indique la borne PLUS du générateur et l'origine de la flèche indique la borne MOINS. La tension électrique présente aux bornes d'un composant se mesure à l'aide d'un voltmètre. Le voltmètre se branche en dérivation.</description>
+				<choix>
+					<option vers="22">Vous continuez à feuilleter le manuel d'électricité</option>		
+					<option vers="19">Vous feuilletez le manuel d'informatique</option>	
+					
+				</choix>
+			</scene>
+			<scene id="19">
+				<titre>Le laboratoire</titre>
+				<image>image/19.png</image>
+				<description>Malgré les bruits qui se rapprochent inexorablement, vous poursuivez votre lecture du manuel d'informatique, obnubilé par les connaissances que vous y découvrez.</description>
+				<description>Vous ne pouvez vous empêcher de prendre des notes minutieuses, comme si votre vie en dépendait. La tension dans l'air est telle que vous avez l'impression que chaque seconde peut être la dernière.</description>
+				<description>Que faites-vous ?</description>
+				<choix>
+					<option vers="1901" points="5">Vous regardez la définition d'un programme</option>	
+					<option vers="20">Vous continuez à feuilleter le manuel d'informatique</option>		
+					<option vers="23">Vous recherchez l'origine de ce bruit</option>				
+				</choix>
+			</scene>
+			<scene id="1901">
+				<titre>Le laboratoire</titre>
+				<image>image/19.png</image>
+				<description>Un programme est un texte qui décrit un algorithme que l'on souhaite faire exécuter par une machine. Ce texte est décrit dans un langage particulier, appelé langage de programmation.</description>
+				<description> Il existe plusieurs milliers de langages de programmation, parmi lesquels: Python, Java, C, Caml, Fortran, Cobol... Il n'est cependant pas nécessaire d'apprendre ces langages les uns après les autres, car ils sont tous plus ou moins organisés autour des mêmes notions: affectation, séquence, test, boucle, fonction....  Ce sont ces notions qu'il importe de comprendre.</description>
+				<choix>
+					<option vers="20">Vous continuez à feuilleter le manuel d'informatique</option>		
+					<option vers="23">Vous recherchez l'origine de ce bruit</option>				
+				</choix>
+			</scene>
+			<scene id="20">
+				<titre>Le laboratoire</titre>
+				<image>image/19.png</image>
+				<description>Alors que vous feuilletez le manuel d'informatique, vous sentez une présence sinistre qui semble vous observer de près.</description>
+				<description>Les bruits étranges des canalisations se sont tus, vous laissant avec un silence oppressant. C'est alors que vous entendez un grognement sourd venant d'un endroit indéfini. Vous ne pouvez plus ignorer l'atmosphère étrange et dangereuse qui règne dans le laboratoire. </description>
+				<description>Que faites-vous ?</description>
+				<choix>
+					<option vers="2001" points="5">Vous vous attardez sur queleques définitions en informatique</option>	
+					<option vers="23">Vous recherchez l'origine de ce bruit</option>				
+				</choix>
+			</scene>
+			<scene id="2001">
+				<titre>Le laboratoire</titre>
+				<image>image/19.png</image>
+				<description>En Python, les variables sont des emplacements de stockage temporaires pour des données. Elles permettent de stocker des valeurs comme des nombres, des chaînes de caractères ou des listes et de les utiliser dans un programme. Par exemple, on peut déclarer une variable "age" et y assigner une valeur comme "20". On peut ensuite utiliser cette variable dans le programme pour effectuer des opérations telles que des calculs mathématiques ou des conditions.</description>
+				<description>Les opérateurs, quant à eux, sont des symboles ou des mots-clés qui permettent de réaliser des opérations sur des variables ou des valeurs. Il existe différents types d'opérateurs en Python, tels que les opérateurs mathématiques (+, -, *, /), les opérateurs de comparaison (==, !=,...) ou encore les opérateurs logiques (and, or, not). Ces opérateurs permettent de combiner ou de comparer des variables ou des valeurs pour réaliser des tâches spécifiques dans un programme.</description>
+				<choix>	
+					<option vers="23">Vous recherchez l'origine de ce bruit</option>				
+				</choix>
+			</scene>
+			<scene id="21">
+				<titre>Le portail</titre>
+				<image>image/13.png</image>
+				<description>Vous vous approchez de la machine imposante. Vous réalisez alors qu'il s'agit d'un portail interdimensionnel. </description>
+				<description>Les câbles, qui pendaient autrefois au-dessus du portail, ont été arrachés dans la panique. Certains panneaux de contrôle sont gravement endommagés et les lumières qui scintillaient autrefois le long du bord du portail sont maintenant éteintes. La zone autour du portail est plongée dans l'obscurité la plus totale. Une odeur de brûlé flotte dans l'air et le silence est pesant.</description>
+				<description>Cette machine, qui a autrefois été un portail interdimensionnel, semble maintenant être devenue un symbole de la désolation et de l'abandon.</description>
+				<choix>
+					<option vers="4">vous explorez le laboratoire à la recherche d’indices</option>				
+				</choix>
+			</scene>
+			<scene id="22">
+				<titre>Le laboratoire</titre>
+				<image>image/22.png</image>
+				<description>Alors que vous feuilletez le manuel d'électricité, vous sentez une présence sinistre qui semble vous observer de près. Les bruits étranges des canalisations se sont tus, vous laissant avec un silence oppressant. C'est alors que vous entendez un grognement sourd venant d'un endroit indéfini. Vous ne pouvez plus ignorer l'atmosphère étrange et dangereuse qui règne dans le laboratoire.</description>
+				<choix>
+					<option vers="19">Vous passez rapidement au manuel d'informatique</option>	
+					<option vers="23">Vous recherchez l'origine de ce bruit</option>								
+				</choix>
+			</scene>
+			<scene id="23">
+				<titre>Le laboratoire</titre>
+				<image>image/22.png</image>
+				<description>Alors que vous arrêtez de feuilleter les manuels, une ambiance de plus en plus oppressante vous enveloppe. Vous sentez votre cœur battre la chamade dans votre poitrine alors que vous décidez de vous aventurer vers le fond du laboratoire pour trouver l'origine des bruits inquiétants. </description>
+				<description>Vos pas résonnent dans la pièce sombre et lugubre remplie d'étagères encombrées de flacons et de livres poussiéreux. Le faible éclairage vacillant des ampoules métalliques rouillées ne fait qu'ajouter à votre anxiété grandissante. </description>
+				<description>Votre regard est attiré par une porte en bois délabrée qui se trouve au fond de la pièce. Les bruits semblent venir de derrière cette porte et votre respiration se fait de plus en plus rapide alors que vous vous approchez. Soudain, vous entendez une respiration mêlée de grognements qui vous glace le sang.</description>
+				<choix>
+					<option vers="24">Vous ouvrez la porte</option>	
+					<option vers="25">Vous quittez ce laboratoire par une autre issue</option>								
+				</choix>
+			</scene>
+			<!-- ... autres scènes ... -->
+		</histoire>
+	</script>
+
+</head>
+<body>
+
+    <div class="scene-container">
+        <div class="scene-image">
+            <img src="" alt="Scène image">
+        </div>
+   
+
+		<div class="scene-content">
+			<h1></h1>
+			<span class="score">Score: <span class="score-value">0</span></span>
+			<div class="descriptions">
+				<!-- Les descriptions seront injectées ici -->
+			</div>
+			<div class="player-choices">
+				<button></button>
+				<button></button>
+				<button></button>
+			</div>
+			<div class="scene-number"></div>
+		</div>
+
+
+
+    </div>
+
+</body>
+</html>

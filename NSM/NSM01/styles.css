@@ -1,0 +1,108 @@
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: radial-gradient(circle, rgba(12,12,31,1) 0%, rgba(0,0,0,1) 100%);
+    color: #FFF;
+}
+.descriptions img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 10px auto;  /* Centre l'image horizontalement */
+}
+
+.scene-container {
+    display: flex;
+    border: 2px solid #444;
+    background-color: rgba(20, 20, 50, 0.8); /* Fond semi-transparent */
+    box-shadow: 0 0 20px rgba(0,0,255,0.5); /* Ombre bleutée */
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.scene-image {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.scene-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* pour s'assurer que l'image est entièrement visible */
+    object-position: center; /* centrage de l'image */
+}
+
+
+.scene-image:hover img {
+    opacity: 1;
+}
+
+.scene-content {
+    flex: 2;
+    padding: 20px;
+    border-left: 2px solid #444;
+}
+
+.scene-content h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    border-bottom: 1px dashed #555;
+    padding-bottom: 10px;
+}
+
+.scene-content p {
+    margin-top: 20px;
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+.player-choices {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+.scene-number {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+}
+.score {
+    background-color: {background_color};
+    color: {text_color};
+    border: {border_style};
+    padding: {padding};
+    font-size: {font_size};
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-radius: 5px;
+    z-index: 10;
+}
+
+
+
+button {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: rgba(0,0,50,0.8);
+    border: 1px solid #444;
+    border-radius: 5px;
+    color: #FFF;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+button:hover {
+    background-color: rgba(0,0,100,0.8);
+    transform: scale(1.05);
+}
+
+button:active {
+    transform: scale(1);
+}
+
