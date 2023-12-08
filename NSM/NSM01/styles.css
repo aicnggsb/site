@@ -1,108 +1,157 @@
-body {
-    font-family: 'Arial', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background: radial-gradient(circle, rgba(12,12,31,1) 0%, rgba(0,0,0,1) 100%);
-    color: #FFF;
-}
-.descriptions img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin: 10px auto;  /* Centre l'image horizontalement */
-}
-
+/* Style général pour le conteneur principal */
 .scene-container {
     display: flex;
-    border: 2px solid #444;
-    background-color: rgba(20, 20, 50, 0.8); /* Fond semi-transparent */
-    box-shadow: 0 0 20px rgba(0,0,255,0.5); /* Ombre bleutée */
-    overflow: hidden;
-    border-radius: 8px;
+    align-items: start;
+    justify-content: space-between;
+    max-width: 1200px; /* Ajustez selon la largeur souhaitée */
+    margin: auto;
+    padding: 20px;
+    gap: 20px;
 }
 
+/* Style pour la partie image */
 .scene-image {
-    flex: 1;
-    overflow: hidden;
-    position: relative;
+    flex-basis: 40%; /* Ajustez la largeur de la colonne image */
 }
 
 .scene-image img {
     width: 100%;
-    height: 100%;
-    object-fit: contain; /* pour s'assurer que l'image est entièrement visible */
-    object-position: center; /* centrage de l'image */
+    height: auto;
+    border-radius: 10px; /* Ajoute un bord arrondi à l'image */
 }
 
-
-.scene-image:hover img {
-    opacity: 1;
-}
-
+/* Style pour le contenu de la scène */
 .scene-content {
-    flex: 2;
-    padding: 20px;
-    border-left: 2px solid #444;
+    flex-basis: 55%; /* Ajustez la largeur de la colonne contenu */
+    display: flex;
+    flex-direction: column;
 }
 
+/* Style pour le score */
+.score {
+    align-self: flex-end; /* Aligner le score à droite */
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Style pour le titre de la scène */
 .scene-content h1 {
     font-size: 24px;
-    margin-bottom: 10px;
-    border-bottom: 1px dashed #555;
-    padding-bottom: 10px;
+    color: #003366;
+    margin: 10px 0;
+    position: relative; /* Important pour positionner le séparateur */
+    padding-bottom: 15px; /* Espace pour le séparateur */
 }
 
-.scene-content p {
-    margin-top: 20px;
-    font-size: 18px;
-    line-height: 1.5;
+/* Style pour le séparateur */
+.scene-content h1::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50%; /* Ajustez la longueur du séparateur selon vos préférences */
+    height: 3px; /* Ajustez l'épaisseur du séparateur */
+    background-color: #000000; /* Ajustez la couleur du séparateur */
+    border-radius: 2px; /* Pour des bords légèrement arrondis */
 }
 
+
+/* Style pour les descriptions */
+.descriptions {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Style pour le conteneur des choix du joueur */
 .player-choices {
     display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
+    flex-direction: column; /* Alignement vertical des boutons */
+    align-items: stretch; /* Étire les boutons pour qu'ils prennent toute la largeur disponible */
 }
-.scene-number {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
-}
-.score {
-    background-color: {background_color};
-    color: {text_color};
-    border: {border_style};
-    padding: {padding};
-    font-size: {font_size};
-    position: absolute;
-    top: 0;
-    right: 0;
+
+/* Style pour chaque bouton de choix */
+.player-choices button {
+    padding: 10px;
+    margin-top: 10px; /* Espace entre les boutons */
+    background-color: #e0e0e0;
+    border: none;
     border-radius: 5px;
-    z-index: 10;
-}
-
-
-
-button {
-    padding: 10px 20px;
     cursor: pointer;
-    background-color: rgba(0,0,50,0.8);
-    border: 1px solid #444;
-    border-radius: 5px;
-    color: #FFF;
-    transition: background-color 0.3s, transform 0.3s;
+    transition: background-color 0.3s;
+    text-align: left; /* Aligne le texte à gauche */
 }
 
-button:hover {
-    background-color: rgba(0,0,100,0.8);
-    transform: scale(1.05);
+/* Le premier bouton ne doit pas avoir de marge au-dessus */
+.player-choices button:first-child {
+    margin-top: 0;
 }
 
-button:active {
-    transform: scale(1);
+/* Ajoute un hover pour un feedback visuel lors du survol */
+.player-choices button:hover {
+    background-color: #c0c0c0;
 }
 
+
+/* Style pour le numéro de la scène */
+.scene-number {
+    font-size: 16px;
+    color: #666;
+    margin-top: 10px;
+}
+
+pre {
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    padding: 10px;
+    font-family: 'Courier New', monospace;
+    overflow: auto;
+}
+
+.header-bandeau {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 99%;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #333;
+  color: white;
+  font-family: 'Arial', sans-serif;
+  z-index: 1000; /* Assurez-vous que le bandeau reste au-dessus des autres éléments */
+}
+
+body {
+  padding-top: 60px; /* Ajoutez un padding en haut pour éviter que le contenu soit masqué par le bandeau */
+  padding-bottom: 50px; 
+}
+
+.score {
+  font-size: 18px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.player-stats {
+  position: fixed; /* fixe le bandeau en bas */
+  bottom: 0; /* positionne en bas de la fenêtre */
+  left: 0; /* étend sur toute la largeur */
+  width: 100%; /* étend sur toute la largeur */
+  display: flex;
+  justify-content: space-around;
+  background-color: #333; /* couleur de fond */
+  color: white; /* couleur du texte */
+  padding: 10px;
+  font-size: 18px;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3); /* ombre pour un effet de profondeur */
+  z-index: 1000; /* s'assure qu'il reste au-dessus des autres éléments */
+}
+
+.player-stats span {
+  margin: 0 10px;
+}

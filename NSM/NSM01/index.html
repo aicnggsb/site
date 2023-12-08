@@ -8,9 +8,40 @@
     <script src="scripts.js" defer></script>
 	<script type="application/xml" id="histoireXML">
 		<histoire>
+			<scene id="P0">
+				<titre>La Naissance d'un Héros</titre>
+				<image>image/P0.png</image>
+				<description>Alors que vous vous apprêtez à plonger dans les mystères de l'univers, une question demeure : Qui êtes-vous réellement dans ce vaste cosmos ? Votre nature influencera votre aventure. Répondez instinctivement aux questions suivantes pour découvrir votre essence.</description>
+				<description>Face à une énigme ancienne, quel est votre premier instinct ?</description>
+				<choix>
+					<option vers="P1" chance="1" force="-1" dexterite="-1">Je m'en remets à mon intuition, souvent, elle me guide vers des solutions inattendues.</option>
+					<option vers="P1" chance="-1" force="1" dexterite="-1">Je me concentre sur les éléments physiques du problème, ils offrent souvent une solution directe.</option>
+					<option vers="P1" chance="-1" force="-1" dexterite="1">Je prends le temps d'observer et d'analyser, chaque détail pourrait être la clé.</option>
+				</choix>
+			</scene>
+			<scene id="P1">
+				<titre>La Naissance d'un Héros</titre>
+				<image>image/P1.png</image>
+				<description>Lorsqu'un obstacle se dresse sur votre chemin, quelle est votre réaction naturelle ?</description>
+				<choix>
+					<option vers="P2" chance="1" force="-1" dexterite="-1">Je mise sur l'imprévu, souvent, les situations se résolvent d'elles-mêmes de manière inattendue.</option>
+					<option vers="P2" chance="-1" force="1" dexterite="-1">Je fais face directement, convaincu que la persévérance et la force sont les meilleures réponses.</option>
+					<option vers="P2" chance="-1" force="-1" dexterite="1">Je cherche des solutions alternatives, parfois la réponse n'est pas la plus évidente.</option>
+				</choix>
+			</scene>
+			<scene id="P2">
+				<titre>La Naissance d'un Héros</titre>
+				<image>image/P2.png</image>
+				<description>Dans une situation où chaque seconde compte, quelle approche privilégiez-vous ?</description>
+				<choix>
+					<option vers="1" chance="1" force="-1" dexterite="-1">Je me fie à mon feeling, parfois une décision spontanée est la meilleure</option>
+					<option vers="1" chance="-1" force="1" dexterite="-1">Je m'attaque au problème de front, en me fiant à ma capacité de gérer la pression.</option>
+					<option vers="1" chance="-1" force="-1" dexterite="1">Je garde mon calme et me concentre sur les détails, ils mènent souvent à la solution.</option>
+				</choix>
+			</scene>
 			<scene id="1">
 				<titre>Le réveil</titre>
-				<image>image/01.jfif</image>
+				<image>image/01.png</image>
 				<description>Vous vous éveillez dans une capsule en orbite autour d'une planète mystérieuse. Sans souvenir de comment vous êtes arrivé là, une alarme vous avertit que la capsule va s'auto-détruire dans 10 minutes.</description>
 				<description>
 				En cherchant une échappatoire, vous découvrez une combinaison spatiale à propulseur, une radio d'urgence et une capsule de sauvetage solaire. Que faites-vous ?</description>
@@ -22,7 +53,7 @@
 			</scene>
 			<scene id="2">
 				<titre>l'origine du bruit</titre>
-				<image>image/02.jfif</image>
+				<image>image/02.png</image>
 				<description>Vous décidez de partir à la recherche de l'origine des bruits. Vous avancez avec prudence à travers les ruines, guidé par le bruit sourd qui se fait de plus en plus intense.</description>
 				<description>
 				Vous finissez par arriver devant une grande porte en métal, recouverte de symboles étranges. Vous remarquez également que le cristal que vous avez récupéré brille de plus en plus intensément. Vous vous demandez si vous êtes prêt à découvrir ce qui se cache derrière cette porte.</description>
@@ -32,7 +63,7 @@
 			</scene>
 			<scene id="3">
 				<titre>Exploration</titre>
-				<image>image/03.jfif</image>
+				<image>image/03.png</image>
 				<description>Vous décidez d'explorer la planète inconnue sur laquelle vous vous trouvez. </description>
 				<description>Au loin, vous apercevez un nuage de fumée qui s'élève dans le ciel, obscurcissant le soleil déjà faible de cette planète lointaine. Vous décidez de vous rapprocher pour en savoir plus. </description>
 				<description>Au fur et à mesure que vous avancez, vous remarquez que la fumée provient d'un groupe de bâtiments en ruine. Leur apparence décrépite et abandonnée vous met mal à l'aise.</description>
@@ -45,7 +76,7 @@
 			</scene>
 			<scene id="4">
 				<titre>Le laboratoire</titre>
-				<image>image/04.jfif</image>
+				<image>image/04.png</image>
 				<description>Alors que vous fouillez le laboratoire à la recherche d'indices, l'atmosphère se fait de plus en plus oppressante. Les plantes mortes jonchant le sol ajoutent à l'ambiance lugubre. </description>
 				<description>Vous tombez sur un calepin étrange décrivant des phénomènes inexpliqués, accompagné de croquis d'une créature qui vous glace le sang. En continuant vos recherches, vous trouvez des manuels d'électricité et d'informatique, mais le silence pesant n'est interrompu que par le bruit angoissant provenant des canalisations, qui vous fait sursauter et regretter d'être venu ici. </description>
 				<description>Que faites-vous ?</description>
@@ -57,7 +88,7 @@
 			</scene>
 			<scene id="5">
 				<titre>Le cratère</titre>
-				<image>image/05.jfif</image>
+				<image>image/05.png</image>
 				<description>Vous choisissez la résistance Bleue. Vous coupez le courant avec un interrupteur et vous remplacez la résistance brûlée par la nouvelle. Vous remettez le courant et vous appuyez sur le bouton d’ouverture de la porte. Mais rien ne se passe ! La porte reste fermée et de la fumée se dégage du boitier !</description>
 				<description>Vous avez fait un mauvais choix ! En effet, avec votre nouvelle résistance, l’intensité du courant est trop forte. </description>
 				<description>La porte est maintenant définitivement condamnée.</description>
@@ -67,7 +98,7 @@
 			</scene>
 			<scene id="6">
 				<titre>La fuite !</titre>
-				<image>image/06.jfif</image>
+				<image>image/06.png</image>
 				<description>Vous décidez de fuir la créature effrayante et de sortir de la pièce. Vous courez à travers les ruines, en entendant les grognements et les cris de la créature résonner derrière vous. </description>
 				<description>Vous vous rendez compte que vous êtes désormais poursuivi par plusieurs de ces créatures, et vous devez vous frayer un chemin à travers les ruines pour vous échapper.  </description>
 				<description>Finalement, vous atteignez le vaisseau abandonné et vous vous précipitez à l'intérieur pour vous cacher et récupérer votre souffle. Vous vous demandez si vous avez pris la bonne décision en venant sur cette planète, et si vous pourrez jamais trouver un moyen de vous échapper.</description>
@@ -77,7 +108,7 @@
 			</scene>
 			<scene id="7">
 				<titre>Le laboratoire</titre>
-				<image>image/07.jfif</image>
+				<image>image/04.png</image>
 				<description>vous franchissez la porte du laboratoire plongé dans les ténèbres.</description>
 				<description>Seuls quelques écrans vacillants sur un bureau vous permettent de distinguer vaguement les contours de la pièce. Au fond, une machine sinistre se dresse comme une menace silencieuse. Des plantes fanées jonchent le sol, témoins d’une vie passée. Le laboratoire semble abandonné depuis longtemps, mais aussi ravagé par une force inconnue. Vous ressentez une tension électrique dans l’air, comme si quelque chose allait se déclencher. </description>
 				<description>Vous espérez pouvoir trouver un moyen de communiquer avec l’extérieur grâce aux ordinateurs. Que faites-vous ?</description>
@@ -88,7 +119,7 @@
 			</scene>
 			<scene id="8">
 				<titre>Le laboratoire</titre>
-				<image>image/07.jfif</image>
+				<image>image/08.png</image>
 				<description>Vous avancez vers les écrans dans l’espoir de trouver un moyen de contacter quelqu’un. Un des écrans attire votre attention: il affiche un terminal de commande avec un langage que vous connaissez: le Python</description>
 				<description>Vous avez quelques notions de base en Python et vous pouvez décider de tenter votre chance en analysant le programme.</description>
 				<description>Que faites-vous ?</description>
@@ -99,9 +130,18 @@
 			</scene>
 			<scene id="800">
 				<titre>Le laboratoire</titre>
-				<image>image/07.jfif</image>
-				<description  img="image/08.jfif">Vous observez que le programme utilise des variables et des opérateurs. Une variable est un nom qui représente une valeur ou un objet. Un opérateur est un symbole qui permet de réaliser une action sur des variables ou des valeurs.</description>
+				<image>image/08.png</image>
 				<description>Vous analysez le code et vous comprenez qu’il s’agit d’un programme qui vérifie si le mot de passe saisi par l’utilisateur est correct pour accéder au système.</description>
+			
+				<description code="true">
+password ="secret"
+user_input = input("Enter the password")
+if user_input == password:
+	print("Access Granted")
+else:
+	print("Access denied")
+				</description>
+					<description >Vous observez que le programme utilise des variables et des opérateurs. Une variable est un nom qui représente une valeur ou un objet. Un opérateur est un symbole qui permet de réaliser une action sur des variables ou des valeurs.</description>
 				<description>Un autre terminal demande un mot de passe, que faites-vous ?</description>
 				<choix>
 					<option vers="801">Vous saisissez un mot de passe sur l'autre terminal</option>
@@ -110,8 +150,16 @@
 			</scene>
 			<scene id="801">
 				<titre>Le laboratoire</titre>
-				<image>image/07.jfif</image>
-				<description img="image/08.jfif">Quel mot de passe allez vous saisir ?</description>
+				<image>image/08.png</image>
+				<description>Quel mot de passe allez vous saisir ?</description>
+				<description code="true">
+password ="secret"
+user_input = input("Enter the password")
+if user_input == password:
+	print("Access Granted")
+else:
+	print("Access denied")
+				</description>
 				<choix>
 					<option vers="9" points="10">secret</option>
 					<option vers="802">password</option>
@@ -123,8 +171,16 @@
 			</scene>
 			<scene id="802">
 				<titre>Le laboratoire</titre>
-				<image>image/07.jfif</image>
-				<description img="image/08.jfif">Ce n'est pas le bon mot de passe. "password" semble être le nom de la variable qui contient le mot de passe.</description>
+				<image>image/08.png</image>
+				<description>Ce n'est pas le bon mot de passe. "password" semble être le nom de la variable qui contient le mot de passe.</description>
+				<description code="true">
+password ="secret"
+user_input = input("Enter the password")
+if user_input == password:
+	print("Access Granted")
+else:
+	print("Access denied")
+				</description>
 				<description>Quel mot de passe allez vous saisir ?</description>
 				<choix>
 					<option vers="9">secret</option>
@@ -137,8 +193,16 @@
 			</scene>
 			<scene id="803">
 				<titre>Le laboratoire</titre>
-				<image>image/07.jfif</image>
-				<description img="image/08.jfif">Ce n'est pas le bon mot de passe.</description>
+				<image>image/08.png</image>
+				<description>Ce n'est pas le bon mot de passe.</description>
+				<description code="true">
+password ="secret"
+user_input = input("Enter the password")
+if user_input == password:
+	print("Access Granted")
+else:
+	print("Access denied")
+				</description>
 				<description>Quel mot de passe allez vous saisir ?</description>
 				<choix>
 					<option vers="9">secret</option>
@@ -151,7 +215,7 @@
 			</scene>
 			<scene id="9">
 				<titre>Le laboratoire</titre>
-				<image>image/07.jfif</image>
+				<image>image/08.png</image>
 				<description>Le système vous donne accès aux fichiers. Vous remarquez que beaucoup ont été effacés dans l’urgence, mais que d’autres sont encore exploitables car mal supprimés. </description>
 				<description>Vous décidez de lire les journaux de bord. Vous espérez y trouver des indices sur ce qui s’est passé ici. Vous ouvrez le premier fichier et vous lisez les entrées des derniers mois. </description>
 				<description>Le journal de bord parle d’un portail qui a été activé pour la première fois il y a six mois, et qui a envoyé un drone dans un autre univers. Le drone est revenu avec des échantillons de plantes et de minéraux bizarres, mais il n’était pas seul. En lisant le journal, vous avez du mal à suivre.</description>
@@ -161,7 +225,7 @@
 			</scene>
 			<scene id="10">
 				<titre>Le laboratoire</titre>
-				<image>image/07.jfif</image>
+				<image>image/08.png</image>
 				<description>Les entrées parlent de phénomènes étranges qui se sont produits depuis l’activation du portail. Des anomalies électromagnétiques et des distorsions temporelles ont commencé à se manifester, perturbant les systèmes du laboratoire et affectant la santé mentale de l’équipe de recherche. </description>
 				<description>Les chercheurs ont commencé à observer des créatures étranges et hostiles qui semblaient provenir d’un autre univers. Les dernières entrées font état d’une évacuation d’urgence due à une augmentation soudaine de l’activité du portail et des attaques des créatures. Vous comprenez maintenant que vous êtes dans un laboratoire de recherche qui a été abandonné suite à une expérience de voyage interdimensionnel qui a mal tourné.</description>
 				<choix>
@@ -170,7 +234,7 @@
 			</scene>
 			<scene id="11">
 				<titre>Le laboratoire</titre>
-				<image>image/07.jfif</image>
+				<image>image/08.png</image>
 				<description>En explorant davantage l'ordinateur, vous tombez sur un programme en Python permettant d'envoyer un message vers l'extérieur via un satellite. Cependant, il y a une erreur dans le programme qui empêche son exécution.  </description>
 
 				<choix>
@@ -179,8 +243,22 @@
 			</scene>
 			<scene id="11001">
 				<titre>Le laboratoire</titre>
-				<image>image/07.jfif</image>
-				<description img="image/11.jfif">En examinant le programme en python, vous remarquez que la formule utilisée pour calculer la distance entre le laboratoire et le satellite est très similaire au théorème de Pythagore.</description>
+				<image>image/08.png</image>
+				<description>En examinant le programme en python, vous remarquez que la formule utilisée pour calculer la distance entre le laboratoire et le satellite est très similaire au théorème de Pythagore.</description>
+				<description code="true">
+# on importe le module de maths
+import math
+
+# on récupère les valeurs h et d depuis l'ordinateur
+h = 300
+d = 500
+
+# on calcule la distance D
+D = math.sqrt(X**2 + d**2)
+
+# on affiche la distance D
+print("La distance entre le laboratoire et le satellite est de ", D, "km")
+				</description>				
 				<description>Vous réalisez que la variable "X" n'a pas été définie dans le programme. Vous devez donc la remplacer par une autre variable appropriée. Quel nom de variable conviendrait le mieux ?</description>
 				<choix>
 					<option vers="1100">vous proposez "D" comme nom de variable</option>
@@ -192,8 +270,22 @@
 			</scene>
 			<scene id="1100">
 				<titre>Le laboratoire</titre>
-				<image>image/07.jfif</image>
-				<description img="image/11.jfif">Ce n'est pas ça. Proposez un autre nom de variable</description>
+				<image>image/08.png</image>
+				<description >Ce n'est pas ça. Proposez un autre nom de variable</description>
+								<description code="true">
+# on importe le module de maths
+import math
+
+# on récupère les valeurs h et d depuis l'ordinateur
+h = 300
+d = 500
+
+# on calcule la distance D
+D = math.sqrt(X**2 + d**2)
+
+# on affiche la distance D
+print("La distance entre le laboratoire et le satellite est de ", D, "km")
+				</description>
 				<choix>
 					<option vers="1100">vous proposez "D" comme nom de variable</option>
 					<option vers="1100">vous proposez "d" comme nom de variable</option>
@@ -204,7 +296,7 @@
 			</scene>
 			<scene id="12">
 				<titre>Le laboratoire</titre>
-				<image>image/07.jfif</image>
+				<image>image/08.png</image>
 				<description>Après avoir corrigé le programme, vous sauvegardez les modifications et lancez le programme. Les informations s'affichent rapidement à l'écran, vous confirmant que votre signal de détresse a été transmis avec succès. Une vague de soulagement vous envahit alors que vous réalisez que vous avez peut-être une chance d'être secouru.</description>
 				<description>Cependant, cette lueur d'espoir est de courte durée car vous commencez à ressentir une présence étrange et menaçante. Un frisson vous parcourt l'échine et vous décidez qu'il est temps de quitter ce laboratoire au plus vite</description>
 				<description>Que faites-vous ?</description>
@@ -216,7 +308,7 @@
 			</scene>
 			<scene id="13">
 				<titre>Le portail</titre>
-				<image>image/13.jfif</image>
+				<image>image/13.png</image>
 				<description>Vous vous approchez de la machine imposante. Vous réalisez alors qu'il s'agit d'un portail interdimensionnel. </description>
 				<description>Les câbles, qui pendaient autrefois au-dessus du portail, ont été arrachés dans la panique. Certains panneaux de contrôle sont gravement endommagés et les lumières qui scintillaient autrefois le long du bord du portail sont maintenant éteintes. La zone autour du portail est plongée dans l'obscurité la plus totale. Une odeur de brûlé flotte dans l'air et le silence est pesant. </description>
 				<description>Cette machine, qui a autrefois été un portail interdimensionnel, semble maintenant être devenue un symbole de la désolation et de l'abandon.</description>
@@ -227,7 +319,7 @@
 			</scene>
 			<scene id="14">
 				<titre>Le laboratoire</titre>
-				<image>image/14.jfif</image>
+				<image>image/14.png</image>
 				<description>Vous choisissez la résistance Grise. Vous coupez le courant avec un interrupteur et vous remplacez la résistance brûlée par la nouvelle. Vous remettez le courant et vous entendez un déclic : la porte s’ouvre ! </description>
 				<description>Vous avez fait le bon choix ! Avec les autres résistances, l’intensité du courant aurait été trop forte, et donc la tension aux bornes du boîtier aurait été trop différente de celle d’origine.</description>
 				<description>Vous entrez dans le laboratoire en espérant y trouver des réponses à vos questions.</description>
@@ -237,7 +329,7 @@
 			</scene>
 			<scene id="15">
 				<titre>Le laboratoire</titre>
-				<image>image/15.jfif</image>
+				<image>image/15.png</image>
 				<description>Dans le calepin, vous pouvez lire des notes détaillées sur des phénomènes étranges, tels que des fluctuations de l'énergie et des perturbations de la gravité, ainsi que des croquis de ce qui semble être une créature effrayante. Les notes indiquent que ces phénomènes sont liés à des expériences menées sur le portail interdimensionnel.</description>
 				<description>Que faites-vous ?</description>
 				<choix>
@@ -250,7 +342,7 @@
 				<description>Malgré les bruits qui deviennent de plus en plus proches, vous parcourez le manuel d'électricité et découvrez plusieurs informations intéressantes que vous prenez soigneusement en note. Vous avez l'intuition que ces connaissances pourront vous être utiles plus tard.</description>
 				<description>Que faites-vous ?</description>
 				<choix>
-					<option vers="1601" points="5">Vous regardez la définition du circuit electrique</option>	
+					<option vers="1601" electricite="5" points="5">Vous regardez la définition du circuit electrique</option>	
 					<option vers="17">Vous continuez à feuilleter le manuel d'électricité</option>				
 				</choix>
 			</scene>
@@ -270,7 +362,7 @@
 				<description>Vous poursuivez votre lecture attentive du manuel d'électricité, inscrivant soigneusement les informations importantes dans votre calepin, même si l'atmosphère du laboratoire se fait de plus en plus oppressante.Vous êtes déterminé à en apprendre le plus possible malgré les bruits inquiétants qui continuent de résonner dans les canalisations.</description>
 				<description>Que faites-vous ?</description>
 				<choix>
-					<option vers="1701" points="5">Vous regardez la définition du courant electrique</option>	
+					<option vers="1701" electricite="5" points="5">Vous regardez la définition du courant electrique</option>	
 					<option vers="18">Vous continuez à feuilleter le manuel d'électricité</option>				
 				</choix>
 			</scene>
@@ -291,7 +383,7 @@
 				<description>Malgré les bruits de plus en plus inquiétants qui résonnent dans le laboratoire, vous continuez à vous plonger dans la lecture de ce manuel fascinant, conscient que ces connaissances pourraient vous être d'une grande utilité pour résoudre les mystères de ce lieu étrange.</description>
 				<description>Que faites-vous ?</description>
 				<choix>
-					<option vers="1801" points="5">Vous regardez la définition de la tension electrique</option>	
+					<option vers="1801" electricite="5" points="5">Vous regardez la définition de la tension electrique</option>	
 					<option vers="22">Vous continuez à feuilleter le manuel d'électricité</option>		
 					<option vers="19">Vous feuilletez le manuel d'informatique</option>				
 				</choix>
@@ -315,7 +407,7 @@
 				<description>Vous ne pouvez vous empêcher de prendre des notes minutieuses, comme si votre vie en dépendait. La tension dans l'air est telle que vous avez l'impression que chaque seconde peut être la dernière.</description>
 				<description>Que faites-vous ?</description>
 				<choix>
-					<option vers="1901" points="5">Vous regardez la définition d'un programme</option>	
+					<option vers="1901" python="6" points="5">Vous regardez la définition d'un programme</option>	
 					<option vers="20">Vous continuez à feuilleter le manuel d'informatique</option>		
 					<option vers="23">Vous recherchez l'origine de ce bruit</option>				
 				</choix>
@@ -337,7 +429,7 @@
 				<description>Les bruits étranges des canalisations se sont tus, vous laissant avec un silence oppressant. C'est alors que vous entendez un grognement sourd venant d'un endroit indéfini. Vous ne pouvez plus ignorer l'atmosphère étrange et dangereuse qui règne dans le laboratoire. </description>
 				<description>Que faites-vous ?</description>
 				<choix>
-					<option vers="2001" points="5">Vous vous attardez sur queleques définitions en informatique</option>	
+					<option vers="2001" python="6" points="5">Vous vous attardez sur quelques définitions en informatique</option>	
 					<option vers="23">Vous recherchez l'origine de ce bruit</option>				
 				</choix>
 			</scene>
@@ -371,7 +463,7 @@
 			</scene>
 			<scene id="23">
 				<titre>Le laboratoire</titre>
-				<image>image/22.png</image>
+				<image>image/23.png</image>
 				<description>Alors que vous arrêtez de feuilleter les manuels, une ambiance de plus en plus oppressante vous enveloppe. Vous sentez votre cœur battre la chamade dans votre poitrine alors que vous décidez de vous aventurer vers le fond du laboratoire pour trouver l'origine des bruits inquiétants. </description>
 				<description>Vos pas résonnent dans la pièce sombre et lugubre remplie d'étagères encombrées de flacons et de livres poussiéreux. Le faible éclairage vacillant des ampoules métalliques rouillées ne fait qu'ajouter à votre anxiété grandissante. </description>
 				<description>Votre regard est attiré par une porte en bois délabrée qui se trouve au fond de la pièce. Les bruits semblent venir de derrière cette porte et votre respiration se fait de plus en plus rapide alors que vous vous approchez. Soudain, vous entendez une respiration mêlée de grognements qui vous glace le sang.</description>
@@ -380,36 +472,191 @@
 					<option vers="25">Vous quittez ce laboratoire par une autre issue</option>								
 				</choix>
 			</scene>
+			<scene id="24">
+				<titre>Le laboratoire</titre>
+				<image>image/24.png</image>
+				<description>Après avoir pris votre courage à deux mains, vous décidez d'ouvrir la porte et découvrez un laboratoire obscur rempli de machines étranges et de câbles enchevêtrés.</description>
+				<description>Au fond de la pièce se dresse une créature terrifiante dont le regard est fixé sur vous.</description>
+				<choix>
+					<option vers="25">Vous faites demi-tour et vous quittez les lieux au plus vite !</option>								
+				</choix>
+			</scene>
+			<scene id="25">
+				<titre>Le laboratoire</titre>
+				<image>image/25.png</image>
+				<description>Vous décidez de faire demi-tour et de fuir, vous sentez votre cœur battre la chamade alors que vous vous précipitez vers la porte d'entrée. Vous pouvez entendre la créature qui vous poursuit de près, grognant et rugissant derrière vous. Votre seule pensée est de sortir de ce laboratoire terrifiant le plus rapidement possible.</description>
+				<description>Vous arrivez à une intersection. À gauche, un couloir sombre; à droite, un passage mieux éclairé mais sinistre. La créature grogne, se rapprochant dangereusement. Vous n'avez que quelques secondes pour choisir.</description>
+				<choix>
+					<option vers="110">Vous prenez à droite</option>	
+					<option vers="111">Vous prenez à gauche</option>	
+					<option vers="126">Vous prenez tout droit</option>								
+				</choix>
+			</scene>
+			<scene id="26">
+				<titre>Le laboratoire</titre>
+				<image>image/26.png</image>
+				<description>Vous vous dirigez vers le cratère qui semble assez profond pour amortir votre chute. Vous activez votre propulseur au dernier moment pour réduire l’impact et atterrissez dans un nuage de poussière et de gravats. Vous vous relevez tant bien que mal et vous regardez autour de vous</description>
+				<description>Vous êtes surpris de voir que le cratère n’est pas naturel, mais qu’il cache l’entrée d’un ancien laboratoire souterrain. Vous voyez une porte blindée qui mène à l’intérieur du complexe. Peut-être y trouverez-vous des indices sur votre situation ou un moyen de contacter quelqu’un.</description>
+				<choix>
+					<option vers="2601">Vous analysez la porte</option>								
+				</choix>
+			</scene>
+			<scene id="2601">
+				<titre>Le laboratoire</titre>
+				<image>image/14.png</image>
+				<description>Vous vous approchez de la porte et vous remarquez qu’elle est verrouillée par un système électrique défectueux. Il y a un boîtier métallique avec des fils électriques qui sortent. Sur le boîtier, il y a une étiquette qui dit : “Attention ! Circuit sous tension ! Ne pas toucher !”. Vous comprenez que le circuit électrique alimente la porte et qu’il faut le réparer pour l’ouvrir.</description>
+				<choix>
+					<option vers="2602">Vous analysez le circuit pour trouver un moyen d'ouvrir la porte</option>								
+				</choix>
+			</scene>
+			<scene id="2602">
+				<titre>Le laboratoire</titre>
+				<image>image/14.PNG</image>
+				<description>Le circuit est composé d’une alimentation et d’une résistance en série. Mais vous voyez que la résistance est brûlée et cassée. Il faut la remplacer par une autre résistance pour que le circuit fonctionne. Vous fouillez dans les débris autour et vous trouvez 3 résistances.</description>
+				<description>Après analyse du mécanisme, vous comprenez qu'il vous faut la résistance la plus forte des 3.Laquelle choisissez-vous ?</description>
+				<choix>
+					<option vers="5">La résistance Bleue</option>
+					<option vers="39">La résistance Verte</option>
+					<option vers="14" points="10">La résistance Grise</option>								
+				</choix>
+			</scene>
+			<scene id="27">
+				<titre>Les ruines</titre>
+				<image>image/27.png</image>
+				<description>Vous vous approchez des ruines et observez avec attention. Vous apercevez au loin un vaisseau abandonné, semblant avoir été laissé ici depuis longtemps. Les portes sont grandes ouvertes et les circuits sont à nu.</description>
+				<description> Autour de vous, des marques étranges couvrent les murs et le sol, laissant penser que des créatures ont attaqué ce lieu. </description>
+				<description>Vous ressentez une présence hostile et une odeur de brûlé flotte dans l'air sec du désert. Les rayons de soleil cuisant transpercent les ruines, révélant des débris calcinés et des câbles dénudés.</description>
+				<choix>
+					<option vers="28">Vous continuez à explorer les ruines</option>	
+					<option vers="52">Vous vous approchez du vaisseau</option>								
+				</choix>
+			</scene>
+			<scene id="28">
+				<titre>Les ruines</titre>
+				<image>image/28.png</image>
+				<description>Dans les ruines, vous observez une escalade de dégâts, avec des marques de griffes partout et des couloirs précipitamment barricadés. Vous tombez sur une pièce secrète derrière un mur effondré, où trône un coffre-fort émettant une faible lueur dans l'obscurité. </description>
+				<description>La présence de créatures hostiles semble évidente, suggérant un danger imminent. Fuir pourrait être votre meilleure option.</description>
+				<choix>
+					<option vers="29">Vous ouvrez le coffre</option>	
+					<option vers="65">Vous quittez les ruines au plus vite</option>	
+					<option vers="52">Vous allez vers le vaisseau abandonné que vous avez vu tout à l'heure</option>								
+				</choix>
+			</scene>
+			<scene id="29">
+				<titre>Les ruines</titre>
+				<image>image/28.png</image>
+				<description img="image/29.jfif">Vous remarquez que le coffre-fort est verrouillé par un système électrique très simple.</description>
+				<description>Pour l'ouvrir, il suffit d'obtenir une tension de 5 volts aux bornes de la serrure électrique. Heureusement, vous vous souvenez de la loi d'addition des tensions, qui devrait vous aider à résoudre ce problème.</description>
+				<choix>
+					<option vers="2901" electricite="5" points="5">Vous essayez de vous rappeler de la loi d'addition des tensions</option>	
+					<option vers="33">Vous estimez que la tension aux bornes de la résistance doit être de 2V</option>		
+					<option vers="30" points="10">Vous estimez que la tension aux bornes de la résistance doit être de 4V</option>		
+					<option vers="33">Vous estimez que la tension aux bornes de la résistance doit être de 6V</option>							
+				</choix>
+			</scene>
+			<scene id="2901">
+				<titre>Les ruines</titre>
+				<image>image/29.jfif</image>
+				<description img="image/29B.png">Dans un circuit électrique utilisant plusieurs résistances branchées en série, la somme de toutes les tensions présentes aux bornes de chaque composant est égale à la tension totale du circuit.</description>
+				<description img="image/29A.png">Nous avons:</description>
+				<choix>	
+					<option vers="33">Vous estimez que la tension aux bornes de la résistance doit être de 2V</option>		
+					<option vers="30" points="10">Vous estimez que la tension aux bornes de la résistance doit être de 4V</option>		
+					<option vers="33">Vous estimez que la tension aux bornes de la résistance doit être de 6V</option>							
+				</choix>
+			</scene>
+			<scene id="30">
+				<titre>Les ruines</titre>
+				<image>image/28.png</image>
+				<description>D'après différentes mesures que vous avez prises, vous estimez que l'intensité du courant doit être de 80 mA.</description>
+				<description img="image/30.jfif">Quelle valeur de résistance allez vous choisir pour obtenir une tension de 4V aux bornes de cette resistance ?</description>
+				<choix>
+					<option vers="3001" electricite="5" points="5">Vous essayez de vous rappeler de la loi d'Ohm</option>	
+					<option vers="32" points="10">Vous choisissez une résistance de 50Ω</option>		
+					<option vers="31">Vous choisissez une résistance de 500Ω</option>		
+					<option vers="31">Vous choisissez une résistance de 5kΩ</option>							
+				</choix>
+			</scene>
+			<scene id="3001">
+				<titre>Les ruines</titre>
+				<image>image/28.png</image>
+				<description img="image/30.jfif">on appelle loi d'ohm, la relation liant la résistance, la tension et le courant présents autour d'un seul conducteur ohmique.</description>
+				<description img="image/30A.png">Quelle valeur de résistance allez vous choisir pour obtenir une tension de 4V aux bornes de cette resistance ?</description>
+				<choix>
+					<option vers="32" points="10">Vous choisissez une résistance de 50Ω</option>		
+					<option vers="31">Vous choisissez une résistance de 500Ω</option>		
+					<option vers="31">Vous choisissez une résistance de 5kΩ</option>							
+				</choix>
+			</scene>
+			<scene id="31">
+				<titre>Les ruines</titre>
+				<image>image/28.png</image>
+				<description>Le système refuse de se mettre en marche. Peut-être avez vous choisi la mauvaise résistance.</description>
+				<description img="image/30.jfif">Recommencez vos calculs et choisissez une autre résistance:</description>
+				<choix>
+					<option electricite="5" vers="3101">Vous essayez de vous rappeler de la loi d'Ohm</option>	
+					<option vers="32">Vous choisissez une résistance de 50Ω</option>		
+					<option vers="31">Vous choisissez une résistance de 500Ω</option>		
+					<option vers="31">Vous choisissez une résistance de 5kΩ</option>							
+				</choix>
+			</scene>
+			<scene id="3101">
+				<titre>Les ruines</titre>
+				<image>image/28.png</image>
+				<description img="image/30.jfif">on appelle loi d'ohm, la relation liant la résistance, la tension et le courant présents autour d'un seul conducteur ohmique.</description>
+				<description img="image/30A.png">Quelle valeur de résistance allez vous choisir pour obtenir une tension de 4V aux bornes de cette resistance ?</description>
+				<choix>
+					<option vers="32">Vous choisissez une résistance de 50Ω</option>		
+					<option vers="31">Vous choisissez une résistance de 500Ω</option>		
+					<option vers="31">Vous choisissez une résistance de 5kΩ</option>							
+				</choix>
+			</scene>
+			<scene id="32">
+				<titre>Les ruines</titre>
+				<image>image/32.png</image>
+				<description>Vous parvenez à ouvrir le coffre-fort et découvrez à l'intérieur un cristal étrange et lumineux. La lueur émise par le cristal est douce et apaisante, et vous avez l'impression qu'il émane une puissance mystérieuse de cette pierre.</description>
+				<description>Cependant, à peine avez-vous touché le cristal que vous sentez une énergie intense traverser votre corps, et une vision étrange s'impose à votre esprit. Vous voyez des images de créatures étranges et terrifiantes, et vous avez l'impression que le cristal est en quelque sorte lié à ces créatures. </description>
+				<choix>
+					<option vers="65">Vous laissez le cristal et quittez les ruines</option>	
+					<option vers="52">Vous laissez le cristal et allez vers le vaisseau abandonné</option>		
+					<option vers="64" cristal="1">Vous gardez le cristal et vous quittez les ruines</option>		
+					<option vers="34" cristal="1">Vous gardez le cristal et vous allez vers le vaisseau abandonné</option>							
+				</choix>
+			</scene>
 			<!-- ... autres scènes ... -->
 		</histoire>
 	</script>
 
 </head>
 <body>
+	<div class="header-bandeau">
+	  <div class="score">Score: <span class="score-value">0</span></div>
+	  <div class="title">NSM - Chapitre 1: Le réveil</div>
+	</div>
 
-    <div class="scene-container">
-        <div class="scene-image">
-            <img src="" alt="Scène image">
-        </div>
-   
+	<div class="scene-container">
+		<div class="scene-image">
+			<img src="" alt="Scène image">
+		</div>
 
 		<div class="scene-content">
-			<h1></h1>
-			<span class="score">Score: <span class="score-value">0</span></span>
+			<!-- Bloc du score déplacé en haut -->
+			
+			<h1></h1> <!-- Titre de la scène -->
+
 			<div class="descriptions">
 				<!-- Les descriptions seront injectées ici -->
 			</div>
 			<div class="player-choices">
-				<button></button>
-				<button></button>
-				<button></button>
+				<!-- Les boutons de choix seront injectés ici -->
 			</div>
-			<div class="scene-number"></div>
+			<div class="scene-number"></div> <!-- Numéro de la scène -->
 		</div>
-
-
-
-    </div>
+	</div>
+	<!-- Bandeau pour afficher les badges du joueur -->
+	<div class="player-stats">
+	  
+	</div>
 
 </body>
 </html>
