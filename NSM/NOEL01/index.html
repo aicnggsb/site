@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<!-- ---------------------------------------- -->
+<!-- ... ESCAPE NOEL                      ... -->
+<!-- ---------------------------------------- -->
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escape de Noël</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="scripts.js" defer></script>
+	<script type="application/xml" id="histoireXML">
+		<histoire>
+			<scene id="1">
+				<titre>Le Mystère de la Porte Enneigée</titre>
+				<image>image/1.png</image>
+				<description>Te voilà, en pleine forêt enneigée près du Pôle Nord, une brise glaciale caresse ton visage. Soudain, un son inhabituel attire ton attention : un bourdonnement provenant d'une grande porte en bois, ornée de motifs de flocons de neige. Intrigué, tu t'approches. Cette porte, solide et imposante, semble cacher un secret.</description>
+				<description>Que vas-tu faire ?</description>
+				<choix>
+					<option vers="2" force="2">Essayer de défoncer la porte.</option>
+					<option vers="3" dexterite="2">Examiner les environs pour trouver un indice. </option>
+					<option vers="4" chance="2">Frapper à la porte.</option>
+				</choix>
+			</scene>
+			
+			
+			<scene id="2">
+				<titre>L'Impact Inattendu</titre>
+				<image>image/2.png</image>
+				<description>Tu regardes la porte, déterminé. Sans hésiter, tu prends de l'élan et fonces dessus de toutes tes forces. Cependant, au lieu de céder, la porte résiste étonnamment à ton assaut.</description>
+				<description>Un bruit sec résonne et, soudain, un petit guichet s'ouvre sur la porte. Un lutin aux yeux grands ouverts te fixe, visiblement stupéfait. "Eh ! On frappe d'abord ici !" s'exclame-t-il. </description>
+				<description>Tu te tiens là, un peu sonné, réalisant que cette porte ne s'ouvrira pas par la force brute.</description>
+				<choix>
+					<option vers="5">S'excuser auprès du lutin et lui demander poliment d'entrer</option>
+					<option vers="6">Proposer d'aider le lutin en échange de l'entrée</option>
+					<option vers="7">Observer la réaction du lutin pour deviner comment entrer.</option>
+				</choix>
+			</scene>
+			
+			
+			
+			<scene id="5">
+				<titre>La Diplomatie Ouvre des Portes</titre>
+				<image>image/5.png</image>
+				<description>Tu te frottes le front, un peu sonné par l'impact, et décides d'adopter une approche plus diplomatique. Avec un sourire gêné, tu t'adresses au lutin :</description>
+				<description> "Désolé pour ça, je ne voulais pas causer de problèmes. Pourrais-je entrer, s'il te plaît ?" </description>
+				<description>Le lutin te regarde un moment, puis son expression change, passant de l'irritation à un sourire amusé. </description>
+				<description>"Eh bien, c'est plus poli ! D'accord, entre, mais..." Il te lance un regard malicieux. "Tu vas devoir prouver que tu es digne de rentrer dans notre usine."</description>
+				<choix>
+					<option vers="8">Accepter un défi posé par le lutin.</option>
+					<option vers="9">Proposer de montrer tes compétences en aidant immédiatement dans l'usine.</option>
+				</choix>
+			</scene>
+			
+			
+			
+			<scene id="8">
+				<titre>La machine à jouets</titre>
+				<image>image/8.png</image>
+				<description>Le lutin te montre l'écran de contrôle de la machine à jouets. "Regarde, cette machine est censée inspecter les jouets et les trier en 'bons' ou 'défectueux'. Mais quelque chose ne va pas... Tous les jouets sont jetés comme s'ils étaient défectueux !" dit-il, l'air confus.</description>
+				<description>Sur l'écran, tu vois l'algorithme suivant :</description>
+				<description code="true">
+Pour chaque jouet dans la chaîne de production
+	Inspecter le jouet
+	Si le jouet réussit l'inspection
+		Marquer le jouet comme 'Défectueux'
+	Sinon
+		Marquer le jouet comme 'Bon'
+		
+	Si le jouet est marqué 'Défectueux'
+		Envoyer le jouet à la poubelle
+	Sinon
+		Envoyer le jouet à l'emballage
+				</description>
+				<choix>
+					<option vers="10" points="5" intelligence="5">Suggérer de changer le marquage des jouets qui passent l'inspection en 'Bon'.</option>
+					<option vers="11">Proposer de vérifier le système d'inspection des jouets.</option>
+					<option vers="12">Recommander de réviser la façon dont les jouets sont envoyés à l'emballage.</option>
+				</choix>
+			</scene>
+			
+			<scene id="10">
+				<titre>La machine à jouets</titre>
+				<image>image/8.png</image>
+				<description>Après avoir examiné attentivement l'algorigramme, tu te rends compte que l'erreur se trouve dans la manière dont les jouets sont marqués après l'inspection. "Et si nous changions le marquage des jouets qui passent l'inspection en 'Bon' au lieu de 'Défectueux' ?" suggères-tu au lutin.</description>
+				<description>Le lutin, d'abord perplexe, se met à sourire. "Brillant !" s'exclame-t-il en tapotant sur le clavier pour apporter la modification. L'écran scintille un instant, puis affiche un nouveau flux de l'algorigramme :</description>
+				<description code="true">
+Pour chaque jouet dans la chaîne de production
+	Inspecter le jouet
+	Si le jouet réussit l'inspection
+		Marquer le jouet comme 'Bon'
+	Sinon
+		Marquer le jouet comme 'Défectueux'
+		
+	Si le jouet est marqué 'Défectueux'
+		Envoyer le jouet à la poubelle
+	Sinon
+		Envoyer le jouet à l'emballage
+				</description>
+				<description>Aussitôt, la machine se met en branle. Les jouets qui passent l'inspection sont désormais correctement marqués comme 'Bon' et dirigés vers la section d'emballage, tandis que ceux qui sont défectueux sont envoyés à la poubelle.</description>
+				<choix>
+					<option vers="13">Célébrer le succès avec les lutins et explorer davantage l'usine.</option>
+
+				</choix>
+			</scene>
+			
+			<scene id="13">
+				<titre>L'usine du père Noël</titre>
+				<image>image/13.png</image>
+				<description>Enthousiasmé par ta réussite avec l'algorithme, tu décides de pénétrer plus profondément dans l'usine. Les portes s'ouvrent sur un monde de merveilles technologiques. Autour de toi, des machines étincelantes fabriquent des jouets de toutes sortes, des lutins s'affairent joyeusement, et des lumières scintillantes illuminent l'espace.</description>
+				<choix>
+					<option vers="14">Aller parler à un lutin</option>
+				</choix>
+			</scene>
+			
+			
+			<scene id="14">
+				<titre>L'usine du père Noël</titre>
+				<image>image/14.png</image>
+				<description>Curieux, tu t'approches d'un lutin qui semble préoccupé. Il porte un tablier taché de peinture et regarde avec anxiété une grande machine émettant des bruits étranges. </description>
+				<description>"C'est notre machine à peindre les jouets," explique-t-il. "Elle est censée appliquer la couleur parfaite sur chaque jouet, mais aujourd'hui, elle mélange toutes les couleurs de manière aléatoire ! Les ours en peluche deviennent verts, et les petites voitures sont multicolores !"</description>
+				<description>Tu observes la machine. Des tuyaux de peinture se croisent et se mêlent dans un enchevêtrement complexe. Le lutin te regarde avec espoir.</description>
+				<description>"Peux-tu nous aider à régler ce problème de mélange de couleurs ?"</description>
+				<choix>
+					<option vers="15">Analyser la machine</option>
+				</choix>
+			</scene>
+			<!-- ... autres scènes ... -->
+			
+			
+			<scene id="xxx">
+				<titre>xxx</titre>
+				<image>image/13.png</image>
+				<description>xxxxx</description>
+				<choix>
+					<option vers="13">xxx lien standart xxx</option>
+					<option vers="2" force="2">xxx lien avec modification d'attribut / ajout d'objet xxxx</option>
+					<option vers="10" points="5">xxx lien avec modif du score</option>
+					<option img="image/force.png" vers="13">xxx image cliquable xxx</option>
+			</scene>
+		</histoire>
+	</script>
+
+</head>
+<body>
+	<div class="header-bandeau">
+	  <div class="score">Score: <span class="score-value">0</span></div>
+	  <div class="title">Histoire de Noël</div>
+	</div>
+
+	<div class="scene-container">
+		<div class="scene-image">
+			<img src="" alt="Scène image">
+		</div>
+
+		<div class="scene-content">
+			<!-- Bloc du score déplacé en haut -->
+			
+			<h1></h1> <!-- Titre de la scène -->
+
+			<div class="descriptions">
+				<!-- Les descriptions seront injectées ici -->
+			</div>
+			<div class="player-choices">
+				<!-- Les boutons de choix seront injectés ici -->
+			</div>
+			<div class="scene-number"></div> <!-- Numéro de la scène -->
+		</div>
+	</div>
+	<!-- Bandeau pour afficher les badges du joueur -->
+	<div class="player-stats">
+	  
+	</div>
+
+</body>
+</html>

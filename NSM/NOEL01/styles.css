@@ -1,0 +1,170 @@
+/* Style général pour le conteneur principal */
+.scene-container {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    max-width: 1200px; /* Ajustez selon la largeur souhaitée */
+    margin: auto;
+    padding: 20px;
+    gap: 20px;
+}
+
+/* Style pour la partie image */
+.scene-image {
+    flex-basis: 40%; /* Ajustez la largeur de la colonne image */
+}
+
+.scene-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px; /* Ajoute un bord arrondi à l'image */
+}
+
+/* Style pour le contenu de la scène */
+.scene-content {
+    flex-basis: 55%; /* Ajustez la largeur de la colonne contenu */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Style pour le score */
+.score {
+    align-self: flex-end; /* Aligner le score à droite */
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Style pour le titre de la scène */
+.scene-content h1 {
+    font-size: 24px;
+    color: #003366;
+    margin: 10px 0;
+    position: relative; /* Important pour positionner le séparateur */
+    padding-bottom: 15px; /* Espace pour le séparateur */
+}
+
+/* Style pour le séparateur */
+.scene-content h1::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50%; /* Ajustez la longueur du séparateur selon vos préférences */
+    height: 3px; /* Ajustez l'épaisseur du séparateur */
+    background-color: #000000; /* Ajustez la couleur du séparateur */
+    border-radius: 2px; /* Pour des bords légèrement arrondis */
+}
+
+
+/* Style pour les descriptions */
+.descriptions {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Style pour le conteneur des choix du joueur */
+.player-choices {
+    display: flex;
+    flex-direction: column; /* Alignement vertical des boutons */
+    align-items: stretch; /* Étire les boutons pour qu'ils prennent toute la largeur disponible */
+}
+
+/* Style pour chaque bouton de choix */
+.player-choices button {
+    padding: 10px;
+    margin-top: 10px; /* Espace entre les boutons */
+    background-color: #e0e0e0;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-align: left; /* Aligne le texte à gauche */
+}
+
+/* Le premier bouton ne doit pas avoir de marge au-dessus */
+.player-choices button:first-child {
+    margin-top: 0;
+}
+
+/* Ajoute un hover pour un feedback visuel lors du survol */
+.player-choices button:hover {
+    background-color: #c0c0c0;
+}
+
+
+/* Style pour le numéro de la scène */
+.scene-number {
+    font-size: 16px;
+    color: #666;
+    margin-top: 10px;
+}
+
+pre {
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    padding: 10px;
+    font-family: 'Courier New', monospace;
+    overflow: auto;
+}
+
+.header-bandeau {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 99%;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #333;
+  color: white;
+  font-family: 'Arial', sans-serif;
+  z-index: 1000; /* Assurez-vous que le bandeau reste au-dessus des autres éléments */
+}
+
+body {
+  padding-top: 60px; /* Ajoutez un padding en haut pour éviter que le contenu soit masqué par le bandeau */
+  padding-bottom: 50px; 
+}
+
+.score {
+  font-size: 18px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.player-stats {
+  position: fixed; /* fixe le bandeau en bas */
+  bottom: 0; /* positionne en bas de la fenêtre */
+  left: 0; /* étend sur toute la largeur */
+  width: 100%; /* étend sur toute la largeur */
+  display: flex;
+  justify-content: space-around;
+  background-color: #333; /* couleur de fond */
+  color: white; /* couleur du texte */
+  padding: 10px;
+  font-size: 18px;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3); /* ombre pour un effet de profondeur */
+  z-index: 1000; /* s'assure qu'il reste au-dessus des autres éléments */
+}
+
+.player-stats span {
+  margin: 0 10px;
+}
+
+.clickable-image {
+	width: 100px; /* Largeur automatique */
+    height: 100px; /* Hauteur automatique */
+   border-radius: 10px; /* Bords arrondis, ajustez la valeur selon vos besoins */
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5); /* Effet d'ombre, ajustez selon vos besoins */
+    cursor: pointer;
+    margin: 10px 0; /* Ajouter de l'espace autour de l'image */
+    background-color: #c0c0c0; /* Fond gris */
+}
+.clickable-image:hover {
+    transform: scale(1.05); /* Agrandir l'image de 5% lors du survol */
+}

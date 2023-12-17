@@ -493,7 +493,7 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 				</choix>
 			</scene>
 			<scene id="26">
-				<titre>Le laboratoire</titre>
+				<titre>Le cratère</titre>
 				<image>image/26.png</image>
 				<description>Vous vous dirigez vers le cratère qui semble assez profond pour amortir votre chute. Vous activez votre propulseur au dernier moment pour réduire l’impact et atterrissez dans un nuage de poussière et de gravats. Vous vous relevez tant bien que mal et vous regardez autour de vous</description>
 				<description>Vous êtes surpris de voir que le cratère n’est pas naturel, mais qu’il cache l’entrée d’un ancien laboratoire souterrain. Vous voyez une porte blindée qui mène à l’intérieur du complexe. Peut-être y trouverez-vous des indices sur votre situation ou un moyen de contacter quelqu’un.</description>
@@ -502,7 +502,7 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 				</choix>
 			</scene>
 			<scene id="2601">
-				<titre>Le laboratoire</titre>
+				<titre>Le cratère</titre>
 				<image>image/14.png</image>
 				<description>Vous vous approchez de la porte et vous remarquez qu’elle est verrouillée par un système électrique défectueux. Il y a un boîtier métallique avec des fils électriques qui sortent. Sur le boîtier, il y a une étiquette qui dit : “Attention ! Circuit sous tension ! Ne pas toucher !”. Vous comprenez que le circuit électrique alimente la porte et qu’il faut le réparer pour l’ouvrir.</description>
 				<choix>
@@ -510,10 +510,26 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 				</choix>
 			</scene>
 			<scene id="2602">
-				<titre>Le laboratoire</titre>
+				<titre>Le cratère</titre>
 				<image>image/14.PNG</image>
 				<description>Le circuit est composé d’une alimentation et d’une résistance en série. Mais vous voyez que la résistance est brûlée et cassée. Il faut la remplacer par une autre résistance pour que le circuit fonctionne. Vous fouillez dans les débris autour et vous trouvez 3 résistances.</description>
-				<description>Après analyse du mécanisme, vous comprenez qu'il vous faut la résistance la plus forte des 3.Laquelle choisissez-vous ?</description>
+				<description>Après analyse du mécanisme, vous comprenez qu'il vous faut la résistance la plus forte des 3. Laquelle choisissez-vous ?</description>
+				<choix>
+					<option vers="5">La résistance Bleue</option>
+					<option vers="39">La résistance Verte</option>
+					<option vers="14" points="10">La résistance Grise</option>
+					<option vers="2603" points="5">Vous faites une petite experience vous trouver la resistance la plus forte.</option>								
+				</choix>
+			</scene>
+			
+			<scene id="2603">
+				<titre>Le cratère</titre>
+				<image>image/14.PNG</image>
+				<description img="image/2603.png">Pour trouver le résistance la plus forte, vous réaliser le même montage avec chaque résistance.</description>
+				<description>Le montage avec la résistance Bleue donne une lumière forte.</description>
+				<description>Le montage avec la résistance Verte donne une un peu moins forte.</description>
+				<description>Enfin, le montage avec la résistance Grise donne une lumière assez faible.</description>
+				<description>Laquelle choisissez-vous pour activer le système d'ouverture de la porte ?</description>
 				<choix>
 					<option vers="5">La résistance Bleue</option>
 					<option vers="39">La résistance Verte</option>
@@ -621,6 +637,55 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 					<option vers="52">Vous laissez le cristal et allez vers le vaisseau abandonné</option>		
 					<option vers="64" cristal="1">Vous gardez le cristal et vous quittez les ruines</option>		
 					<option vers="34" cristal="1">Vous gardez le cristal et vous allez vers le vaisseau abandonné</option>							
+				</choix>
+			</scene>
+			<scene id="33">
+				<titre>Les ruines</titre>
+				<image>image/33.png</image>
+				<description>En effectuant des calculs, vous estimez la tension nécessaire aux bornes de la résistance. Vous prenez alors les mesures nécessaires pour obtenir cette tension, et vous mettez le système en marche.</description>
+				<description>Cependant, une fumée sort de la serrure, indiquant que quelque chose a mal tourné et que le système a été endommagé. Il semblerait que vous ayez commis une erreur de calcul lors des réparations.</description>
+				<choix>
+					<option vers="65">Vous quittez les ruines</option>	
+					<option vers="52">Vous allez vers le vaisseau abandonné que vous avez vu tout à l'heure</option>								
+				</choix>
+			</scene>
+			<scene id="34">
+				<titre>Les ruines</titre>
+				<image>image/27.png</image>
+				<description>Vous décidez de vous diriger vers le vaisseau abandonné que vous aviez aperçu au milieu des ruines. En vous approchant, vous constatez que le vaisseau semble encore en état de marche, malgré les traces du temps qui ont laissé leur empreinte sur sa coque.</description>
+				<description>Soudain, une lueur intense émane du cristal et un grondement sourd se fait entendre, venant des ruines d'un bâtiment non loin de là. Une atmosphère oppressante vous envahit alors que vous vous demandez ce que peut bien être à l'origine de ce bruit.</description>
+				<choix>
+					<option vers="44">Vous examinez le vaisseau</option>	
+					<option vers="2" points="1">Vous recherchez l'origine du bruit</option>								
+				</choix>
+			</scene>
+			<scene id="35">
+				<titre>La chute</titre>
+				<image>image/35.png</image>
+				<description>Vous enfilez la combinaison spatiale et vous activez le propulseur dorsal.</description>
+				<description>Vous ouvrez le sas de la capsule et vous vous élancez dans le vide spatial. Vous voyez la planète se rapprocher de plus en plus. Vous essayez de contrôler votre trajectoire et votre vitesse avec le propulseur. </description>
+				<description>Mais vous réalisez que vous n’avez pas assez de carburant pour freiner suffisamment. Vous avez deux options :</description>
+				<choix>
+					<option vers="26">Se diriger vers un cratère qui semble assez profond pour amortir votre chute.</option>	
+					<option vers="66">Se diriger vers une ruine métallique.</option>								
+				</choix>
+			</scene>
+			<scene id="36">
+				<titre>L'origine du bruit</titre>
+				<image>image/36.png</image>
+				<description>Vous décidez d'ouvrir la porte en métal et découvrez une salle sombre et poussiéreuse remplie d'anciens ordinateurs et de machines étranges. </description>
+				<description>Au fond de la pièce, vous apercevez une lueur rougeâtre émanant d'une autre porte, et en vous approchant, vous entendez des bruits étranges et inquiétants. L'atmosphère oppressante de la pièce vous donne la chair de poule, mais votre curiosité l'emporte et vous continuez à avancer, prêt à affronter l'inconnu.</description>
+				<choix>
+					<option vers="37">Vous ouvrez la porte du fond.</option>								
+				</choix>
+			</scene>
+			<scene id="37">
+				<titre>L'origine du bruit</titre>
+				<image>image/37.png</image>
+				<description>Vous avancez vers la porte du fond et l'ouvrez lentement. La pièce est remplie de poussière et vous apercevez une créature terrifiante au centre de la pièce. Elle vous fixe de ses yeux sombres et menaçants. Vous ressentez une peur intense vous envahir.</description>
+				<choix>
+					<option vers="38">Vous prenez le cristal dans votre main.</option>	
+					<option vers="6">Vous décidez de fuir !</option>							
 				</choix>
 			</scene>
 			<!-- ... autres scènes ... -->

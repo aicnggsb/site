@@ -2,14 +2,15 @@
 // Initialisation des variables 
 // -----------------------------------------------------------------------------
 // ID de la scène
-let currentSceneId = "36";
+let currentSceneId = "1";
 // Score du joueur
 let playerScore = 0;
 
 // caracteristiques principales
-let force=10
-let chance=10
-let dexterite=10
+let force=9
+let chance=9
+let dexterite=9
+let intelligence=9
 
 // compétences
 let electricite=0
@@ -32,11 +33,13 @@ function loadSceneFromXML(xmlDoc, sceneId) {
     let image = scene.querySelector('image').textContent;
     let choix = Array.from(scene.querySelectorAll('option')).map(option => ({
 		label: option.textContent,
+		img: option.getAttribute('img'),
 		nextScene: option.getAttribute('vers'),
 		points: option.getAttribute('points'),
 		force: parseInt(option.getAttribute('force') || "0"),
 		chance: parseInt(option.getAttribute('chance') || "0"),
 		dexterite: parseInt(option.getAttribute('dexterite') || "0"),
+		intelligence: parseInt(option.getAttribute('intelligence') || "0"),
 		electricite: parseInt(option.getAttribute('electricite') || "0"),
 		python: parseInt(option.getAttribute('python') || "0"),
 		cristal: parseInt(option.getAttribute('cristal') || "0")
@@ -96,6 +99,14 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 		let button = document.createElement('button');
 		button.textContent = choice.label;
 		
+		if (choice.img) {
+			// Créer et configurer un élément <img>
+			button = document.createElement('img');
+			button.src = choice.img;
+			button.alt = choice.label; // Ajouter un texte alternatif pour l'accessibilité
+			button.classList.add('clickable-image'); // Ajouter une classe pour le style
+		}
+		
 		// --- Définit la fonction à exécuter lorsque le bouton est cliqué
 		button.onclick = () => {
 			// Met à jour l'ID de la scène actuelle et charge la nouvelle scène
@@ -112,6 +123,7 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 			force += choice.force;
 			chance += choice.chance;
 			dexterite += choice.dexterite;
+			intelligence += choice.intelligence;
 			
 			// mise à jour des compétences
 			electricite += choice.electricite;
@@ -140,6 +152,13 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 				imgDex.src = 'image/dex.png'; 
 				bandeau.appendChild(imgDex);
 			}
+			
+			if (intelligence > 9) {
+				let imgDex = document.createElement('img');
+				imgDex.src = 'image/intelligence.png'; 
+				bandeau.appendChild(imgDex);
+			}
+			
 			
 			// les badges pour les compétences		
 			if (electricite > 9) {
