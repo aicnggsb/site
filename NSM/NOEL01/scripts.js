@@ -38,9 +38,9 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 		points: option.getAttribute('points'),
 	    
 		
-		echecForce: option.getAttribute('echecForce'),
-		echecIntelligence: option.getAttribute('echecIntelligence'),
-	    	echecChance: option.getAttribute('echecChance'),
+		echecForce: parseInt(option.getAttribute('force') || "0"),
+		echecIntelligence: parseInt(option.getAttribute('echecIntelligence') || "0"),
+	    	echecChance: parseInt(option.getAttribute('echecChance') || "0"),
 	    
 		force: parseInt(option.getAttribute('force') || "0"),
 		chance: parseInt(option.getAttribute('chance') || "0"),
@@ -121,7 +121,9 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 			currentSceneId = choice.nextScene;
 
 			// change de scène si echec test
-			
+			if (choice.echecForce>0){
+				alert("bouh");
+			}
 			
 			loadSceneFromXML(xmlDoc, currentSceneId);
 						
