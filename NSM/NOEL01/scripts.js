@@ -122,7 +122,9 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 
 			// change de scène si echec test
 			if (choice.echecForce>0){
-				alert("bouh");
+				if (getRandomInt(20)>force){
+					currentSceneId=choice.echecForce;
+				}
 			}
 			
 			loadSceneFromXML(xmlDoc, currentSceneId);
@@ -199,6 +201,10 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 	});
 	
 	
+}
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
 }
 
 // -----------------------------------------------------------------------------
