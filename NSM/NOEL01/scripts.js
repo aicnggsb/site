@@ -37,8 +37,8 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 		nextScene: option.getAttribute('vers'),
 		points: option.getAttribute('points'),
 	    
-		test: option.getAttribute('test'),
-		echec: option.getAttribute('echec'),
+		test: option.getAttribute('test') || "aucun",
+		echec: option.getAttribute('echec') || "aucun",
 	    
 		force: parseInt(option.getAttribute('force') || "0"),
 		chance: parseInt(option.getAttribute('chance') || "0"),
