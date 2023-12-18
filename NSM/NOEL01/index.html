@@ -129,10 +129,24 @@ Pour chaque jouet dans la chaîne de production
 				<titre>L'usine du père Noël</titre>
 				<image>image/14.png</image>
 				<description>La machine à peindre utilise un système de mélange de couleurs basé sur les demandes spécifiques pour chaque jouet. L'algorigramme actuel semble incomplet, et tu dois identifier et ajouter l'instruction manquante pour obtenir la couleur violette.</description>
-				<description>Voici le programme de la machine</description>>Tu observes la machine. Des tuyaux de peinture se croisent et se mêlent dans un enchevêtrement complexe. Le lutin te regarde avec espoir.</description>
-				<description>"Peux-tu nous aider à régler ce problème de mélange de couleurs ?"</description>
+				<description>Voici le programme de la machine:</description>
+				<description code="true">
+1. Initialiser 'couleurDemandée'
+2. Choisir 'couleurDemandée' (rouge, bleu, jaune, vert, orange, violet)
+3. Si 'couleurDemandée' est une couleur primaire (rouge, bleu, jaune)
+4. 	Ajouter directement 'couleurDemandée'
+5. Si 'couleurDemandée' est verte
+6. 	Mélanger bleu et jaune
+7.	Ajouter couleur
+8. Si 'couleurDemandée' est orange
+9.	Mélanger rouge et jaune
+10.	Ajouter couleur
+11. Si 'couleurDemandée' est violette
+12.	Mélanger rouge et noir
+13.	Ajouter couleur
+				</description>
 				<choix>
-					<option vers="15">Analyser la machine</option>
+					<option vers="15">L'erreur se situe sur la ligne </option>
 				</choix>
 			</scene>
 			<!-- ... autres scènes ... -->
