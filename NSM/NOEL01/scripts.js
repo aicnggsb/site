@@ -123,7 +123,9 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 			// change de scène si echec test
 			if (choice.echecForce>0){
 				if (getRandomInt(20)>force){
-					currentSceneId=choice.echecForce;
+					currentSceneId=choice.echecForce.toString();
+				} else {
+					currentSceneId="1";
 				}
 			}
 			
