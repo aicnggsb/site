@@ -17,9 +17,9 @@
 				<description>Te voilà, en pleine forêt enneigée près du Pôle Nord, une brise glaciale caresse ton visage. Soudain, un son inhabituel attire ton attention : un bourdonnement provenant d'une grande porte en bois, ornée de motifs de flocons de neige. Intrigué, tu t'approches. Cette porte, solide et imposante, semble cacher un secret.</description>
 				<description>Que vas-tu faire ?</description>
 				<choix>
-					<option vers="2" force="2">Essayer de défoncer la porte.</option>
-					<option vers="3" dexterite="2">Examiner les environs pour trouver un indice. </option>
-					<option vers="4" chance="2">Frapper à la porte.</option>
+					<option vers="2" force="5">Essayer de défoncer la porte.</option>
+					<option vers="3" dexterite="5">Examiner les environs pour trouver un indice. </option>
+					<option vers="4" chance="5">Frapper à la porte.</option>
 				</choix>
 			</scene>
 			
@@ -234,9 +234,9 @@ Pour chaque jouet dans la chaîne de production
 				<image>image/23.png</image>
 				<description>La porte du bureau du Père Noël se dresse devant toi, imposante et mystérieuse. Tu sais que les friandises se trouvent à l'intérieur, mais comment y entrer ?</description>
 				<choix>
-					<option vers="24" test="FO" echec="27">Essayer de forcer la porte.</option>
-					<option vers="25">Frapper à la porte.</option>
-					<option vers="26">Analyser la porte.</option>
+					<option vers="24" test="force" echec="27">Essayer de forcer la porte.</option>
+					<option vers="25" test="chance"  echec="28">Frapper à la porte.</option>
+					<option vers="26" test="intelligence" echec="29">Analyser la porte.</option>
 				</choix>
 			</scene>
 			<!-- ... autres scènes ... -->
@@ -285,6 +285,6 @@ Pour chaque jouet dans la chaîne de production
 	<div class="player-stats">
 	  
 	</div>
-	v1.07
+	v1.08
 </body>
 </html>
