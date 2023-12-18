@@ -7,10 +7,10 @@ let currentSceneId = "15";
 let playerScore = 0;
 
 // caracteristiques principales
-let force=9
-let chance=9
-let dexterite=9
-let intelligence=9
+let force=7
+let chance=7
+let dexterite=7
+let intelligence=7
 
 // compétences
 let electricite=0
@@ -36,6 +36,9 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 		img: option.getAttribute('img'),
 		nextScene: option.getAttribute('vers'),
 		points: option.getAttribute('points'),
+	    
+		test: option.getAttribute('test'),
+		echec: option.getAttribute('echec'),
 	    
 		force: parseInt(option.getAttribute('force') || "0"),
 		chance: parseInt(option.getAttribute('chance') || "0"),
@@ -114,6 +117,11 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 		button.onclick = () => {
 			// Met à jour l'ID de la scène actuelle et charge la nouvelle scène
 			currentSceneId = choice.nextScene;
+
+			// change de scène si echec test
+			if (test.localeCompare("force")==0){
+				alert("Test Force")
+			}
 			loadSceneFromXML(xmlDoc, currentSceneId);
 						
 			
