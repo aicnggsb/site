@@ -85,6 +85,9 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 		p.textContent = descriptionData.text;
 		descriptionsContainer.appendChild(p);
 		let inp = document.createElement('input')
+		inp.type = 'text'; // Définit le type comme texte
+		inp.id = 'userInput'; // Définit un identifiant pour le champ de saisie
+		descriptionsContainer.appendChild(inp);
 		
 	}
 	 // --- Si une image est liée à la description, crée un élément image et le configure
