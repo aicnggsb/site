@@ -2,7 +2,7 @@
 // Initialisation des variables 
 // -----------------------------------------------------------------------------
 // ID de la scène
-let currentSceneId = "1";
+let currentSceneId = "15";
 // Score du joueur
 let playerScore = 0;
 
