@@ -119,7 +119,9 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 			currentSceneId = choice.nextScene;
 
 			// change de scène si echec test
-			if (test.localeCompare("force")==0){
+			alert("test")
+			alert(choice.test)
+			if (choice.test.localeCompare("force")==0){
 				alert("Test Force")
 			}
 			loadSceneFromXML(xmlDoc, currentSceneId);
