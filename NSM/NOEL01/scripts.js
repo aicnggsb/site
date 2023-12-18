@@ -36,6 +36,11 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 		img: option.getAttribute('img'),
 		nextScene: option.getAttribute('vers'),
 		points: option.getAttribute('points'),
+
+		valeur: option.getAttribute('valeur'),
+		ko: option.getAttribute('ko'),
+		ok: option.getAttribute('ok'),
+	    
 		force: parseInt(option.getAttribute('force') || "0"),
 		chance: parseInt(option.getAttribute('chance') || "0"),
 		dexterite: parseInt(option.getAttribute('dexterite') || "0"),
@@ -57,28 +62,32 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 
     // Met à jour le titre de la scène dans le contenu de la page
     document.querySelector('.scene-content h1').textContent = titre;
-	// Met à jour l'image de la scène dans le contenu de la page
+    
+    // Met à jour l'image de la scène dans le contenu de la page
     document.querySelector('.scene-image img').src = image;
-	// Affiche le numéro de la scène actuelle
-	document.querySelector('.scene-number').textContent = "Scène " + sceneId;
+    
+    // Affiche le numéro de la scène actuelle
+    document.querySelector('.scene-number').textContent = "Scène " + sceneId;
 
-	// Sélectionne le conteneur pour les descriptions et le vide
+    // Sélectionne le conteneur pour les descriptions et le vide
     let descriptionsContainer = document.querySelector('.descriptions');
     descriptionsContainer.innerHTML = '';
 
-	// Pour chaque description trouvée dans la scène XML
+   // Pour chaque description trouvée dans la scène XML
     descriptions.forEach(descriptionData => {
-		 // --- Crée un nouvel élément paragraphe et y met le texte de la description
+	// --- Crée un nouvel élément paragraphe et y met le texte de la description
         if (descriptionData.isCode) {
-			let p = document.createElement('pre');
-			p.textContent = descriptionData.text;
-			descriptionsContainer.appendChild(p);
-		} else {
-			let p = document.createElement('p');
-			p.textContent = descriptionData.text;
-			descriptionsContainer.appendChild(p);
-		}
-		 // --- Si une image est liée à la description, crée un élément image et le configure
+		let p = document.createElement('pre');
+		p.textContent = descriptionData.text;
+		descriptionsContainer.appendChild(p);
+	} else {
+		let p = document.createElement('p');
+		p.textContent = descriptionData.text;
+		descriptionsContainer.appendChild(p);
+		let inp = document.createElement('input')
+		
+	}
+	 // --- Si une image est liée à la description, crée un élément image et le configure
         if (descriptionData.img) {
             let img = document.createElement('img');
             img.src = descriptionData.img;
