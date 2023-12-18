@@ -36,10 +36,6 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 		img: option.getAttribute('img'),
 		nextScene: option.getAttribute('vers'),
 		points: option.getAttribute('points'),
-
-		valeur: option.getAttribute('valeur'),
-		ko: option.getAttribute('ko'),
-		ok: option.getAttribute('ok'),
 	    
 		force: parseInt(option.getAttribute('force') || "0"),
 		chance: parseInt(option.getAttribute('chance') || "0"),
@@ -81,20 +77,9 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 		p.textContent = descriptionData.text;
 		descriptionsContainer.appendChild(p);
 	} else {
-		
-
-		if (descriptionData.valeur.trim() !== '') {
-			let inp = document.createElement('input')
-			inp.value = descriptionData.text;
-			inp.type = 'text'; // Définit le type comme texte
-			inp.id = 'userInput'; // Définit un identifiant pour le champ de saisie
-			descriptionsContainer.appendChild(inp);
-		} else {
-			let p = document.createElement('p');
-			p.textContent = descriptionData.text;
-			descriptionsContainer.appendChild(p);
-		}
-		
+		let p = document.createElement('p');
+		p.textContent = descriptionData.text;
+		descriptionsContainer.appendChild(p);
 	}
 	 // --- Si une image est liée à la description, crée un élément image et le configure
         if (descriptionData.img) {
