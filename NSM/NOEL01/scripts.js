@@ -124,8 +124,6 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 			if (choice.echecForce>0){
 				if (getRandomInt(20)>force){
 					currentSceneId=choice.echecForce.toString();
-				} else {
-					currentSceneId="1";
 				}
 			}
 			
