@@ -38,7 +38,7 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 		points: option.getAttribute('points'),
 	    
 		
-		echecForce: parseInt(option.getAttribute('force') || "0"),
+		echecForce: parseInt(option.getAttribute('echecForce') || "0"),
 		echecIntelligence: parseInt(option.getAttribute('echecIntelligence') || "0"),
 	    	echecChance: parseInt(option.getAttribute('echecChance') || "0"),
 	    
