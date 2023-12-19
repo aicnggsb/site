@@ -41,6 +41,7 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 		echecForce: parseInt(option.getAttribute('echecForce') || "0"),
 		echecIntelligence: parseInt(option.getAttribute('echecIntelligence') || "0"),
 	    	echecChance: parseInt(option.getAttribute('echecChance') || "0"),
+	    	echecDexterite: parseInt(option.getAttribute('echecDexterite') || "0"),
 	    
 		force: parseInt(option.getAttribute('force') || "0"),
 		chance: parseInt(option.getAttribute('chance') || "0"),
@@ -124,9 +125,28 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 			if (choice.echecForce>0){
 				if (getRandomInt(20)>force){
 					currentSceneId=choice.echecForce.toString();
+					choice.points="";
+				}
+			}
+			if (choice.echecChance>0){
+				if (getRandomInt(20)>chance){
+					currentSceneId=choice.echecChance.toString();
+					choice.points="";
 				}
 			}
 			
+			if (choice.echecIntelligence>0){
+				if (getRandomInt(20)>intelligence){
+					currentSceneId=choice.echecIntelligence.toString();
+					choice.points="";
+				}
+			}
+			if (choice.echecDexterite>0){
+				if (getRandomInt(20)>dexterite){
+					currentSceneId=choice.echecDexterite.toString();
+					choice.points="";
+				}
+			}
 			loadSceneFromXML(xmlDoc, currentSceneId);
 						
 			
