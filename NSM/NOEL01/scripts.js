@@ -7,10 +7,10 @@ let currentSceneId = "15";
 let playerScore = 0;
 
 // caracteristiques principales
-let force=7
-let chance=7
-let dexterite=7
-let intelligence=7
+let force=6
+let chance=6
+let dexterite=6
+let intelligence=6
 
 // compétences
 let electricite=0
@@ -129,7 +129,7 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 				}
 			}
 			if (choice.echecChance>0){
-				if (getRandomInt(100)>chance){
+				if (getRandomInt(20)>chance){
 					currentSceneId=choice.echecChance.toString();
 					choice.points="";
 				}
