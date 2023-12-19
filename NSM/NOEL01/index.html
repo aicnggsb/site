@@ -235,8 +235,8 @@ Pour chaque jouet dans la chaîne de production
 				<description>La porte du bureau du Père Noël se dresse devant toi, imposante et mystérieuse. Tu sais que les friandises se trouvent à l'intérieur, mais comment y entrer ?</description>
 				<choix>
 					<option vers="24" echecForce="27">Essayer de défoncer la porte.</option>
-					<option vers="25" echecChance="28">Chercher une clé sous le paillasson.</option>
-					<option vers="26" echecIntelligence="29">Analyser la porte.</option>
+					<option vers="25" echecChance="28" points="5">Chercher une clé sous le paillasson.</option>
+					<option vers="26" >Analyser la porte.</option>
 				</choix>
 			</scene>
 			<scene id="24">
@@ -253,13 +253,25 @@ Pour chaque jouet dans la chaîne de production
 		
 			<scene id="25">
 				<titre>Le bureau du Père noël</titre>
-				<image>image/24.png</image>
+				<image>image/25.png</image>
 				<description>Optant pour une approche basée sur la chance, tu t'agenouilles et soulèves délicatement le paillasson devant la porte du bureau du Père Noël. À ta grande surprise, au lieu d'une clé, tu trouves un morceau de papier soigneusement plié. Avec curiosité, tu le déplies et découvres un code écrit dessus : "5387".</description>
 				<choix>
 					<option vers="24" echecForce="27">Essayer de défoncer la porte.</option>
-					<option vers="26" echecIntelligence="29">Analyser la porte.</option>
+					<option vers="26">Analyser la porte.</option>
 				</choix>
 			</scene>
+			
+			<scene id="26">
+				<titre>Le bureau du Père noël</titre>
+				<image>image/23.png</image>
+				<description>La porte du bureau du Père Noël se dresse devant toi, imposante et mystérieuse. Tu sais que les friandises se trouvent à l'intérieur, mais comment y entrer ?</description>
+				<choix>
+					<option vers="24" echecForce="27">Essayer de défoncer la porte.</option>
+					<option vers="25" echecChance="28">Chercher une clé sous le paillasson.</option>
+					<option vers="26">Analyser la porte.</option>
+				</choix>
+			</scene>
+		
 			<scene id="27">
 				<titre>Le bureau du Père noël</titre>
 				<image>image/27.png</image>
@@ -274,12 +286,10 @@ Pour chaque jouet dans la chaîne de production
 			<scene id="28">
 				<titre>Le bureau du Père noël</titre>
 				<image>image/27.png</image>
-				<description>Avec une détermination audacieuse, tu décides de forcer la porte. Tu prends de l'élan et te lances contre la porte avec toute ta force. Avec un bruit de tonnerre, la porte s'envole de ses gonds et s'écrase bruyamment à l'intérieur du bureau.</description>
-				<description>Soudain, des alarmes retentissent, des lumières clignotent, et tu te retrouves face à face avec un renne mécanique de sécurité, qui semble tout sauf amusé. "Intrusion détectée. Préparation à l'emballage de l'intrus," annonce une voix robotique.</description>
-				<description>Avant que tu ne puisses réagir, tu es enveloppé dans du papier cadeau, avec un grand nœud sur la tête. Le renne te transporte hors du bureau, te laissant là, emballé comme un cadeau, sous les yeux étonnés des lutins.</description>
+				<description>Guidé par l'espoir et la curiosité, tu t'agenouilles devant la porte et soulèves doucement le paillasson, espérant y trouver une clé cachée. Cependant, après avoir fouillé minutieusement, tu te rends compte qu'il n'y a rien en dessous, à part un peu de poussière et quelques brins de neige égarés.</description>
 				<choix>
 					<option vers="24" echecForce="27">Essayer de défoncer la porte.</option>
-					<option vers="26" echecIntelligence="29">Analyser la porte.</option>
+					<option vers="26">Analyser la porte.</option>
 				</choix>
 			</scene>
 			<!-- ... autres scènes ... -->
@@ -328,6 +338,6 @@ Pour chaque jouet dans la chaîne de production
 	<div class="player-stats">
 	  
 	</div>
-	v1.19
+	v1.20
 </body>
 </html>
