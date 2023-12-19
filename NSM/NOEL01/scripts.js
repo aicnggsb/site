@@ -129,7 +129,7 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 				}
 			}
 			if (choice.echecChance>0){
-				if (getRandomInt(20)>chance){
+				if (getRandomInt(100)>chance){
 					currentSceneId=choice.echecChance.toString();
 					choice.points="";
 				}
