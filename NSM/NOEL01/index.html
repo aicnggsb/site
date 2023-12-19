@@ -263,12 +263,16 @@ Pour chaque jouet dans la chaîne de production
 			
 			<scene id="26">
 				<titre>Le bureau du Père noël</titre>
-				<image>image/23.png</image>
-				<description>La porte du bureau du Père Noël se dresse devant toi, imposante et mystérieuse. Tu sais que les friandises se trouvent à l'intérieur, mais comment y entrer ?</description>
+				<image>image/26.png</image>
+				<description>Choisissant d'analyser la porte plutôt que de forcer ton passage, tu t'approches et observes attentivement. Ton regard est immédiatement attiré par un digicode, sur lequel sont inscrits des chiffres en séquence : "3875 8753 7538". Tu t'aperçois que ces chiffres ne sont pas disposés au hasard.</description>
 				<choix>
-					<option vers="24" echecForce="27">Essayer de défoncer la porte.</option>
-					<option vers="25" echecChance="28">Chercher une clé sous le paillasson.</option>
-					<option vers="26">Analyser la porte.</option>
+					<option vers="29">Tapez le code 8735</option>
+					<option vers="29">Tapez le code 7853</option>
+					<option vers="29">Tapez le code 3875</option>
+					<option vers="30">Tapez le code 5387</option>
+					<option vers="30">Tapez le code 3578</option>
+					<option vers="30">Tapez le code 8753</option>
+					<option vers="31" echecChance="32" points="5">Tapez un code au hasard! !</option>
 				</choix>
 			</scene>
 		
@@ -338,6 +342,6 @@ Pour chaque jouet dans la chaîne de production
 	<div class="player-stats">
 	  
 	</div>
-	v1.20
+	v1.21
 </body>
 </html>
