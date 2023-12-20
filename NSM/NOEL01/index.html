@@ -264,7 +264,11 @@ Pour chaque jouet dans la chaîne de production
 			<scene id="26">
 				<titre>Le bureau du Père noël</titre>
 				<image>image/26.png</image>
-				<description>Choisissant d'analyser la porte plutôt que de forcer ton passage, tu t'approches et observes attentivement. Ton regard est immédiatement attiré par un digicode, sur lequel sont inscrits des chiffres en séquence : "3875 8753 7538". Tu t'aperçois que ces chiffres ne sont pas disposés au hasard.</description>
+				<description>Choisissant d'analyser la porte plutôt que de forcer ton passage, tu t'approches et observes attentivement. Ton regard est immédiatement attiré par un digicode, sur lequel sont inscrits des chiffres en séquence : </description>
+				<description code="true">
+875 8753 7538
+				</description>
+				<description>Tu t'aperçois que ces chiffres ne sont pas disposés au hasard.</description>
 				<choix>
 					<option vers="29">Tapez le code 8735</option>
 					<option vers="29">Tapez le code 7853</option>
@@ -305,6 +309,15 @@ Pour chaque jouet dans la chaîne de production
 				<description>La porte se referme derrière toi, te laissant dehors, dans le froid, avec rien d'autre qu'une promesse de charbon pour Noël.</description>
 				<choix>
 					<option vers="1">Recommencer l'histoire</option>
+				</choix>
+			</scene>
+			<scene id="30">
+				<titre>Le bureau du Père noël</titre>
+				<image>image/31.png</image>
+				<description>Après avoir entré le code que tu as déchiffré, tu retiens ton souffle. Un clic retentit et la porte s'ouvre lentement.</description>
+				<description>Devant toi se dévoile le bureau du Père Noël, un espace chaleureux et accueillant, rempli de cartes, de jouets en cours de fabrication, et d'un grand bureau en bois. La lumière tamisée crée une atmosphère cosy et mystérieuse, mais pour l'instant, les friandises tant convoitées ne sont pas en vue.</description>
+				<choix>
+					<option vers="33">Entrer dans le bureau</option>
 				</choix>
 			</scene>
 			<scene id="31">
@@ -372,6 +385,6 @@ Pour chaque jouet dans la chaîne de production
 	<div class="player-stats">
 	  
 	</div>
-	v1.23
+	v1.24
 </body>
 </html>
