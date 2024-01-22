@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!-- ------------------------------------------------------- -->
+<!-- ... COURS INTERACTIF INTERNET                       ... -->
+<!-- ------------------------------------------------------- -->
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escape game de Noël</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="scripts.js" defer></script>
+	<script type="application/xml" id="histoireXML">
+		<histoire>
+			<scene id="1">
+				<titre>Introduction au HTML</titre>
+				<image>image/1.png</image>
+				<description>Te voilà, en pleine forêt enneigée près du Pôle Nord, une brise glaciale caresse ton visage. Soudain, un son inhabituel attire ton attention : un bourdonnement provenant d'une grande porte en bois, ornée de motifs de flocons de neige. Intrigué, tu t'approches. Cette porte, solide et imposante, semble cacher un secret.</description>
+				<description>Que vas-tu faire ?</description>
+				<choix>
+					<option vers="2" force="5">Essayer de défoncer la porte.</option>
+					<option vers="3" dexterite="5">Examiner les environs pour trouver un indice. </option>
+					<option vers="4" chance="5">Frapper à la porte.</option>
+				</choix>
+			</scene>
+			
+			<!-- ... autres scènes ... -->
+			
+			
+			<scene id="xxx">
+				<titre>xxx</titre>
+				<image>image/13.png</image>
+				<description>xxxxx</description>
+				<choix>
+					<option vers="13">xxx lien standart xxx</option>
+					<option vers="2" force="2">xxx lien avec modification d'attribut / ajout d'objet xxxx</option>
+					<option vers="10" points="5">xxx lien avec modif du score</option>
+					<option img="image/force.png" vers="13">xxx image cliquable xxx</option>
+			</scene>
+		</histoire>
+	</script>
+
+</head>
+<body>
+	<div class="header-bandeau">
+	  <div class="score">Score: <span class="score-value">0</span></div>
+	  <div class="title">Histoire de Noël</div>
+	</div>
+
+	<div class="scene-container">
+		<div class="scene-image">
+			<img src="" alt="Scène image">
+		</div>
+
+		<div class="scene-content">
+			<!-- Bloc du score déplacé en haut -->
+			
+			<h1></h1> <!-- Titre de la scène -->
+
+			<div class="descriptions">
+				<!-- Les descriptions seront injectées ici -->
+			</div>
+			<div class="player-choices">
+				<!-- Les boutons de choix seront injectés ici -->
+			</div>
+			<div class="scene-number"></div> <!-- Numéro de la scène -->
+		</div>
+	</div>
+	<!-- Bandeau pour afficher les badges du joueur -->
+	<div class="player-stats">
+	  
+	</div>
+	v1.1
+</body>
+</html>
