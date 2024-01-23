@@ -21,7 +21,7 @@
 					Si je connecte mon smartphone, mon ordinateur portable et mon imprimante à un réseau, qu'est-ce que je pourrais faire que je ne pourrais pas faire si ces appareils étaient isolés ? 
 				</description>
 				<choix>
-					<option vers="2" points="1">Envoyer un document de mon ordinateur à imprimer directement sur mon imprimante</option>
+					<option vers="2" points="5">Envoyer un document de mon ordinateur à imprimer directement sur mon imprimante</option>
 					<option vers="3">Appeler un ami avec mon smartphone</option>
 					<option vers="4">Jouer à un jeu vidéo en solo sur mon ordinateur.</option>
 				</choix>
@@ -100,7 +100,7 @@
 					Quel serait le meilleur type de réseau pour connecter les ordinateurs dans une salle de classe et pourquoi ?
 				</description>
 				<choix>
-					<option vers="11" points="1">Un réseau LAN</option>
+					<option vers="11" points="5">Un réseau LAN</option>
 					<option vers="12" >Un réseau WAN</option>
 					<option vers="13" >Un réseau WLAN</option>
 				</choix>
@@ -120,7 +120,7 @@
 				</description>
 				<choix>
 					<option vers="14" >Connecter des appareils dans une même maison</option>
-					<option vers="15" points="1">Jouer à un jeu en ligne avec des amis à l'autre bout du monde</option>
+					<option vers="15" points="5">Jouer à un jeu en ligne avec des amis à l'autre bout du monde</option>
 					<option vers="16" >Imprimer un document sur une imprimante locale.</option>
 				</choix>
 			</scene>
@@ -134,7 +134,7 @@
 					Tu organises une soirée cinéma avec tes amis et vous voulez tous regarder un film stocké sur un serveur central dans ton salon. Cependant, chacun veut regarder le film sur son propre appareil (smartphone, tablette, ordinateur portable). Quel type de réseau choisirais-tu pour connecter tous les appareils au serveur central de manière efficace et sécurisée ? 
     				</description>
 				<choix>
-					<option vers="17" points="1">Un LAN, car il est parfait pour connecter plusieurs appareils dans une zone limitée comme ton salon, </option>
+					<option vers="17" points="5">Un LAN, car il est parfait pour connecter plusieurs appareils dans une zone limitée comme ton salon, </option>
 					<option vers="18" >Un WAN, car il offre une couverture plus large et peut connecter des appareils partout dans le monde, </option>
 					<option vers="19" >Peu importe, tant que tous les appareils ont accès à Internet.</option>
 				</choix>
@@ -155,9 +155,44 @@
 					 Sais-tu quelle est la différence entre Internet et le Web ?
     				</description>
 				<choix>
-					<option vers="20" points="1">Internet est un réseau de réseaux, tandis que le Web est une collection de sites web et de pages web accessibles via Internet</option>
+					<option vers="20" points="5">Internet est un réseau de réseaux, tandis que le Web est une collection de sites web et de pages web accessibles via Internet</option>
 					<option vers="21" >Internet et le Web sont la même chose, ce sont juste deux mots différents pour désigner le réseau mondial, </option>
 					<option vers="22" >Le Web est un type de service que l'on peut utiliser sans Internet, comme le Wi-Fi</option>
+				</choix>
+			</scene>
+	    
+			<scene id="18">
+				<titre>Les réseaux informatique</titre>
+				<image>image/internet01.png</image>
+				<description>
+					C'était une bonne réflexion, mais pour une soirée cinéma dans ton salon, un WAN n'est pas vraiment nécessaire. Rappelons que WAN (Wide Area Network) est conçu pour connecter des appareils sur de très longues distances, comme entre différentes villes ou pays. Pour des activités dans un espace plus restreint, comme ton salon, un LAN (Local Area Network) serait plus adapté. Un LAN permet de connecter tous tes appareils de manière rapide et sécurisée sur une courte distance, ce qui est idéal pour partager des fichiers, comme un film, entre différents appareils chez toi.
+    				</description>
+				<description>
+					Pour creuser un peu plus la distinction entre LAN et WAN, considérons le scénario suivant : Ton école veut mettre en place un système pour que tous les élèves et enseignants puissent accéder à des ressources éducatives, comme des livres numériques et des logiciels pédagogiques, depuis n'importe quel appareil dans l'école. Quel type de réseau serait le plus approprié pour cela ?
+    				</description>
+				<choix>
+					<option vers="29" points="1">Un LAN</option>
+					<option vers="30" >Un WAN</option>
+					<option vers="31" points="1"	>un WLAN</option>
+				</choix>
+			</scene>
+	    
+			<scene id="19">
+				<titre>Les réseaux informatique</titre>
+				<image>image/internet01.png</image>
+				<description>
+					C'est une réponse intéressante et je comprends pourquoi tu pourrais penser ainsi. Toutefois, il est important de choisir le type de réseau adapté à la situation pour une performance et une sécurité optimales. Dans le cas de ta soirée cinéma, où tous veulent se connecter à un serveur central dans ton salon, le choix le plus judicieux serait un LAN (Local Area Network). Un LAN est spécialement conçu pour connecter des appareils sur une courte distance, comme dans une maison ou un bureau. Il offre une connexion rapide et sécurisée, idéale pour partager des fichiers lourds comme des films, sans la latence ou les problèmes de sécurité potentiels associés à Internet.
+    				</description>
+				<description>
+					Un WAN (Wide Area Network), en revanche, est utilisé pour connecter des appareils sur de longues distances, comme entre différentes villes ou pays. Bien que puissant pour certaines tâches, un WAN n'est pas nécessaire pour des activités locales comme une soirée cinéma à la maison.
+    				</description>
+				<description>
+					Pour mieux saisir la différence entre LAN et WAN, considérons un autre scénario : Tu travailles sur un projet de groupe pour l'école et ton groupe veut travailler ensemble à distance. Chacun doit accéder aux mêmes documents et communiquer en temps réel, même si certains membres sont à l'autre bout de la ville, voire dans une autre ville. Quel type de réseau serait le plus approprié pour cette situation ?
+				</description>
+				<choix>
+					<option vers="29" >Un LAN</option>
+					<option vers="30" points="1">Un WAN</option>
+					<option vers="31" >un WLAN</option>
 				</choix>
 			</scene>
 			<scene id="20">
@@ -178,7 +213,7 @@
 				<choix>
 					<option vers="23" >Cela permet d'éviter de payer des frais de transmission pour de grands volumes de données</option>
 					<option vers="24" >Internet et le Web sont la même chose, ce sont juste deux mots différents pour désigner le réseau mondial, </option>
-					<option vers="25" points="1">Cela rend la transmission plus rapide et plus fiable, car même si un paquet est perdu, les autres peuvent toujours arriver</option>
+					<option vers="25" points="5">Cela rend la transmission plus rapide et plus fiable, car même si un paquet est perdu, les autres peuvent toujours arriver</option>
 				</choix>
 			</scene>
 			<scene id="21">
@@ -283,6 +318,61 @@
 					<option vers="25" points="1">Cela rend la transmission plus rapide et plus fiable, car même si un paquet est perdu, les autres peuvent toujours arriver</option>
 				</choix>
 			</scene>
+	    
+			<scene id="29">
+				<titre>Les réseaux informatique</titre>
+				<image>image/internet01.png</image>
+				<description>
+					Parfait, c'est exactement ça ! Un LAN (Local Area Network) est idéal pour connecter tous les appareils dans une zone limitée comme une école. Il permet aux élèves et aux enseignants d'accéder rapidement et en toute sécurité à des ressources éducatives partagées, comme des livres numériques et des logiciels pédagogiques, depuis n'importe quel appareil dans l'école. Bien joué pour avoir saisi cette nuance !
+    				</description>
+				<description>
+					Maintenant que nous avons compris la différence entre LAN et WAN, explorons un autre sujet très intéressant : la distinction entre Internet et le Web. Souvent, les gens utilisent ces termes de manière interchangeable, mais ils ne signifient pas la même chose.
+    				</description>
+				<description>
+					 Sais-tu quelle est la différence entre Internet et le Web ?
+    				</description>
+				<choix>
+					<option vers="20" points="5">Internet est un réseau de réseaux, tandis que le Web est une collection de sites web et de pages web accessibles via Internet</option>
+					<option vers="21" >Internet et le Web sont la même chose, ce sont juste deux mots différents pour désigner le réseau mondial, </option>
+					<option vers="22" >Le Web est un type de service que l'on peut utiliser sans Internet, comme le Wi-Fi</option>
+				</choix>
+			</scene>
+	    		<scene id="30">
+				<titre>Les réseaux informatique</titre>
+				<image>image/internet01.png</image>
+				<description>
+					C'est une réponse intéressante, mais en réalité, pour connecter des appareils dans une école afin d'accéder à des ressources éducatives, un LAN (Local Area Network) serait plus approprié. Un LAN est idéal pour créer un réseau rapide et sécurisé dans un espace limité comme une école. Un WAN (Wide Area Network), comme Internet, est plus adapté pour connecter des appareils sur de longues distances, par exemple, entre plusieurs écoles ou même pays.
+    				</description>
+				<description>
+					Maintenant que nous avons compris la différence entre LAN et WAN, explorons un autre sujet très intéressant : la distinction entre Internet et le Web. Souvent, les gens utilisent ces termes de manière interchangeable, mais ils ne signifient pas la même chose.
+    				</description>
+				<description>
+					 Sais-tu quelle est la différence entre Internet et le Web ?
+    				</description>
+				<choix>
+					<option vers="20" points="5">Internet est un réseau de réseaux, tandis que le Web est une collection de sites web et de pages web accessibles via Internet</option>
+					<option vers="21" >Internet et le Web sont la même chose, ce sont juste deux mots différents pour désigner le réseau mondial, </option>
+					<option vers="22" >Le Web est un type de service que l'on peut utiliser sans Internet, comme le Wi-Fi</option>
+				</choix>
+			</scene>
+	    		<scene id="31">
+				<titre>Les réseaux informatique</titre>
+				<image>image/internet01.png</image>
+				<description>
+					Bien joué pour avoir mentionné le WLAN (Wireless Local Area Network) ! C'est une version sans fil du LAN, permettant aux appareils de se connecter entre eux sans câbles, ce qui est très pratique. Dans une école, un WLAN permettrait effectivement à tous les élèves et enseignants d'accéder à des ressources éducatives depuis leurs appareils, sans être limités par des câbles. Très bonne réflexion !
+    				</description>
+				<description>
+					Maintenant que nous avons compris la différence entre LAN et WAN, explorons un autre sujet très intéressant : la distinction entre Internet et le Web. Souvent, les gens utilisent ces termes de manière interchangeable, mais ils ne signifient pas la même chose.
+    				</description>
+				<description>
+					 Sais-tu quelle est la différence entre Internet et le Web ?
+    				</description>
+				<choix>
+					<option vers="20" points="5">Internet est un réseau de réseaux, tandis que le Web est une collection de sites web et de pages web accessibles via Internet</option>
+					<option vers="21" >Internet et le Web sont la même chose, ce sont juste deux mots différents pour désigner le réseau mondial, </option>
+					<option vers="22" >Le Web est un type de service que l'on peut utiliser sans Internet, comme le Wi-Fi</option>
+				</choix>
+			</scene>
 			<!-- ... autres scènes ... -->
 			
 			
@@ -329,6 +419,6 @@
 	<div class="player-stats">
 	  
 	</div>
-	v1.7
+	v1.8
 </body>
 </html>
