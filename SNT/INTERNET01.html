@@ -350,7 +350,7 @@
     				</description>
 				<choix>
 					<option vers="23" >Cela permet d'éviter de payer des frais de transmission pour de grands volumes de données</option>
-					<option vers="24" >Internet et le Web sont la même chose, ce sont juste deux mots différents pour désigner le réseau mondial, </option>
+					<option vers="24" >C'est plus lent mais plus sûr, car chaque paquet est protégé par des mots de passe, </option>
 					<option vers="25" points="5">Cela rend la transmission plus rapide et plus fiable, car même si un paquet est perdu, les autres peuvent toujours arriver</option>
 				</choix>
 			</scene>
@@ -395,8 +395,30 @@
     				</description>
 				<choix>
 					<option vers="23" >Cela permet d'éviter de payer des frais de transmission pour de grands volumes de données</option>
-					<option vers="24" >Internet et le Web sont la même chose, ce sont juste deux mots différents pour désigner le réseau mondial, </option>
+					<option vers="24" >C'est plus lent mais plus sûr, car chaque paquet est protégé par des mots de passe, </option>
 					<option vers="25" points="1">Cela rend la transmission plus rapide et plus fiable, car même si un paquet est perdu, les autres peuvent toujours arriver</option>
+				</choix>
+			</scene>
+	    
+			<scene id="25">
+				<titre>Internet et la circulation des données</titre>
+				<image>image/internet01.png</image>
+				<description>
+					Exactement ! L'envoi de données sous forme de paquets rend la transmission sur Internet à la fois rapide et fiable. Si un paquet se perd ou prend du retard, les autres paquets peuvent quand même arriver à destination. De plus, si nécessaire, le paquet manquant peut être renvoyé sans devoir retransmettre l'intégralité du message. Cela rend le processus incroyablement efficace, même sur un réseau aussi complexe et chargé qu'Internet.
+    				</description>
+				<description>
+					Maintenant, approfondissons notre compréhension de la manière dont ces paquets trouvent leur chemin à travers le vaste réseau qu'est Internet. Pour cela, nous devons parler de la notion de protocole IP (Internet Protocol).
+    				</description>
+				<description img="image/internet02.jpg">
+					Le protocole IP est comme l'adresse postale pour les données sur Internet. Chaque paquet de données porte une étiquette indiquant son adresse de destination (comme l'adresse sur une lettre). Lorsqu'un paquet est envoyé, il parcourt différents points du réseau (appelés routeurs) qui lisent cette adresse et dirigent le paquet vers sa destination finale. C'est le protocole IP qui définit cette adresse et assure que les paquets arrivent là où ils doivent aller.
+    				</description>
+				<description>
+					  Quel rôle joue l'adresse IP dans la transmission des paquets de données sur Internet ?
+    				</description>
+				<choix>
+					<option vers="43" >Elle indique le contenu du paquet pour que le destinataire sache ce qu'il reçoit</option>
+					<option vers="44" points="5">Elle agit comme une adresse postale, guidant chaque paquet vers sa destination</option>
+					<option vers="45" >Elle détermine la taille des paquets pour qu'ils puissent voyager plus rapidement.</option>
 				</choix>
 			</scene>
 			<scene id="26">
@@ -434,7 +456,7 @@
     				</description>
 				<choix>
 					<option vers="23" >Cela permet d'éviter de payer des frais de transmission pour de grands volumes de données</option>
-					<option vers="24" >Internet et le Web sont la même chose, ce sont juste deux mots différents pour désigner le réseau mondial, </option>
+					<option vers="24" >C'est plus lent mais plus sûr, car chaque paquet est protégé par des mots de passe, </option>
 					<option vers="25" points="5">Cela rend la transmission plus rapide et plus fiable, car même si un paquet est perdu, les autres peuvent toujours arriver</option>
 				</choix>
 			</scene>
@@ -712,6 +734,44 @@
 					<option vers="32" >Un LAN</option>
 					<option vers="33" points="1">Un WAN</option>
 					<option vers="34" >un WLAN</option>
+				</choix>
+			</scene>
+	    
+			<scene id="44">
+				<titre>Internet et la circulation des données</titre>
+				<image>image/internet01.png</image>
+				<description>
+					out à fait, c'est une excellente compréhension ! Comme une adresse postale sur une enveloppe, l'adresse IP indique où chaque paquet de données doit aller sur Internet. Cela assure que les informations que tu envoies, que ce soit un message, une image ou une vidéo, arrivent bien à l'appareil destinataire, peu importe où il se trouve dans le monde.
+    				</description>
+				<description>
+					Le protocole IP est aussi responsable de fragmenter l'information en paquets et de les rassembler une fois qu'ils atteignent leur destination. Cependant, le protocole IP par lui-même ne garantit pas que les paquets arrivent dans le bon ordre, ni même qu'ils arrivent tout court. C'est là que d'autres protocoles entrent en jeu, comme le TCP (Transmission Control Protocol), qui s'occupe de la vérification et de la remise en ordre des paquets.
+    				</description>
+				<description>
+					  Considérons que tu envoies un email important. Ton message est divisé en paquets et chaque paquet porte une adresse IP. Qu'arrive-t-il si un paquet se perd en cours de route ? 
+	    			</description>
+				<choix>
+					<option vers="46" >L'ensemble du message échoue et doit être renvoyé depuis le début</option>
+					<option vers="47" points="5">Le protocole TCP détecte qu'un paquet manque et en demande la retransmission, assurant ainsi que le message entier est reçu correctement</option>
+					<option vers="48" >Le message arrive avec des parties manquantes, et il appartient au destinataire de demander l'envoi des parties manquantes</option>
+				</choix>
+			</scene>
+	    
+			<scene id="47">
+				<titre>Internet et la circulation des données</titre>
+				<image>image/internet01.png</image>
+				<description>
+					Exactement, tu as tout à fait raison ! Le protocole TCP joue un rôle crucial dans la garantie que les données que tu envoies sur Internet arrivent de manière complète et dans le bon ordre. Si un paquet se perd en chemin, le protocole TCP s'en aperçoit et demande la retransmission de ce paquet spécifique. Cela permet de s'assurer que, même si le chemin est semé d'embûches, ton message arrivera entier et tel que tu l'as envoyé.
+    				</description>
+				<description>
+					En plus de gérer la transmission et la retransmission des paquets, le protocole TCP s'occupe aussi de contrôler la durée de vie des paquets, appelée TTL (Time To Live). La TTL est une sorte de compte à rebours qui diminue à chaque fois qu'un paquet passe par un routeur. Si la TTL d'un paquet atteint zéro avant qu'il n'atteigne sa destination, le paquet est supprimé. Cela évite que les paquets perdus ne circulent indéfiniment sur le réseau, encombrant inutilement le trafic.
+    				</description>
+				<description>
+					  Pourquoi le protocole TCP inclut-il une durée de vie (TTL) pour chaque paquet ?
+    				</description>
+				<choix>
+					<option vers="49" >Pour s'assurer que les paquets ne prennent pas le chemin le plus long et n'encombrent pas le réseau</option>
+					<option vers="50" >Pour accélérer la transmission des données en supprimant les paquets qui prennent trop de temps à atteindre leur destination</option>
+					<option vers="51" points="5">Pour éviter que des paquets perdus ou circulant en boucle n'encombrent le réseau indéfiniment</option>
 				</choix>
 			</scene>
 			<!-- ... autres scènes ... -->
