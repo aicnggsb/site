@@ -15,7 +15,7 @@
 				<titre>Les réseaux informatique</titre>
 				<image>image/internet01.png</image>
 				<description>
-					Un <B>réseau informatique</b>, c'est un peu comme une toile d'araignée géante reliant plusieurs ordinateurs, smartphones, imprimantes, et bien d'autres appareils entre eux. Ces connexions peuvent être filaires, comme les câbles que l'on utilise pour brancher une télévision, ou sans fil, à l'image du Wi-Fi que l'on utilise pour naviguer sur Internet avec un téléphone portable. L'objectif principal ? Permettre à ces appareils de "parler" entre eux, d'échanger des informations, des données, comme des emails, des vidéos ou des documents, et de partager des ressources, comme une imprimante ou un fichier stocké dans le cloud.
+					Un réseau informatique, c'est un peu comme une toile d'araignée géante reliant plusieurs ordinateurs, smartphones, imprimantes, et bien d'autres appareils entre eux. Ces connexions peuvent être filaires, comme les câbles que l'on utilise pour brancher une télévision, ou sans fil, à l'image du Wi-Fi que l'on utilise pour naviguer sur Internet avec un téléphone portable. L'objectif principal ? Permettre à ces appareils de "parler" entre eux, d'échanger des informations, des données, comme des emails, des vidéos ou des documents, et de partager des ressources, comme une imprimante ou un fichier stocké dans le cloud.
 				</description>
 				<description>
 					Si je connecte mon smartphone, mon ordinateur portable et mon imprimante à un réseau, qu'est-ce que je pourrais faire que je ne pourrais pas faire si ces appareils étaient isolés ? 
@@ -772,6 +772,25 @@
 					<option vers="49" >Pour s'assurer que les paquets ne prennent pas le chemin le plus long et n'encombrent pas le réseau</option>
 					<option vers="50" >Pour accélérer la transmission des données en supprimant les paquets qui prennent trop de temps à atteindre leur destination</option>
 					<option vers="51" points="5">Pour éviter que des paquets perdus ou circulant en boucle n'encombrent le réseau indéfiniment</option>
+				</choix>
+			</scene>
+	
+			<scene id="51">
+				<titre>Internet et la circulation des données</titre>
+				<image>image/internet01.png</image>
+				<description>
+					C'est tout à fait correct ! La durée de vie (TTL) est essentielle pour maintenir l'efficacité du réseau en évitant que les paquets perdus ou circulant en boucle n'encombrent le réseau indéfiniment. Si un paquet ne parvient pas à atteindre sa destination avant que sa TTL n'expire, il est supprimé. Cela aide à préserver les ressources du réseau et à assurer que le trafic de données reste fluide et gérable.
+    				</description>
+				<description>
+					Maintenant que nous comprenons comment les paquets de données sont gérés pour éviter la congestion du réseau, explorons un élément crucial du réseau : le routeur. Les routeurs sont des dispositifs qui dirigent le trafic sur Internet. Ils sont comme des chefs d'orchestre, décidant où et comment les paquets de données doivent se déplacer. Chaque routeur a une connaissance des réseaux qui sont directement connectés à lui et utilise cette information, ainsi que des protocoles complexes, pour choisir le meilleur chemin pour chaque paquet de données.
+    				</description>
+				<description>
+					  Imaginons qu'un paquet de données doit voyager d'un ordinateur à un autre, mais il doit passer par plusieurs routeurs en chemin. Comment le routeur décide-t-il quel est le "meilleur" chemin pour un paquet ?
+    				</description>
+				<choix>
+					<option vers="52" >Il choisit le chemin avec le moins de sauts entre routeurs</option>
+					<option vers="53" points="5">Il utilise des algorithmes complexes pour évaluer divers facteurs, tels que la congestion du réseau, les changements de topologie, et la distance, pour choisir le chemin optimal</option>
+					<option vers="54" >Il envoie le paquet sur un chemin aléatoire à chaque fois pour répartir équitablement le trafic.</option>
 				</choix>
 			</scene>
 			<!-- ... autres scènes ... -->
