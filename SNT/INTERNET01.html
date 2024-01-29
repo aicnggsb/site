@@ -775,6 +775,43 @@
 				</choix>
 			</scene>
 	
+			<scene id="49">
+				<titre>Internet et la circulation des données</titre>
+				<image>image/internet01.png</image>
+				<description>
+					C'est une réponse logique, mais pas tout à fait exacte. La durée de vie (TTL) d'un paquet n'est pas directement liée à la longueur du chemin qu'il parcourt, mais plutôt à la durée pendant laquelle il circule dans le réseau. La principale raison de la TTL est d'éviter que des paquets perdus ou circulant en boucle n'encombrent le réseau indéfiniment (réponse B). Si un paquet ne parvient pas à sa destination avant que sa TTL n'atteigne zéro, il est supprimé pour éviter l'engorgement du réseau.
+    				</description>
+				<description>
+					Maintenant, explorons un autre élément clé dans le fonctionnement d'Internet : le routeur. Les routeurs sont comme des postes de triage dans le réseau. Ils analysent les informations contenues dans les paquets (notamment l'adresse IP) et déterminent le meilleur chemin possible pour que chaque paquet atteigne sa destination. Sans routeurs, les paquets de données se perdraient facilement dans l'immensité d'Internet.
+    				</description>
+				<description>
+					 D'après toi, comment un routeur décide-t-il quel chemin un paquet doit prendre pour arriver à sa destination ?
+    				</description>
+				<choix>
+					<option vers="555" >Il suit toujours le chemin le plus court,</option>
+					<option vers="56" >Il choisit un chemin au hasard parmi tous les chemins possibles,</option>
+					<option vers="57" points="5">Il utilise des algorithmes pour déterminer le chemin le plus efficace en fonction de divers facteurs comme le trafic réseau et la distance.</option>
+				</choix>
+			</scene>
+	    
+			<scene id="50">
+				<titre>Internet et la circulation des données</titre>
+				<image>image/internet01.png</image>
+				<description>
+					Ta réponse montre une bonne réflexion sur l'importance de l'efficacité dans la transmission des données. Cependant, la principale raison de la durée de vie (TTL) des paquets est d'éviter que des paquets perdus ou circulant en boucle n'encombrent le réseau indéfiniment (réponse B). Si un paquet ne parvient pas à sa destination avant que sa TTL n'expire, il est supprimé. Cela aide à garder le réseau dégagé et fonctionnel, en empêchant l'accumulation de données inutiles.
+    				</description>
+				<description>
+					Maintenant, explorons un autre élément clé dans le fonctionnement d'Internet : le routeur. Les routeurs sont comme des postes de triage dans le réseau. Ils analysent les informations contenues dans les paquets (notamment l'adresse IP) et déterminent le meilleur chemin possible pour que chaque paquet atteigne sa destination. Sans routeurs, les paquets de données se perdraient facilement dans l'immensité d'Internet.
+    				</description>
+				<description>
+					 D'après toi, comment un routeur décide-t-il quel chemin un paquet doit prendre pour arriver à sa destination ?
+    				</description>
+				<choix>
+					<option vers="55" >Il suit toujours le chemin le plus court,</option>
+					<option vers="56" >Il choisit un chemin au hasard parmi tous les chemins possibles,</option>
+					<option vers="57" points="5">Il utilise des algorithmes pour déterminer le chemin le plus efficace en fonction de divers facteurs comme le trafic réseau et la distance.</option>
+				</choix>
+			</scene>
 			<scene id="51">
 				<titre>Internet et la circulation des données</titre>
 				<image>image/internet01.png</image>
@@ -791,6 +828,144 @@
 					<option vers="52" >Il choisit le chemin avec le moins de sauts entre routeurs</option>
 					<option vers="53" points="5">Il utilise des algorithmes complexes pour évaluer divers facteurs, tels que la congestion du réseau, les changements de topologie, et la distance, pour choisir le chemin optimal</option>
 					<option vers="54" >Il envoie le paquet sur un chemin aléatoire à chaque fois pour répartir équitablement le trafic.</option>
+				</choix>
+			</scene>
+	    
+	    		<scene id="52">
+				<titre>Internet et la circulation des données</titre>
+				<image>image/internet01.png</image>
+				<description>
+					C'est une idée intéressante, mais il y a un peu plus à prendre en compte. En réalité, les routeurs n'utilisent pas seulement le nombre de sauts entre eux pour décider du meilleur chemin. Ils prennent en compte plusieurs facteurs, comme la congestion du réseau et la stabilité des connexions, pour choisir le chemin le plus efficace et fiable pour acheminer les paquets de données. C'est un processus complexe qui nécessite une évaluation constante de l'état du réseau.
+    				</description>
+				<description>
+					Maintenant, explorons une manière intéressante de visualiser et de comprendre le réseau : en le considérant comme un graphe. Dans cette représentation, chaque sommet du graphe est un routeur. Les arêtes (ou liens) du graphe représentent les connexions entre les routeurs. Cette visualisation nous aide à comprendre comment les données voyagent à travers le réseau et comment les routeurs interagissent pour acheminer les paquets de données.
+    				</description>
+				<description>
+					  Dans un graphe représentant un réseau, la topologie du réseau (la façon dont les routeurs sont connectés entre eux) peut grandement influencer l'efficacité du routage des données. Différentes topologies de réseau, comme en étoile, en anneau, ou en maillage, ont leurs propres avantages et inconvénients en termes de coût, de performance et de résilience.
+	    			/description>
+				<description>
+					XXXXXXX  Donner un exemple de graphe et indiquer quel chemin n'est pas valide
+    				</description>
+				<choix>
+					<option vers="xxx" >xxxx</option>
+					<option vers="xxx" points="5">Il utilise des algorithmes complexes pour évaluer divers facteurs, tels que la congestion du réseau, les changements de topologie, et la distance, pour choisir le chemin optimal</option>
+					<option vers="xxxx" >Il envoie le paquet sur un chemin aléatoire à chaque fois pour répartir équitablement le trafic.</option>
+				</choix>
+			</scene>
+	    		<scene id="53">
+				<titre>Internet et la circulation des données</titre>
+				<image>image/internet01.png</image>
+				<description>
+					Tout à fait, excellente réponse ! Les routeurs utilisent effectivement des algorithmes complexes pour déterminer le meilleur chemin pour les paquets de données. Ils prennent en compte des facteurs comme la congestion du réseau, les changements de topologie (c'est-à-dire la manière dont le réseau est structuré), et la distance. Ce processus intelligent assure que les données atteignent leur destination de la manière la plus efficace possible.
+    				</description>
+				<description>
+					Maintenant, explorons une manière intéressante de visualiser et de comprendre le réseau : en le considérant comme un graphe. Dans cette représentation, chaque sommet du graphe est un routeur. Les arêtes (ou liens) du graphe représentent les connexions entre les routeurs. Cette visualisation nous aide à comprendre comment les données voyagent à travers le réseau et comment les routeurs interagissent pour acheminer les paquets de données.
+    				</description>
+				<description>
+					  Dans un graphe représentant un réseau, la topologie du réseau (la façon dont les routeurs sont connectés entre eux) peut grandement influencer l'efficacité du routage des données. Différentes topologies de réseau, comme en étoile, en anneau, ou en maillage, ont leurs propres avantages et inconvénients en termes de coût, de performance et de résilience.
+    				</description>
+				<description>
+					XXXXXXX  Donner un exemple de graphe et indiquer quel chemin n'est pas valide
+    				</description>
+				<choix>
+					<option vers="xxx" >xxxx</option>
+					<option vers="xxx" points="5">Il utilise des algorithmes complexes pour évaluer divers facteurs, tels que la congestion du réseau, les changements de topologie, et la distance, pour choisir le chemin optimal</option>
+					<option vers="xxxx" >Il envoie le paquet sur un chemin aléatoire à chaque fois pour répartir équitablement le trafic.</option>
+				</choix>
+			</scene>
+	    
+	    		<scene id="54">
+				<titre>Internet et la circulation des données</titre>
+				<image>image/internet01.png</image>
+				<description>
+					C'est une idée intéressante, mais en réalité, les routeurs ne choisissent pas les chemins de manière aléatoire. Ils utilisent des algorithmes sophistiqués pour déterminer le meilleur chemin possible pour un paquet, en prenant en compte divers facteurs comme la congestion du réseau, la distance, et les changements potentiels dans la topologie du réseau (réponse B). Le choix du chemin est donc un processus calculé et non aléatoire, visant à optimiser la vitesse et la fiabilité de la transmission des données.
+    				</description>
+				<description>
+					Maintenant, explorons une manière intéressante de visualiser et de comprendre le réseau : en le considérant comme un graphe. Dans cette représentation, chaque sommet du graphe est un routeur. Les arêtes (ou liens) du graphe représentent les connexions entre les routeurs. Cette visualisation nous aide à comprendre comment les données voyagent à travers le réseau et comment les routeurs interagissent pour acheminer les paquets de données.
+    				</description>
+				<description>
+					  Dans un graphe représentant un réseau, la topologie du réseau (la façon dont les routeurs sont connectés entre eux) peut grandement influencer l'efficacité du routage des données. Différentes topologies de réseau, comme en étoile, en anneau, ou en maillage, ont leurs propres avantages et inconvénients en termes de coût, de performance et de résilience.
+	    			/description>
+				<description>
+					XXXXXXX  Donner un exemple de graphe et indiquer quel chemin n'est pas valide
+    				</description>
+				<choix>
+					<option vers="xxx" >xxxx</option>
+					<option vers="xxx" points="5">Il utilise des algorithmes complexes pour évaluer divers facteurs, tels que la congestion du réseau, les changements de topologie, et la distance, pour choisir le chemin optimal</option>
+					<option vers="xxxx" >Il envoie le paquet sur un chemin aléatoire à chaque fois pour répartir équitablement le trafic.</option>
+				</choix>
+			</scene>
+	    
+	    		<scene id="55">
+				<titre>Internet et la circulation des données</titre>
+				<image>image/internet01.png</image>
+				<description>
+					C'est une réponse intuitive, mais en réalité, le processus est un peu plus complexe. Les routeurs n'utilisent pas systématiquement le chemin le plus court pour acheminer les paquets. En effet, ils se basent sur des tables de routage et des algorithmes sophistiqués pour déterminer le chemin le plus efficace. Ce chemin est choisi en fonction de divers facteurs, comme l'état actuel du trafic réseau et la distance. Donc, la bonne réponse est C : les routeurs utilisent des tables de routage complexes et des algorithmes pour trouver le meilleur chemin.
+    				</description>
+				<description>
+					Cela permet d'optimiser la transmission des données sur Internet, même si cela signifie parfois que les paquets ne prennent pas le chemin le plus court géographiquement parlant. Les routeurs jouent un rôle essentiel en s'assurant que le réseau fonctionne de manière fluide et efficace, en adaptant constamment les itinéraires des paquets en fonction des conditions changeantes du réseau.
+    				</description>
+				<description>
+					Maintenant, explorons une manière intéressante de visualiser et de comprendre le réseau : en le considérant comme un graphe. Dans cette représentation, chaque sommet du graphe est un routeur. Les arêtes (ou liens) du graphe représentent les connexions entre les routeurs. Cette visualisation nous aide à comprendre comment les données voyagent à travers le réseau et comment les routeurs interagissent pour acheminer les paquets de données.
+    				</description>
+				<description>
+					  Dans un graphe représentant un réseau, la topologie du réseau (la façon dont les routeurs sont connectés entre eux) peut grandement influencer l'efficacité du routage des données. Différentes topologies de réseau, comme en étoile, en anneau, ou en maillage, ont leurs propres avantages et inconvénients en termes de coût, de performance et de résilience.
+	    			/description>
+				<description>
+					XXXXXXX  Donner un exemple de graphe et indiquer quel chemin n'est pas valide
+    				</description>
+				<choix>
+					<option vers="xxx" >xxxx</option>
+					<option vers="xxx" points="5">Il utilise des algorithmes complexes pour évaluer divers facteurs, tels que la congestion du réseau, les changements de topologie, et la distance, pour choisir le chemin optimal</option>
+					<option vers="xxxx" >Il envoie le paquet sur un chemin aléatoire à chaque fois pour répartir équitablement le trafic.</option>
+				</choix>
+			</scene>
+	    		<scene id="56">
+				<titre>Internet et la circulation des données</titre>
+				<image>image/internet01.png</image>
+				<description>
+					C'est une idée intéressante, mais ce n'est pas tout à fait ainsi que les routeurs fonctionnent. Au lieu de choisir un chemin au hasard, les routeurs utilisent des tables de routage complexes et des algorithmes pour déterminer le chemin le plus efficace pour acheminer chaque paquet de données (réponse C). Ces décisions sont basées sur divers facteurs, comme la congestion du réseau, les changements dans la topologie du réseau, et la distance entre l'origine et la destination des paquets. Cela permet de s'assurer que les données que tu envoies sur Internet prennent le chemin le plus rapide et le plus fiable possible.
+    				</description>
+				<description>
+					Le routage est un processus dynamique et intelligent, essentiel pour maintenir l'efficacité et la rapidité d'Internet. Les routeurs doivent constamment s'adapter aux changements de conditions sur le réseau pour optimiser la transmission des données.
+    				</description>
+				<description>
+					Maintenant, explorons une manière intéressante de visualiser et de comprendre le réseau : en le considérant comme un graphe. Dans cette représentation, chaque sommet du graphe est un routeur. Les arêtes (ou liens) du graphe représentent les connexions entre les routeurs. Cette visualisation nous aide à comprendre comment les données voyagent à travers le réseau et comment les routeurs interagissent pour acheminer les paquets de données.
+    				</description>
+				<description>
+					  Dans un graphe représentant un réseau, la topologie du réseau (la façon dont les routeurs sont connectés entre eux) peut grandement influencer l'efficacité du routage des données. Différentes topologies de réseau, comme en étoile, en anneau, ou en maillage, ont leurs propres avantages et inconvénients en termes de coût, de performance et de résilience.
+	    			/description>
+				<description>
+					XXXXXXX  Donner un exemple de graphe et indiquer quel chemin n'est pas valide
+    				</description>
+				<choix>
+					<option vers="xxx" >xxxx</option>
+					<option vers="xxx" points="5">Il utilise des algorithmes complexes pour évaluer divers facteurs, tels que la congestion du réseau, les changements de topologie, et la distance, pour choisir le chemin optimal</option>
+					<option vers="xxxx" >Il envoie le paquet sur un chemin aléatoire à chaque fois pour répartir équitablement le trafic.</option>
+				</choix>
+			</scene>
+	    		<scene id="57">
+				<titre>Internet et la circulation des données</titre>
+				<image>image/internet01.png</image>
+				<description>
+					Bravo, c'est exactement ça ! Les routeurs jouent un rôle crucial dans la gestion du trafic Internet en utilisant des tables de routage et des algorithmes complexes. Ces tables de routage contiennent des informations sur les chemins disponibles et les conditions de réseau, permettant ainsi au routeur de décider du meilleur chemin pour acheminer les paquets. Cette décision prend en compte divers facteurs tels que le trafic actuel sur le réseau, la distance, et parfois même l'état des liens réseau. Cette capacité de choisir le chemin le plus efficace assure une transmission rapide et fiable des données sur Internet.
+    				</description>
+				<description>
+					La performance et l'efficacité des routeurs sont essentielles pour le bon fonctionnement d'Internet, surtout lorsqu'on considère la quantité massive de données qui y circulent à chaque instant.
+    				</description>
+				<description>
+					Maintenant, explorons une manière intéressante de visualiser et de comprendre le réseau : en le considérant comme un graphe. Dans cette représentation, chaque sommet du graphe est un routeur. Les arêtes (ou liens) du graphe représentent les connexions entre les routeurs. Cette visualisation nous aide à comprendre comment les données voyagent à travers le réseau et comment les routeurs interagissent pour acheminer les paquets de données.
+    				</description>
+				<description>
+					  Dans un graphe représentant un réseau, la topologie du réseau (la façon dont les routeurs sont connectés entre eux) peut grandement influencer l'efficacité du routage des données. Différentes topologies de réseau, comme en étoile, en anneau, ou en maillage, ont leurs propres avantages et inconvénients en termes de coût, de performance et de résilience.
+	    			/description>
+				<description>
+					XXXXXXX  Donner un exemple de graphe et indiquer quel chemin n'est pas valide
+    				</description>
+				<choix>
+					<option vers="xxx" >xxxx</option>
+					<option vers="xxx" points="5">Il utilise des algorithmes complexes pour évaluer divers facteurs, tels que la congestion du réseau, les changements de topologie, et la distance, pour choisir le chemin optimal</option>
+					<option vers="xxxx" >Il envoie le paquet sur un chemin aléatoire à chaque fois pour répartir équitablement le trafic.</option>
 				</choix>
 			</scene>
 			<!-- ... autres scènes ... -->
