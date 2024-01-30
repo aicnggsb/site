@@ -737,6 +737,24 @@
 				</choix>
 			</scene>
 	    
+			<scene id="43">
+				<titre>Internet et la circulation des données</titre>
+				<image>image/internet01.png</image>
+				<description>
+					C'est une idée intéressante, mais en réalité, l'adresse IP ne concerne pas le contenu du paquet. L'adresse IP joue plutôt le rôle d'une adresse postale pour les données sur Internet. Chaque paquet de données possède une adresse IP de destination (comme l'adresse sur une enveloppe) qui guide ce paquet à travers le réseau jusqu'à l'ordinateur ou l'appareil ciblé. Le contenu du paquet reste caché et sécurisé ; l'adresse IP sert uniquement à assurer que les données atteignent le bon destinataire.
+    				</description>
+				<description>
+					Le protocole IP est aussi responsable de fragmenter l'information en paquets et de les rassembler une fois qu'ils atteignent leur destination. Cependant, le protocole IP par lui-même ne garantit pas que les paquets arrivent dans le bon ordre, ni même qu'ils arrivent tout court. C'est là que d'autres protocoles entrent en jeu, comme le TCP (Transmission Control Protocol), qui s'occupe de la vérification et de la remise en ordre des paquets.
+    				</description>
+				<description>
+					  Considérons que tu envoies un email important. Ton message est divisé en paquets et chaque paquet porte une adresse IP. Qu'arrive-t-il si un paquet se perd en cours de route ? 
+	    			</description>
+				<choix>
+					<option vers="46" >L'ensemble du message échoue et doit être renvoyé depuis le début</option>
+					<option vers="47" points="5">Le protocole TCP détecte qu'un paquet manque et en demande la retransmission, assurant ainsi que le message entier est reçu correctement</option>
+					<option vers="48" >Le message arrive avec des parties manquantes, et il appartient au destinataire de demander l'envoi des parties manquantes</option>
+				</choix>
+			</scene>
 			<scene id="44">
 				<titre>Internet et la circulation des données</titre>
 				<image>image/internet01.png</image>
@@ -756,6 +774,24 @@
 				</choix>
 			</scene>
 	    
+			<scene id="45">
+				<titre>Internet et la circulation des données</titre>
+				<image>image/internet01.png</image>
+				<description>
+					C'est une bonne réflexion, mais en réalité, la taille des paquets est déterminée par d'autres aspects du réseau, pas directement par l'adresse IP. L'adresse IP joue un rôle différent mais tout aussi essentiel. Elle fonctionne comme une adresse postale pour les données sur Internet. Chaque paquet de données porte une étiquette avec son adresse IP de destination, aidant ainsi le réseau à diriger ce paquet vers le bon appareil ou serveur. Pense à l'adresse IP comme à un guide qui aide chaque paquet à trouver son chemin dans le labyrinthe complexe qu'est Internet.
+    				</description>
+				<description>
+					Le protocole IP est aussi responsable de fragmenter l'information en paquets et de les rassembler une fois qu'ils atteignent leur destination. Cependant, le protocole IP par lui-même ne garantit pas que les paquets arrivent dans le bon ordre, ni même qu'ils arrivent tout court. C'est là que d'autres protocoles entrent en jeu, comme le TCP (Transmission Control Protocol), qui s'occupe de la vérification et de la remise en ordre des paquets.
+    				</description>
+				<description>
+					  Considérons que tu envoies un email important. Ton message est divisé en paquets et chaque paquet porte une adresse IP. Qu'arrive-t-il si un paquet se perd en cours de route ? 
+	    			</description>
+				<choix>
+					<option vers="46" >L'ensemble du message échoue et doit être renvoyé depuis le début</option>
+					<option vers="47" points="5">Le protocole TCP détecte qu'un paquet manque et en demande la retransmission, assurant ainsi que le message entier est reçu correctement</option>
+					<option vers="48" >Le message arrive avec des parties manquantes, et il appartient au destinataire de demander l'envoi des parties manquantes</option>
+				</choix>
+			</scene>
 			<scene id="46">
 				<titre>Internet et la circulation des données</titre>
 				<image>image/internet01.png</image>
@@ -825,7 +861,7 @@
 					 D'après toi, comment un routeur décide-t-il quel chemin un paquet doit prendre pour arriver à sa destination ?
     				</description>
 				<choix>
-					<option vers="555" >Il suit toujours le chemin le plus court,</option>
+					<option vers="55" >Il suit toujours le chemin le plus court,</option>
 					<option vers="56" >Il choisit un chemin au hasard parmi tous les chemins possibles,</option>
 					<option vers="57" points="5">Il utilise des algorithmes pour déterminer le chemin le plus efficace en fonction de divers facteurs comme le trafic réseau et la distance.</option>
 				</choix>
@@ -1051,6 +1087,6 @@
 	<div class="player-stats">
 	  
 	</div>
-	v1.9
+	v1.10
 </body>
 </html>
