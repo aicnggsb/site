@@ -2,14 +2,15 @@
 // Initialisation des variables 
 // -----------------------------------------------------------------------------
 // ID de la scène
-let currentSceneId = "36";
+let currentSceneId = "15";
 // Score du joueur
 let playerScore = 0;
 
 // caracteristiques principales
-let force=10
-let chance=10
-let dexterite=10
+let force=6
+let chance=6
+let dexterite=6
+let intelligence=6
 
 // compétences
 let electricite=0
@@ -32,11 +33,20 @@ function loadSceneFromXML(xmlDoc, sceneId) {
     let image = scene.querySelector('image').textContent;
     let choix = Array.from(scene.querySelectorAll('option')).map(option => ({
 		label: option.textContent,
+		img: option.getAttribute('img'),
 		nextScene: option.getAttribute('vers'),
 		points: option.getAttribute('points'),
+	    
+		
+		echecForce: parseInt(option.getAttribute('echecForce') || "0"),
+		echecIntelligence: parseInt(option.getAttribute('echecIntelligence') || "0"),
+	    	echecChance: parseInt(option.getAttribute('echecChance') || "0"),
+	    	echecDexterite: parseInt(option.getAttribute('echecDexterite') || "0"),
+	    
 		force: parseInt(option.getAttribute('force') || "0"),
 		chance: parseInt(option.getAttribute('chance') || "0"),
 		dexterite: parseInt(option.getAttribute('dexterite') || "0"),
+		intelligence: parseInt(option.getAttribute('intelligence') || "0"),
 		electricite: parseInt(option.getAttribute('electricite') || "0"),
 		python: parseInt(option.getAttribute('python') || "0"),
 		cristal: parseInt(option.getAttribute('cristal') || "0")
@@ -54,28 +64,30 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 
     // Met à jour le titre de la scène dans le contenu de la page
     document.querySelector('.scene-content h1').textContent = titre;
-	// Met à jour l'image de la scène dans le contenu de la page
+    
+    // Met à jour l'image de la scène dans le contenu de la page
     document.querySelector('.scene-image img').src = image;
-	// Affiche le numéro de la scène actuelle
-	document.querySelector('.scene-number').textContent = "Scène " + sceneId;
+    
+    // Affiche le numéro de la scène actuelle
+    document.querySelector('.scene-number').textContent = "Scène " + sceneId;
 
-	// Sélectionne le conteneur pour les descriptions et le vide
+    // Sélectionne le conteneur pour les descriptions et le vide
     let descriptionsContainer = document.querySelector('.descriptions');
     descriptionsContainer.innerHTML = '';
 
-	// Pour chaque description trouvée dans la scène XML
+   // Pour chaque description trouvée dans la scène XML
     descriptions.forEach(descriptionData => {
-		 // --- Crée un nouvel élément paragraphe et y met le texte de la description
+	// --- Crée un nouvel élément paragraphe et y met le texte de la description
         if (descriptionData.isCode) {
-			let p = document.createElement('pre');
-			p.textContent = descriptionData.text;
-			descriptionsContainer.appendChild(p);
-		} else {
-			let p = document.createElement('p');
-			p.textContent = descriptionData.text;
-			descriptionsContainer.appendChild(p);
-		}
-		 // --- Si une image est liée à la description, crée un élément image et le configure
+		let p = document.createElement('pre');
+		p.textContent = descriptionData.text;
+		descriptionsContainer.appendChild(p);
+	} else {
+		let p = document.createElement('p');
+		p.textContent = descriptionData.text;
+		descriptionsContainer.appendChild(p);
+	}
+	 // --- Si une image est liée à la description, crée un élément image et le configure
         if (descriptionData.img) {
             let img = document.createElement('img');
             img.src = descriptionData.img;
@@ -96,10 +108,45 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 		let button = document.createElement('button');
 		button.textContent = choice.label;
 		
+		if (choice.img) {
+			// Créer et configurer un élément <img>
+			button = document.createElement('img');
+			button.src = choice.img;
+			button.alt = choice.label; // Ajouter un texte alternatif pour l'accessibilité
+			button.classList.add('clickable-image'); // Ajouter une classe pour le style
+		}
+		
 		// --- Définit la fonction à exécuter lorsque le bouton est cliqué
 		button.onclick = () => {
 			// Met à jour l'ID de la scène actuelle et charge la nouvelle scène
 			currentSceneId = choice.nextScene;
+
+			// change de scène si echec test
+			if (choice.echecForce>0){
+				if (getRandomInt(20)>force){
+					currentSceneId=choice.echecForce.toString();
+					choice.points="";
+				}
+			}
+			if (choice.echecChance>0){
+				if (getRandomInt(20)>chance){
+					currentSceneId=choice.echecChance.toString();
+					choice.points="";
+				}
+			}
+			
+			if (choice.echecIntelligence>0){
+				if (getRandomInt(20)>intelligence){
+					currentSceneId=choice.echecIntelligence.toString();
+					choice.points="";
+				}
+			}
+			if (choice.echecDexterite>0){
+				if (getRandomInt(20)>dexterite){
+					currentSceneId=choice.echecDexterite.toString();
+					choice.points="";
+				}
+			}
 			loadSceneFromXML(xmlDoc, currentSceneId);
 						
 			
@@ -112,6 +159,7 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 			force += choice.force;
 			chance += choice.chance;
 			dexterite += choice.dexterite;
+			intelligence += choice.intelligence;
 			
 			// mise à jour des compétences
 			electricite += choice.electricite;
@@ -141,6 +189,13 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 				bandeau.appendChild(imgDex);
 			}
 			
+			if (intelligence > 9) {
+				let imgDex = document.createElement('img');
+				imgDex.src = 'image/intelligence.png'; 
+				bandeau.appendChild(imgDex);
+			}
+			
+			
 			// les badges pour les compétences		
 			if (electricite > 9) {
 				let imgDex = document.createElement('img');
@@ -166,6 +221,10 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 	});
 	
 	
+}
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
 }
 
 // -----------------------------------------------------------------------------
