@@ -2,15 +2,16 @@
 // Initialisation des variables 
 // -----------------------------------------------------------------------------
 // ID de la scène
-let currentSceneId = "P0";
+let currentSceneId = "P";
 // Score du joueur
 let playerScore = 0;
 
 // caracteristiques principales
-let force=6
-let chance=6
-let dexterite=6
-let intelligence=6
+let force=0
+let chance=0
+let dexterite=0
+let intelligence=0
+let charisme=0
 
 // compétences
 let electricite=0
@@ -46,7 +47,9 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 		force: parseInt(option.getAttribute('force') || "0"),
 		chance: parseInt(option.getAttribute('chance') || "0"),
 		dexterite: parseInt(option.getAttribute('dexterite') || "0"),
-		intelligence: parseInt(option.getAttribute('intelligence') || "0"),
+		intelligence: parseInt(option.getAttribute('intelligence') || "0"),	    
+		charisme: parseInt(option.getAttribute('charisme') || "0"),
+	    
 		electricite: parseInt(option.getAttribute('electricite') || "0"),
 		python: parseInt(option.getAttribute('python') || "0"),
 		cristal: parseInt(option.getAttribute('cristal') || "0")
@@ -122,6 +125,12 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 			currentSceneId = choice.nextScene;
 
 			// change de scène si echec test
+			if (choice.echecCharisme>0){
+				if (getRandomInt(20)>charisme){
+					currentSceneId=choice.echecCharisme.toString();
+					choice.points="";
+				}
+			}
 			if (choice.echecForce>0){
 				if (getRandomInt(20)>force){
 					currentSceneId=choice.echecForce.toString();
@@ -160,6 +169,7 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 			chance += choice.chance;
 			dexterite += choice.dexterite;
 			intelligence += choice.intelligence;
+			charisme += choice.charisme;
 			
 			// mise à jour des compétences
 			electricite += choice.electricite;
@@ -195,6 +205,11 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 				bandeau.appendChild(imgDex);
 			}
 			
+			if (charisme > 9) {
+				let imgDex = document.createElement('img');
+				imgDex.src = 'image/charisme.png'; 
+				bandeau.appendChild(imgDex);
+			}
 			
 			// les badges pour les compétences		
 			if (electricite > 9) {
