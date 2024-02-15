@@ -171,6 +171,7 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 			intelligence += choice.intelligence;
 			charisme += choice.charisme;
 			
+			document.querySelector('.score-value').textContent = charisme;
 			// mise à jour des compétences
 			electricite += choice.electricite;
 			python += choice.python;
