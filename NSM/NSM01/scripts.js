@@ -185,7 +185,11 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 			}
 			
 			if (choice.echecInebranlable>0){
+				alert("inebranlable !");
+
 				if (getRandomInt(20)>inebranlable){
+					
+					alert("loupé !");
 					currentSceneId=choice.echecInebranlable.toString();
 					choice.points="";
 				}
