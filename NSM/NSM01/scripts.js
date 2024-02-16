@@ -27,7 +27,7 @@ let cristal = 0
 // Chargement d'une scène spécifique (la sceneId)
 // -----------------------------------------------------------------------------
 function loadSceneFromXML(xmlDoc, sceneId) {
-	
+	alert("BOUH")
 	//Trouve la scène correspondante dans le document XML.
     let scene = xmlDoc.querySelector(`scene[id="${sceneId}"]`);
 	
