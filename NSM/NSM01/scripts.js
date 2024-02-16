@@ -16,6 +16,7 @@ let charisme=0
 // compétences
 let electricite=0
 let python=0
+let pilotage=0
 
 // equipement
 let cristal = 0
@@ -52,6 +53,9 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 	    
 		electricite: parseInt(option.getAttribute('electricite') || "0"),
 		python: parseInt(option.getAttribute('python') || "0"),
+		pilotage: parseInt(option.getAttribute('pilotage') || "0"),
+
+	    
 		cristal: parseInt(option.getAttribute('cristal') || "0")
 	}));
 
@@ -175,6 +179,7 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 			// mise à jour des compétences
 			electricite += choice.electricite;
 			python += choice.python;
+			pilotage += choice.pilotage;
 
 			// mise à jour de l'équipement
 			cristal += choice.cristal;
@@ -221,6 +226,11 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 			if (python > 9) {
 				let imgDex = document.createElement('img');
 				imgDex.src = 'image/python.png'; 
+				bandeau.appendChild(imgDex);
+			}		
+			if (pilotage > 9) {
+				let imgDex = document.createElement('img');
+				imgDex.src = 'image/pilotage.png'; 
 				bandeau.appendChild(imgDex);
 			}
 			
