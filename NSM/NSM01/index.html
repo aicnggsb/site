@@ -885,7 +885,7 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 				</description>
 				<choix>
 					<option vers="4001">Analyser le programme</option>
-					<option vers="4002">Ressortir du vaisseau pour vérifier les différents capteurs</option>				
+					<option vers="4003" echecInebranlable="4002" points="5">Ressortir du vaisseau pour vérifier les différents capteurs</option>				
 				</choix>
 			</scene>
 			<scene id="4001">
@@ -907,6 +907,29 @@ print("ajustement de la résistance à ",resistance," Ohms"\n")
 					<option vers="41">L'erreur se trouve à la ligne 2</option>	
 					<option vers="42">L'erreur se trouve à la ligne 3</option>	
 					<option vers="41">L'erreur se trouve à la ligne 5</option>
+				</choix>
+			</scene>
+			<scene id="4002">
+				<titre>Le laboratoire</titre>
+				<image>image/end.png</image>
+				<description>
+					Vous quittez la sécurité de votre vaisseau, poussé par la volonté de déceler l'origine de la panne. Malheureusement, cela se révèle être une erreur fatale. La bête qui vous traquait se tient juste devant vous. Dans un effort désespéré, vous tentez de regagner le vaisseau, mais c'est peine perdue. L'entité se jette sur vous, scellant ainsi le destin de votre périple.
+				</description>
+
+			</scene>
+			<scene id="4003">
+				<titre>Le laboratoire</titre>
+				<image>image/40.png</image>
+				<description>
+					Vous franchissez la porte de votre vaisseau, résolu à identifier la cause du dysfonctionnement. Cependant, votre décision se révèle imprudente : la créature qui vous pourchassait vous attend à l'extérieur. Pris de panique, vous tentez de vous réfugier à l'intérieur du vaisseau, sans succès. L'être vous saute dessus avec férocité. 
+		
+				</description>
+	
+				<description>
+					Par chance, grâce à une combativité et une endurance hors du commun, vous parvenez à repousser l'assaillant et à vous précipiter à l'intérieur du vaisseau, sain et sauf. Désormais, il est temps de se pencher sur le programme pour élucider le mystère du dysfonctionnement.
+				</description>
+				<choix>
+					<option vers="4001">Analyser le programme</option>			
 				</choix>
 			</scene>
 			<!-- ... autres scènes ... -->
