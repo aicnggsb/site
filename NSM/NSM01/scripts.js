@@ -27,7 +27,9 @@ let cristal = 0
 // Chargement d'une scène spécifique (la sceneId)
 // -----------------------------------------------------------------------------
 function loadSceneFromXML(xmlDoc, sceneId) {
-	alert("BOUH")
+	alert("BOUH 2")
+	alert(inebranlable)
+	
 	//Trouve la scène correspondante dans le document XML.
     let scene = xmlDoc.querySelector(`scene[id="${sceneId}"]`);
 	
@@ -183,7 +185,7 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 					choice.points="";
 				}
 			}
-			
+			alert("inebranlable ????");
 			if (choice.echecInebranlable>0){
 				alert("inebranlable !");
 
