@@ -878,7 +878,7 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 			</scene>
 		
 			<scene id="40">
-				<titre>Le laboratoire</titre>
+				<titre>Le vaisseau</titre>
 				<image>image/40.png</image>
 				<description>
 					Vous êtes devant le tableau de bord de contrôle du vaisseau et remarquez que le programme qui pilote le système de décollage semble dysfonctionner. 
@@ -889,7 +889,7 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 				</choix>
 			</scene>
 			<scene id="4001">
-				<titre>Le laboratoire</titre>
+				<titre>Le vaisseau</titre>
 				<image>image/40.png</image>
 				<description>
 					Le programme est censé calculer automatiquement la valeur de la résistance en appliquant la loi d'Ohm pour permettre le décollage, mais quelque chose ne va pas.
@@ -910,7 +910,7 @@ print("ajustement de la résistance à ",resistance," Ohms"\n")
 				</choix>
 			</scene>
 			<scene id="4002">
-				<titre>Le laboratoire</titre>
+				<titre>Le vaisseau</titre>
 				<image>image/end.png</image>
 				<description>
 					Vous quittez la sécurité de votre vaisseau, poussé par la volonté de déceler l'origine de la panne. Malheureusement, cela se révèle être une erreur fatale. La bête qui vous traquait se tient juste devant vous. Dans un effort désespéré, vous tentez de regagner le vaisseau, mais c'est peine perdue. L'entité se jette sur vous, scellant ainsi le destin de votre périple.
@@ -918,7 +918,7 @@ print("ajustement de la résistance à ",resistance," Ohms"\n")
 
 			</scene>
 			<scene id="4003">
-				<titre>Le laboratoire</titre>
+				<titre>Le vaisseau</titre>
 				<image>image/40.png</image>
 				<description>
 					Vous franchissez la porte de votre vaisseau, résolu à identifier la cause du dysfonctionnement. Cependant, votre décision se révèle imprudente : la créature qui vous pourchassait vous attend à l'extérieur. Pris de panique, vous tentez de vous réfugier à l'intérieur du vaisseau, sans succès. L'être vous saute dessus avec férocité. 
@@ -934,7 +934,7 @@ print("ajustement de la résistance à ",resistance," Ohms"\n")
 			</scene>
 		
 			<scene id="41">
-				<titre>Le laboratoire</titre>
+				<titre>Le vaisseau</titre>
 				<image>image/end.png</image>
 				<description>
 					Vous réalisez que le vaisseau ne répond toujours pas, malgré vos efforts pour corriger le code. 
@@ -945,6 +945,28 @@ print("ajustement de la résistance à ",resistance," Ohms"\n")
 				<description>
 					Les créatures sont maintenant sur vous, il est trop tard pour revenir en arrière. Vous avez malheureusement échoué et les créatures ont réussi à prendre le dessus sur vous.
 				</description>
+			</scene>
+		
+			<scene id="42">
+				<titre>Le vaisseau</titre>
+				<image>image/end.png</image>
+				<description>
+					Quelle instruction mettez-vous à la ligne 3 :
+				</description>
+				<description code="true">
+tension = 12.0 # Tension en Volts
+intensite = 2.0 # Intensite en Ampères
+resistance = tension + intensite
+
+print("initialisation du décollage....\n")
+print("ajustement de la résistance à ",resistance," Ohms"\n")
+				</description>
+				<choix>
+					<option vers="41">tension = resistance / intensite</option>	
+					<option vers="41">tension = resistance * intensite</option>	
+					<option vers="43">resistance = tension / intensite</option>	
+					<option vers="41">resistance = tension * intensite</option>
+				</choix>
 			</scene>
 			<!-- ... autres scènes ... -->
 		</histoire>
