@@ -663,7 +663,7 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 			</scene>
 			<scene id="2602">
 				<titre>Le cratère</titre>
-				<image>image/14.PNG</image>
+				<image>image/14.png</image>
 				<description>Le circuit est composé d’une alimentation et d’une résistance en série. Mais vous voyez que la résistance est brûlée et cassée. Il faut la remplacer par une autre résistance pour que le circuit fonctionne. Vous fouillez dans les débris autour et vous trouvez 3 résistances.</description>
 				<description>Après analyse du mécanisme, vous comprenez qu'il vous faut la résistance la plus forte des 3. Laquelle choisissez-vous ?</description>
 				<choix>
@@ -676,7 +676,7 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 			
 			<scene id="2603">
 				<titre>Le cratère</titre>
-				<image>image/14.PNG</image>
+				<image>image/14.png</image>
 				<description img="image/2603.png">Pour trouver le résistance la plus forte, vous réaliser le même montage avec chaque résistance.</description>
 				<description>Le montage avec la résistance Bleue donne une lumière forte.</description>
 				<description>Le montage avec la résistance Verte donne une un peu moins forte.</description>
@@ -787,8 +787,8 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 				<choix>
 					<option vers="65">Vous laissez le cristal et quittez les ruines</option>	
 					<option vers="52">Vous laissez le cristal et allez vers le vaisseau abandonné</option>		
-					<option vers="64" cristal="1">Vous gardez le cristal et vous quittez les ruines</option>		
-					<option vers="34" cristal="1">Vous gardez le cristal et vous allez vers le vaisseau abandonné</option>							
+					<option vers="64" cristal="1" points="20">Vous gardez le cristal et vous quittez les ruines</option>		
+					<option vers="34" cristal="1" points="20">Vous gardez le cristal et vous allez vers le vaisseau abandonné</option>							
 				</choix>
 			</scene>
 			<scene id="33">
@@ -808,7 +808,7 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 				<description>Soudain, une lueur intense émane du cristal et un grondement sourd se fait entendre, venant des ruines d'un bâtiment non loin de là. Une atmosphère oppressante vous envahit alors que vous vous demandez ce que peut bien être à l'origine de ce bruit.</description>
 				<choix>
 					<option vers="44">Vous examinez le vaisseau</option>	
-					<option vers="2" points="1">Vous recherchez l'origine du bruit</option>								
+					<option vers="2" points="5">Vous recherchez l'origine du bruit</option>								
 				</choix>
 			</scene>
 			<scene id="35">
@@ -838,6 +838,67 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 				<choix>
 					<option vers="38">Vous prenez le cristal dans votre main.</option>	
 					<option vers="6">Vous décidez de fuir !</option>							
+				</choix>
+			</scene>
+		
+			<scene id="38">
+				<titre>L'origine du bruit</titre>
+				<image>image/end.png</image>
+				<description>
+					Vous sortez le cristal de votre sac et la créature se met immédiatement à rugir. Elle bondit sur vous avec une rapidité et une agilité incroyables. Vous esquivez de justesse sa première attaque, mais elle enchaîne rapidement avec d'autres coups violents. 
+				</description>
+				<description>
+					Vous essayez de vous défendre avec toutes vos forces, mais la créature est trop forte pour vous. Vous finissez par succomber sous ses coups et tombez au sol, sans force. La créature s'empare du cristal et disparaît dans les ombres, laissant derrière elle un silence oppressant.
+				</description>
+			</scene>
+		
+			<scene id="39">
+				<titre>Le laboratoire</titre>
+				<image>image/39.png</image>
+				<description>
+					Vous choisissez la résistance Verte. Vous coupez le courant avec un interrupteur et vous remplacez la résistance brûlée par la nouvelle. Vous remettez le courant et vous appuyez sur le bouton d’ouverture de la porte. Mais rien ne se passe ! La porte reste fermée et de la fumée se dégage du boitier !
+				</description>
+				<description>
+					Vous avez fait un mauvais choix ! En effet, avec votre nouvelle résistance, l’intensité du courant est trop forte.
+				</description>
+				<description>
+					La porte est maintenant définitivement condamnée.
+				</description>
+				<choix>
+					<option vers="3">Aller explorer la région</option>				
+				</choix>
+			</scene>
+		
+			<scene id="40">
+				<titre>Le laboratoire</titre>
+				<image>image/40.png</image>
+				<description>
+					Vous êtes devant le tableau de bord de contrôle du vaisseau et remarquez que le programme qui pilote le système de décollage semble dysfonctionner. 
+				</description>
+				<choix>
+					<option vers="4001">Analyser le programme</option>
+					<option vers="4002">Ressortir du vaisseau pour vérifier les différents capteurs</option>				
+				</choix>
+			</scene>
+			<scene id="4001">
+				<titre>Le laboratoire</titre>
+				<image>image/40.png</image>
+				<description>
+					Le programme est censé calculer automatiquement la valeur de la résistance en appliquant la loi d'Ohm pour permettre le décollage, mais quelque chose ne va pas.
+				</description>
+				<description code="true">
+tension = 12.0 # Tension en Volts
+intensite = 2.0 # Intensite en Ampères
+resistance = tension + intensite
+
+print("initialisation du décollage....\n")
+print("ajustement de la résistance à ",resistance," Ohms"\n")
+				</description>
+				<choix>
+					<option vers="41">L'erreur se trouve à la ligne 1</option>	
+					<option vers="41">L'erreur se trouve à la ligne 2</option>	
+					<option vers="42">L'erreur se trouve à la ligne 3</option>	
+					<option vers="41">L'erreur se trouve à la ligne 5</option>
 				</choix>
 			</scene>
 			<!-- ... autres scènes ... -->
