@@ -55,7 +55,7 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 		electricite: parseInt(option.getAttribute('electricite') || "0"),
 		python: parseInt(option.getAttribute('python') || "0"),
 		pilotage: parseInt(option.getAttribute('pilotage') || "0"),
-		inebranlable: parseInt(option.getAttribute('pilotage') || "0"),
+		inebranlable: parseInt(option.getAttribute('inebranlable') || "0"),
 
 	    
 		cristal: parseInt(option.getAttribute('cristal') || "0")
