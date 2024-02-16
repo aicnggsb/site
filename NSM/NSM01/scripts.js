@@ -128,7 +128,7 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 			// Met à jour l'ID de la scène actuelle et charge la nouvelle scène
 			currentSceneId = choice.nextScene;
 
-			// change de scène si echec test
+			// change de scène si echec test caract
 			if (choice.echecCharisme>0){
 				if (getRandomInt(20)>charisme){
 					currentSceneId=choice.echecCharisme.toString();
@@ -160,6 +160,28 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 					choice.points="";
 				}
 			}
+
+
+			// change de scène si echec test compétences
+			if (choice.echecElectricite>0){
+				if (getRandomInt(20)>dexterite){
+					currentSceneId=choice.echecElectricite.toString();
+					choice.points="";
+				}
+			}			
+			if (choice.echecPython>0){
+				if (getRandomInt(20)>dexterite){
+					currentSceneId=choice.echecPython.toString();
+					choice.points="";
+				}
+			}
+			if (choice.echecPilotage>0){
+				if (getRandomInt(20)>dexterite){
+					currentSceneId=choice.echecPilotage.toString();
+					choice.points="";
+				}
+			}
+			
 			loadSceneFromXML(xmlDoc, currentSceneId);
 						
 			
