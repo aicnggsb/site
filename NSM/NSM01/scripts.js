@@ -28,7 +28,7 @@ let cristal = 0
 // -----------------------------------------------------------------------------
 function loadSceneFromXML(xmlDoc, sceneId) {
 
-	console.log(("Version 2");
+	console.log("Version 2");
 	//Trouve la scène correspondante dans le document XML.
     let scene = xmlDoc.querySelector(`scene[id="${sceneId}"]`);
 	
@@ -184,7 +184,7 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 					choice.points="";
 				}
 			}
-			console.log(("echecInebranlable ???");
+			console.log("echecInebranlable ???");
 			if (choice.echecInebranlable>0){
 				alert("inebranlable !");
 
