@@ -166,26 +166,26 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 
 			// change de scène si echec test compétences
 			if (choice.echecElectricite>0){
-				if (getRandomInt(20)>dexterite){
+				if (getRandomInt(20)>electricite){
 					currentSceneId=choice.echecElectricite.toString();
 					choice.points="";
 				}
 			}			
 			if (choice.echecPython>0){
-				if (getRandomInt(20)>dexterite){
+				if (getRandomInt(20)>python){
 					currentSceneId=choice.echecPython.toString();
 					choice.points="";
 				}
 			}
 			if (choice.echecPilotage>0){
-				if (getRandomInt(20)>dexterite){
+				if (getRandomInt(20)>pilotage){
 					currentSceneId=choice.echecPilotage.toString();
 					choice.points="";
 				}
 			}
 			
 			if (choice.echecInebranlable>0){
-				if (getRandomInt(20)>dexterite){
+				if (getRandomInt(20)>inebranlable){
 					currentSceneId=choice.echecInebranlable.toString();
 					choice.points="";
 				}
