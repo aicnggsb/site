@@ -27,7 +27,7 @@ let cristal = 0
 // Chargement d'une scène spécifique (la sceneId)
 // -----------------------------------------------------------------------------
 function loadSceneFromXML(xmlDoc, sceneId) {
-	alert("BOUH 2")
+	alert("Version 2")
 	alert(inebranlable)
 	
 	//Trouve la scène correspondante dans le document XML.
