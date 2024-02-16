@@ -17,6 +17,7 @@ let charisme=0
 let electricite=0
 let python=0
 let pilotage=0
+let inebranlable=0
 
 // equipement
 let cristal = 0
@@ -54,6 +55,7 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 		electricite: parseInt(option.getAttribute('electricite') || "0"),
 		python: parseInt(option.getAttribute('python') || "0"),
 		pilotage: parseInt(option.getAttribute('pilotage') || "0"),
+		inebranlable: parseInt(option.getAttribute('pilotage') || "0"),
 
 	    
 		cristal: parseInt(option.getAttribute('cristal') || "0")
@@ -182,6 +184,12 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 				}
 			}
 			
+			if (choice.echecInebranlable>0){
+				if (getRandomInt(20)>dexterite){
+					currentSceneId=choice.echecInebranlable.toString();
+					choice.points="";
+				}
+			}
 			loadSceneFromXML(xmlDoc, currentSceneId);
 						
 			
@@ -202,6 +210,7 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 			electricite += choice.electricite;
 			python += choice.python;
 			pilotage += choice.pilotage;
+			inebranlable += choice.inebranlable;
 
 			// mise à jour de l'équipement
 			cristal += choice.cristal;
@@ -253,6 +262,11 @@ function loadSceneFromXML(xmlDoc, sceneId) {
 			if (pilotage > 9) {
 				let imgDex = document.createElement('img');
 				imgDex.src = 'image/pilotage.png'; 
+				bandeau.appendChild(imgDex);
+			}	
+			if (inebranlable > 9) {
+				let imgDex = document.createElement('img');
+				imgDex.src = 'image/inebranlable.png'; 
 				bandeau.appendChild(imgDex);
 			}
 			
