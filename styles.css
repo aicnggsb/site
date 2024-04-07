@@ -157,7 +157,4 @@ nav a.active {
     object-fit: cover; /* Assurez-vous que les images couvrent le cadre sans être déformées */
 }
 
-/* Si vous voulez que les images soient spécifiquement rectangulaires, définissez une largeur fixe */
-.photo-grid img {
-    width: 500px; /* ou une autre largeur en fonction de la taille souhaitée */
-}
+
