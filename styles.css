@@ -143,14 +143,21 @@ nav a.active {
 }
 
 .photo-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    display: flex; /* Utilisez flex au lieu de grid pour un meilleur contrôle sur la forme des images */
     gap: 15px;
     padding: 15px;
+    justify-content: center; /* Centre les images dans leur conteneur */
 }
 
 .photo-grid img {
-    width: 100%;
-    height: auto;
-    border-radius: 8px; /* Arrondit les coins des images */
+    border-radius: 20px; /* Augmente le rayon pour les coins arrondis */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ajoute une ombre douce pour un effet de profondeur */
+    width: auto; /* Réglez sur auto pour conserver le rapport hauteur/largeur de l'image */
+    height: 300px; /* Hauteur fixe pour toutes les images */
+    object-fit: cover; /* Assurez-vous que les images couvrent le cadre sans être déformées */
+}
+
+/* Si vous voulez que les images soient spécifiquement rectangulaires, définissez une largeur fixe */
+.photo-grid img {
+    width: 500px; /* ou une autre largeur en fonction de la taille souhaitée */
 }
