@@ -147,6 +147,8 @@ nav a.active {
     gap: 15px;
     padding: 15px;
     justify-content: center; /* Centre les images dans leur conteneur */
+	
+    flex-wrap: wrap;
 }
 
 .photo-grid img {
