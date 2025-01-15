@@ -122,11 +122,7 @@ nav a.active {
     flex-grow: 1;  /* Permet au contenu de prendre tout l'espace restant */
 }
 .atelier-content img {
-    margin-right: 20px;  /* Espace entre l'image et le contenu */
-    width: 60px;   /* Largeur de l'image */
-    height: 60px;  /* Hauteur de l'image */
-    border-radius: 0 !important;
-    flex-shrink: 1;  /* Évite que l'image soit réduite */
+    all: unset;  /* Supprime tous les styles appliqués 
 }
 .atelier h3 {
     margin-top: 0;
