@@ -123,9 +123,9 @@ nav a.active {
 }
 .atelier-content img {
     margin-right: 20px;  /* Espace entre l'image et le contenu */
-    border-radius: 100%;  /* Rend l'image circulaire */	
-    width: 70px;   /* Largeur de l'image */
-    height: 70px;  /* Hauteur de l'image */
+    border-radius: 0%;  /* Rend l'image circulaire */	
+    width: 60px;   /* Largeur de l'image */
+    height: 60px;  /* Hauteur de l'image */
 }
 .atelier h3 {
     margin-top: 0;
