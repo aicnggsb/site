@@ -121,7 +121,7 @@ nav a.active {
 .atelier-content {
     flex-grow: 1;  /* Permet au contenu de prendre tout l'espace restant */
 }
-.atelier-content img {
+.atelier-ressource img {
     all: unset;  /* Supprime tous les styles appliqués 
 }
 .atelier h3 {
