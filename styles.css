@@ -122,8 +122,7 @@ nav a.active {
     flex-grow: 1;  /* Permet au contenu de prendre tout l'espace restant */
 }
 .atelier-ressource img {
-   flex-shrink: 0;  /* Évite que l'image soit réduite */
-}
+   all: unset;  /* Supprime tous les styles appliqués */}
 .atelier h3 {
     margin-top: 0;
 }
