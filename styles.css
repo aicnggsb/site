@@ -121,7 +121,9 @@ nav a.active {
 .atelier-content {
     flex-grow: 1;  /* Permet au contenu de prendre tout l'espace restant */
 }
-
+.atelier-content img {
+    margin-right: 20px;  /* Espace entre l'image et le contenu */
+}
 .atelier h3 {
     margin-top: 0;
 }
