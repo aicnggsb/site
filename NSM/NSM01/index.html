@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+f<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -269,9 +269,9 @@
 			<scene id="7">
 				<titre>Le laboratoire</titre>
 				<image>image/04.png</image>
-				<description>vous franchissez la porte du laboratoire plongé dans les ténèbres.</description>
-				<description>Seuls quelques écrans vacillants sur un bureau vous permettent de distinguer vaguement les contours de la pièce. Au fond, une machine sinistre se dresse comme une menace silencieuse. Des plantes fanées jonchent le sol, témoins d’une vie passée. Le laboratoire semble abandonné depuis longtemps, mais aussi ravagé par une force inconnue. Vous ressentez une tension électrique dans l’air, comme si quelque chose allait se déclencher. </description>
-				<description>Vous espérez pouvoir trouver un moyen de communiquer avec l’extérieur grâce aux ordinateurs. Que faites-vous ?</description>
+				<description>Vous entrez dans le laboratoire plongé dans l’obscurité.</description>
+				<description>De faibles écrans clignotants dévoilent une pièce en ruine, dominée par une machine inquiétante. Des plantes fanées et une étrange tension dans l’air suggèrent un drame passé.</description>
+				<description>Peut-être les ordinateurs vous permettront-ils de contacter l’extérieur. Que faites-vous ?</description>
 				<choix>
 					<option vers="8">Vous avancez vers les écrans pour essayer d’émettre un signal de détresse</option>
 					<option vers="13">vous vous approchez de la machine</option>
@@ -280,8 +280,7 @@
 			<scene id="8">
 				<titre>Le laboratoire</titre>
 				<image>image/08.png</image>
-				<description>Vous avancez vers les écrans dans l’espoir de trouver un moyen de contacter quelqu’un. Un des écrans attire votre attention: il affiche un terminal de commande avec un langage que vous connaissez: le Python</description>
-				<description>Vous avez quelques notions de base en Python et vous pouvez décider de tenter votre chance en analysant le programme.</description>
+				<description>Vous vous approchez des écrans, espérant établir un contact. L’un d’eux affiche un terminal en Python, un langage que vous connaissez un peu. Peut-être pouvez-vous comprendre le programme et agir.</description>
 				<description>Que faites-vous ?</description>
 				<choix>
 					<option vers="800">Vous analysez le programme</option>
@@ -376,9 +375,8 @@ else:
 			<scene id="9">
 				<titre>Le laboratoire</titre>
 				<image>image/08.png</image>
-				<description>Le système vous donne accès aux fichiers. Vous remarquez que beaucoup ont été effacés dans l’urgence, mais que d’autres sont encore exploitables car mal supprimés. </description>
-				<description>Vous décidez de lire les journaux de bord. Vous espérez y trouver des indices sur ce qui s’est passé ici. Vous ouvrez le premier fichier et vous lisez les entrées des derniers mois. </description>
-				<description>Le journal de bord parle d’un portail qui a été activé pour la première fois il y a six mois, et qui a envoyé un drone dans un autre univers. Le drone est revenu avec des échantillons de plantes et de minéraux bizarres, mais il n’était pas seul. En lisant le journal, vous avez du mal à suivre.</description>
+				<description>LLe système vous donne accès aux fichiers. Certains ont été mal effacés et restent lisibles. </description>
+				<description>Vous ouvrez les journaux de bord, à la recherche d’indices.Une entrée évoque un portail activé six mois plus tôt. Un drone y est passé, revenu avec d’étranges échantillons… mais pas seul. Le récit devient confus.</description>
 				<choix>
 					<option vers="10">vous continuez à fouiller les fichiers</option>
 				</choix>
@@ -655,8 +653,8 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 			<scene id="26">
 				<titre>Le cratère</titre>
 				<image>image/26.png</image>
-				<description>Vous vous dirigez vers le cratère qui semble assez profond pour amortir votre chute. Vous activez votre propulseur au dernier moment pour réduire l’impact et atterrissez dans un nuage de poussière et de gravats. Vous vous relevez tant bien que mal et vous regardez autour de vous</description>
-				<description>Vous êtes surpris de voir que le cratère n’est pas naturel, mais qu’il cache l’entrée d’un ancien laboratoire souterrain. Vous voyez une porte blindée qui mène à l’intérieur du complexe. Peut-être y trouverez-vous des indices sur votre situation ou un moyen de contacter quelqu’un.</description>
+				<description>Vous visez un cratère profond pour amortir votre chute et activez le propulseur à la dernière seconde. Vous atterrissez dans un nuage de poussière. </description>
+				<description>En vous relevant, vous découvrez qu’il s’agit d’un ancien laboratoire caché. Une porte blindée mène à l’intérieur… Peut-être une chance de comprendre où vous êtes, ou d’appeler à l’aide.</description>
 				<choix>
 					<option vers="2601">Vous analysez la porte</option>								
 				</choix>
@@ -664,7 +662,9 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 			<scene id="2601">
 				<titre>Le cratère</titre>
 				<image>image/14.png</image>
-				<description>Vous vous approchez de la porte et vous remarquez qu’elle est verrouillée par un système électrique défectueux. Il y a un boîtier métallique avec des fils électriques qui sortent. Sur le boîtier, il y a une étiquette qui dit : “Attention ! Circuit sous tension ! Ne pas toucher !”. Vous comprenez que le circuit électrique alimente la porte et qu’il faut le réparer pour l’ouvrir.</description>
+				<description>Vous vous approchez de la porte et vous remarquez qu’elle est verrouillée par un système électrique défectueux. </description>
+				<description>Il y a un boîtier métallique avec des fils électriques qui sortent. Sur le boîtier, il y a une étiquette qui dit : “Attention ! Circuit sous tension ! Ne pas toucher !”. </description>
+				<description>Vous comprenez que le circuit électrique alimente la porte et qu’il faut le réparer pour l’ouvrir.</description>
 				<choix>
 					<option vers="2602">Vous analysez le circuit pour trouver un moyen d'ouvrir la porte</option>								
 				</choix>
@@ -822,9 +822,8 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 			<scene id="35">
 				<titre>La chute</titre>
 				<image>image/35.png</image>
-				<description>Vous enfilez la combinaison spatiale et vous activez le propulseur dorsal.</description>
-				<description>Vous ouvrez le sas de la capsule et vous vous élancez dans le vide spatial. Vous voyez la planète se rapprocher de plus en plus. Vous essayez de contrôler votre trajectoire et votre vitesse avec le propulseur. </description>
-				<description>Mais vous réalisez que vous n’avez pas assez de carburant pour freiner suffisamment. Vous avez deux options :</description>
+				<description>Vous enfilez votre combinaison, activez le propulseur dorsal et sortez de la capsule. En chute vers la planète, vous tentez de contrôler votre trajectoire… mais le carburant manque pour freiner. </description>
+				<description>Deux options s’offrent à vous : </description>
 				<choix>
 					<option vers="26">Se diriger vers un cratère qui semble assez profond pour amortir votre chute.</option>	
 					<option vers="66">Se diriger vers une ruine métallique.</option>								
