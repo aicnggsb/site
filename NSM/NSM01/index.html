@@ -237,8 +237,9 @@ f<!DOCTYPE html>
 			<scene id="4">
 				<titre>Le laboratoire</titre>
 				<image>image/04.png</image>
-				<description>Alors que vous fouillez le laboratoire à la recherche d'indices, l'atmosphère se fait de plus en plus oppressante. Les plantes mortes jonchant le sol ajoutent à l'ambiance lugubre. </description>
-				<description>Vous tombez sur un calepin étrange décrivant des phénomènes inexpliqués, accompagné de croquis d'une créature qui vous glace le sang. En continuant vos recherches, vous trouvez des manuels d'électricité et d'informatique, mais le silence pesant n'est interrompu que par le bruit angoissant provenant des canalisations, qui vous fait sursauter et regretter d'être venu ici. </description>
+				<description>En fouillant le laboratoire, l’air devient lourd. Les plantes mortes et le silence pesant créent une ambiance oppressante.</description>
+				<description>Vous tombez sur un calepin rempli de croquis terrifiants, accompagnés de notes sur des phénomènes inexpliqués. Des manuels techniques traînent au sol.</description>
+				<description>Soudain, un bruit étrange résonne dans les canalisations. Vous sursautez. Ce lieu n’a rien d’accueillant.</description>
 				<description>Que faites-vous ?</description>
 				<choix>
 					<option vers="21">vous vous approchez de la machine au fond du laboratoire</option>
@@ -375,7 +376,7 @@ else:
 			<scene id="9">
 				<titre>Le laboratoire</titre>
 				<image>image/08.png</image>
-				<description>LLe système vous donne accès aux fichiers. Certains ont été mal effacés et restent lisibles. </description>
+				<description>Le système vous donne accès aux fichiers. Certains ont été mal effacés et restent lisibles. </description>
 				<description>Vous ouvrez les journaux de bord, à la recherche d’indices.Une entrée évoque un portail activé six mois plus tôt. Un drone y est passé, revenu avec d’étranges échantillons… mais pas seul. Le récit devient confus.</description>
 				<choix>
 					<option vers="10">vous continuez à fouiller les fichiers</option>
@@ -384,8 +385,8 @@ else:
 			<scene id="10">
 				<titre>Le laboratoire</titre>
 				<image>image/08.png</image>
-				<description>Les entrées parlent de phénomènes étranges qui se sont produits depuis l’activation du portail. Des anomalies électromagnétiques et des distorsions temporelles ont commencé à se manifester, perturbant les systèmes du laboratoire et affectant la santé mentale de l’équipe de recherche. </description>
-				<description>Les chercheurs ont commencé à observer des créatures étranges et hostiles qui semblaient provenir d’un autre univers. Les dernières entrées font état d’une évacuation d’urgence due à une augmentation soudaine de l’activité du portail et des attaques des créatures. Vous comprenez maintenant que vous êtes dans un laboratoire de recherche qui a été abandonné suite à une expérience de voyage interdimensionnel qui a mal tourné.</description>
+				<description>Les entrées suivantes évoquent des événements de plus en plus inquiétants : anomalies électromagnétiques, distorsions temporelles, systèmes défaillants… et une équipe en proie à la panique.</description>
+				<description>Des créatures hostiles, venues d’ailleurs, ont commencé à apparaître. Les dernières lignes parlent d’une évacuation d’urgence, alors que le portail devenait instable. Vous réalisez que ce laboratoire a été abandonné après une expérience interdimensionnelle qui a dégénéré.</description>
 				<choix>
 					<option vers="11">vous continuez à fouiller l'ordinateur à la recherche d'un moyen d'envoyer un signal de détresse</option>
 				</choix>
@@ -455,8 +456,8 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 			<scene id="12">
 				<titre>Le laboratoire</titre>
 				<image>image/08.png</image>
-				<description>Après avoir corrigé le programme, vous sauvegardez les modifications et lancez le programme. Les informations s'affichent rapidement à l'écran, vous confirmant que votre signal de détresse a été transmis avec succès. Une vague de soulagement vous envahit alors que vous réalisez que vous avez peut-être une chance d'être secouru.</description>
-				<description>Cependant, cette lueur d'espoir est de courte durée car vous commencez à ressentir une présence étrange et menaçante. Un frisson vous parcourt l'échine et vous décidez qu'il est temps de quitter ce laboratoire au plus vite</description>
+				<description>Vous corrigez le programme, lancez l’exécution… et le signal de détresse part. Un soulagement bref vous envahit : quelqu’un pourrait vous entendre.</description>
+				<description>Mais cette paix ne dure pas. Une présence étrange se fait sentir, lourde et oppressante. Un frisson vous traverse. Il est temps de fuir ce laboratoire.</description>
 				<description>Que faites-vous ?</description>
 				<choix>
 					<option vers="21">vous vous approchez de la machine présente dans le laboratoire</option>
@@ -488,7 +489,7 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 			<scene id="15">
 				<titre>Le laboratoire</titre>
 				<image>image/15.png</image>
-				<description>Dans le calepin, vous pouvez lire des notes détaillées sur des phénomènes étranges, tels que des fluctuations de l'énergie et des perturbations de la gravité, ainsi que des croquis de ce qui semble être une créature effrayante. Les notes indiquent que ces phénomènes sont liés à des expériences menées sur le portail interdimensionnel.</description>
+				<description>Le calepin révèle des notes sur des phénomènes étranges : fluctuations d’énergie, perturbations gravitationnelles… et des croquis d’une créature terrifiante. Tout semble lié aux expériences menées sur le portail.</description>
 				<description>Que faites-vous ?</description>
 				<choix>
 					<option vers="16">Vous feuilletez le manuel d'électricité</option>				
@@ -603,9 +604,9 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 			<scene id="21">
 				<titre>Le portail</titre>
 				<image>image/13.png</image>
-				<description>Vous vous approchez de la machine imposante. Vous réalisez alors qu'il s'agit d'un portail interdimensionnel. </description>
-				<description>Les câbles, qui pendaient autrefois au-dessus du portail, ont été arrachés dans la panique. Certains panneaux de contrôle sont gravement endommagés et les lumières qui scintillaient autrefois le long du bord du portail sont maintenant éteintes. La zone autour du portail est plongée dans l'obscurité la plus totale. Une odeur de brûlé flotte dans l'air et le silence est pesant.</description>
-				<description>Cette machine, qui a autrefois été un portail interdimensionnel, semble maintenant être devenue un symbole de la désolation et de l'abandon.</description>
+				<description>Vous vous approchez de la machine massive : c’est un portail interdimensionnel.</description>
+				<description>Des câbles arrachés pendent encore, des panneaux sont brisés, et les lumières autour du cercle sont éteintes. L’obscurité règne, accompagnée d’une odeur de brûlé. Le silence est oppressant.</description>
+				<description>Ce qui fut une prouesse scientifique n’est plus qu’un vestige silencieux d’un projet abandonné.</description>
 				<choix>
 					<option vers="4">vous explorez le laboratoire à la recherche d’indices</option>				
 				</choix>
@@ -622,9 +623,9 @@ print("La distance entre le laboratoire et le satellite est de ", D, "km")
 			<scene id="23">
 				<titre>Le laboratoire</titre>
 				<image>image/23.png</image>
-				<description>Alors que vous arrêtez de feuilleter les manuels, une ambiance de plus en plus oppressante vous enveloppe. Vous sentez votre cœur battre la chamade dans votre poitrine alors que vous décidez de vous aventurer vers le fond du laboratoire pour trouver l'origine des bruits inquiétants. </description>
-				<description>Vos pas résonnent dans la pièce sombre et lugubre remplie d'étagères encombrées de flacons et de livres poussiéreux. Le faible éclairage vacillant des ampoules métalliques rouillées ne fait qu'ajouter à votre anxiété grandissante. </description>
-				<description>Votre regard est attiré par une porte en bois délabrée qui se trouve au fond de la pièce. Les bruits semblent venir de derrière cette porte et votre respiration se fait de plus en plus rapide alors que vous vous approchez. Soudain, vous entendez une respiration mêlée de grognements qui vous glace le sang.</description>
+				<description>Alors que vous refermez les manuels, l’oppression monte. Le cœur battant, vous avancez vers le fond du laboratoire, attiré par les bruits inquiétants.</description>
+				<description>Vos pas résonnent entre les étagères poussiéreuses, sous la lumière vacillante des ampoules rouillées.</description>
+				<description>Au fond, une vieille porte en bois attire votre regard. Les bruits viennent de là… et, soudain, une respiration entrecoupée de grognements vous glace le sang.</description>
 				<choix>
 					<option vers="24">Vous ouvrez la porte</option>	
 					<option vers="25">Vous quittez ce laboratoire par une autre issue</option>								
