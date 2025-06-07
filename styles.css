@@ -179,3 +179,29 @@ nav a.active {
 .pdf-link:hover {
     background-color: #0000ff;
 }
+
+/* Styles pour les sections d\u00E9pliables */
+details {
+    margin: 10px 0;
+}
+
+summary {
+    cursor: pointer;
+    padding: 5px 10px;
+    background-color: rgba(0, 0, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
+    list-style: none;
+}
+
+summary::-webkit-details-marker {
+    display: none;
+}
+
+summary::after {
+    content: " \25BA"; /* triangle */
+}
+
+details[open] summary::after {
+    content: " \25BC";
+}
