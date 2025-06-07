@@ -162,3 +162,20 @@ nav a.active {
 }
 
 
+
+.pdf-link {
+    display: inline-block;
+    margin: 20px 0;
+    padding: 10px 20px;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    background-color: #1e90ff;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.pdf-link:hover {
+    background-color: #0000ff;
+}
