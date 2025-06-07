@@ -1,185 +1,186 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SNT - Seconde Lycée</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projet SNT - Crédit Social Chinois</n  >
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --background-color: #f4f7f9;
+      --text-color: #333;
+      --card-bg: #fff;
+      --font-family: 'Segoe UI', Tahoma, sans-serif;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: var(--font-family);
+      color: var(--text-color);
+      background-color: var(--background-color);
+      line-height: 1.6;
+    }
+    header {
+      background-color: var(--primary-color);
+      color: #fff;
+      padding: 1rem 2rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+    main {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    section {
+      margin-bottom: 2rem;
+    }
+    h2 {
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--secondary-color);
+      padding-bottom: 0.25rem;
+      margin-bottom: 1rem;
+    }
+    h3 {
+      color: var(--secondary-color);
+      margin-top: 1.5rem;
+    }
+    ul {
+      padding-left: 1.25rem;
+    }
+    .role-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .role-card h3 {
+      margin-top: 0;
+    }
+    .criteria-list {
+      list-style: none;
+      padding: 0;
+    }
+    .criteria-list li {
+      margin-bottom: 0.5rem;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+    .criteria-list li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--secondary-color);
+    }
+    footer {
+      text-align: center;
+      padding: 1rem 0;
+      font-size: 0.875rem;
+      color: #777;
+      border-top: 1px solid #ddd;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Projet 1A - Comprendre et vulgariser le système de crédit social chinois</h1>
-        <nav>
-            <ul>
-                <li><a href="SNT.html">Retour à la page d'accueil</a></li>
-            </ul>
-        </nav>
-    </header>
+  <header>
+    <h1>Projet SNT – Crédit Social Chinois</h1>
+  </header>
 
-    <main>
-        <section class="description-ateliers">
-            <h2>Le sujet</h2>
-            <article class="atelier">
-                <div class="atelier-content">
-                    <h2>Objectif du projet</h2>
-                    <p>Créer une production visuelle (affiche, BD, vidéo ou site web) qui explique clairement ce qu'est le <strong>crédit social chinois</strong> et qui propose une réflexion critique sur ses enjeux techniques, juridiques et éthiques.</p>
-                    <p><strong>Ce projet s'inscrit dans le thème SNT de la collecte des données et de la protection de la vie privée.</strong></p>
+  <main>
+    <section>
+      <h2>Sujet du projet</h2>
+      <p>Créer une production visuelle (affiche, BD, vidéo ou site web) qui explique clairement ce qu’est le crédit social chinois et propose une réflexion critique sur ses enjeux techniques, juridiques et éthiques.</p>
+      <p>Le projet s’inscrit dans le thème SNT de la collecte des données et de la protection de la vie privée.</p>
 
-                    <h2>Contenu attendu</h2>
-                    <p>Votre travail devra répondre aux questions suivantes :</p>
-                    <ul>
-                        <li>Qu'est-ce que le système de crédit social chinois&nbsp;?</li>
-                        <li>Comment fonctionne-t-il&nbsp;? (collecte des données, IA, notation…)</li>
-                        <li>Quels types de données sont utilisées&nbsp;?</li>
-                        <li>Quels sont les objectifs affichés par le gouvernement chinois&nbsp;?</li>
-                        <li>Quels sont les risques pour les citoyens&nbsp;?</li>
-                        <li>Un tel système serait-il envisageable en France&nbsp;? Pourquoi&nbsp;?</li>
-                        <li>Existe-t-il des dispositifs comparables en Europe&nbsp;?</li>
-                    </ul>
+      <h3>Contenu attendu</h3>
+      <ul>
+        <li>Qu’est-ce que le système de crédit social chinois ?</li>
+        <li>Comment fonctionne-t-il ? (collecte des données, IA, notation…)</li>
+        <li>Quels types de données sont utilisées ?</li>
+        <li>Quels sont les objectifs affichés par le gouvernement chinois ?</li>
+        <li>Quels sont les risques pour les citoyens ?</li>
+        <li>Un tel système serait-il envisageable en France ? Pourquoi ?</li>
+        <li>Existe-t-il des dispositifs comparables en Europe ?</li>
+      </ul>
 
-                    <h2>Formats possibles</h2>
-                    <ul>
-                        <li>Affiche A3 ou A4</li>
-                        <li>BD (papier ou numérique, minimum 3 vignettes)</li>
-                        <li>Vidéo (2 à 3&nbsp;min)</li>
-                        <li>Site web (3 pages minimum en HTML/CSS)</li>
-                    </ul>
-                </div>
-            </article>
+      <h3>Formats possibles</h3>
+      <ul>
+        <li>Affiche A3 ou A4</li>
+        <li>BD (papier ou numérique, minimum 3 vignettes)</li>
+        <li>Vidéo (2 à 3 min)</li>
+        <li>Site web (3 pages minimum en HTML/CSS)</li>
+      </ul>
+    </section>
 
-            <h2>Répartition des rôles dans l’équipe</h2>
-            <p>Chaque élève aura un rôle spécifique évalué individuellement sur 20&nbsp;points.</p>
+    <section>
+      <h2>Répartition des rôles</h2>
 
-            <h2>Critères d'évaluation par rôle (/20)</h2>
-            <p>Chaque rôle est présenté ci-dessous avec les critères correspondants.</p>
+      <article class="role-card">
+        <h3>Expert juridique</h3>
+        <ul class="criteria-list">
+          <li>Identification des lois chinoises pertinentes en lien avec la protection de la vie privée.</li>
+          <li>Analyse du cadre légal français et européen (RGPD, CNIL, etc.) en lien avec la protection de la vie privée.</li>
+          <li>Comparaison claire entre les systèmes chinois et français.</li>
+          <li>Capacité à vulgariser les notions juridiques complexes.</li>
+          <li>Utilisation de sources fiables, description et regard critique.</li>
+        </ul>
+      </article>
 
-            <article class="atelier">
-                <div class="atelier-content">
-                    <h3>Expert juridique</h3>
-                    <ul>
-                        <li>Identification des lois chinoises pertinentes (Cybersecurity Law, Personal Information Protection Law…) et explication de leur rôle pour la vie privée et la surveillance.</li>
-                        <li>Analyse du cadre légal français et européen : RGPD, loi Informatique et Libertés, institutions comme la CNIL.</li>
-                        <li>Comparaison organisée des systèmes chinois et français, avec mise en évidence des divergences sur la protection de la vie privée.</li>
-                        <li>Vulgarisation compréhensible des notions juridiques complexes.</li>
-                        <li>Utilisation de sources fiables décrites et analysées de façon critique.</li>
-                    </ul>
-                    <section class="expert-juridique">
-                        <h2>Détail du rôle d'expert juridique</h2>
-                        <p>L'expert juridique est chargé d'analyser en profondeur les lois et institutions encadrant la protection des données en Chine et en France. Il doit vulgariser ces notions pour l'ensemble de l'équipe et appuyer son travail sur des sources fiables.</p>
-                        <details>
-                            <summary>Travail attendu</summary>
-                            <ul>
-                                <li>Rechercher les textes de loi chinois et français pertinents et en résumer le contenu.</li>
-                                <li>Expliquer le rôle des institutions concernées (par exemple la CNIL en France).</li>
-                                <li>Comparer les différents systèmes de protection de la vie privée et leurs conséquences.</li>
-                                <li>Rédiger une synthèse claire et accessible pour le support final (affiche, site, etc.).</li>
-                            </ul>
-                        </details>
-                        <details>
-                            <summary>Critères d'évaluation (/20)</summary>
-                            <ol>
-                                <li><strong>Identification des lois chinoises pertinentes</strong>
-                                    <ul>
-                                        <li>Présence d’une ou plusieurs références légales concrètes (ex.&nbsp;: Cybersecurity Law, Personal Information Protection Law, etc.).</li>
-                                        <li>Explication claire du contenu et du rôle de ces lois.</li>
-                                        <li>Mise en relation explicite avec la notion de vie privée et de surveillance.</li>
-                                        <li>Utilisation d’un vocabulaire juridique adapté.</li>
-                                    </ul>
-                                </li>
-                                <li><strong>Analyse du cadre légal français et européen</strong>
-                                    <ul>
-                                        <li>Présence du RGPD et de la loi Informatique et Libertés, correctement identifiés et contextualisés.</li>
-                                        <li>Mention et explication du rôle d’institutions clés (CNIL, Conseil d’État…).</li>
-                                        <li>Mise en relation avec la problématique du contrôle des données personnelles.</li>
-                                        <li>Pertinence des notions juridiques mobilisées (consentement, finalité, droits des usagers…).</li>
-                                    </ul>
-                                </li>
-                                <li><strong>Comparaison claire entre les systèmes juridiques chinois et français</strong>
-                                    <ul>
-                                        <li>Présence d’éléments comparatifs organisés (similitudes, différences).</li>
-                                        <li>Mise en évidence de points de divergence sur la protection de la vie privée.</li>
-                                        <li>Présentation structurée d’une réflexion critique ou argumentative.</li>
-                                        <li>Clarté dans la formulation, avec des exemples ou cas concrets si possible.</li>
-                                    </ul>
-                                </li>
-                                <li><strong>Capacité à vulgariser les notions juridiques complexes</strong>
-                                    <ul>
-                                        <li>Reformulation compréhensible des notions juridiques essentielles.</li>
-                                        <li>Explications pédagogiques accompagnées d’exemples ou de métaphores accessibles.</li>
-                                        <li>Absence de copier-coller ou de jargon excessif.</li>
-                                        <li>Texte fluide, structuré, et adapté à un public de non-spécialistes.</li>
-                                    </ul>
-                                </li>
-                                <li><strong>Utilisation de sources fiables et regard critique</strong>
-                                    <ul>
-                                        <li>Présence de sources variées et pertinentes (textes officiels, publications d’experts, institutions reconnues…).</li>
-                                        <li>Présentation contextualisée des sources (auteur, date, nature du support…).</li>
-                                        <li>Analyse de la fiabilité des sources (autorité, objectivité, mise à jour).</li>
-                                        <li>Regard critique sur les limites ou les biais potentiels des documents utilisés.</li>
-                                    </ul>
-                                </li>
-                            </ol>
-                        </details>
-                    </section>
-                </div>
-            </article>
+      <article class="role-card">
+        <h3>Expert technique</h3>
+        <ul class="criteria-list">
+          <li>Explication du fonctionnement global du système de crédit social chinois.</li>
+          <li>Description des technologies utilisées (IA, big data, algorithmes…).</li>
+          <li>Analyse des enjeux techniques (biais, fuites, fiabilité).</li>
+          <li>Vulgarisation des concepts techniques.</li>
+          <li>Qualité des sources utilisées et analyse de leur fiabilité.</li>
+        </ul>
+      </article>
 
-            <article class="atelier">
-                <div class="atelier-content">
-                    <h3>Expert technique</h3>
-                    <ul>
-                        <li>Explication structurée du principe général du crédit social et des acteurs impliqués.</li>
-                        <li>Description des technologies mobilisées : intelligence artificielle, big data, reconnaissance faciale…</li>
-                        <li>Analyse des risques techniques : fuites de données, biais algorithmiques, fiabilité des notations.</li>
-                        <li>Vulgarisation accessible des notions techniques pour un public non spécialiste.</li>
-                        <li>Appui sur des sources spécialisées et analyse critique de leur fiabilité.</li>
-                    </ul>
-                </div>
-            </article>
+      <article class="role-card">
+        <h3>Expert éthique</h3>
+        <ul class="criteria-list">
+          <li>Identification des enjeux éthiques liés au système de crédit social.</li>
+          <li>Réflexion sur les conséquences sociales et humaines.</li>
+          <li>Comparaison des valeurs entre la Chine et la France.</li>
+          <li>Clarté et vulgarisation des concepts éthiques.</li>
+          <li>Qualité et analyse des sources, regard critique.</li>
+        </ul>
+      </article>
 
-            <article class="atelier">
-                <div class="atelier-content">
-                    <h3>Expert éthique</h3>
-                    <ul>
-                        <li>Identification des enjeux éthiques majeurs : surveillance, sanctions automatiques, liberté.</li>
-                        <li>Réflexion argumentée sur les conséquences sociales et humaines, par exemple discrimination ou autocensure.</li>
-                        <li>Comparaison des valeurs défendues en Chine et en France pour mettre en perspective liberté, sécurité et justice.</li>
-                        <li>Présentation claire des concepts éthiques à l'aide d'exemples parlants.</li>
-                        <li>Recours à des sources reconnues et analyse critique de leur fiabilité.</li>
-                    </ul>
-                </div>
-            </article>
+      <article class="role-card">
+        <h3>Chef de projet</h3>
+        <ul class="criteria-list">
+          <li>Organisation du travail et gestion du temps.</li>
+          <li>Répartition des rôles et coordination de l’équipe.</li>
+          <li>Communication interne et fluidité des échanges.</li>
+          <li>Cohérence globale de la production finale.</li>
+          <li>Bilan du projet et prise de recul.</li>
+        </ul>
+      </article>
 
-            <article class="atelier">
-                <div class="atelier-content">
-                    <h3>Chef de projet</h3>
-                    <ul>
-                        <li>Organisation du travail et gestion du temps.</li>
-                        <li>Répartition des rôles et coordination de l’équipe.</li>
-                        <li>Communication interne et fluidité des échanges.</li>
-                        <li>Cohérence globale de la production finale.</li>
-                        <li>Bilan du projet et prise de recul.</li>
-                    </ul>
-                </div>
-            </article>
+      <article class="role-card">
+        <h3>Expert média</h3>
+        <ul class="criteria-list">
+          <li>Qualité visuelle de la production.</li>
+          <li>Cohérence graphique (mise en page, polices, couleurs…).</li>
+          <li>Lisibilité et clarté du contenu.</li>
+          <li>Originalité de la présentation.</li>
+          <li>Respect des droits d’auteur et des formats demandés.</li>
+        </ul>
+      </article>
+    </section>
+  </main>
 
-            <article class="atelier">
-                <div class="atelier-content">
-                    <h3>Expert média</h3>
-                    <ul>
-                        <li>Qualité visuelle de la production.</li>
-                        <li>Cohérence graphique (mise en page, polices, couleurs…).</li>
-                        <li>Lisibilité et clarté du contenu.</li>
-                        <li>Originalité de la présentation.</li>
-                        <li>Respect des droits d’auteur et des formats demandés.</li>
-                    </ul>
-                </div>
-            </article>
-        </section>
-    </main>
-
-    <footer>
-        <p>© Lycée XXXX - Tous droits réservés.</p>
-    </footer>
+  <footer>
+    © Lycée XXXX - Tous droits réservés.
+  </footer>
 </body>
 </html>
