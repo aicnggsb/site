@@ -198,10 +198,10 @@ summary::-webkit-details-marker {
     display: none;
 }
 
-summary::after {
+summary::before {
     content: " \25BA"; /* triangle */
 }
 
-details[open] summary::after {
+details[open] summary::before {
     content: " \25BC";
 }
