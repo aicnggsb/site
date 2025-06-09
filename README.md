@@ -1,9 +1,8 @@
 # ICN_GGSB
 Site pour l'ICN
 
-## Clé API Google Sheets
+## Google Sheets
 
-Certaines pages utilisent l'API Google Sheets pour afficher des données.
-Dans `classroom-screen.js`, remplacez la valeur `TA_CLE_API` par votre clé API
-Google. Cette clé doit être liée à un projet ayant l'API **Google Sheets API**
-activée. Ne committez jamais votre clé privée dans le dépôt public.
+Certaines pages affichent des données issues d'une feuille Google Sheets
+publique. Depuis `classroom-screen.html`, les tâches sont récupérées via l'URL
+publiée de la feuille sans utiliser de clé API.
