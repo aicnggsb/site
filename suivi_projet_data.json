@@ -1,9 +1,9 @@
 {
-  "cols": ["Date", "Classe", "Rôle", "Tâche"],
+  "cols": ["Date", "Classe", "Projet", "Rôle", "Tâche"],
   "rows": [
-    ["09/06/2025", "4ieme 1", "Chef de projet", "Prise en main du sujet"],
-    ["09/06/2025", "4ieme 1", "Concepteur 3D", "xxx"],
-    ["09/06/2025", "4ieme 2", "Concepteur 3D", "xxx 4e2"],
-    ["09/06/2025", "4ieme 2", "Concepteur PC", ""]
+    ["09/06/2025", "4ieme 1", "Projet 1", "Chef de projet", "Prise en main du sujet"],
+    ["09/06/2025", "4ieme 1", "Projet 1", "Concepteur 3D", "xxx"],
+    ["09/06/2025", "4ieme 2", "Projet 2", "Concepteur 3D", "xxx 4e2"],
+    ["09/06/2025", "4ieme 2", "Projet 2", "Concepteur PC", ""]
   ]
 }
