@@ -224,3 +224,13 @@ details[open] summary::before {
 .sheet-table th {
     background-color: rgba(0, 0, 255, 0.4);
 }
+
+/* Filtre des classes dans suivi_projet.html */
+#class-filter {
+    margin-top: 10px;
+    padding: 5px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+}

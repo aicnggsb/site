@@ -19,6 +19,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const table = document.createElement('table');
   table.className = 'sheet-table';
 
+  // Determine index of the "Classe" column for filtering
+  const classIdx = cols.indexOf('Classe');
+  const classes = classIdx !== -1
+    ? Array.from(new Set(rows.map(r => r[classIdx]).filter(Boolean))).sort()
+    : [];
+
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
   cols.forEach(label => {
@@ -43,5 +49,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const container = document.getElementById('sheet-container');
   container.innerHTML = '';
+
+  // Build the class filter if the "Classe" column exists
+  if (classes.length) {
+    const select = document.getElementById('class-filter');
+    classes.forEach(cl => {
+      const opt = document.createElement('option');
+      opt.value = cl;
+      opt.textContent = cl;
+      select.appendChild(opt);
+    });
+    select.addEventListener('change', () => {
+      const value = select.value;
+      Array.from(tbody.rows).forEach(tr => {
+        const rowClass = tr.cells[classIdx].textContent;
+        tr.style.display = !value || rowClass === value ? '' : 'none';
+      });
+    });
+  }
+
   container.appendChild(table);
 });
