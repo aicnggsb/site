@@ -44,11 +44,13 @@ document.getElementById('reset-btn').addEventListener('click', resetTimer);
 updateTimer();
 
 async function fetchRows() {
-    const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRVQMq6u1Wl-Tzjl27ir1iMcj1hTdSIsoJrVQAtW31i1AhvBoPGLT3rZoc6wfuizX7f1KWuaBphf2IX/gviz/tq?gid=0&pub=1';
+    const url =
+        'https://docs.google.com/spreadsheets/d/e/2PACX-1vRVQMq6u1Wl-Tzjl27ir1iMcj1hTdSIsoJrVQAtW31i1AhvBoPGLT3rZoc6wfuizX7f1KWuaBphf2IX/gviz/tq?gid=0&pub=1&tqx=out:json';
     const res = await fetch(url);
     const text = await res.text();
-    const raw = text.match(/setResponse\\(([\s\S]+)\\)/)[1];
-    const obj = JSON.parse(raw);
+    const rawMatch = text.match(/setResponse\(([^)]+)\)/);
+    if (!rawMatch) return [];
+    const obj = JSON.parse(rawMatch[1]);
     return obj.table.rows;
 }
 
