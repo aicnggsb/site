@@ -50,3 +50,18 @@
         flex-direction: column;
     }
 }
+
+#class-select {
+    margin-bottom: 10px;
+    padding: 5px;
+    font-size: 1em;
+}
+
+#tasks {
+    list-style: none;
+    padding-left: 0;
+}
+
+#tasks li {
+    margin-bottom: 5px;
+}
