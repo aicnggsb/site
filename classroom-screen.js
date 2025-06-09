@@ -1,7 +1,3 @@
-// Remplacez TA_CLE_API par votre clé d'API Google (Sheets API activée)
-const API_KEY = 'TA_CLE_API';
-const SHEET_ID = '1MqJrQnQ3haqTiztDA-yXdMWWR4RHR0pAMHkIBsegFz8';
-const RANGE = 'tache!A2:C';
 let sheetRows = [];
 
 function updateClock() {
@@ -47,34 +43,33 @@ document.getElementById('stop-btn').addEventListener('click', stopTimer);
 document.getElementById('reset-btn').addEventListener('click', resetTimer);
 updateTimer();
 
-document.addEventListener('DOMContentLoaded', () => {
-    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`)
-        .then(r => r.json())
-        .then(data => {
-            sheetRows = data.values || [];
-            populateClasses(sheetRows);
-        })
-        .catch(err => console.error('Erreur de récupération', err));
-    document.getElementById('class-select').addEventListener('change', (e) => {
-        displayTasks(e.target.value);
-    });
+async function fetchRows() {
+    const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRVQMq6u1Wl-Tzjl27ir1iMcj1hTdSIsoJrVQAtW31i1AhvBoPGLT3rZoc6wfuizX7f1KWuaBphf2IX/gviz/tq?gid=0&pub=1';
+    const res = await fetch(url);
+    const text = await res.text();
+    const raw = text.match(/setResponse\\(([\s\S]+)\\)/)[1];
+    const obj = JSON.parse(raw);
+    return obj.table.rows;
+}
+
+function getClasses(rows) {
+    return [...new Set(rows.map(r => r.c[1]?.v).filter(Boolean))];
+}
+
+function filterTasks(rows, clazz) {
+    return rows
+        .filter(r => r.c[1]?.v === clazz)
+        .map(r => ({ date: r.c[0]?.v, tache: r.c[2]?.v }));
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const rows = await fetchRows();
+    sheetRows = rows;
+    const sel = document.getElementById('classe-select');
+    getClasses(rows).forEach(c => sel.append(new Option(c, c)));
+    sel.onchange = () => {
+        const filtered = filterTasks(rows, sel.value);
+        document.getElementById('taches').innerHTML =
+            filtered.map(t => `<li>${t.date} – ${t.tache}</li>`).join('');
+    };
 });
-
-function populateClasses(rows) {
-    const select = document.getElementById('class-select');
-    const classes = [...new Set(rows.map(r => r[1]).filter(Boolean))];
-    select.innerHTML = '<option value="">-- Classe --</option>' +
-        classes.map(c => `<option value="${c}">${c}</option>`).join('');
-}
-
-function displayTasks(selectedClass) {
-    const container = document.getElementById('tasks');
-    container.innerHTML = '';
-    if (!selectedClass) return;
-    const filtered = sheetRows.filter(r => r[1] === selectedClass);
-    filtered.forEach(row => {
-        const li = document.createElement('li');
-        li.textContent = `${row[0]} - ${row[2]}`;
-        container.appendChild(li);
-    });
-}
