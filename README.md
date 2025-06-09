@@ -5,4 +5,5 @@ Site pour l'ICN
 
 Certaines pages affichent des données issues d'une feuille Google Sheets
 publique. Depuis `classroom-screen.html`, les tâches sont récupérées via l'URL
-publiée de la feuille sans utiliser de clé API.
+publiée de la feuille sans utiliser de clé API. L'URL inclut `tqx=out:json` pour
+obtenir les données au format JSON.
