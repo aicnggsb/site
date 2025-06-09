@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const baseUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRVQMq6u1Wl-Tzjl27ir1iMcj1hTdSIsoJrVQAtW31i1AhvBoPGLT3rZoc6wfuizX7f1KWuaBphf2IX/gviz/tq?gid=0&pub=1&tqx=out:json';
+  // URL de la feuille Google Sheets publiée au format gviz
+  const baseUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRVQMq6u1Wl-Tzjl27ir1iMcj1hTdSIsoJrVQAtW31i1AhvBoPGLT3rZoc6wfuizX7f1KWuaBphf2IX/gviz/tq?tqx=out:json&gid=0&pub=1';
   const select = document.getElementById('class-filter');
   const container = document.getElementById('sheet-container');
   let classIdx = -1;
