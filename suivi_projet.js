@@ -19,10 +19,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const table = document.createElement('table');
   table.className = 'sheet-table';
 
-  // Determine index of the "Classe" column for filtering
-  const classIdx = cols.indexOf('Classe');
+  // Determine index of the "Classe" column for filtering (case insensitive)
+  const classIdx = cols.findIndex(c => c && c.toLowerCase().trim() === 'classe');
   const classes = classIdx !== -1
-    ? Array.from(new Set(rows.map(r => r[classIdx]).filter(Boolean))).sort()
+    ? Array.from(new Set(rows
+        .map(r => (r[classIdx] || '').trim())
+        .filter(Boolean)))
+        .sort()
     : [];
 
   const thead = document.createElement('thead');
