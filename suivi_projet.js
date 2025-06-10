@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const classSelect = document.getElementById('class-filter');
   const roleSelect = document.getElementById('role-filter');
   const projectSelect = document.getElementById('project-filter');
-  const statusSelect = document.getElementById('status-filter');
+  const statusFilter = document.getElementById('status-filter');
   const container = document.getElementById('sheet-container');
   let classIdx = -1;
   let roleIdx = -1;
@@ -23,9 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function applyFilters() {
     if (!tbody) return;
-    const selectedStatuses = Array.from(statusSelect.selectedOptions).map(o =>
-      o.value
-    );
+    const selectedStatuses = Array.from(
+      statusFilter.querySelectorAll('input[type="checkbox"]:checked')
+    ).map(cb => cb.value.toLowerCase());
     Array.from(tbody.rows).forEach((tr, idx) => {
       const rowClass =
         classIdx !== -1 ? tr.cells[classIdx].textContent.trim() : '';
@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
   classSelect.addEventListener('change', applyFilters);
   roleSelect.addEventListener('change', applyFilters);
   projectSelect.addEventListener('change', applyFilters);
-  statusSelect.addEventListener('change', applyFilters);
+  statusFilter.addEventListener('change', applyFilters);
   loadData();
   setInterval(loadData, 60000);
 });

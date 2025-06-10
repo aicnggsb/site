@@ -250,3 +250,12 @@ details[open] summary::before {
     border-radius: 4px;
 }
 
+#status-filter label {
+    margin-right: 10px;
+}
+
+#status-filter input[type="checkbox"] {
+    margin-right: 4px;
+    accent-color: #1e90ff;
+}
+
