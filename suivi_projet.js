@@ -3,8 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const baseUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRVQMq6u1Wl-Tzjl27ir1iMcj1hTdSIsoJrVQAtW31i1AhvBoPGLT3rZoc6wfuizX7f1KWuaBphf2IX/pub?output=csv';
   const select = document.getElementById('class-filter');
   const container = document.getElementById('sheet-container');
+  const rawContainer = document.getElementById('csv-raw');
   let classIdx = -1;
   let tbody = null;
+  let rawText = '';
 
   function applyClassFilter(value) {
     if (!tbody || classIdx === -1) return;
@@ -51,11 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function loadData() {
     let cols, rows;
+    rawText = '';
     const url = `${baseUrl}&ts=${Date.now()}`;
     try {
       const res = await fetch(url);
-      const text = await res.text();
-      const parsed = parseCSV(text);
+      rawText = await res.text();
+      const parsed = parseCSV(rawText);
       cols = parsed.shift();
       rows = parsed;
     } catch (e) {
@@ -97,6 +100,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     container.innerHTML = '';
     container.appendChild(table);
+
+    if (rawText) {
+      rawContainer.textContent = rawText;
+      rawContainer.style.display = 'block';
+    } else {
+      rawContainer.style.display = 'none';
+    }
 
     if (classes.length) {
       Array.from(select.querySelectorAll('option:not(:first-child)')).forEach(o => o.remove());
