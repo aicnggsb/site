@@ -229,6 +229,14 @@ details[open] summary::before {
     background-color: rgba(255, 0, 0, 0.5);
 }
 
+.completed-row {
+    background-color: rgba(128, 128, 128, 0.5);
+}
+
+.current-row {
+    background-color: rgba(255, 255, 0, 0.5);
+}
+
 /* Filtres dans suivi_projet.html */
 #class-filter,
 #role-filter,
