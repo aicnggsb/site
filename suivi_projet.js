@@ -102,11 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       const taskValue = tacheIdx !== -1 ? row[tacheIdx] || '' : '';
-      const t = taskValue.toLowerCase();
-      const hasEval = evalIdxs.some(i => row[i] && row[i].trim()) ||
-        t.includes('évalu') || t.includes('evalu');
-
-      const hasEval = evalIdxs.some(i => row[i] && row[i].trim());
+      const normalizedTask = normalize(taskValue);
+      const hasEval =
+        evalIdxs.some(i => row[i] && row[i].trim()) ||
+        normalizedTask.includes('evaluation');
 
       if (hasEval) tr.classList.add('evaluation-row');
       tbody.appendChild(tr);
