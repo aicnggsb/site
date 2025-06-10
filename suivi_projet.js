@@ -236,7 +236,11 @@ document.addEventListener('DOMContentLoaded', () => {
   classSelect.addEventListener('change', applyFilters);
   roleSelect.addEventListener('change', applyFilters);
   projectSelect.addEventListener('change', applyFilters);
-  statusFilter.addEventListener('change', applyFilters);
+  statusFilter.addEventListener('change', evt => {
+    if (evt.target && evt.target.matches('input[type="checkbox"]')) {
+      applyFilters();
+    }
+  });
   loadData();
   setInterval(loadData, 60000);
 });
