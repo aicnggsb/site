@@ -229,8 +229,9 @@ details[open] summary::before {
     background-color: rgba(255, 0, 0, 0.5);
 }
 
-/* Filtre des classes dans suivi_projet.html */
-#class-filter {
+/* Filtres dans suivi_projet.html */
+#class-filter,
+#role-filter {
     margin-top: 10px;
     padding: 5px;
     background-color: rgba(0, 0, 0, 0.7);
