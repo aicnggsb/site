@@ -8,7 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let classIdx = -1;
   let roleIdx = -1;
   let projectIdx = -1;
+  let dateIdx = -1;
   let tbody = null;
+  let rowElements = [];
 
   const normalize = str =>
     str
@@ -101,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
     classIdx = cols.findIndex(c => c && c.toLowerCase().trim() === 'classe');
     roleIdx = cols.findIndex(c => c && normalize(c) === 'role');
     projectIdx = cols.findIndex(c => c && normalize(c) === 'projet');
+    dateIdx = cols.findIndex(c => c && normalize(c) === 'date');
 
     const classes = classIdx !== -1
       ? Array.from(new Set(rows.map(r => (r[classIdx] || '').trim()).filter(Boolean))).sort()
@@ -123,6 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
     table.appendChild(thead);
 
     tbody = document.createElement('tbody');
+    rowElements = [];
     rows.forEach(row => {
       const tr = document.createElement('tr');
       row.forEach(cell => {
@@ -138,8 +142,40 @@ document.addEventListener('DOMContentLoaded', () => {
         normalizedTask.includes('evaluation');
 
       if (hasEval) tr.classList.add('evaluation-row');
+      rowElements.push(tr);
       tbody.appendChild(tr);
     });
+
+    if (
+      dateIdx !== -1 &&
+      classIdx !== -1 &&
+      roleIdx !== -1 &&
+      projectIdx !== -1
+    ) {
+      const groups = new Map();
+      rows.forEach((r, i) => {
+        const key = `${r[classIdx]}|${r[projectIdx]}|${r[roleIdx]}`;
+        const [d, m, y] = (r[dateIdx] || '').split('/');
+        const date = d && m && y ? new Date(`${y}-${m}-${d}`) : null;
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push({ index: i, date });
+      });
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      for (const arr of groups.values()) {
+        arr.sort((a, b) => a.date - b.date);
+        for (let i = 0; i < arr.length; i++) {
+          const cur = arr[i];
+          const next = arr[i + 1];
+          const nextDate = next ? next.date : new Date(8640000000000000);
+          if (cur.date && nextDate && cur.date < today && nextDate < today) {
+            rowElements[cur.index].classList.add('completed-row');
+          } else if (cur.date && nextDate && cur.date <= today && nextDate > today) {
+            rowElements[cur.index].classList.add('current-row');
+          }
+        }
+      }
+    }
     table.appendChild(tbody);
 
     container.innerHTML = '';
