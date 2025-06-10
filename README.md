@@ -14,4 +14,6 @@ fichier, reconstruit le tableau et applique un filtrage par classe et par rôle.
 Si le téléchargement échoue ou renvoie un contenu inattendu (par exemple si la
 feuille n'est plus publique), le script utilise automatiquement le fichier local
 `suivi_projet_data.json` comme secours. Les données se rafraîchissent
-automatiquement toutes les minutes.
+automatiquement toutes les minutes. Le tableau comporte désormais une colonne
+supplémentaire intitulée **Statut** qui indique pour chaque tâche si elle est
+"Terminée", "En cours" ou "A venir".

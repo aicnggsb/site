@@ -122,11 +122,15 @@ document.addEventListener('DOMContentLoaded', () => {
       th.textContent = label;
       headRow.appendChild(th);
     });
+    const statusTh = document.createElement('th');
+    statusTh.textContent = 'Statut';
+    headRow.appendChild(statusTh);
     thead.appendChild(headRow);
     table.appendChild(thead);
 
     tbody = document.createElement('tbody');
     rowElements = [];
+    const statusCells = [];
     rows.forEach(row => {
       const tr = document.createElement('tr');
       row.forEach(cell => {
@@ -134,6 +138,10 @@ document.addEventListener('DOMContentLoaded', () => {
         td.textContent = cell;
         tr.appendChild(td);
       });
+      const statusTd = document.createElement('td');
+      statusTd.textContent = 'A venir';
+      tr.appendChild(statusTd);
+      statusCells.push(statusTd);
 
       const taskValue = tacheIdx !== -1 ? row[tacheIdx] || '' : '';
       const normalizedTask = normalize(taskValue);
@@ -170,8 +178,10 @@ document.addEventListener('DOMContentLoaded', () => {
           const nextDate = next ? next.date : new Date(8640000000000000);
           if (cur.date && nextDate && cur.date < today && nextDate < today) {
             rowElements[cur.index].classList.add('completed-row');
+            statusCells[cur.index].textContent = 'Terminée';
           } else if (cur.date && nextDate && cur.date <= today && nextDate > today) {
             rowElements[cur.index].classList.add('current-row');
+            statusCells[cur.index].textContent = 'En cours';
           }
         }
       }
