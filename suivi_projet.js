@@ -68,6 +68,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const table = document.createElement('table');
     table.className = 'sheet-table';
 
+    const evalIdxs = cols
+      .map((c, i) => (c && c.toLowerCase().includes('evalu') ? i : -1))
+      .filter(i => i !== -1);
+
+    const normalize = str =>
+      str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    const tacheIdx = cols.findIndex(c => c && normalize(c) === 'tache');
+
     classIdx = cols.findIndex(c => c && c.toLowerCase().trim() === 'classe');
     const classes = classIdx !== -1
       ? Array.from(new Set(rows.map(r => (r[classIdx] || '').trim()).filter(Boolean))).sort()
@@ -91,6 +99,11 @@ document.addEventListener('DOMContentLoaded', () => {
         td.textContent = cell;
         tr.appendChild(td);
       });
+      const taskValue = tacheIdx !== -1 ? row[tacheIdx] || '' : '';
+      const t = taskValue.toLowerCase();
+      const hasEval = evalIdxs.some(i => row[i] && row[i].trim()) ||
+        t.includes('évalu') || t.includes('evalu');
+      if (hasEval) tr.classList.add('evaluation-row');
       tbody.appendChild(tr);
     });
     table.appendChild(tbody);
