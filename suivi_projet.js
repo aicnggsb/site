@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // URL de la feuille Google Sheets publiée au format gviz
-  const baseUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRVQMq6u1Wl-Tzjl27ir1iMcj1hTdSIsoJrVQAtW31i1AhvBoPGLT3rZoc6wfuizX7f1KWuaBphf2IX/gviz/tq?tqx=out:json&gid=0&pub=1';
+  // URL de la feuille Google Sheets publiée au format CSV
+  const baseUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRVQMq6u1Wl-Tzjl27ir1iMcj1hTdSIsoJrVQAtW31i1AhvBoPGLT3rZoc6wfuizX7f1KWuaBphf2IX/pub?output=csv';
   const select = document.getElementById('class-filter');
   const container = document.getElementById('sheet-container');
   let classIdx = -1;
@@ -14,17 +14,50 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function parseCSV(text) {
+    const rows = [];
+    let cur = '';
+    let row = [];
+    let inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (inQuotes) {
+        if (c === '"') {
+          if (text[i + 1] === '"') { cur += '"'; i++; }
+          else inQuotes = false;
+        } else {
+          cur += c;
+        }
+      } else {
+        if (c === '"') {
+          inQuotes = true;
+        } else if (c === ',') {
+          row.push(cur);
+          cur = '';
+        } else if (c === '\n') {
+          row.push(cur);
+          rows.push(row);
+          row = [];
+          cur = '';
+        } else if (c !== '\r') {
+          cur += c;
+        }
+      }
+    }
+    if (cur || row.length) row.push(cur);
+    if (row.length) rows.push(row);
+    return rows;
+  }
+
   async function loadData() {
     let cols, rows;
     const url = `${baseUrl}&ts=${Date.now()}`;
     try {
       const res = await fetch(url);
       const text = await res.text();
-      const m = text.match(/setResponse\(([^)]+)\)/);
-      if (!m) throw new Error('Bad response');
-      const data = JSON.parse(m[1]);
-      cols = data.table.cols.map(c => c.label);
-      rows = data.table.rows.map(r => r.c.map(c => (c ? c.v : '')));
+      const parsed = parseCSV(text);
+      cols = parsed.shift();
+      rows = parsed;
     } catch (e) {
       const localRes = await fetch('suivi_projet_data.json');
       const localData = await localRes.json();
