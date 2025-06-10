@@ -72,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .map((c, i) => (c && c.toLowerCase().includes('evalu') ? i : -1))
       .filter(i => i !== -1);
 
+
     const normalize = str =>
       str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
     const tacheIdx = cols.findIndex(c => c && normalize(c) === 'tache');
@@ -99,10 +100,14 @@ document.addEventListener('DOMContentLoaded', () => {
         td.textContent = cell;
         tr.appendChild(td);
       });
+
       const taskValue = tacheIdx !== -1 ? row[tacheIdx] || '' : '';
       const t = taskValue.toLowerCase();
       const hasEval = evalIdxs.some(i => row[i] && row[i].trim()) ||
         t.includes('évalu') || t.includes('evalu');
+
+      const hasEval = evalIdxs.some(i => row[i] && row[i].trim());
+
       if (hasEval) tr.classList.add('evaluation-row');
       tbody.appendChild(tr);
     });
