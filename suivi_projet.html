@@ -33,12 +33,12 @@
         <select id="project-filter">
             <option value="">Tous</option>
         </select>
-        <label for="status-filter">Filtrer par statut :</label>
-        <select id="status-filter" multiple>
-            <option value="terminée">Terminée</option>
-            <option value="en cours">En cours</option>
-            <option value="a venir">A venir</option>
-        </select>
+        <div id="status-filter" class="checkbox-filter">
+            <span>Filtrer par statut :</span>
+            <label><input type="checkbox" value="terminée"> Terminée</label>
+            <label><input type="checkbox" value="en cours"> En cours</label>
+            <label><input type="checkbox" value="a venir"> A venir</label>
+        </div>
         <div id="sheet-container">Chargement...</div>
     </main>
     <footer>
