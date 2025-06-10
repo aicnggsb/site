@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const classSelect = document.getElementById('class-filter');
   const roleSelect = document.getElementById('role-filter');
   const projectSelect = document.getElementById('project-filter');
+  const statusSelect = document.getElementById('status-filter');
   const container = document.getElementById('sheet-container');
   let classIdx = -1;
   let roleIdx = -1;
@@ -11,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let dateIdx = -1;
   let tbody = null;
   let rowElements = [];
+  let statusCells = [];
 
   const normalize = str =>
     str
@@ -21,16 +23,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function applyFilters() {
     if (!tbody) return;
-    Array.from(tbody.rows).forEach(tr => {
+    const selectedStatuses = Array.from(statusSelect.selectedOptions).map(o =>
+      o.value
+    );
+    Array.from(tbody.rows).forEach((tr, idx) => {
       const rowClass =
         classIdx !== -1 ? tr.cells[classIdx].textContent.trim() : '';
       const rowRole = roleIdx !== -1 ? tr.cells[roleIdx].textContent.trim() : '';
       const rowProject =
         projectIdx !== -1 ? tr.cells[projectIdx].textContent.trim() : '';
+      const rowStatus = statusCells[idx]
+        ? statusCells[idx].textContent.toLowerCase().trim()
+        : '';
       const classOk = !classSelect.value || rowClass === classSelect.value;
       const roleOk = !roleSelect.value || rowRole === roleSelect.value;
       const projectOk = !projectSelect.value || rowProject === projectSelect.value;
-      tr.style.display = classOk && roleOk && projectOk ? '' : 'none';
+      const statusOk = !selectedStatuses.length || selectedStatuses.includes(rowStatus);
+      tr.style.display = classOk && roleOk && projectOk && statusOk ? '' : 'none';
     });
   }
 
@@ -130,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     tbody = document.createElement('tbody');
     rowElements = [];
-    const statusCells = [];
+    statusCells = [];
     rows.forEach(row => {
       const tr = document.createElement('tr');
       row.forEach(cell => {
@@ -227,6 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
   classSelect.addEventListener('change', applyFilters);
   roleSelect.addEventListener('change', applyFilters);
   projectSelect.addEventListener('change', applyFilters);
+  statusSelect.addEventListener('change', applyFilters);
   loadData();
   setInterval(loadData, 60000);
 });
