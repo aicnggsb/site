@@ -1,16 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
   // URL de la feuille Google Sheets publiée au format CSV
   const baseUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRVQMq6u1Wl-Tzjl27ir1iMcj1hTdSIsoJrVQAtW31i1AhvBoPGLT3rZoc6wfuizX7f1KWuaBphf2IX/pub?output=csv';
-  const select = document.getElementById('class-filter');
+  const classSelect = document.getElementById('class-filter');
+  const roleSelect = document.getElementById('role-filter');
   const container = document.getElementById('sheet-container');
   let classIdx = -1;
+  let roleIdx = -1;
   let tbody = null;
 
-  function applyClassFilter(value) {
-    if (!tbody || classIdx === -1) return;
+  function applyFilters() {
+    if (!tbody) return;
     Array.from(tbody.rows).forEach(tr => {
-      const rowClass = tr.cells[classIdx].textContent;
-      tr.style.display = !value || rowClass === value ? '' : 'none';
+      const rowClass =
+        classIdx !== -1 ? tr.cells[classIdx].textContent.trim() : '';
+      const rowRole = roleIdx !== -1 ? tr.cells[roleIdx].textContent.trim() : '';
+      const classOk = !classSelect.value || rowClass === classSelect.value;
+      const roleOk = !roleSelect.value || rowRole === roleSelect.value;
+      tr.style.display = classOk && roleOk ? '' : 'none';
     });
   }
 
@@ -78,8 +84,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const tacheIdx = cols.findIndex(c => c && normalize(c) === 'tache');
 
     classIdx = cols.findIndex(c => c && c.toLowerCase().trim() === 'classe');
+    roleIdx = cols.findIndex(c => c && normalize(c) === 'role');
+
     const classes = classIdx !== -1
       ? Array.from(new Set(rows.map(r => (r[classIdx] || '').trim()).filter(Boolean))).sort()
+      : [];
+    const roles = roleIdx !== -1
+      ? Array.from(new Set(rows.map(r => (r[roleIdx] || '').trim()).filter(Boolean))).sort()
       : [];
 
     const thead = document.createElement('thead');
@@ -116,18 +127,30 @@ document.addEventListener('DOMContentLoaded', () => {
     container.appendChild(table);
 
     if (classes.length) {
-      Array.from(select.querySelectorAll('option:not(:first-child)')).forEach(o => o.remove());
+      Array.from(classSelect.querySelectorAll('option:not(:first-child)')).forEach(o => o.remove());
       classes.forEach(cl => {
         const opt = document.createElement('option');
         opt.value = cl;
         opt.textContent = cl;
-        select.appendChild(opt);
+        classSelect.appendChild(opt);
       });
-      applyClassFilter(select.value);
     }
+
+    if (roles.length) {
+      Array.from(roleSelect.querySelectorAll('option:not(:first-child)')).forEach(o => o.remove());
+      roles.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r;
+        opt.textContent = r;
+        roleSelect.appendChild(opt);
+      });
+    }
+
+    applyFilters();
   }
 
-  select.addEventListener('change', () => applyClassFilter(select.value));
+  classSelect.addEventListener('change', applyFilters);
+  roleSelect.addEventListener('change', applyFilters);
   loadData();
   setInterval(loadData, 60000);
 });
