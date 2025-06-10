@@ -8,6 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
   let roleIdx = -1;
   let tbody = null;
 
+  const normalize = str =>
+    str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+
   function applyFilters() {
     if (!tbody) return;
     Array.from(tbody.rows).forEach(tr => {
@@ -60,10 +67,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const url = `${baseUrl}&ts=${Date.now()}`;
     try {
       const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const resText = await res.text();
       const parsed = parseCSV(resText);
+      if (!parsed.length) throw new Error('empty data');
       cols = parsed.shift();
       rows = parsed;
+      if (!cols.some(c => c && normalize(c) === 'role')) {
+        throw new Error('missing role column');
+      }
     } catch (e) {
       const localRes = await fetch('suivi_projet_data.json');
       const localData = await localRes.json();
@@ -79,8 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
       .filter(i => i !== -1);
 
 
-    const normalize = str =>
-      str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
     const tacheIdx = cols.findIndex(c => c && normalize(c) === 'tache');
 
     classIdx = cols.findIndex(c => c && c.toLowerCase().trim() === 'classe');
