@@ -231,7 +231,8 @@ details[open] summary::before {
 
 /* Filtres dans suivi_projet.html */
 #class-filter,
-#role-filter {
+#role-filter,
+#project-filter {
     margin-top: 10px;
     padding: 5px;
     background-color: rgba(0, 0, 0, 0.7);

@@ -3,9 +3,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const baseUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRVQMq6u1Wl-Tzjl27ir1iMcj1hTdSIsoJrVQAtW31i1AhvBoPGLT3rZoc6wfuizX7f1KWuaBphf2IX/pub?output=csv';
   const classSelect = document.getElementById('class-filter');
   const roleSelect = document.getElementById('role-filter');
+  const projectSelect = document.getElementById('project-filter');
   const container = document.getElementById('sheet-container');
   let classIdx = -1;
   let roleIdx = -1;
+  let projectIdx = -1;
   let tbody = null;
 
   const normalize = str =>
@@ -21,9 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const rowClass =
         classIdx !== -1 ? tr.cells[classIdx].textContent.trim() : '';
       const rowRole = roleIdx !== -1 ? tr.cells[roleIdx].textContent.trim() : '';
+      const rowProject =
+        projectIdx !== -1 ? tr.cells[projectIdx].textContent.trim() : '';
       const classOk = !classSelect.value || rowClass === classSelect.value;
       const roleOk = !roleSelect.value || rowRole === roleSelect.value;
-      tr.style.display = classOk && roleOk ? '' : 'none';
+      const projectOk = !projectSelect.value || rowProject === projectSelect.value;
+      tr.style.display = classOk && roleOk && projectOk ? '' : 'none';
     });
   }
 
@@ -95,12 +100,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     classIdx = cols.findIndex(c => c && c.toLowerCase().trim() === 'classe');
     roleIdx = cols.findIndex(c => c && normalize(c) === 'role');
+    projectIdx = cols.findIndex(c => c && normalize(c) === 'projet');
 
     const classes = classIdx !== -1
       ? Array.from(new Set(rows.map(r => (r[classIdx] || '').trim()).filter(Boolean))).sort()
       : [];
     const roles = roleIdx !== -1
       ? Array.from(new Set(rows.map(r => (r[roleIdx] || '').trim()).filter(Boolean))).sort()
+      : [];
+    const projects = projectIdx !== -1
+      ? Array.from(new Set(rows.map(r => (r[projectIdx] || '').trim()).filter(Boolean))).sort()
       : [];
 
     const thead = document.createElement('thead');
@@ -156,11 +165,22 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
+    if (projects.length) {
+      Array.from(projectSelect.querySelectorAll('option:not(:first-child)')).forEach(o => o.remove());
+      projects.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p;
+        projectSelect.appendChild(opt);
+      });
+    }
+
     applyFilters();
   }
 
   classSelect.addEventListener('change', applyFilters);
   roleSelect.addEventListener('change', applyFilters);
+  projectSelect.addEventListener('change', applyFilters);
   loadData();
   setInterval(loadData, 60000);
 });
