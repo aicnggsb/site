@@ -68,6 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const table = document.createElement('table');
     table.className = 'sheet-table';
 
+    const evalIdxs = cols
+      .map((c, i) => (c && c.toLowerCase().includes('evalu') ? i : -1))
+      .filter(i => i !== -1);
+
     classIdx = cols.findIndex(c => c && c.toLowerCase().trim() === 'classe');
     const classes = classIdx !== -1
       ? Array.from(new Set(rows.map(r => (r[classIdx] || '').trim()).filter(Boolean))).sort()
@@ -91,6 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
         td.textContent = cell;
         tr.appendChild(td);
       });
+      const hasEval = evalIdxs.some(i => row[i] && row[i].trim());
+      if (hasEval) tr.classList.add('evaluation-row');
       tbody.appendChild(tr);
     });
     table.appendChild(tbody);

@@ -225,6 +225,10 @@ details[open] summary::before {
     background-color: rgba(0, 0, 255, 0.4);
 }
 
+.evaluation-row {
+    background-color: rgba(255, 0, 0, 0.5);
+}
+
 /* Filtre des classes dans suivi_projet.html */
 #class-filter {
     margin-top: 10px;
