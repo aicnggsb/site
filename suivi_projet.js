@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const baseUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRVQMq6u1Wl-Tzjl27ir1iMcj1hTdSIsoJrVQAtW31i1AhvBoPGLT3rZoc6wfuizX7f1KWuaBphf2IX/pub?output=csv';
   const classFilter = document.getElementById('class-filter');
   const roleFilter = document.getElementById('role-filter');
-  const projectSelect = document.getElementById('project-filter');
+  const projectFilter = document.getElementById('project-filter');
   const statusFilter = document.getElementById('status-filter');
   const container = document.getElementById('sheet-container');
   const detailBox = document.getElementById('detail-box');
@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let statusCells = [];
   let rowDates = [];
   let evalFlags = [];
+  let projectsByClass = {};
   let domIndex = idx => idx;
 
   const normalize = str =>
@@ -50,9 +51,34 @@ document.addEventListener('DOMContentLoaded', () => {
         : '';
       const classOk = !selectedClasses.length || selectedClasses.includes(rowClass);
       const roleOk = !selectedRoles.length || selectedRoles.includes(rowRole);
-      const projectOk = !projectSelect.value || rowProject === projectSelect.value;
+      const selectedProjects = Array.from(
+        projectFilter.querySelectorAll('input[type="checkbox"]:checked')
+      ).map(cb => cb.value);
+      const projectOk =
+        !selectedProjects.length || selectedProjects.includes(rowProject);
       const statusOk = !selectedStatuses.length || selectedStatuses.includes(rowStatus);
       tr.style.display = classOk && roleOk && projectOk && statusOk ? '' : 'none';
+    });
+  }
+
+  function updateProjectFilter() {
+    projectFilter.innerHTML = '<span>Filtrer par projet :</span>';
+    const checkedClass = classFilter.querySelector('input[type="checkbox"]:checked');
+    const cl = checkedClass ? checkedClass.value : null;
+    const projects = cl && projectsByClass[cl]
+      ? Array.from(projectsByClass[cl]).sort()
+      : [];
+    projects.forEach(p => {
+      const id = 'project-' + normalize(p).replace(/\s+/g, '-');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.id = id;
+      cb.value = p;
+      const lab = document.createElement('label');
+      lab.htmlFor = id;
+      lab.textContent = p;
+      projectFilter.appendChild(cb);
+      projectFilter.appendChild(lab);
     });
   }
 
@@ -136,9 +162,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const roles = roleIdx !== -1
       ? Array.from(new Set(rows.map(r => (r[roleIdx] || '').trim()).filter(Boolean))).sort()
       : [];
-    const projects = projectIdx !== -1
-      ? Array.from(new Set(rows.map(r => (r[projectIdx] || '').trim()).filter(Boolean))).sort()
-      : [];
+    if (classIdx !== -1 && projectIdx !== -1) {
+      rows.forEach(r => {
+        const cl = (r[classIdx] || '').trim();
+        const pr = (r[projectIdx] || '').trim();
+        if (!cl || !pr) return;
+        if (!projectsByClass[cl]) projectsByClass[cl] = new Set();
+        projectsByClass[cl].add(pr);
+      });
+    }
 
     const thead = document.createElement('thead');
     const headRow = document.createElement('tr');
@@ -255,12 +287,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (classes.length) {
       classFilter.innerHTML = '<span>Filtrer par classe :</span>';
-      classes.forEach(cl => {
+      classes.forEach((cl, idx) => {
         const id = 'class-' + normalize(cl).replace(/\s+/g, '-');
         const cb = document.createElement('input');
         cb.type = 'checkbox';
         cb.id = id;
         cb.value = cl;
+        if (idx === 0) cb.checked = true;
         const lab = document.createElement('label');
         lab.htmlFor = id;
         lab.textContent = cl;
@@ -285,15 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    if (projects.length) {
-      Array.from(projectSelect.querySelectorAll('option:not(:first-child)')).forEach(o => o.remove());
-      projects.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p;
-        opt.textContent = p;
-        projectSelect.appendChild(opt);
-      });
-    }
+    updateProjectFilter();
 
     applyFilters();
   }
@@ -307,6 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (cb !== evt.target) cb.checked = false;
           });
       }
+      updateProjectFilter();
       applyFilters();
     }
   });
@@ -315,7 +341,11 @@ document.addEventListener('DOMContentLoaded', () => {
       applyFilters();
     }
   });
-  projectSelect.addEventListener('change', applyFilters);
+  projectFilter.addEventListener('change', evt => {
+    if (evt.target && evt.target.matches('input[type="checkbox"]')) {
+      applyFilters();
+    }
+  });
   statusFilter.addEventListener('change', evt => {
     if (evt.target && evt.target.matches('input[type="checkbox"]')) {
       applyFilters();

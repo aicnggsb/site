@@ -275,13 +275,15 @@ details[open] summary::before {
 
 #status-filter input[type="checkbox"],
 #class-filter input[type="checkbox"],
-#role-filter input[type="checkbox"] {
+#role-filter input[type="checkbox"],
+#project-filter input[type="checkbox"] {
     display: none;
 }
 
 #status-filter label,
 #class-filter label,
-#role-filter label {
+#role-filter label,
+#project-filter label {
     margin-right: 5px;
     padding: 4px 12px;
     border: 1px solid #87cefa;
@@ -293,7 +295,8 @@ details[open] summary::before {
 
 #status-filter input[type="checkbox"]:checked + label,
 #class-filter input[type="checkbox"]:checked + label,
-#role-filter input[type="checkbox"]:checked + label {
+#role-filter input[type="checkbox"]:checked + label,
+#project-filter input[type="checkbox"]:checked + label {
     background-color: #00e5ff;
     color: #000;
 }
