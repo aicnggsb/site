@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateProjectFilter() {
-    projectFilter.innerHTML = '<span>Filtrer par projet :</span>';
+    projectFilter.innerHTML = '<span>Projet :</span>';
     const checkedClass = classFilter.querySelector('input[type="checkbox"]:checked');
     const cl = checkedClass ? checkedClass.value : null;
     const projects = cl && projectsByClass[cl]
@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
     container.appendChild(table);
 
     if (classes.length) {
-      classFilter.innerHTML = '<span>Filtrer par classe :</span>';
+      classFilter.innerHTML = '<span>Classe :</span>';
       classes.forEach((cl, idx) => {
         const id = 'class-' + normalize(cl).replace(/\s+/g, '-');
         const cb = document.createElement('input');
@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (roles.length) {
-      roleFilter.innerHTML = '<span>Filtrer par r\u00f4le :</span>';
+      roleFilter.innerHTML = '<span>R\u00f4le :</span>';
       roles.forEach(r => {
         const id = 'role-' + normalize(r).replace(/\s+/g, '-');
         const cb = document.createElement('input');
