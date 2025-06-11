@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tbody = document.createElement('tbody');
     rowElements = [];
     statusCells = [];
-    rows.forEach(row => {
+    rows.forEach((row, idx) => {
       const tr = document.createElement('tr');
       row.forEach(cell => {
         const td = document.createElement('td');
@@ -159,6 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
         normalizedTask.includes('evaluation');
 
       if (hasEval) tr.classList.add('evaluation-row');
+      tr.style.animationDelay = `${idx * 50}ms`;
       rowElements.push(tr);
       tbody.appendChild(tr);
     });
