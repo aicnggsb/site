@@ -300,6 +300,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   classFilter.addEventListener('change', evt => {
     if (evt.target && evt.target.matches('input[type="checkbox"]')) {
+      if (evt.target.checked) {
+        classFilter
+          .querySelectorAll('input[type="checkbox"]')
+          .forEach(cb => {
+            if (cb !== evt.target) cb.checked = false;
+          });
+      }
       applyFilters();
     }
   });
