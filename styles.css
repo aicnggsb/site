@@ -290,3 +290,14 @@ details[open] summary::before {
     color: #000;
 }
 
+/* Zone d'affichage des détails dans suivi_projet.html */
+.detail-box {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+    min-height: 1.5em;
+}
+
