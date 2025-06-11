@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   // URL de la feuille Google Sheets publiée au format CSV
   const baseUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRVQMq6u1Wl-Tzjl27ir1iMcj1hTdSIsoJrVQAtW31i1AhvBoPGLT3rZoc6wfuizX7f1KWuaBphf2IX/pub?output=csv';
-  const classSelect = document.getElementById('class-filter');
-  const roleSelect = document.getElementById('role-filter');
+  const classFilter = document.getElementById('class-filter');
+  const roleFilter = document.getElementById('role-filter');
   const projectSelect = document.getElementById('project-filter');
   const statusFilter = document.getElementById('status-filter');
   const container = document.getElementById('sheet-container');
@@ -32,6 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedStatuses = Array.from(
       statusFilter.querySelectorAll('input[type="checkbox"]:checked')
     ).map(cb => cb.value.toLowerCase());
+    const selectedClasses = Array.from(
+      classFilter.querySelectorAll('input[type="checkbox"]:checked')
+    ).map(cb => cb.value);
+    const selectedRoles = Array.from(
+      roleFilter.querySelectorAll('input[type="checkbox"]:checked')
+    ).map(cb => cb.value);
     Array.from(tbody.rows).forEach((tr, idx) => {
       const rowClass =
         classIdx !== -1 ? tr.cells[domIndex(classIdx)].textContent.trim() : '';
@@ -42,8 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const rowStatus = statusCells[idx]
         ? statusCells[idx].textContent.toLowerCase().trim()
         : '';
-      const classOk = !classSelect.value || rowClass === classSelect.value;
-      const roleOk = !roleSelect.value || rowRole === roleSelect.value;
+      const classOk = !selectedClasses.length || selectedClasses.includes(rowClass);
+      const roleOk = !selectedRoles.length || selectedRoles.includes(rowRole);
       const projectOk = !projectSelect.value || rowProject === projectSelect.value;
       const statusOk = !selectedStatuses.length || selectedStatuses.includes(rowStatus);
       tr.style.display = classOk && roleOk && projectOk && statusOk ? '' : 'none';
@@ -248,22 +254,34 @@ document.addEventListener('DOMContentLoaded', () => {
     container.appendChild(table);
 
     if (classes.length) {
-      Array.from(classSelect.querySelectorAll('option:not(:first-child)')).forEach(o => o.remove());
+      classFilter.innerHTML = '<span>Filtrer par classe :</span>';
       classes.forEach(cl => {
-        const opt = document.createElement('option');
-        opt.value = cl;
-        opt.textContent = cl;
-        classSelect.appendChild(opt);
+        const id = 'class-' + normalize(cl).replace(/\s+/g, '-');
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.id = id;
+        cb.value = cl;
+        const lab = document.createElement('label');
+        lab.htmlFor = id;
+        lab.textContent = cl;
+        classFilter.appendChild(cb);
+        classFilter.appendChild(lab);
       });
     }
 
     if (roles.length) {
-      Array.from(roleSelect.querySelectorAll('option:not(:first-child)')).forEach(o => o.remove());
+      roleFilter.innerHTML = '<span>Filtrer par r\u00f4le :</span>';
       roles.forEach(r => {
-        const opt = document.createElement('option');
-        opt.value = r;
-        opt.textContent = r;
-        roleSelect.appendChild(opt);
+        const id = 'role-' + normalize(r).replace(/\s+/g, '-');
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.id = id;
+        cb.value = r;
+        const lab = document.createElement('label');
+        lab.htmlFor = id;
+        lab.textContent = r;
+        roleFilter.appendChild(cb);
+        roleFilter.appendChild(lab);
       });
     }
 
@@ -280,8 +298,16 @@ document.addEventListener('DOMContentLoaded', () => {
     applyFilters();
   }
 
-  classSelect.addEventListener('change', applyFilters);
-  roleSelect.addEventListener('change', applyFilters);
+  classFilter.addEventListener('change', evt => {
+    if (evt.target && evt.target.matches('input[type="checkbox"]')) {
+      applyFilters();
+    }
+  });
+  roleFilter.addEventListener('change', evt => {
+    if (evt.target && evt.target.matches('input[type="checkbox"]')) {
+      applyFilters();
+    }
+  });
   projectSelect.addEventListener('change', applyFilters);
   statusFilter.addEventListener('change', evt => {
     if (evt.target && evt.target.matches('input[type="checkbox"]')) {

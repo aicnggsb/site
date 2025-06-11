@@ -16,4 +16,5 @@ feuille n'est plus publique), le script utilise automatiquement le fichier local
 `suivi_projet_data.json` comme secours. Les données sont chargées au
 démarrage de la page uniquement. Le tableau comporte désormais une colonne
 supplémentaire intitulée **Statut** qui indique pour chaque tâche si elle est
-"Terminée", "En cours" ou "A venir".
+"Terminée", "En cours" ou "A venir". Les filtres par classe et par rôle sont
+désormais présentés sous forme de cases à cocher, comme celui du statut.
