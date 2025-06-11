@@ -6,15 +6,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const projectSelect = document.getElementById('project-filter');
   const statusFilter = document.getElementById('status-filter');
   const container = document.getElementById('sheet-container');
+  const detailBox = document.getElementById('detail-box');
   let classIdx = -1;
   let roleIdx = -1;
   let projectIdx = -1;
   let dateIdx = -1;
+  let detailsIdx = -1;
   let tbody = null;
   let rowElements = [];
   let statusCells = [];
   let rowDates = [];
   let evalFlags = [];
+  let domIndex = idx => idx;
 
   const normalize = str =>
     str
@@ -25,15 +28,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function applyFilters() {
     if (!tbody) return;
+    if (detailBox) detailBox.textContent = '';
     const selectedStatuses = Array.from(
       statusFilter.querySelectorAll('input[type="checkbox"]:checked')
     ).map(cb => cb.value.toLowerCase());
     Array.from(tbody.rows).forEach((tr, idx) => {
       const rowClass =
-        classIdx !== -1 ? tr.cells[classIdx].textContent.trim() : '';
-      const rowRole = roleIdx !== -1 ? tr.cells[roleIdx].textContent.trim() : '';
+        classIdx !== -1 ? tr.cells[domIndex(classIdx)].textContent.trim() : '';
+      const rowRole =
+        roleIdx !== -1 ? tr.cells[domIndex(roleIdx)].textContent.trim() : '';
       const rowProject =
-        projectIdx !== -1 ? tr.cells[projectIdx].textContent.trim() : '';
+        projectIdx !== -1 ? tr.cells[domIndex(projectIdx)].textContent.trim() : '';
       const rowStatus = statusCells[idx]
         ? statusCells[idx].textContent.toLowerCase().trim()
         : '';
@@ -110,11 +115,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     const tacheIdx = cols.findIndex(c => c && normalize(c) === 'tache');
+    detailsIdx = cols.findIndex(c => c && normalize(c) === 'details');
 
     classIdx = cols.findIndex(c => c && c.toLowerCase().trim() === 'classe');
     roleIdx = cols.findIndex(c => c && normalize(c) === 'role');
     projectIdx = cols.findIndex(c => c && normalize(c) === 'projet');
     dateIdx = cols.findIndex(c => c && normalize(c) === 'date');
+
+    domIndex = idx => (detailsIdx !== -1 && idx > detailsIdx ? idx - 1 : idx);
 
     const classes = classIdx !== -1
       ? Array.from(new Set(rows.map(r => (r[classIdx] || '').trim()).filter(Boolean))).sort()
@@ -128,7 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const thead = document.createElement('thead');
     const headRow = document.createElement('tr');
-    cols.forEach(label => {
+    cols.forEach((label, i) => {
+      if (i === detailsIdx) return;
       const th = document.createElement('th');
       th.textContent = label;
       headRow.appendChild(th);
@@ -146,7 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
     evalFlags = [];
     rows.forEach((row, idx) => {
       const tr = document.createElement('tr');
-      row.forEach(cell => {
+      row.forEach((cell, colIdx) => {
+        if (colIdx === detailsIdx) return;
         const td = document.createElement('td');
         td.textContent = cell;
         tr.appendChild(td);
@@ -155,6 +165,19 @@ document.addEventListener('DOMContentLoaded', () => {
       statusTd.textContent = 'A venir';
       tr.appendChild(statusTd);
       statusCells.push(statusTd);
+
+      if (detailsIdx !== -1) {
+        tr.dataset.details = row[detailsIdx] || '';
+      }
+
+      if (detailBox) {
+        tr.addEventListener('mouseenter', () => {
+          detailBox.textContent = tr.dataset.details || '';
+        });
+        tr.addEventListener('mouseleave', () => {
+          detailBox.textContent = '';
+        });
+      }
 
       const taskValue = tacheIdx !== -1 ? row[tacheIdx] || '' : '';
       const normalizedTask = normalize(taskValue);
