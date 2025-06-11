@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let tbody = null;
   let rowElements = [];
   let statusCells = [];
+  let rowDates = [];
+  let evalFlags = [];
 
   const normalize = str =>
     str
@@ -140,6 +142,8 @@ document.addEventListener('DOMContentLoaded', () => {
     tbody = document.createElement('tbody');
     rowElements = [];
     statusCells = [];
+    rowDates = [];
+    evalFlags = [];
     rows.forEach((row, idx) => {
       const tr = document.createElement('tr');
       row.forEach(cell => {
@@ -158,11 +162,23 @@ document.addEventListener('DOMContentLoaded', () => {
         evalIdxs.some(i => row[i] && row[i].trim()) ||
         normalizedTask.includes('evaluation');
 
+      const dateParts =
+        dateIdx !== -1 && row[dateIdx] ? row[dateIdx].split('/') : [];
+      const date =
+        dateParts.length === 3
+          ? new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`)
+          : null;
+      rowDates.push(date);
+      evalFlags.push(hasEval);
+
       if (hasEval) tr.classList.add('evaluation-row');
       tr.style.animationDelay = `${idx * 50}ms`;
       rowElements.push(tr);
       tbody.appendChild(tr);
     });
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     if (
       dateIdx !== -1 &&
@@ -178,9 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!groups.has(key)) groups.set(key, []);
         groups.get(key).push({ index: i, date });
       });
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      for (const arr of groups.values()) {
+    for (const arr of groups.values()) {
         arr.sort((a, b) => a.date - b.date);
         for (let i = 0; i < arr.length; i++) {
           const cur = arr[i];
@@ -196,6 +210,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     }
+
+    evalFlags.forEach((isEval, idx) => {
+      const d = rowDates[idx];
+      if (isEval && d && d >= today) {
+        rowElements[idx].classList.remove('current-row');
+        statusCells[idx].textContent = 'Evaluation';
+      }
+    });
+
     table.appendChild(tbody);
 
     container.innerHTML = '';
