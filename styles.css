@@ -271,12 +271,22 @@ details[open] summary::before {
     border-radius: 4px;
 }
 
-#status-filter label {
-    margin-right: 10px;
+#status-filter input[type="checkbox"] {
+    display: none;
 }
 
-#status-filter input[type="checkbox"] {
-    margin-right: 4px;
-    accent-color: #1e90ff;
+#status-filter label {
+    margin-right: 5px;
+    padding: 4px 12px;
+    border: 1px solid #87cefa;
+    border-radius: 999px;
+    cursor: pointer;
+    background-color: transparent;
+    transition: background-color 0.3s;
+}
+
+#status-filter input[type="checkbox"]:checked + label {
+    background-color: #00e5ff;
+    color: #000;
 }
 

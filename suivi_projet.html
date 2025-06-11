@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', Arial, sans-serif; }
+        body { font-family: 'Poppins', Arial, sans-serif; font-size: 14px; }
     </style>
     <script src="suivi_projet.js" defer></script>
 </head>
@@ -39,10 +39,10 @@
         </select>
         <div id="status-filter" class="checkbox-filter">
             <span>Filtrer par statut :</span>
-            <label><input type="checkbox" value="terminée"> Terminée</label>
-            <label><input type="checkbox" value="en cours"> En cours</label>
-            <label><input type="checkbox" value="a venir"> A venir</label>
-            <label><input type="checkbox" value="evaluation"> Evaluation</label>
+            <input type="checkbox" id="stat-term" value="terminée"><label for="stat-term">Terminée</label>
+            <input type="checkbox" id="stat-en-cours" value="en cours"><label for="stat-en-cours">En cours</label>
+            <input type="checkbox" id="stat-avenir" value="a venir"><label for="stat-avenir">A venir</label>
+            <input type="checkbox" id="stat-eval" value="evaluation"><label for="stat-eval">Evaluation</label>
         </div>
         <div id="sheet-container">Chargement...</div>
     </main>
