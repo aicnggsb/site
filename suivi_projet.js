@@ -243,5 +243,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   loadData();
-  setInterval(loadData, 60000);
 });
