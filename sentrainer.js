@@ -97,7 +97,6 @@ function showRandomQuestion() {
     p.textContent = current.question;
     block.appendChild(p);
 
-    container.appendChild(block);
     const answers = shuffle([...current.choices]);
     answers.forEach(choice => {
         const btn = document.createElement('button');
@@ -107,11 +106,13 @@ function showRandomQuestion() {
             const correct = choice === current.answer;
             if (correct) score++;
             btn.style.backgroundColor = correct ? '#00a000' : '#ff0000';
-            Array.from(container.querySelectorAll('button')).forEach(b => b.disabled = true);
+            Array.from(block.querySelectorAll('button')).forEach(b => b.disabled = true);
             setTimeout(showRandomQuestion, HIGHLIGHT_DELAY);
         });
-        container.appendChild(btn);
+        block.appendChild(btn);
     });
+
+    container.appendChild(block);
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
