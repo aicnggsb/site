@@ -140,15 +140,27 @@ function createFilterBox(title, values) {
     return box;
 }
 
+function createInfoBox(text) {
+    const box = document.createElement('div');
+    box.className = 'info-box';
+    box.textContent = text;
+    return box;
+}
+
 function showFilterSelection() {
     const container = document.getElementById('quiz-container');
     container.innerHTML = '';
 
+    const infoText = "Utilisez les filtres ci-dessous pour vous \u00e9valuer et vous entra\u00eener aux comp\u00e9tences en technologie.";
+    const infoBox = createInfoBox(infoText);
+
+    container.appendChild(infoBox);
+
     const themes = [...new Set(allQuestions.map(q => q.theme || 'Autre'))];
     const niveaux = [...new Set(allQuestions.map(q => q.niveau || 'Indefini'))];
 
-    const themeBox = createFilterBox('Thème', themes);
-    const levelBox = createFilterBox('Niveau', niveaux);
+    const themeBox = createFilterBox('Niveau', themes);
+    const levelBox = createFilterBox('Thème', niveaux);
 
     const questionBox = document.createElement('div');
     questionBox.className = 'filter-box';

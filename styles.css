@@ -339,7 +339,7 @@ details[open] summary::before {
 /* Boîtes de sélection pour les filtres du QCM */
 .filter-box {
     position: relative;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     padding: 20px;
     background: linear-gradient(to bottom, rgba(30, 144, 255, 0.3), rgba(0, 0, 0, 0.6));
     border: 1px solid rgba(255, 255, 255, 0.5);
@@ -355,5 +355,14 @@ details[open] summary::before {
     padding: 2px 8px;
     border-radius: 5px 5px 0 0;
     font-weight: bold;
+}
+
+.info-box {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: rgba(0, 255, 0, 0.2);
+    border: 1px solid #00ff00;
+    color: #fff;
+    border-radius: 8px;
 }
 
