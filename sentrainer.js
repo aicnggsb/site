@@ -66,12 +66,12 @@ let allQuestions = [];
 let current = null;
 let score = 0;
 let count = 0;
-const MAX_QUESTIONS = 5;
+let maxQuestions = 5;
 const HIGHLIGHT_DELAY = 1000; // temps avant la question suivante
 
 function showRandomQuestion() {
     const container = document.getElementById('quiz-container');
-    if (count >= MAX_QUESTIONS || !questions.length) {
+    if (count >= maxQuestions || !questions.length) {
         const percent = count ? Math.round((score / count) * 100) : 0;
         container.innerHTML = `<p>Quiz terminé ! Score : ${score} / ${count} (${percent}%)</p>`;
         const restart = document.createElement('button');
@@ -150,6 +150,26 @@ function showFilterSelection() {
     const themeBox = createFilterBox('Thème', themes);
     const levelBox = createFilterBox('Niveau', niveaux);
 
+    const questionBox = document.createElement('div');
+    questionBox.className = 'filter-box';
+    const questionTab = document.createElement('span');
+    questionTab.className = 'filter-tab';
+    questionTab.textContent = 'Questions';
+    questionBox.appendChild(questionTab);
+    const qLabel = document.createElement('label');
+    qLabel.textContent = `Nombre de questions : ${maxQuestions}`;
+    const qRange = document.createElement('input');
+    qRange.type = 'range';
+    qRange.min = '5';
+    qRange.max = '20';
+    qRange.value = maxQuestions;
+    qRange.addEventListener('input', () => {
+        maxQuestions = parseInt(qRange.value, 10);
+        qLabel.textContent = `Nombre de questions : ${maxQuestions}`;
+    });
+    questionBox.appendChild(qLabel);
+    questionBox.appendChild(qRange);
+
     const start = document.createElement('button');
     start.textContent = 'Commencer le test';
     start.className = 'quiz-btn';
@@ -163,7 +183,7 @@ function showFilterSelection() {
         questions = shuffle(allQuestions.filter(q =>
             selectedThemes.includes(q.theme || 'Autre') &&
             selectedLevels.includes(q.niveau || 'Indefini')
-        ));
+        )).slice(0, maxQuestions);
         score = 0;
         count = 0;
         showRandomQuestion();
@@ -171,5 +191,6 @@ function showFilterSelection() {
 
     container.appendChild(themeBox);
     container.appendChild(levelBox);
+    container.appendChild(questionBox);
     container.appendChild(start);
 }
