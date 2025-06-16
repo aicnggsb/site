@@ -85,9 +85,19 @@ function showRandomQuestion() {
     current = questions.splice(index, 1)[0];
     count++;
     container.innerHTML = '';
+    const block = document.createElement('div');
+    block.className = 'question-block';
+
+    const tab = document.createElement('span');
+    tab.className = 'question-tab';
+    tab.textContent = `Q${count}`;
+    block.appendChild(tab);
+
     const p = document.createElement('p');
-    p.textContent = `Question ${count} : ${current.question}`;
-    container.appendChild(p);
+    p.textContent = current.question;
+    block.appendChild(p);
+
+    container.appendChild(block);
     const answers = shuffle([...current.choices]);
     answers.forEach(choice => {
         const btn = document.createElement('button');
