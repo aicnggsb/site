@@ -1,49 +1,86 @@
+// Charge les questions depuis la feuille Google Sheets publiee.
+// Si le telechargement echoue, les questions sont lues dans 'sentrainer_data.json'.
 async function fetchQCM() {
-    const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRVQMq6u1Wl-Tzjl27ir1iMcj1hTdSIsoJrVQAtW31i1AhvBoPGLT3rZoc6wfuizX7f1KWuaBphf2IX/gviz/tq?gid=1246434759&pub=1&tqx=out:json';
-    const res = await fetch(url);
-    const text = await res.text();
-    const match = text.match(/setResponse\((.*)\)/);
-    if (!match) return [];
-    const obj = JSON.parse(match[1]);
-    return obj.table.rows.map(r => ({
-        question: r.c[0]?.v || '',
-        choices: [r.c[1]?.v || '', r.c[2]?.v || '', r.c[3]?.v || ''],
-        answer: r.c[4]?.v
-    }));
+    const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRVQMq6u1Wl-Tzjl27ir1iMcj1hTdSIsoJrVQAtW31i1AhvBoPGLT3rZoc6wfuizX7f1KWuaBphf2IX/pub?output=csv&ts=' + Date.now();
+    try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const text = await res.text();
+        const rows = parseCSV(text);
+        if (!rows.length) throw new Error('no data');
+        rows.shift(); // enleve l'en-tete
+        return rows.map(r => ({
+            question: r[0] || '',
+            choices: [r[1] || '', r[2] || '', r[3] || ''],
+            answer: r[4] || ''
+        })).filter(q => q.question);
+    } catch (e) {
+        const localRes = await fetch('sentrainer_data.json');
+        return await localRes.json();
+    }
+}
+
+function parseCSV(text) {
+    const rows = [];
+    let cur = '';
+    let row = [];
+    let inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQuotes) {
+            if (c === '"') {
+                if (text[i + 1] === '"') { cur += '"'; i++; }
+                else inQuotes = false;
+            } else { cur += c; }
+        } else {
+            if (c === '"') inQuotes = true;
+            else if (c === ',') { row.push(cur); cur = ''; }
+            else if (c === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; }
+            else if (c !== '\r') cur += c;
+        }
+    }
+    if (cur || row.length) row.push(cur);
+    if (row.length) rows.push(row);
+    return rows;
+}
+
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
 }
 
 let questions = [];
-let current = 0;
-let score = 0;
+let current = null;
 
-function showQuestion() {
+function showRandomQuestion() {
     const container = document.getElementById('quiz-container');
-    if (current >= questions.length) {
-        container.innerHTML = `<p>Score : ${score} / ${questions.length}</p>`;
+    if (!questions.length) {
+        container.textContent = 'Aucune question disponible.';
         return;
     }
-    const q = questions[current];
-    const options = q.choices
-        .map((choice, idx) => `<label><input type="radio" name="opt" value="${idx}"> ${choice}</label><br>`)
-        .join('');
-    container.innerHTML = `
-        <p>${q.question}</p>
-        ${options}
-        <button id="next-btn">Valider</button>
-    `;
-    document.getElementById('next-btn').addEventListener('click', () => {
-        const checked = document.querySelector('input[name="opt"]:checked');
-        if (checked) {
-            if (String(checked.value) === String(q.answer)) {
-                score++;
-            }
-            current++;
-            showQuestion();
-        }
+    current = questions[Math.floor(Math.random() * questions.length)];
+    container.innerHTML = '';
+    const p = document.createElement('p');
+    p.textContent = current.question;
+    container.appendChild(p);
+    const answers = shuffle([...current.choices]);
+    answers.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.textContent = choice;
+        btn.className = 'quiz-btn';
+        btn.addEventListener('click', () => {
+            const correct = choice === current.answer;
+            btn.style.backgroundColor = correct ? '#1e90ff' : '#ff0000';
+            Array.from(container.querySelectorAll('button')).forEach(b => b.disabled = true);
+        });
+        container.appendChild(btn);
     });
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
     questions = await fetchQCM();
-    showQuestion();
+    showRandomQuestion();
 });
