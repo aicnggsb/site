@@ -1,17 +1,20 @@
 [
   {
+    "niveau": "Facile",
     "theme": "Géographie",
     "question": "Quelle est la capitale de la France ?",
     "choices": ["Paris", "Lyon", "Marseille"],
     "answer": "Paris"
   },
   {
+    "niveau": "Facile",
     "theme": "Maths",
     "question": "Combien font 2 + 2 ?",
     "choices": ["3", "4", "5"],
     "answer": "4"
   },
   {
+    "niveau": "Facile",
     "theme": "Web",
     "question": "Quel est le langage utilisé pour structurer les pages web ?",
     "choices": ["HTML", "Python", "CSS"],
