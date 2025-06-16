@@ -10,9 +10,9 @@ async function fetchQCM() {
         if (!rows.length) throw new Error('no data');
         rows.shift(); // enleve l'en-tete
         return rows.map(r => ({
-            question: r[0] || '',
-            choices: [r[1] || '', r[2] || '', r[3] || ''],
-            answer: r[4] || ''
+            question: r[2] || '',
+            choices: [r[3] || '', r[4] || '', r[5] || ''],
+            answer: r[3] || ''
         })).filter(q => q.question);
     } catch (e) {
         const localRes = await fetch('sentrainer_data.json');
@@ -54,14 +54,20 @@ function shuffle(arr) {
 
 let questions = [];
 let current = null;
+let score = 0;
+let count = 0;
+const MAX_QUESTIONS = 5;
 
 function showRandomQuestion() {
     const container = document.getElementById('quiz-container');
-    if (!questions.length) {
-        container.textContent = 'Aucune question disponible.';
+    if (count >= MAX_QUESTIONS || !questions.length) {
+        const percent = count ? Math.round((score / count) * 100) : 0;
+        container.innerHTML = `<p>Quiz terminé ! Score : ${score} / ${count} (${percent}%)</p>`;
         return;
     }
-    current = questions[Math.floor(Math.random() * questions.length)];
+    const index = Math.floor(Math.random() * questions.length);
+    current = questions.splice(index, 1)[0];
+    count++;
     container.innerHTML = '';
     const p = document.createElement('p');
     p.textContent = current.question;
@@ -73,8 +79,10 @@ function showRandomQuestion() {
         btn.className = 'quiz-btn';
         btn.addEventListener('click', () => {
             const correct = choice === current.answer;
+            if (correct) score++;
             btn.style.backgroundColor = correct ? '#1e90ff' : '#ff0000';
             Array.from(container.querySelectorAll('button')).forEach(b => b.disabled = true);
+            setTimeout(showRandomQuestion, 500);
         });
         container.appendChild(btn);
     });
