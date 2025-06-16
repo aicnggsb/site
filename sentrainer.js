@@ -10,6 +10,7 @@ async function fetchQCM() {
         if (!rows.length) throw new Error('no data');
         rows.shift(); // enleve l'en-tete
         return rows.map(r => ({
+            niveau: r[0] || 'Indefini',
             theme: r[1] || 'Autre',
             question: r[2] || '',
             choices: [r[3] || '', r[4] || '', r[5] || ''],
@@ -19,6 +20,7 @@ async function fetchQCM() {
         const localRes = await fetch('sentrainer_data.json');
         const data = await localRes.json();
         return data.map(q => ({
+            niveau: q.niveau || 'Indefini',
             theme: q.theme || 'Autre',
             question: q.question,
             choices: q.choices,
@@ -75,7 +77,7 @@ function showRandomQuestion() {
         const restart = document.createElement('button');
         restart.textContent = 'Nouveau test';
         restart.className = 'quiz-btn';
-        restart.addEventListener('click', showThemeSelection);
+        restart.addEventListener('click', showFilterSelection);
         container.appendChild(restart);
         return;
     }
@@ -104,36 +106,60 @@ function showRandomQuestion() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     allQuestions = await fetchQCM();
-    showThemeSelection();
+    showFilterSelection();
 });
 
-function showThemeSelection() {
+function showFilterSelection() {
     const container = document.getElementById('quiz-container');
     container.innerHTML = '';
+
     const themes = [...new Set(allQuestions.map(q => q.theme || 'Autre'))];
-    const form = document.createElement('div');
-    themes.forEach((t, i) => {
+    const niveaux = [...new Set(allQuestions.map(q => q.niveau || 'Indefini'))];
+
+    const themeBox = document.createElement('div');
+    themes.forEach(t => {
         const label = document.createElement('label');
         const cb = document.createElement('input');
         cb.type = 'checkbox';
         cb.value = t;
-        if (i === 0) cb.checked = true;
+        cb.checked = true;
         label.appendChild(cb);
         label.appendChild(document.createTextNode(' ' + t + ' '));
-        form.appendChild(label);
+        themeBox.appendChild(label);
     });
+
+    const levelBox = document.createElement('div');
+    niveaux.forEach(n => {
+        const label = document.createElement('label');
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = n;
+        cb.checked = true;
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(' ' + n + ' '));
+        levelBox.appendChild(label);
+    });
+
     const start = document.createElement('button');
     start.textContent = 'Commencer le test';
     start.className = 'quiz-btn';
     start.addEventListener('click', () => {
-        const selected = Array.from(form.querySelectorAll('input[type=checkbox]'))
+        const selectedThemes = Array.from(themeBox.querySelectorAll('input[type=checkbox]'))
             .filter(cb => cb.checked)
             .map(cb => cb.value);
-        questions = shuffle(allQuestions.filter(q => selected.includes(q.theme || 'Autre')));
+        const selectedLevels = Array.from(levelBox.querySelectorAll('input[type=checkbox]'))
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+        questions = shuffle(allQuestions.filter(q =>
+            selectedThemes.includes(q.theme || 'Autre') &&
+            selectedLevels.includes(q.niveau || 'Indefini')
+        ));
         score = 0;
         count = 0;
         showRandomQuestion();
     });
-    container.appendChild(form);
+
+    container.appendChild(themeBox);
+    container.appendChild(levelBox);
     container.appendChild(start);
 }
