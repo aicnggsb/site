@@ -10,13 +10,20 @@ async function fetchQCM() {
         if (!rows.length) throw new Error('no data');
         rows.shift(); // enleve l'en-tete
         return rows.map(r => ({
+            theme: r[1] || 'Autre',
             question: r[2] || '',
             choices: [r[3] || '', r[4] || '', r[5] || ''],
             answer: r[3] || ''
         })).filter(q => q.question);
     } catch (e) {
         const localRes = await fetch('sentrainer_data.json');
-        return await localRes.json();
+        const data = await localRes.json();
+        return data.map(q => ({
+            theme: q.theme || 'Autre',
+            question: q.question,
+            choices: q.choices,
+            answer: q.answer
+        }));
     }
 }
 
@@ -53,6 +60,7 @@ function shuffle(arr) {
 }
 
 let questions = [];
+let allQuestions = [];
 let current = null;
 let score = 0;
 let count = 0;
@@ -64,6 +72,11 @@ function showRandomQuestion() {
     if (count >= MAX_QUESTIONS || !questions.length) {
         const percent = count ? Math.round((score / count) * 100) : 0;
         container.innerHTML = `<p>Quiz terminé ! Score : ${score} / ${count} (${percent}%)</p>`;
+        const restart = document.createElement('button');
+        restart.textContent = 'Nouveau test';
+        restart.className = 'quiz-btn';
+        restart.addEventListener('click', showThemeSelection);
+        container.appendChild(restart);
         return;
     }
     const index = Math.floor(Math.random() * questions.length);
@@ -90,6 +103,37 @@ function showRandomQuestion() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    questions = await fetchQCM();
-    showRandomQuestion();
+    allQuestions = await fetchQCM();
+    showThemeSelection();
 });
+
+function showThemeSelection() {
+    const container = document.getElementById('quiz-container');
+    container.innerHTML = '';
+    const themes = [...new Set(allQuestions.map(q => q.theme || 'Autre'))];
+    const form = document.createElement('div');
+    themes.forEach((t, i) => {
+        const label = document.createElement('label');
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = t;
+        if (i === 0) cb.checked = true;
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(' ' + t + ' '));
+        form.appendChild(label);
+    });
+    const start = document.createElement('button');
+    start.textContent = 'Commencer le test';
+    start.className = 'quiz-btn';
+    start.addEventListener('click', () => {
+        const selected = Array.from(form.querySelectorAll('input[type=checkbox]'))
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+        questions = shuffle(allQuestions.filter(q => selected.includes(q.theme || 'Autre')));
+        score = 0;
+        count = 0;
+        showRandomQuestion();
+    });
+    container.appendChild(form);
+    container.appendChild(start);
+}
