@@ -57,6 +57,7 @@ let current = null;
 let score = 0;
 let count = 0;
 const MAX_QUESTIONS = 5;
+const HIGHLIGHT_DELAY = 1000; // temps avant la question suivante
 
 function showRandomQuestion() {
     const container = document.getElementById('quiz-container');
@@ -70,7 +71,7 @@ function showRandomQuestion() {
     count++;
     container.innerHTML = '';
     const p = document.createElement('p');
-    p.textContent = current.question;
+    p.textContent = `Question ${count} : ${current.question}`;
     container.appendChild(p);
     const answers = shuffle([...current.choices]);
     answers.forEach(choice => {
@@ -80,9 +81,9 @@ function showRandomQuestion() {
         btn.addEventListener('click', () => {
             const correct = choice === current.answer;
             if (correct) score++;
-            btn.style.backgroundColor = correct ? '#1e90ff' : '#ff0000';
+            btn.style.backgroundColor = correct ? '#00a000' : '#ff0000';
             Array.from(container.querySelectorAll('button')).forEach(b => b.disabled = true);
-            setTimeout(showRandomQuestion, 500);
+            setTimeout(showRandomQuestion, HIGHLIGHT_DELAY);
         });
         container.appendChild(btn);
     });
