@@ -120,6 +120,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     showFilterSelection();
 });
 
+function createFilterBox(title, values) {
+    const box = document.createElement('div');
+    box.className = 'filter-box';
+    const tab = document.createElement('span');
+    tab.className = 'filter-tab';
+    tab.textContent = title;
+    box.appendChild(tab);
+    values.forEach(val => {
+        const label = document.createElement('label');
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = val;
+        cb.checked = true;
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(' ' + val + ' '));
+        box.appendChild(label);
+    });
+    return box;
+}
+
 function showFilterSelection() {
     const container = document.getElementById('quiz-container');
     container.innerHTML = '';
@@ -127,29 +147,8 @@ function showFilterSelection() {
     const themes = [...new Set(allQuestions.map(q => q.theme || 'Autre'))];
     const niveaux = [...new Set(allQuestions.map(q => q.niveau || 'Indefini'))];
 
-    const themeBox = document.createElement('div');
-    themes.forEach(t => {
-        const label = document.createElement('label');
-        const cb = document.createElement('input');
-        cb.type = 'checkbox';
-        cb.value = t;
-        cb.checked = true;
-        label.appendChild(cb);
-        label.appendChild(document.createTextNode(' ' + t + ' '));
-        themeBox.appendChild(label);
-    });
-
-    const levelBox = document.createElement('div');
-    niveaux.forEach(n => {
-        const label = document.createElement('label');
-        const cb = document.createElement('input');
-        cb.type = 'checkbox';
-        cb.value = n;
-        cb.checked = true;
-        label.appendChild(cb);
-        label.appendChild(document.createTextNode(' ' + n + ' '));
-        levelBox.appendChild(label);
-    });
+    const themeBox = createFilterBox('Thème', themes);
+    const levelBox = createFilterBox('Niveau', niveaux);
 
     const start = document.createElement('button');
     start.textContent = 'Commencer le test';

@@ -19,4 +19,4 @@ supplémentaire intitulée **Statut** qui indique pour chaque tâche si elle est
 "Terminée", "En cours" ou "A venir". Les filtres par classe et par rôle sont
 désormais présentés sous forme de cases à cocher, comme celui du statut.
 
-La page `sentrainer.html` permet de lancer des QCM issus d'une feuille Google Sheets. Si la récupération échoue, le script se rabat sur `sentrainer_data.json`. Avant de démarrer, les thèmes et les niveaux sont sélectionnables séparément grâce à deux listes de cases à cocher.
+La page `sentrainer.html` permet de lancer des QCM issus d'une feuille Google Sheets. Si la récupération échoue, le script se rabat sur `sentrainer_data.json`. Avant de démarrer, les thèmes et les niveaux sont présentés dans deux boîtes distinctes munies d'un onglet "Thème" ou "Niveau", chacune contenant des cases à cocher pour filtrer le quiz.
