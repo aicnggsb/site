@@ -80,7 +80,7 @@ function showRandomQuestion() {
         const historyDiv = document.createElement('div');
         history.forEach((h, i) => {
             const block = document.createElement('div');
-            block.className = 'question-block';
+            block.className = 'question-block ' + (h.isCorrect ? 'correct' : 'incorrect');
             const tab = document.createElement('span');
             tab.className = 'question-tab';
             tab.textContent = `Q${i + 1}`;
@@ -91,9 +91,11 @@ function showRandomQuestion() {
             const sel = document.createElement('p');
             sel.innerHTML = `<strong>Votre réponse :</strong> ${h.selected}`;
             block.appendChild(sel);
-            const ans = document.createElement('p');
-            ans.innerHTML = `<strong>Bonne réponse :</strong> ${h.correct}`;
-            block.appendChild(ans);
+            if (!h.isCorrect) {
+                const ans = document.createElement('p');
+                ans.innerHTML = `<strong>Bonne réponse :</strong> ${h.correct}`;
+                block.appendChild(ans);
+            }
             if (h.correction) {
                 const cor = document.createElement('p');
                 cor.innerHTML = `<strong>Correction :</strong> ${h.correction}`;
@@ -137,7 +139,8 @@ function showRandomQuestion() {
                 question: current.question,
                 selected: choice,
                 correct: current.answer,
-                correction: current.correction || ''
+                correction: current.correction || '',
+                isCorrect: correct
             });
             btn.style.backgroundColor = correct ? '#00a000' : '#ff0000';
             Array.from(block.querySelectorAll('button')).forEach(b => b.disabled = true);
