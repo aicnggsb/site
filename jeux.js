@@ -29,8 +29,9 @@ function parseCSV(text) {
     const rows = lines.map(l => l.split(','));
     if (!rows.length) return [];
     const header = rows[0];
-    const wordIdx = header.findIndex(h => h.toLowerCase().includes('mot'));
-    const clueIdx = header.findIndex(h => h.toLowerCase().includes('def'));
+    const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const wordIdx = header.findIndex(h => norm(h).includes('mot'));
+    const clueIdx = header.findIndex(h => norm(h).includes('def'));
     const res = [];
     for (let i = 1; i < rows.length; i++) {
         const row = rows[i];
