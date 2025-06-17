@@ -194,7 +194,7 @@ function showRandomQuestion() {
         block.appendChild(imgBox);
     }
 
-    const answers = shuffle([...current.choices]);
+    const answers = shuffle(current.choices.filter(c => c));
 
     const answerBox = document.createElement('div');
     answerBox.className = 'answer-box';
