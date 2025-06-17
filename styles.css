@@ -416,3 +416,20 @@ details[open] summary::before {
     color: #fff;
 }
 
+/* Barres de progression pour le bilan du QCM */
+.progress-container {
+    margin-bottom: 10px;
+}
+
+.progress-bar {
+    background: #555;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 1em;
+}
+
+.progress-bar-inner {
+    background: linear-gradient(to right, #00ff00, #006400);
+    height: 100%;
+}
+

@@ -79,6 +79,33 @@ function showRandomQuestion() {
     if (count >= maxQuestions || !questions.length) {
         const percent = count ? Math.round((score / count) * 100) : 0;
         container.innerHTML = `<p>Quiz terminé ! Score : ${score} / ${count} (${percent}%)</p>`;
+
+        const results = history.reduce((acc, h) => {
+            const t = h.theme || 'Autre';
+            if (!acc[t]) acc[t] = {total: 0, correct: 0};
+            acc[t].total++;
+            if (h.isCorrect) acc[t].correct++;
+            return acc;
+        }, {});
+
+        const resultsDiv = document.createElement('div');
+        Object.entries(results).forEach(([theme, res]) => {
+            const pct = Math.round((res.correct / res.total) * 100);
+            const line = document.createElement('div');
+            line.className = 'progress-container';
+            const label = document.createElement('p');
+            label.textContent = `${theme} : ${pct}% (${res.correct}/${res.total})`;
+            line.appendChild(label);
+            const bar = document.createElement('div');
+            bar.className = 'progress-bar';
+            const inner = document.createElement('div');
+            inner.className = 'progress-bar-inner';
+            inner.style.width = pct + '%';
+            bar.appendChild(inner);
+            line.appendChild(bar);
+            resultsDiv.appendChild(line);
+        });
+        container.appendChild(resultsDiv);
         const historyDiv = document.createElement('div');
         history.forEach((h, i) => {
             const block = document.createElement('div');
@@ -172,6 +199,7 @@ function showRandomQuestion() {
                 correct: current.answer,
                 correction: current.correction || '',
                 image: current.image || '',
+                theme: current.theme || 'Autre',
                 isCorrect: correct
             });
             btn.style.backgroundColor = correct ? '#00a000' : '#ff0000';
