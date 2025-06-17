@@ -5,7 +5,8 @@
     "question": "Quelle est la capitale de la France ?",
     "choices": ["Paris", "Lyon", "Marseille"],
     "answer": "Paris",
-    "correction": "Paris est la capitale de la France."
+    "correction": "Paris est la capitale de la France.",
+    "image": ""
   },
   {
     "niveau": "Facile",
@@ -13,7 +14,8 @@
     "question": "Combien font 2 + 2 ?",
     "choices": ["3", "4", "5"],
     "answer": "4",
-    "correction": "2 + 2 = 4"
+    "correction": "2 + 2 = 4",
+    "image": ""
   },
   {
     "niveau": "Facile",
@@ -21,6 +23,7 @@
     "question": "Quel est le langage utilisé pour structurer les pages web ?",
     "choices": ["HTML", "Python", "CSS"],
     "answer": "HTML",
-    "correction": "On emploie le langage HTML pour structurer une page."
+    "correction": "On emploie le langage HTML pour structurer une page.",
+    "image": ""
   }
 ]
