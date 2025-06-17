@@ -22,5 +22,6 @@ désormais présentés sous forme de cases à cocher, comme celui du statut.
 La page `sentrainer.html` permet de lancer des QCM issus d'une feuille Google Sheets. Si la récupération échoue, le script se rabat sur `sentrainer_data.json`. Avant de démarrer, les thèmes et les niveaux sont présentés dans deux boîtes distinctes munies d'un onglet "Thème" ou "Niveau", chacune contenant des cases à cocher pour filtrer le quiz. Un curseur permet en outre de choisir le nombre de questions (de 5 à 20) avant de commencer.
 Les questions peuvent désormais comporter une colonne **Image** indiquant le nom d'un fichier PNG à afficher entre l'énoncé et les propositions.
 Le fichier CSV utilisé pour le QCM suit l'ordre suivant : **Thème**, **Niveau**, **Question**, **Image**, **Réponse correcte**, **Réponse fausse A**, **Réponse fausse B**, **Correction**.
+Si la colonne **Réponse fausse B** est vide pour une question, seuls deux boutons de réponse seront affichés lors du quiz.
 Une fois le test terminé, un bilan par thème affiche des barres de progression colorées :
 plus le pourcentage de bonnes réponses est élevé, plus la barre tend vers le vert, alors qu'elle reste rouge si le score est faible.
