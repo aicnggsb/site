@@ -109,6 +109,10 @@ function showRandomQuestion() {
             const inner = document.createElement('div');
             inner.className = 'progress-bar-inner';
             inner.style.width = pct + '%';
+            const ratio = pct / 100;
+            const r = Math.round(255 * (1 - ratio));
+            const g = Math.round(255 * ratio);
+            inner.style.backgroundColor = `rgb(${r}, ${g}, 0)`;
             bar.appendChild(inner);
             line.appendChild(bar);
             resultsDiv.appendChild(line);
