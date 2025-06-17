@@ -10,13 +10,13 @@ async function fetchQCM() {
         if (!rows.length) throw new Error('no data');
         rows.shift(); // enleve l'en-tete
         return rows.map(r => ({
-            niveau: r[0] || 'Indefini',
-            theme: r[1] || 'Autre',
+            theme: r[0] || 'Autre',
+            niveau: r[1] || 'Indefini',
             question: r[2] || '',
-            choices: [r[3] || '', r[4] || '', r[5] || ''],
-            answer: r[3] || '',
-            correction: r[6] || '',
-            image: r[7] || ''
+            image: r[3] || '',
+            choices: [r[4] || '', r[5] || '', r[6] || ''],
+            answer: r[4] || '',
+            correction: r[7] || ''
         })).filter(q => q.question);
     } catch (e) {
         const localRes = await fetch('sentrainer_data.json');
