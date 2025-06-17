@@ -14,7 +14,8 @@ async function fetchQCM() {
             theme: r[1] || 'Autre',
             question: r[2] || '',
             choices: [r[3] || '', r[4] || '', r[5] || ''],
-            answer: r[3] || ''
+            answer: r[3] || '',
+            correction: r[6] || ''
         })).filter(q => q.question);
     } catch (e) {
         const localRes = await fetch('sentrainer_data.json');
@@ -24,7 +25,8 @@ async function fetchQCM() {
             theme: q.theme || 'Autre',
             question: q.question,
             choices: q.choices,
-            answer: q.answer
+            answer: q.answer,
+            correction: q.correction || ''
         }));
     }
 }
@@ -67,6 +69,7 @@ let current = null;
 let score = 0;
 let count = 0;
 let maxQuestions = 5;
+let history = [];
 const HIGHLIGHT_DELAY = 1000; // temps avant la question suivante
 
 function showRandomQuestion() {
@@ -74,6 +77,31 @@ function showRandomQuestion() {
     if (count >= maxQuestions || !questions.length) {
         const percent = count ? Math.round((score / count) * 100) : 0;
         container.innerHTML = `<p>Quiz terminé ! Score : ${score} / ${count} (${percent}%)</p>`;
+        const historyDiv = document.createElement('div');
+        history.forEach((h, i) => {
+            const block = document.createElement('div');
+            block.className = 'question-block';
+            const tab = document.createElement('span');
+            tab.className = 'question-tab';
+            tab.textContent = `Q${i + 1}`;
+            block.appendChild(tab);
+            const q = document.createElement('p');
+            q.textContent = h.question;
+            block.appendChild(q);
+            const sel = document.createElement('p');
+            sel.innerHTML = `<strong>Votre réponse :</strong> ${h.selected}`;
+            block.appendChild(sel);
+            const ans = document.createElement('p');
+            ans.innerHTML = `<strong>Bonne réponse :</strong> ${h.correct}`;
+            block.appendChild(ans);
+            if (h.correction) {
+                const cor = document.createElement('p');
+                cor.innerHTML = `<strong>Correction :</strong> ${h.correction}`;
+                block.appendChild(cor);
+            }
+            historyDiv.appendChild(block);
+        });
+        container.appendChild(historyDiv);
         const restart = document.createElement('button');
         restart.textContent = 'Nouveau test';
         restart.className = 'quiz-btn';
@@ -105,6 +133,12 @@ function showRandomQuestion() {
         btn.addEventListener('click', () => {
             const correct = choice === current.answer;
             if (correct) score++;
+            history.push({
+                question: current.question,
+                selected: choice,
+                correct: current.answer,
+                correction: current.correction || ''
+            });
             btn.style.backgroundColor = correct ? '#00a000' : '#ff0000';
             Array.from(block.querySelectorAll('button')).forEach(b => b.disabled = true);
             setTimeout(showRandomQuestion, HIGHLIGHT_DELAY);
@@ -198,6 +232,7 @@ function showFilterSelection() {
         )).slice(0, maxQuestions);
         score = 0;
         count = 0;
+        history = [];
         showRandomQuestion();
     });
 
