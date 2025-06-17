@@ -398,3 +398,10 @@ details[open] summary::before {
     border-radius: 8px;
 }
 
+/* Affichage du nombre de questions disponibles */
+.count-box {
+    text-align: right;
+    margin-bottom: 20px;
+    color: #fff;
+}
+

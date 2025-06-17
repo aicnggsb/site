@@ -224,8 +224,12 @@ function showFilterSelection() {
     const themes = [...new Set(allQuestions.map(q => q.theme || 'Autre'))];
     const niveaux = [...new Set(allQuestions.map(q => q.niveau || 'Indefini'))];
 
-    const themeBox = createFilterBox('Niveau', themes);
-    const levelBox = createFilterBox('Thème', niveaux);
+    const levelBox = createFilterBox('Niveau', niveaux);
+    const themeBox = createFilterBox('Thème', themes);
+
+    const countBox = document.createElement('div');
+    countBox.className = 'count-box';
+    countBox.textContent = `${allQuestions.length} questions disponibles`;
 
     const questionBox = document.createElement('div');
     questionBox.className = 'filter-box';
@@ -267,8 +271,9 @@ function showFilterSelection() {
         showRandomQuestion();
     });
 
-    container.appendChild(themeBox);
     container.appendChild(levelBox);
+    container.appendChild(themeBox);
+    container.appendChild(countBox);
     container.appendChild(questionBox);
     container.appendChild(start);
 }
