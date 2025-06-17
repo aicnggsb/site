@@ -368,6 +368,17 @@ details[open] summary::before {
     box-shadow: 0 0 5px rgba(0,0,0,0.3);
 }
 
+.answer-box {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.answer-box .quiz-btn {
+    display: block;
+    margin: 5px;
+}
+
 /* Boîtes de sélection pour les filtres du QCM */
 .filter-box {
     position: relative;

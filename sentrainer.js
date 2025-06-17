@@ -155,6 +155,10 @@ function showRandomQuestion() {
     }
 
     const answers = shuffle([...current.choices]);
+
+    const answerBox = document.createElement('div');
+    answerBox.className = 'answer-box';
+
     answers.forEach(choice => {
         const btn = document.createElement('button');
         btn.textContent = choice;
@@ -174,8 +178,10 @@ function showRandomQuestion() {
             Array.from(block.querySelectorAll('button')).forEach(b => b.disabled = true);
             setTimeout(showRandomQuestion, HIGHLIGHT_DELAY);
         });
-        block.appendChild(btn);
+        answerBox.appendChild(btn);
     });
+
+    block.appendChild(answerBox);
 
     container.appendChild(block);
 }
