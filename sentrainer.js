@@ -90,6 +90,18 @@ function showRandomQuestion() {
             const q = document.createElement('p');
             q.textContent = h.question;
             block.appendChild(q);
+            if (h.image) {
+                const imgBox = document.createElement('div');
+                imgBox.className = 'image-box';
+                const img = document.createElement('img');
+                let src = h.image;
+                if (!src.includes('/')) src = 'photos/' + src;
+                img.src = src;
+                img.alt = '';
+                img.className = 'question-image';
+                imgBox.appendChild(img);
+                block.appendChild(imgBox);
+            }
             const sel = document.createElement('p');
             sel.innerHTML = `<strong>Votre réponse :</strong> ${h.selected}`;
             block.appendChild(sel);
@@ -130,13 +142,16 @@ function showRandomQuestion() {
     block.appendChild(p);
 
     if (current.image) {
+        const imgBox = document.createElement('div');
+        imgBox.className = 'image-box';
         const img = document.createElement('img');
         let src = current.image;
         if (!src.includes('/')) src = 'photos/' + src;
         img.src = src;
         img.alt = '';
         img.className = 'question-image';
-        block.appendChild(img);
+        imgBox.appendChild(img);
+        block.appendChild(imgBox);
     }
 
     const answers = shuffle([...current.choices]);
@@ -152,6 +167,7 @@ function showRandomQuestion() {
                 selected: choice,
                 correct: current.answer,
                 correction: current.correction || '',
+                image: current.image || '',
                 isCorrect: correct
             });
             btn.style.backgroundColor = correct ? '#00a000' : '#ff0000';

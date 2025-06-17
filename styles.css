@@ -359,6 +359,15 @@ details[open] summary::before {
     height: auto;
 }
 
+.image-box {
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 10px auto;
+    max-width: 90%;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+}
+
 /* Boîtes de sélection pour les filtres du QCM */
 .filter-box {
     position: relative;
