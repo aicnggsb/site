@@ -18,6 +18,14 @@ async function loadCrossword() {
             {word: 'ECRAN', clue: 'Pour afficher'},
         ];
     }
+    if (entries.length > 5) {
+        for (let i = entries.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [entries[i], entries[j]] = [entries[j], entries[i]];
+        }
+        entries = entries.slice(0, 5);
+    }
+
     const data = generateCrossword(entries);
     drawGrid(data.grid, data.placed);
     drawClues(data.placed);
@@ -50,8 +58,11 @@ function generateCrossword(entries) {
     function canPlace(word, row, col, dir) {
         if (dir === 'H') {
             if (col < 0 || col + word.length > size) return false;
+            if (grid[row][col - 1] || grid[row][col + word.length]) return false;
         } else {
             if (row < 0 || row + word.length > size) return false;
+            if ((grid[row - 1] && grid[row - 1][col]) ||
+                (grid[row + word.length] && grid[row + word.length][col])) return false;
         }
         for (let i = 0; i < word.length; i++) {
             const r = row + (dir === 'V' ? i : 0);
@@ -60,6 +71,12 @@ function generateCrossword(entries) {
             if (cell) {
                 if (cell.letter !== word[i]) return false;
                 if (cell.dir === dir) return false;
+            } else {
+                if (dir === 'H') {
+                    if ((grid[r - 1] && grid[r - 1][c]) || (grid[r + 1] && grid[r + 1][c])) return false;
+                } else {
+                    if ((grid[r] && grid[r][c - 1]) || (grid[r] && grid[r][c + 1])) return false;
+                }
             }
         }
         return true;
