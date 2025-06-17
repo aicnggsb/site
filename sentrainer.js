@@ -222,6 +222,11 @@ function showRandomQuestion() {
         answerBox.appendChild(btn);
     });
 
+    // Align buttons to the left if any answer text is long
+    if (answers.some(c => c.length > 40)) {
+        answerBox.classList.add('align-left');
+    }
+
     block.appendChild(answerBox);
 
     container.appendChild(block);
