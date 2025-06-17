@@ -15,7 +15,8 @@ async function fetchQCM() {
             question: r[2] || '',
             choices: [r[3] || '', r[4] || '', r[5] || ''],
             answer: r[3] || '',
-            correction: r[6] || ''
+            correction: r[6] || '',
+            image: r[7] || ''
         })).filter(q => q.question);
     } catch (e) {
         const localRes = await fetch('sentrainer_data.json');
@@ -26,7 +27,8 @@ async function fetchQCM() {
             question: q.question,
             choices: q.choices,
             answer: q.answer,
-            correction: q.correction || ''
+            correction: q.correction || '',
+            image: q.image || ''
         }));
     }
 }
@@ -126,6 +128,16 @@ function showRandomQuestion() {
     const p = document.createElement('p');
     p.textContent = current.question;
     block.appendChild(p);
+
+    if (current.image) {
+        const img = document.createElement('img');
+        let src = current.image;
+        if (!src.includes('/')) src = 'photos/' + src;
+        img.src = src;
+        img.alt = '';
+        img.className = 'question-image';
+        block.appendChild(img);
+    }
 
     const answers = shuffle([...current.choices]);
     answers.forEach(choice => {
