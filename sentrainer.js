@@ -88,6 +88,14 @@ function showRandomQuestion() {
             return acc;
         }, {});
 
+        const resultsBox = document.createElement('div');
+        resultsBox.className = 'filter-box';
+        resultsBox.style.marginBottom = '30px';
+        const resultsTab = document.createElement('span');
+        resultsTab.className = 'filter-tab';
+        resultsTab.textContent = 'Bilan par thème';
+        resultsBox.appendChild(resultsTab);
+
         const resultsDiv = document.createElement('div');
         Object.entries(results).forEach(([theme, res]) => {
             const pct = Math.round((res.correct / res.total) * 100);
@@ -105,7 +113,8 @@ function showRandomQuestion() {
             line.appendChild(bar);
             resultsDiv.appendChild(line);
         });
-        container.appendChild(resultsDiv);
+        resultsBox.appendChild(resultsDiv);
+        container.appendChild(resultsBox);
         const historyDiv = document.createElement('div');
         history.forEach((h, i) => {
             const block = document.createElement('div');
