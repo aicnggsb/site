@@ -151,7 +151,7 @@ function showFilterSelection() {
     const container = document.getElementById('quiz-container');
     container.innerHTML = '';
 
-    const infoText = "Utilisez les filtres ci-dessous pour vous \u00e9valuer et vous entra\u00eener aux comp\u00e9tences en technologie.";
+    const infoText = "Cet espace vous permet de vous entra\u00eener et de v\u00e9rifier vos acquis en technologie. Utilisez les filtres ci-dessous pour g\u00e9n\u00e9rer un quiz personnalis\u00e9 selon votre niveau et les comp\u00e9tences vis\u00e9es.";
     const infoBox = createInfoBox(infoText);
 
     container.appendChild(infoBox);
