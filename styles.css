@@ -325,6 +325,14 @@ details[open] summary::before {
     border-radius: 8px;
 }
 
+.question-block.correct {
+    background: linear-gradient(to bottom, rgba(0, 160, 0, 0.3), rgba(0, 0, 0, 0.6));
+}
+
+.question-block.incorrect {
+    background: linear-gradient(to bottom, rgba(255, 0, 0, 0.3), rgba(0, 0, 0, 0.6));
+}
+
 .question-tab {
     position: absolute;
     top: -10px;
@@ -334,6 +342,14 @@ details[open] summary::before {
     padding: 2px 8px;
     border-radius: 5px 5px 0 0;
     font-weight: bold;
+}
+
+.question-block.correct .question-tab {
+    background: linear-gradient(to bottom, rgba(0, 160, 0, 0.6), rgba(0, 0, 0, 0.8));
+}
+
+.question-block.incorrect .question-tab {
+    background: linear-gradient(to bottom, rgba(255, 0, 0, 0.6), rgba(0, 0, 0, 0.8));
 }
 
 /* Boîtes de sélection pour les filtres du QCM */
