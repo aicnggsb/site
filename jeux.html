@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeux</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        #game { display: flex; flex-direction: column; align-items: center; }
+        table.crossword { border-collapse: collapse; margin-bottom: 20px; }
+        table.crossword td { width: 30px; height: 30px; border: 1px solid #888; position: relative; }
+        table.crossword td.empty { background: transparent; border: none; }
+        table.crossword td input { width: 100%; height: 100%; border: none; text-align: center; background: transparent; color: #fff; font-size: 18px; }
+        table.crossword td.start .number { position: absolute; top: 0; left: 2px; font-size: 10px; color: #fff; }
+        #message { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); font-size: 3em; color: #fff; z-index: 10; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Jeux</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">ICN</a></li>
+                <li><a href="techno.html">Technologie</a></li>
+                <li><a href="SNT.html">SNT</a></li>
+                <li><a href="suivi_projet.html">Suivi Projet</a></li>
+                <li><a href="sentrainer.html">S'entrainer</a></li>
+                <li><a href="jeux.html">Jeux</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div id="game">
+            <table class="crossword" id="crossword"></table>
+            <ul id="clues"></ul>
+        </div>
+        <div id="message">Bravo !</div>
+    </main>
+    <script src="jeux.js"></script>
+</body>
+</html>
