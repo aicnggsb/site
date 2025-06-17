@@ -379,6 +379,15 @@ details[open] summary::before {
     margin: 5px;
 }
 
+/* Align buttons to the left when answers are long */
+.answer-box.align-left {
+    justify-content: flex-start;
+}
+
+.answer-box.align-left .quiz-btn {
+    text-align: left;
+}
+
 /* Boîtes de sélection pour les filtres du QCM */
 .filter-box {
     position: relative;
