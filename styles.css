@@ -398,6 +398,13 @@ details[open] summary::before {
     border-radius: 8px;
 }
 
+/* Chaque thème apparaît sur sa propre ligne et reste aligné à gauche */
+.filter-box label {
+    display: block;
+    text-align: left;
+    margin-bottom: 5px;
+}
+
 .filter-tab {
     position: absolute;
     top: -10px;
