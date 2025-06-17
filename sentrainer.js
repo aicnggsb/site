@@ -261,10 +261,6 @@ function showFilterSelection() {
     const levelBox = createFilterBox('Niveau', niveaux);
     const themeBox = createFilterBox('Thème', themes);
 
-    const countBox = document.createElement('div');
-    countBox.className = 'count-box';
-    countBox.textContent = `${allQuestions.length} questions disponibles`;
-
     const questionBox = document.createElement('div');
     questionBox.className = 'filter-box';
     const questionTab = document.createElement('span');
@@ -284,6 +280,30 @@ function showFilterSelection() {
     });
     questionBox.appendChild(qLabel);
     questionBox.appendChild(qRange);
+
+    const countBox = document.createElement('div');
+    countBox.className = 'count-box';
+    countBox.textContent = `${allQuestions.length} questions disponibles`;
+
+    questionBox.appendChild(countBox);
+
+    function updateAvailableCount() {
+        const selectedThemes = Array.from(themeBox.querySelectorAll('input[type="checkbox"]'))
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+        const selectedLevels = Array.from(levelBox.querySelectorAll('input[type="checkbox"]'))
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+        const available = allQuestions.filter(q =>
+            selectedThemes.includes(q.theme || 'Autre') &&
+            selectedLevels.includes(q.niveau || 'Indefini')
+        ).length;
+        countBox.textContent = `${available} questions disponibles`;
+    }
+
+    levelBox.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.addEventListener('change', updateAvailableCount));
+    themeBox.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.addEventListener('change', updateAvailableCount));
+    updateAvailableCount();
 
     const start = document.createElement('button');
     start.textContent = 'Commencer le test';
@@ -307,7 +327,6 @@ function showFilterSelection() {
 
     container.appendChild(levelBox);
     container.appendChild(themeBox);
-    container.appendChild(countBox);
     container.appendChild(questionBox);
     container.appendChild(start);
 }
