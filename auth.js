@@ -59,7 +59,7 @@
         if(user){
             div.innerHTML =
                 '<div class="user-box">' + user.pseudo + '</div>' +
-                '<div class="user-box">' + user.score + '</div>';
+                '<div class="user-box">Score: ' + user.score + '</div>';
         }else{
             div.innerHTML = '';
         }
