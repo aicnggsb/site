@@ -143,8 +143,20 @@ function drawGrid(grid, placed) {
                 input.dataset.row = r;
                 input.dataset.col = c;
                 input.dataset.dir = cell.dir;
+                input.dataset.letter = cell.letter;
                 input.addEventListener('input', () => {
                     input.value = input.value.toUpperCase();
+
+                    const tdEl = input.parentElement;
+                    if (!input.value) {
+                        tdEl.classList.remove('correct', 'incorrect');
+                    } else if (input.value === input.dataset.letter) {
+                        tdEl.classList.add('correct');
+                        tdEl.classList.remove('incorrect');
+                    } else {
+                        tdEl.classList.add('incorrect');
+                        tdEl.classList.remove('correct');
+                    }
 
                     if (input.value) {
                         const dir = input.dataset.dir;
