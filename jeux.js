@@ -189,7 +189,15 @@ function checkCompletion(placed) {
         }
     }
     const msg = document.getElementById('message');
-    msg.style.display = 'flex';
+    msg.classList.add('show');
 }
 
-document.addEventListener('DOMContentLoaded', loadCrossword);
+document.addEventListener('DOMContentLoaded', () => {
+    loadCrossword();
+    const closeBtn = document.getElementById('close-message');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            document.getElementById('message').classList.remove('show');
+        });
+    }
+});

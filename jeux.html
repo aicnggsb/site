@@ -14,6 +14,10 @@
         table.crossword td input { width: 100%; height: 100%; border: none; text-align: center; background: transparent; color: #fff; font-size: 18px; }
         table.crossword td.start .number { position: absolute; top: 0; left: 2px; font-size: 10px; color: #fff; }
         #message { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); font-size: 3em; color: #fff; z-index: 10; }
+        #message.show { display:flex; animation: fadeIn 0.5s ease forwards; }
+        #message-box { background:#222; padding:20px 40px; border-radius:8px; position:relative; text-align:center; }
+        #message .close { position:absolute; top:5px; right:10px; cursor:pointer; font-size:0.5em; }
+        @keyframes fadeIn { from {opacity:0; transform:scale(0.8);} to {opacity:1; transform:scale(1);} }
         /* Hide bullet markers for crossword clues */
         #clues { list-style: none; padding-left: 0; }
     </style>
@@ -41,7 +45,12 @@
                 <ul id="clues"></ul>
             </div>
         </div>
-        <div id="message">Bravo !</div>
+        <div id="message">
+            <div id="message-box">
+                <span id="close-message" class="close">&times;</span>
+                Bravo !
+            </div>
+        </div>
     </main>
     <script src="jeux.js"></script>
 </body>
