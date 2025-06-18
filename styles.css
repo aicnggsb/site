@@ -460,12 +460,14 @@ header {
     font-weight: bold;
     color: #fff;
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
 }
 
 .user-box {
-    margin-bottom: 5px;
+    margin-bottom: 0;
+    margin-right: 5px;
     padding: 3px 8px;
     background: linear-gradient(to bottom, #1e3c72, #000000);
     border: 1px solid rgba(255, 255, 255, 0.5);
@@ -475,7 +477,7 @@ header {
 #login-btn,
 #logout-btn {
     position: absolute;
-    top: 10px;
+    top: 45px;
     right: 10px;
     padding: 5px 10px;
     border: 1px solid rgba(255, 255, 255, 0.5);
