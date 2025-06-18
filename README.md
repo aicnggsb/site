@@ -25,3 +25,7 @@ Le fichier CSV utilisé pour le QCM suit l'ordre suivant : **Thème**, **Niveau*
 Si la colonne **Réponse fausse B** est vide pour une question, seuls deux boutons de réponse seront affichés lors du quiz.
 Une fois le test terminé, un bilan par thème affiche des barres de progression colorées :
 plus le pourcentage de bonnes réponses est élevé, plus la barre tend vers le vert, alors qu'elle reste rouge si le score est faible.
+
+`sentrainer.html` demande désormais un pseudo lors du lancement. Ce pseudo est
+mémorisé dans le navigateur puis envoyé à un script Google Apps avec le score
+final pour être enregistré dans une feuille Sheets.

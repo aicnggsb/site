@@ -72,6 +72,7 @@ let score = 0;
 let count = 0;
 let maxQuestions = 5;
 let history = [];
+let pseudo = '';
 const HIGHLIGHT_DELAY = 1000; // temps avant la question suivante
 
 function showRandomQuestion() {
@@ -79,6 +80,7 @@ function showRandomQuestion() {
     if (count >= maxQuestions || !questions.length) {
         const percent = count ? Math.round((score / count) * 100) : 0;
         container.innerHTML = `<p>Quiz terminé ! Score : ${score} / ${count} (${percent}%)</p>`;
+        sendScore();
 
         const results = history.reduce((acc, h) => {
             const t = h.theme || 'Autre';
@@ -234,7 +236,12 @@ function showRandomQuestion() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     allQuestions = await fetchQCM();
-    showFilterSelection();
+    pseudo = localStorage.getItem('pseudo') || '';
+    if (pseudo) {
+        showFilterSelection();
+    } else {
+        showLogin();
+    }
 });
 
 function createFilterBox(title, values) {
@@ -347,4 +354,48 @@ function showFilterSelection() {
     container.appendChild(themeBox);
     container.appendChild(questionBox);
     container.appendChild(start);
+}
+
+function showLogin() {
+    const container = document.getElementById('quiz-container');
+    container.innerHTML = '';
+
+    const box = document.createElement('div');
+    box.className = 'filter-box';
+    const tab = document.createElement('span');
+    tab.className = 'filter-tab';
+    tab.textContent = 'Connexion';
+    box.appendChild(tab);
+
+    const label = document.createElement('label');
+    label.textContent = 'Entrez votre pseudo : ';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = 'pseudo-input';
+    label.appendChild(input);
+    box.appendChild(label);
+
+    const btn = document.createElement('button');
+    btn.textContent = 'Valider';
+    btn.className = 'quiz-btn';
+    btn.addEventListener('click', () => {
+        const val = input.value.trim();
+        if (val) {
+            pseudo = val;
+            localStorage.setItem('pseudo', pseudo);
+            showFilterSelection();
+        }
+    });
+    box.appendChild(btn);
+
+    container.appendChild(box);
+}
+
+function sendScore() {
+    if (!pseudo) return;
+    fetch('https://script.google.com/macros/s/AKfycbzHfWfQzgWHNx7iE2aeCcgC27Y-1lvr2SVnZQDoNOeLwgsebjQyGw8zWTavJ175GSmg/exec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pseudo: pseudo, score: score })
+    }).catch(() => {});
 }
