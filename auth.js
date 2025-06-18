@@ -49,19 +49,26 @@
     function updateUserInfo(){
         const header = document.querySelector('header');
         if(!header) return;
-        let div = document.getElementById('user-info');
-        if(!div){
-            div = document.createElement('div');
-            div.id = 'user-info';
-            header.appendChild(div);
+        let container = document.getElementById('user-info');
+        if(!container){
+            container = document.createElement('div');
+            container.id = 'user-info';
+            header.appendChild(container);
         }
+        let boxes = document.getElementById('user-boxes');
+        if(!boxes){
+            boxes = document.createElement('div');
+            boxes.id = 'user-boxes';
+            container.prepend(boxes);
+        }
+
         const user = getUser();
         if(user){
-            div.innerHTML =
+            boxes.innerHTML =
                 '<div class="user-box">' + user.pseudo + '</div>' +
                 '<div class="user-box">Score: ' + user.score + '</div>';
         }else{
-            div.innerHTML = '';
+            boxes.innerHTML = '';
         }
     }
 
@@ -106,11 +113,20 @@
             await refreshUserScore(user.pseudo);
         }
         updateUserInfo();
-        const btn = document.getElementById('login-btn');
-        if(btn){
-            if(getUser()) btn.style.display='none';
-            btn.addEventListener('click', promptLogin);
+        const container = document.getElementById('user-info');
+
+        let btn = document.getElementById('login-btn');
+        if(!btn){
+            btn = document.createElement('button');
+            btn.id = 'login-btn';
+            btn.textContent = 'Se connecter';
+        } else if(btn.parentNode !== container){
+            btn.parentNode.removeChild(btn);
         }
+        btn.addEventListener('click', promptLogin);
+        container.appendChild(btn);
+        if(getUser()) btn.style.display = 'none'; else btn.style.display = '';
+
         let logoutBtn = document.getElementById('logout-btn');
         if(!logoutBtn){
             logoutBtn = document.createElement('button');
@@ -118,12 +134,12 @@
             logoutBtn.textContent = 'Se d\u00e9connecter';
             logoutBtn.style.display = 'none';
             logoutBtn.addEventListener('click', logout);
-            const header = document.querySelector('header');
-            if(header) header.appendChild(logoutBtn);
+        } else if(logoutBtn.parentNode !== container){
+            logoutBtn.parentNode.removeChild(logoutBtn);
         }
-        if(getUser()) {
-            logoutBtn.style.display = '';
-        }
+        container.appendChild(logoutBtn);
+        if(getUser()) logoutBtn.style.display = '';
+        else logoutBtn.style.display = 'none';
     });
 
     window.auth = {login, logout, promptLogin, updateUserInfo, getUser, addPoints};
