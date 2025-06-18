@@ -57,9 +57,11 @@
         }
         const user = getUser();
         if(user){
-            div.textContent = user.pseudo + ' - ' + user.score;
+            div.innerHTML =
+                '<div class="user-box">' + user.pseudo + '</div>' +
+                '<div class="user-box">' + user.score + '</div>';
         }else{
-            div.textContent = '';
+            div.innerHTML = '';
         }
     }
 
