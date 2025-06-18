@@ -73,17 +73,28 @@
         });
     }
 
-    function addPoints(points){
+    async function refreshUserScore(pseudo){
+        try {
+            await loadUsers();
+            const up = users.find(u => u.pseudo === pseudo);
+            if(up) localStorage.setItem('userScore', up.score);
+        } catch(e) {}
+    }
+
+    async function addPoints(points){
         const user = getUser();
         if(!user) return;
         const newScore = user.score + points;
         localStorage.setItem('userScore', newScore);
-        fetch(SCORE_HISTORY_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pseudo: user.pseudo, score: points })
-        }).catch(() => {});
+        try {
+            await fetch(SCORE_HISTORY_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pseudo: user.pseudo, score: points })
+            });
+        } catch(e) {}
+        await refreshUserScore(user.pseudo);
         updateUserInfo();
     }
 
