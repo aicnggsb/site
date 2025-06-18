@@ -81,6 +81,9 @@ function showRandomQuestion() {
         const percent = count ? Math.round((score / count) * 100) : 0;
         container.innerHTML = `<p>Quiz terminé ! Score : ${score} / ${count} (${percent}%)</p>`;
         sendScore();
+        if (window.auth && typeof auth.addPoints === 'function') {
+            auth.addPoints(5);
+        }
 
         const results = history.reduce((acc, h) => {
             const t = h.theme || 'Autre';

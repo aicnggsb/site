@@ -1,5 +1,6 @@
 (function(){
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQCSH8hh-ykxl1L9joc4opVRARLGfcqi6uTW1bRXyyzsu99zo1OXuOYFwCBzxISzEjt2q3Abd9yU-NJ/pub?gid=1003065620&single=true&output=csv';
+    const SCORE_HISTORY_URL = 'https://script.google.com/macros/s/AKfycbzHfWfQzgWHNx7iE2aeCcgC27Y-1lvr2SVnZQDoNOeLwgsebjQyGw8zWTavJ175GSmg/exec';
     let users = null;
 
     async function loadUsers(){
@@ -72,6 +73,20 @@
         });
     }
 
+    function addPoints(points){
+        const user = getUser();
+        if(!user) return;
+        const newScore = user.score + points;
+        localStorage.setItem('userScore', newScore);
+        fetch(SCORE_HISTORY_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pseudo: user.pseudo, score: points })
+        }).catch(() => {});
+        updateUserInfo();
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         updateUserInfo();
         const btn = document.getElementById('login-btn');
@@ -94,5 +109,5 @@
         }
     });
 
-    window.auth = {login, logout, promptLogin, updateUserInfo, getUser};
+    window.auth = {login, logout, promptLogin, updateUserInfo, getUser, addPoints};
 })();
