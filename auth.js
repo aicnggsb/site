@@ -19,11 +19,23 @@
             localStorage.setItem('pseudo', user.pseudo);
             localStorage.setItem('userScore', user.score);
             updateUserInfo();
-            const btn = document.getElementById('login-btn');
-            if(btn) btn.style.display = 'none';
+            const loginBtn = document.getElementById('login-btn');
+            if(loginBtn) loginBtn.style.display = 'none';
+            const logoutBtn = document.getElementById('logout-btn');
+            if(logoutBtn) logoutBtn.style.display = '';
             return true;
         }
         return false;
+    }
+
+    function logout(){
+        localStorage.removeItem('pseudo');
+        localStorage.removeItem('userScore');
+        updateUserInfo();
+        const loginBtn = document.getElementById('login-btn');
+        if(loginBtn) loginBtn.style.display = '';
+        const logoutBtn = document.getElementById('logout-btn');
+        if(logoutBtn) logoutBtn.style.display = 'none';
     }
 
     function getUser(){
@@ -67,7 +79,20 @@
             if(getUser()) btn.style.display='none';
             btn.addEventListener('click', promptLogin);
         }
+        let logoutBtn = document.getElementById('logout-btn');
+        if(!logoutBtn){
+            logoutBtn = document.createElement('button');
+            logoutBtn.id = 'logout-btn';
+            logoutBtn.textContent = 'Se d\u00e9connecter';
+            logoutBtn.style.display = 'none';
+            logoutBtn.addEventListener('click', logout);
+            const header = document.querySelector('header');
+            if(header) header.appendChild(logoutBtn);
+        }
+        if(getUser()) {
+            logoutBtn.style.display = '';
+        }
     });
 
-    window.auth = {login, promptLogin, updateUserInfo, getUser};
+    window.auth = {login, logout, promptLogin, updateUserInfo, getUser};
 })();
