@@ -142,8 +142,20 @@ function drawGrid(grid, placed) {
                 input.maxLength = 1;
                 input.dataset.row = r;
                 input.dataset.col = c;
+                input.dataset.dir = cell.dir;
                 input.addEventListener('input', () => {
                     input.value = input.value.toUpperCase();
+
+                    if (input.value) {
+                        const dir = input.dataset.dir;
+                        const nextRow = parseInt(input.dataset.row) + (dir === 'V' ? 1 : 0);
+                        const nextCol = parseInt(input.dataset.col) + (dir === 'H' ? 1 : 0);
+                        const nextInput = document.querySelector(`input[data-row="${nextRow}"][data-col="${nextCol}"]`);
+                        if (nextInput) {
+                            nextInput.focus();
+                        }
+                    }
+
                     checkCompletion(placed);
                 });
                 td.appendChild(input);
