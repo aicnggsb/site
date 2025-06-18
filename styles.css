@@ -460,14 +460,19 @@ header {
     font-weight: bold;
     color: #fff;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 5px;
+}
+
+#user-boxes {
+    display: flex;
+    flex-direction: row;
+    gap: 0;
 }
 
 .user-box {
-    margin-bottom: 0;
-    margin-right: 5px;
+    margin: 0;
     padding: 3px 8px;
     background: linear-gradient(to bottom, #1e3c72, #000000);
     border: 1px solid rgba(255, 255, 255, 0.5);
@@ -476,14 +481,23 @@ header {
 
 #login-btn,
 #logout-btn {
-    position: absolute;
-    top: 45px;
-    right: 10px;
     padding: 5px 10px;
     border: 1px solid rgba(255, 255, 255, 0.5);
     background: linear-gradient(to bottom, #1e3c72, #000000);
     color: #fff;
     border-radius: 4px;
     cursor: pointer;
+    position: static;
+    animation: none;
+}
+
+#login-btn:hover,
+#logout-btn:hover {
+    animation: highlight 0.6s forwards;
+}
+
+@keyframes highlight {
+    from { box-shadow: 0 0 0 rgba(255,255,255,0.5); }
+    to { box-shadow: 0 0 10px 4px rgba(255,255,255,0.8); }
 }
 
