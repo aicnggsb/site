@@ -448,3 +448,22 @@ details[open] summary::before {
     height: 100%;
 }
 
+
+header {
+    position: relative;
+}
+
+#user-info {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-weight: bold;
+    color: #fff;
+}
+
+#login-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
