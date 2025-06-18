@@ -98,7 +98,11 @@
         updateUserInfo();
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+        const user = getUser();
+        if(user) {
+            await refreshUserScore(user.pseudo);
+        }
         updateUserInfo();
         const btn = document.getElementById('login-btn');
         if(btn){
