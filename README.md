@@ -28,4 +28,17 @@ plus le pourcentage de bonnes réponses est élevé, plus la barre tend vers le 
 
 `sentrainer.html` demande désormais un pseudo lors du lancement. Ce pseudo est
 mémorisé dans le navigateur puis envoyé à un script Google Apps avec le score
-final pour être enregistré dans une feuille Sheets.
+final pour être enregistré dans une feuille Sheets. Le script attendu côté
+Google est :
+
+```javascript
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = JSON.parse(e.postData.contents);
+  sheet.appendRow([new Date(), data.pseudo, data.score]);
+  return ContentService.createTextOutput("OK");
+}
+```
+
+L'envoi se fait en mode `no-cors` pour éviter les blocages liés aux politiques
+de sécurité du navigateur.
