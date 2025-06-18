@@ -42,3 +42,8 @@ function doPost(e) {
 
 L'envoi se fait en mode `no-cors` pour éviter les blocages liés aux politiques
 de sécurité du navigateur.
+
+Lorsqu'un utilisateur est connecté et termine un QCM, il gagne
+automatiquement **5 points**. Ces points sont ajoutés à son score stocké dans
+le navigateur et une nouvelle ligne est envoyée vers la feuille Google Sheets
+d'historique afin de tracer l'évolution des scores.
