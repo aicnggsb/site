@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes badges</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        #badge-list { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; padding:20px; }
+        #badge-list img { width:80px; height:80px; object-fit:contain; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Mes badges</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">ICN</a></li>
+                <li><a href="techno.html">Technologie</a></li>
+                <li><a href="SNT.html">SNT</a></li>
+                <li><a href="suivi_projet.html">Suivi Projet</a></li>
+                <li><a href="jeux.html">Jeux</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div id="badge-list"></div>
+        <p id="no-badges" style="display:none; text-align:center;">Aucun badge pour le moment.</p>
+    </main>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const user = window.auth ? auth.getUser() : null;
+        const list = document.getElementById('badge-list');
+        const no = document.getElementById('no-badges');
+        if(!user){
+            no.textContent = 'Vous devez être connecté pour voir vos badges.';
+            no.style.display = 'block';
+            return;
+        }
+        if(user.badges){
+            user.badges.split(/\s+/).forEach(name => {
+                if(!name) return;
+                const img = document.createElement('img');
+                img.src = 'photos/' + name;
+                img.alt = name;
+                list.appendChild(img);
+            });
+            if(!list.children.length){
+                no.style.display = 'block';
+            }
+        }else{
+            no.style.display = 'block';
+        }
+    });
+    </script>
+    <script src="auth.js"></script>
+</body>
+</html>
