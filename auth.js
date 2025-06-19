@@ -8,8 +8,13 @@
         const text = await res.text();
         const lines = text.trim().split(/\n+/).slice(1);
         users = lines.map(l => {
-            const [pseudo, pass, score] = l.split(',');
-            return {pseudo: pseudo.trim(), pass: (pass||'').trim(), score: parseInt(score,10)||0};
+            const [pseudo, pass, score, badges] = l.split(',');
+            return {
+                pseudo: pseudo.trim(),
+                pass: (pass||'').trim(),
+                score: parseInt(score,10)||0,
+                badges: (badges||'').trim()
+            };
         });
     }
 
@@ -19,6 +24,7 @@
         if(user){
             localStorage.setItem('pseudo', user.pseudo);
             localStorage.setItem('userScore', user.score);
+            localStorage.setItem('userBadges', user.badges);
             updateUserInfo();
             const loginBtn = document.getElementById('login-btn');
             if(loginBtn) loginBtn.style.display = 'none';
@@ -32,6 +38,7 @@
     function logout(){
         localStorage.removeItem('pseudo');
         localStorage.removeItem('userScore');
+        localStorage.removeItem('userBadges');
         updateUserInfo();
         const loginBtn = document.getElementById('login-btn');
         if(loginBtn) loginBtn.style.display = '';
@@ -43,7 +50,8 @@
         const pseudo = localStorage.getItem('pseudo');
         if(!pseudo) return null;
         const score = parseInt(localStorage.getItem('userScore')||'0',10);
-        return {pseudo, score};
+        const badges = (localStorage.getItem('userBadges')||'');
+        return {pseudo, score, badges};
     }
 
     function updateUserInfo(){
@@ -86,7 +94,10 @@
         try {
             await loadUsers();
             const up = users.find(u => u.pseudo === pseudo);
-            if(up) localStorage.setItem('userScore', up.score);
+            if(up){
+                localStorage.setItem('userScore', up.score);
+                localStorage.setItem('userBadges', up.badges);
+            }
         } catch(e) {}
     }
 
@@ -140,6 +151,22 @@
         container.appendChild(logoutBtn);
         if(getUser()) logoutBtn.style.display = '';
         else logoutBtn.style.display = 'none';
+
+        let badgeBtn = document.getElementById('badges-btn');
+        if(!badgeBtn){
+            badgeBtn = document.createElement('button');
+            badgeBtn.id = 'badges-btn';
+            badgeBtn.textContent = 'Mes badges';
+            badgeBtn.style.display = 'none';
+            badgeBtn.addEventListener('click', () => {
+                window.location.href = 'badges.html';
+            });
+        } else if(badgeBtn.parentNode !== container){
+            badgeBtn.parentNode.removeChild(badgeBtn);
+        }
+        container.appendChild(badgeBtn);
+        if(getUser()) badgeBtn.style.display = '';
+        else badgeBtn.style.display = 'none';
     });
 
     window.auth = {login, logout, promptLogin, updateUserInfo, getUser, addPoints};
