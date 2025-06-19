@@ -63,20 +63,45 @@
             container.id = 'user-info';
             header.appendChild(container);
         }
-        let boxes = document.getElementById('user-boxes');
-        if(!boxes){
-            boxes = document.createElement('div');
-            boxes.id = 'user-boxes';
-            container.prepend(boxes);
+        let pseudoCell = document.getElementById('pseudo-cell');
+        if(!pseudoCell){
+            pseudoCell = document.createElement('div');
+            pseudoCell.id = 'pseudo-cell';
+            pseudoCell.className = 'user-cell';
+            container.appendChild(pseudoCell);
+        }
+
+        let scoreCell = document.getElementById('score-cell');
+        if(!scoreCell){
+            scoreCell = document.createElement('div');
+            scoreCell.id = 'score-cell';
+            scoreCell.className = 'user-cell';
+            container.appendChild(scoreCell);
+        }
+
+        let loginCell = document.getElementById('login-cell');
+        if(!loginCell){
+            loginCell = document.createElement('div');
+            loginCell.id = 'login-cell';
+            loginCell.className = 'user-cell';
+            container.appendChild(loginCell);
+        }
+
+        let badgesCell = document.getElementById('badges-cell');
+        if(!badgesCell){
+            badgesCell = document.createElement('div');
+            badgesCell.id = 'badges-cell';
+            badgesCell.className = 'user-cell';
+            container.appendChild(badgesCell);
         }
 
         const user = getUser();
         if(user){
-            boxes.innerHTML =
-                '<div class="user-box">' + user.pseudo + '</div>' +
-                '<div class="user-box">Score: ' + user.score + '</div>';
+            pseudoCell.textContent = user.pseudo;
+            scoreCell.textContent = 'Score: ' + user.score;
         }else{
-            boxes.innerHTML = '';
+            pseudoCell.textContent = '';
+            scoreCell.textContent = '';
         }
     }
 
@@ -124,18 +149,19 @@
             await refreshUserScore(user.pseudo);
         }
         updateUserInfo();
-        const container = document.getElementById('user-info');
+        const loginCell = document.getElementById('login-cell');
+        const badgeCell = document.getElementById('badges-cell');
 
         let btn = document.getElementById('login-btn');
         if(!btn){
             btn = document.createElement('button');
             btn.id = 'login-btn';
             btn.textContent = 'Se connecter';
-        } else if(btn.parentNode !== container){
+        } else if(btn.parentNode !== loginCell){
             btn.parentNode.removeChild(btn);
         }
         btn.addEventListener('click', promptLogin);
-        container.appendChild(btn);
+        loginCell.appendChild(btn);
         if(getUser()) btn.style.display = 'none'; else btn.style.display = '';
 
         let logoutBtn = document.getElementById('logout-btn');
@@ -145,10 +171,10 @@
             logoutBtn.textContent = 'Se d\u00e9connecter';
             logoutBtn.style.display = 'none';
             logoutBtn.addEventListener('click', logout);
-        } else if(logoutBtn.parentNode !== container){
+        } else if(logoutBtn.parentNode !== loginCell){
             logoutBtn.parentNode.removeChild(logoutBtn);
         }
-        container.appendChild(logoutBtn);
+        loginCell.appendChild(logoutBtn);
         if(getUser()) logoutBtn.style.display = '';
         else logoutBtn.style.display = 'none';
 
@@ -161,10 +187,10 @@
             badgeBtn.addEventListener('click', () => {
                 window.location.href = 'badges.html';
             });
-        } else if(badgeBtn.parentNode !== container){
+        } else if(badgeBtn.parentNode !== badgeCell){
             badgeBtn.parentNode.removeChild(badgeBtn);
         }
-        container.appendChild(badgeBtn);
+        badgeCell.appendChild(badgeBtn);
         if(getUser()) badgeBtn.style.display = '';
         else badgeBtn.style.display = 'none';
     });

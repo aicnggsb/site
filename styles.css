@@ -459,19 +459,15 @@ header {
     right: 120px;
     font-weight: bold;
     color: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto;
     gap: 5px;
+    align-items: center;
+    text-align: center;
 }
 
-#user-boxes {
-    display: flex;
-    flex-direction: row;
-    gap: 0;
-}
-
-.user-box {
+.user-cell {
     margin: 0;
     padding: 3px 8px;
     background: linear-gradient(to bottom, #1e3c72, #000000);
