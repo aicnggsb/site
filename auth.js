@@ -97,9 +97,15 @@
 
         const user = getUser();
         if(user){
+            pseudoCell.style.display = '';
+            scoreCell.style.display = '';
+            badgesCell.style.display = '';
             pseudoCell.textContent = user.pseudo;
             scoreCell.textContent = 'Score: ' + user.score;
         }else{
+            pseudoCell.style.display = 'none';
+            scoreCell.style.display = 'none';
+            badgesCell.style.display = 'none';
             pseudoCell.textContent = '';
             scoreCell.textContent = '';
         }
