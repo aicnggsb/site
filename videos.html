@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vidéos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Vidéos</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">ICN</a></li>
+                <li><a href="techno.html">Technologie</a></li>
+                <li><a href="SNT.html">SNT</a></li>
+                <li><a href="suivi_projet.html">Suivi Projet</a></li>
+                <li><a href="jeux.html">Jeux</a></li>
+                <li><a href="videos.html">Vidéos</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="description-ateliers">
+            <h2>Sélection de vidéos</h2>
+            <ul>
+                <li><a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">Vidéo 1</a></li>
+                <li><a href="https://www.youtube.com/watch?v=oHg5SJYRHA0" target="_blank">Vidéo 2</a></li>
+                <li><a href="https://www.youtube.com/watch?v=FTQbiNvZqaY" target="_blank">Vidéo 3</a></li>
+            </ul>
+        </section>
+    </main>
+    <script src="auth.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!auth.getUser()) {
+            alert('Vous devez être connecté pour accéder à cette page.');
+            window.location.href = 'index.html';
+        }
+    });
+    </script>
+</body>
+</html>
