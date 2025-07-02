@@ -23,14 +23,19 @@
     <main>
         <section class="description-ateliers">
             <h2>Sélection de vidéos</h2>
-            <ul>
-                <li><a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">Vidéo 1</a></li>
-                <li><a href="https://www.youtube.com/watch?v=oHg5SJYRHA0" target="_blank">Vidéo 2</a></li>
-                <li><a href="https://www.youtube.com/watch?v=FTQbiNvZqaY" target="_blank">Vidéo 3</a></li>
-            </ul>
+            <table id="videos-table" class="sheet-table">
+                <thead>
+                    <tr>
+                        <th>Classe</th>
+                        <th>Titre</th>
+                        <th>Catégorie</th>
+                    </tr>
+                </thead>
+            </table>
         </section>
     </main>
     <script src="auth.js"></script>
+    <script src="videos.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         if (!auth.getUser()) {
