@@ -8,8 +8,9 @@
         const text = await res.text();
         const lines = text.trim().split(/\n+/).slice(1);
         users = lines.map(l => {
-            const [pseudo, pass, score, badges] = l.split(',');
+            const [classe, pseudo, pass, score, badges] = l.split(',');
             return {
+                classe: (classe||'').trim(),
                 pseudo: pseudo.trim(),
                 pass: (pass||'').trim(),
                 score: parseInt(score,10)||0,
@@ -25,6 +26,7 @@
             localStorage.setItem('pseudo', user.pseudo);
             localStorage.setItem('userScore', user.score);
             localStorage.setItem('userBadges', user.badges);
+            localStorage.setItem('userClasse', user.classe);
             updateUserInfo();
             const loginBtn = document.getElementById('login-btn');
             if(loginBtn) loginBtn.style.display = 'none';
@@ -39,6 +41,7 @@
         localStorage.removeItem('pseudo');
         localStorage.removeItem('userScore');
         localStorage.removeItem('userBadges');
+        localStorage.removeItem('userClasse');
         updateUserInfo();
         const loginBtn = document.getElementById('login-btn');
         if(loginBtn) loginBtn.style.display = '';
@@ -51,7 +54,8 @@
         if(!pseudo) return null;
         const score = parseInt(localStorage.getItem('userScore')||'0',10);
         const badges = (localStorage.getItem('userBadges')||'');
-        return {pseudo, score, badges};
+        const classe = (localStorage.getItem('userClasse')||'');
+        return {pseudo, score, badges, classe};
     }
 
     function updateUserInfo(){
@@ -128,6 +132,7 @@
             if(up){
                 localStorage.setItem('userScore', up.score);
                 localStorage.setItem('userBadges', up.badges);
+                localStorage.setItem('userClasse', up.classe);
             }
         } catch(e) {}
     }
