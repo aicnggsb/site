@@ -65,7 +65,7 @@
             const counts = {};
             lines.forEach(l => {
                 const parts = l.split(',');
-                const badges = (parts[3] || '').trim();
+                const badges = (parts[4] || '').trim();
                 badges.split(/\s+/).forEach(b => {
                     if(!b) return;
                     counts[b] = (counts[b] || 0) + 1;
