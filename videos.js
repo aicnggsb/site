@@ -28,6 +28,7 @@ async function loadVideos(container) {
         rows.forEach(r => {
             const level = ((r[levelIdx] || '').trim()) || 'Autre';
             const cat = ((r[catIdx] || '').trim()) || 'Autre';
+            if (cat.toLowerCase() === 'autre') return; // skip generic category
             const url = (r[urlIdx] || '').trim();
             if (!url) return;
             const title = (r[titleIdx] || '').trim() || url;
