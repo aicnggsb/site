@@ -1,13 +1,13 @@
 // Video page script
 
 document.addEventListener('DOMContentLoaded', () => {
-    const table = document.getElementById('videos-table');
-    if (!table) return;
+    const grid = document.getElementById('videos-grid');
+    if (!grid) return;
     if (!window.auth || !auth.getUser()) return;
-    loadVideos(table);
+    loadVideos(grid);
 });
 
-async function loadVideos(table) {
+async function loadVideos(container) {
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRi1sJUVl5z4tPh_spOSkZDMlyhl9OqrEdXp34u3xBYVmnc0YWMPBfurz8tsCv50QMDnckKxeL4ci6l/pub?output=csv';
     try {
         const res = await fetch(SHEET_URL + '&t=' + Date.now());
@@ -16,31 +16,33 @@ async function loadVideos(table) {
         const rows = parseCSV(text);
         if (!rows.length) throw new Error('no data');
         const header = rows.shift().map(h => h.trim().toLowerCase());
-        const classIdx = header.findIndex(h => h.startsWith('classe'));
         const urlIdx = header.findIndex(h => h === 'url');
         const titleIdx = header.findIndex(h => h.startsWith('titre'));
-        const catIdx = header.findIndex(h => h.startsWith('cat'));
-        const tbody = document.createElement('tbody');
+        const thumbIdx = header.findIndex(h => h.startsWith('mini') || h.includes('thumb'));
+        container.classList.add('video-grid');
         rows.forEach(r => {
-            const tr = document.createElement('tr');
-            const tdClass = document.createElement('td');
-            tdClass.textContent = (r[classIdx] || '').trim();
-            const tdTitle = document.createElement('td');
+            const url = (r[urlIdx] || '').trim();
+            const title = (r[titleIdx] || '').trim() || url;
+            let thumb = thumbIdx !== -1 ? (r[thumbIdx] || '').trim() : '';
+            if (!thumb && url.includes('youtu')) {
+                const m = url.match(/(?:v=|youtu\.be\/)([\w-]+)/);
+                if (m) thumb = `https://img.youtube.com/vi/${m[1]}/hqdefault.jpg`;
+            }
             const a = document.createElement('a');
-            a.href = (r[urlIdx] || '').trim();
-            a.textContent = (r[titleIdx] || '').trim() || a.href;
+            a.href = url;
             a.target = '_blank';
-            tdTitle.appendChild(a);
-            const tdCat = document.createElement('td');
-            tdCat.textContent = (r[catIdx] || '').trim();
-            tr.appendChild(tdClass);
-            tr.appendChild(tdTitle);
-            tr.appendChild(tdCat);
-            tbody.appendChild(tr);
+            const img = document.createElement('img');
+            img.src = thumb || 'background.png';
+            img.alt = title;
+            const caption = document.createElement('div');
+            caption.textContent = title;
+            caption.className = 'video-title';
+            a.appendChild(img);
+            a.appendChild(caption);
+            container.appendChild(a);
         });
-        table.appendChild(tbody);
     } catch (e) {
-        table.textContent = 'Impossible de charger les vidéos';
+        container.textContent = 'Impossible de charger les vidéos';
     }
 }
 
