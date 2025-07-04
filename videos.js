@@ -23,6 +23,7 @@ async function loadVideos(container) {
         const levelIdx = header.findIndex(h => h === 'niveau' || h === 'level');
         const catIdx = header.findIndex(h => h.startsWith('cat'));
 
+        // Regroup data by category first, then by level
         const groups = {};
         rows.forEach(r => {
             const level = ((r[levelIdx] || '').trim()) || 'Autre';
@@ -35,29 +36,35 @@ async function loadVideos(container) {
                 const m = url.match(/(?:v=|youtu\.be\/)([\w-]+)/);
                 if (m) thumb = `https://img.youtube.com/vi/${m[1]}/hqdefault.jpg`;
             }
-            if (!groups[level]) groups[level] = {};
-            if (!groups[level][cat]) groups[level][cat] = [];
-            groups[level][cat].push({ url, title, thumb });
+            if (!groups[cat]) groups[cat] = {};
+            if (!groups[cat][level]) groups[cat][level] = [];
+            groups[cat][level].push({ url, title, thumb });
         });
 
         container.innerHTML = '';
-        Object.keys(groups).forEach(level => {
-            const levelBox = document.createElement('div');
-            levelBox.className = 'video-box';
-            const levelTitle = document.createElement('h3');
-            levelTitle.textContent = level;
-            levelBox.appendChild(levelTitle);
+        const sortLevels = level => {
+            const order = ['6e', '5e', '4e', '3e', '2de', '1ere', 'Tle', 'Autre'];
+            const idx = order.indexOf(level);
+            return idx === -1 ? order.length : idx;
+        };
 
-            Object.keys(groups[level]).forEach(cat => {
-                const catBox = document.createElement('div');
-                catBox.className = 'video-subbox';
-                const catTitle = document.createElement('h4');
-                catTitle.textContent = cat;
-                catBox.appendChild(catTitle);
+        Object.keys(groups).sort((a, b) => a.localeCompare(b)).forEach(cat => {
+            const catBox = document.createElement('div');
+            catBox.className = 'video-box';
+            const catTitle = document.createElement('h3');
+            catTitle.textContent = cat;
+            catBox.appendChild(catTitle);
+
+            Object.keys(groups[cat]).sort((a, b) => sortLevels(a) - sortLevels(b)).forEach(level => {
+                const levelBox = document.createElement('div');
+                levelBox.className = 'video-subbox';
+                const levelTitle = document.createElement('h4');
+                levelTitle.textContent = level;
+                levelBox.appendChild(levelTitle);
                 const grid = document.createElement('div');
                 grid.className = 'video-grid';
 
-                groups[level][cat].forEach(v => {
+                groups[cat][level].forEach(v => {
                     const a = document.createElement('a');
                     a.href = v.url;
                     a.target = '_blank';
@@ -72,11 +79,11 @@ async function loadVideos(container) {
                     grid.appendChild(a);
                 });
 
-                catBox.appendChild(grid);
-                levelBox.appendChild(catBox);
+                levelBox.appendChild(grid);
+                catBox.appendChild(levelBox);
             });
 
-            container.appendChild(levelBox);
+            container.appendChild(catBox);
         });
     } catch (e) {
         container.textContent = 'Impossible de charger les vidéos';
