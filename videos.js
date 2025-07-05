@@ -20,18 +20,13 @@ async function loadVideos(container) {
         const urlIdx = header.findIndex(h => h === 'url');
         const titleIdx = header.findIndex(h => h.startsWith('titre'));
         const thumbIdx = header.findIndex(h => h.startsWith('mini') || h.includes('thumb'));
-        const levelIdx = header.findIndex(h => h === 'niveau' || h === 'level');
         const catIdx = header.findIndex(h => h.startsWith('cat'));
 
-        // Regroup data by category first, then by level
+        // Regroup data only by category
         const groups = {};
         rows.forEach(r => {
-            const rawLevel = (r[levelIdx] || '').trim();
-            const level = rawLevel || 'Autre';
             const cat = ((r[catIdx] || '').trim()) || 'Autre';
-            // skip generic categories or levels named "Autre"
             if (cat.toLowerCase().startsWith('autre')) return;
-            if (level.toLowerCase().startsWith('autre')) return;
             const url = (r[urlIdx] || '').trim();
             if (!url) return;
             const title = (r[titleIdx] || '').trim() || url;
@@ -40,18 +35,11 @@ async function loadVideos(container) {
                 const m = url.match(/(?:v=|youtu\.be\/)([\w-]+)/);
                 if (m) thumb = `https://img.youtube.com/vi/${m[1]}/hqdefault.jpg`;
             }
-            if (!groups[cat]) groups[cat] = {};
-            if (!groups[cat][level]) groups[cat][level] = [];
-            groups[cat][level].push({ url, title, thumb });
+            if (!groups[cat]) groups[cat] = [];
+            groups[cat].push({ url, title, thumb });
         });
 
         container.innerHTML = '';
-        const sortLevels = level => {
-            const order = ['6e', '5e', '4e', '3e', '2de', '1ere', 'Tle', 'Autre'];
-            const idx = order.indexOf(level);
-            return idx === -1 ? order.length : idx;
-        };
-
         Object.keys(groups).sort((a, b) => a.localeCompare(b)).forEach(cat => {
             const catBox = document.createElement('div');
             catBox.className = 'video-box';
@@ -59,34 +47,25 @@ async function loadVideos(container) {
             catTitle.textContent = cat;
             catBox.appendChild(catTitle);
 
-            Object.keys(groups[cat]).sort((a, b) => sortLevels(a) - sortLevels(b)).forEach(level => {
-                const levelBox = document.createElement('div');
-                levelBox.className = 'video-subbox';
-                const levelTitle = document.createElement('h4');
-                levelTitle.textContent = level;
-                levelBox.appendChild(levelTitle);
-                const grid = document.createElement('div');
-                grid.className = 'video-grid';
+            const grid = document.createElement('div');
+            grid.className = 'video-grid';
 
-                groups[cat][level].forEach(v => {
-                    const a = document.createElement('a');
-                    a.href = v.url;
-                    a.target = '_blank';
-                    const img = document.createElement('img');
-                    img.src = v.thumb || 'background.png';
-                    img.alt = v.title;
-                    const caption = document.createElement('div');
-                    caption.textContent = v.title;
-                    caption.className = 'video-title';
-                    a.appendChild(img);
-                    a.appendChild(caption);
-                    grid.appendChild(a);
-                });
-
-                levelBox.appendChild(grid);
-                catBox.appendChild(levelBox);
+            groups[cat].forEach(v => {
+                const a = document.createElement('a');
+                a.href = v.url;
+                a.target = '_blank';
+                const img = document.createElement('img');
+                img.src = v.thumb || 'background.png';
+                img.alt = v.title;
+                const caption = document.createElement('div');
+                caption.textContent = v.title;
+                caption.className = 'video-title';
+                a.appendChild(img);
+                a.appendChild(caption);
+                grid.appendChild(a);
             });
 
+            catBox.appendChild(grid);
             container.appendChild(catBox);
         });
     } catch (e) {

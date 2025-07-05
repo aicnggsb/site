@@ -530,13 +530,6 @@ header {
     border-radius: 8px;
 }
 
-.video-subbox {
-    margin-bottom: 20px;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 6px;
-}
-
 .video-title {
     margin-top: 5px;
     font-size: 0.9em;
