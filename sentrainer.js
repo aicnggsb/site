@@ -430,7 +430,7 @@ function showStarAnimation(points) {
 
     const message = document.createElement('p');
     message.className = 'points-text';
-    message.textContent = `+${points} points !`;
+    message.textContent = `Vous avez gagné ${points} points !`;
 
     box.appendChild(close);
     box.appendChild(starContainer);

@@ -587,15 +587,16 @@ header {
     font-size: 1.2em;
 }
 
+
 .star {
     display: inline-block;
     font-size: 2em;
     opacity: 0;
-    animation: star-pop 0.8s forwards;
+    animation: star-pop 1.6s forwards;
 }
 
 .star.loop {
-    animation: star-pop 0.8s infinite;
+    animation: star-pop 1.6s infinite;
 }
 
 .star:nth-child(1) { animation-delay: 0s; }
