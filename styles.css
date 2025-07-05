@@ -544,11 +544,58 @@ header {
     pointer-events: none;
 }
 
+#points-popup {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.8);
+    animation: fadeIn 0.5s ease forwards;
+    z-index: 10000;
+}
+
+#points-popup .popup-box {
+    position: relative;
+    background: #222;
+    padding: 20px 40px;
+    border-radius: 8px;
+    text-align: center;
+    color: #fff;
+}
+
+#points-popup .close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 1.5em;
+}
+
+#points-popup .star-container {
+    position: static;
+    transform: none;
+    margin-bottom: 10px;
+    pointer-events: none;
+}
+
+#points-popup .points-text {
+    margin-top: 10px;
+    font-size: 1.2em;
+}
+
 .star {
     display: inline-block;
     font-size: 2em;
     opacity: 0;
     animation: star-pop 0.8s forwards;
+}
+
+.star.loop {
+    animation: star-pop 0.8s infinite;
 }
 
 .star:nth-child(1) { animation-delay: 0s; }
