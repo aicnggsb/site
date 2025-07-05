@@ -535,3 +535,31 @@ header {
     font-size: 0.9em;
 }
 
+.star-container {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10000;
+    pointer-events: none;
+}
+
+.star {
+    display: inline-block;
+    font-size: 2em;
+    opacity: 0;
+    animation: star-pop 0.8s forwards;
+}
+
+.star:nth-child(1) { animation-delay: 0s; }
+.star:nth-child(2) { animation-delay: 0.15s; }
+.star:nth-child(3) { animation-delay: 0.3s; }
+.star:nth-child(4) { animation-delay: 0.45s; }
+.star:nth-child(5) { animation-delay: 0.6s; }
+
+@keyframes star-pop {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.5); opacity: 1; }
+    100% { transform: scale(1); opacity: 0; }
+}
+
