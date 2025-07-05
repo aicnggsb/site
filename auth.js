@@ -105,13 +105,13 @@
             scoreCell.style.display = '';
             badgesCell.style.display = '';
             pseudoCell.textContent = user.pseudo;
-            scoreCell.textContent = 'Score: ' + user.score;
+            scoreCell.innerHTML = user.score + ' <span class="score-star">⭐</span>';
         }else{
             pseudoCell.style.display = 'none';
             scoreCell.style.display = 'none';
             badgesCell.style.display = 'none';
             pseudoCell.textContent = '';
-            scoreCell.textContent = '';
+            scoreCell.innerHTML = '';
         }
     }
 
