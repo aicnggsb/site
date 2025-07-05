@@ -26,9 +26,12 @@ async function loadVideos(container) {
         // Regroup data by category first, then by level
         const groups = {};
         rows.forEach(r => {
-            const level = ((r[levelIdx] || '').trim()) || 'Autre';
+            const rawLevel = (r[levelIdx] || '').trim();
+            const level = rawLevel || 'Autre';
             const cat = ((r[catIdx] || '').trim()) || 'Autre';
-            if (cat.toLowerCase() === 'autre') return; // skip generic category
+            // skip generic categories or levels named "Autre"
+            if (cat.toLowerCase().startsWith('autre')) return;
+            if (level.toLowerCase().startsWith('autre')) return;
             const url = (r[urlIdx] || '').trim();
             if (!url) return;
             const title = (r[titleIdx] || '').trim() || url;
