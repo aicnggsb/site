@@ -83,6 +83,7 @@ function showRandomQuestion() {
         sendScore();
         if (window.auth && typeof auth.addPoints === 'function') {
             auth.addPoints(5);
+            showStarAnimation(5);
         }
 
         const results = history.reduce((acc, h) => {
@@ -402,4 +403,18 @@ function sendScore() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pseudo: pseudo, score: score })
     }).catch(() => {});
+}
+
+function showStarAnimation(points) {
+    const container = document.createElement('div');
+    container.className = 'star-container';
+    for (let i = 0; i < points; i++) {
+        const star = document.createElement('span');
+        star.className = 'star';
+        star.textContent = '⭐';
+        star.style.animationDelay = (i * 0.15) + 's';
+        container.appendChild(star);
+    }
+    document.body.appendChild(container);
+    setTimeout(() => container.remove(), 2000);
 }
