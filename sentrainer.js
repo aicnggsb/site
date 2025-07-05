@@ -406,15 +406,36 @@ function sendScore() {
 }
 
 function showStarAnimation(points) {
-    const container = document.createElement('div');
-    container.className = 'star-container';
+    const overlay = document.createElement('div');
+    overlay.id = 'points-popup';
+
+    const box = document.createElement('div');
+    box.className = 'popup-box';
+
+    const close = document.createElement('span');
+    close.className = 'close';
+    close.innerHTML = '&times;';
+    close.addEventListener('click', () => overlay.remove());
+
+    const starContainer = document.createElement('div');
+    starContainer.className = 'star-container';
+
     for (let i = 0; i < points; i++) {
         const star = document.createElement('span');
-        star.className = 'star';
+        star.className = 'star loop';
         star.textContent = '⭐';
         star.style.animationDelay = (i * 0.15) + 's';
-        container.appendChild(star);
+        starContainer.appendChild(star);
     }
-    document.body.appendChild(container);
-    setTimeout(() => container.remove(), 2000);
+
+    const message = document.createElement('p');
+    message.className = 'points-text';
+    message.textContent = `+${points} points !`;
+
+    box.appendChild(close);
+    box.appendChild(starContainer);
+    box.appendChild(message);
+    overlay.appendChild(box);
+
+    document.body.appendChild(overlay);
 }
