@@ -28,10 +28,10 @@ async function loadVideos(container) {
         rows.forEach(r => {
             const rawLevel = (r[levelIdx] || '').trim();
             const level = rawLevel || 'Autre';
-            const cat = ((r[catIdx] || '').trim()) || 'Autre';
-            // skip generic categories or levels named "Autre"
-            if (cat.toLowerCase().startsWith('autre')) return;
-            if (level.toLowerCase().startsWith('autre')) return;
+            const rawCat = (r[catIdx] || '').trim();
+            const cat = rawCat || 'Autre';
+            // skip generic category "Autre" (ignore case/whitespace)
+            if (rawCat.replace(/\s+/g, '').toLowerCase() === 'autre') return;
             const url = (r[urlIdx] || '').trim();
             if (!url) return;
             const title = (r[titleIdx] || '').trim() || url;
