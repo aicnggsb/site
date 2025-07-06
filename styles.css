@@ -577,5 +577,20 @@ header {
     font-size: 1.2em;
 }
 
+#points-popup .falling-star {
+    position: absolute;
+    top: -40px;
+    font-size: 2em;
+    pointer-events: none;
+    animation: starFall 1s ease forwards;
+}
+
+@keyframes starFall {
+    to {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
 
 

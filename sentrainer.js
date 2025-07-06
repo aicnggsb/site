@@ -430,6 +430,15 @@ function showStarAnimation(points) {
     overlay.appendChild(box);
     document.body.appendChild(overlay);
 
+    for (let i = 0; i < points; i++) {
+        const star = document.createElement('div');
+        star.className = 'falling-star';
+        star.textContent = '⭐';
+        star.style.left = (5 + Math.random() * 90) + '%';
+        star.style.animationDelay = (i * 0.15) + 's';
+        overlay.appendChild(star);
+    }
+
     if (!pointsAwarded && window.auth && typeof auth.addPoints === 'function') {
         auth.addPoints(points);
         pointsAwarded = true;
