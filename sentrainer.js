@@ -95,7 +95,9 @@ let pointsAwarded = false; // évite un ajout multiple de points
 function showResults(container) {
     const percent = count ? Math.round((score / count) * 100) : 0;
     container.innerHTML = `<p>Quiz terminé ! Score : ${score} / ${count} (${percent}%)</p>`;
-    sendScore();
+    if (!(window.auth && typeof auth.getUser === 'function' && auth.getUser())) {
+        sendScore();
+    }
     showStarAnimation(score);
 
     const results = history.reduce((acc, h) => {
