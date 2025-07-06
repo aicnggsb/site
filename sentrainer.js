@@ -74,6 +74,7 @@ let maxQuestions = 5;
 let history = [];
 let pseudo = '';
 const HIGHLIGHT_DELAY = 1000; // temps avant la question suivante
+let pointsAwarded = false; // évite un ajout multiple de points
 
 function showRandomQuestion() {
     const container = document.getElementById('quiz-container');
@@ -340,6 +341,7 @@ function showFilterSelection() {
     start.textContent = 'Commencer le test';
     start.className = 'quiz-btn';
     start.addEventListener('click', () => {
+        pointsAwarded = false;
         const selectedThemes = Array.from(themeBox.querySelectorAll('input[type=checkbox]'))
             .filter(cb => cb.checked)
             .map(cb => cb.value);
@@ -428,8 +430,9 @@ function showStarAnimation(points) {
     overlay.appendChild(box);
     document.body.appendChild(overlay);
 
-    if (window.auth && typeof auth.addPoints === 'function') {
+    if (!pointsAwarded && window.auth && typeof auth.addPoints === 'function') {
         auth.addPoints(points);
+        pointsAwarded = true;
     }
 }
 
