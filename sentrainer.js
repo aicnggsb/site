@@ -469,5 +469,9 @@ function flyStar(fromElem) {
         star.style.opacity = '0';
     });
 
-    star.addEventListener('transitionend', () => star.remove());
+    star.addEventListener('transitionend', () => {
+        star.remove();
+        target.classList.add('hit');
+        target.addEventListener('animationend', () => target.classList.remove('hit'), {once: true});
+    });
 }

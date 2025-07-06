@@ -621,6 +621,16 @@ header {
     pointer-events: none;
     font-size: 3em;
     filter: drop-shadow(0 0 6px gold);
-    transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+    transition: transform 1s ease-out, opacity 1s ease-out;
+}
+
+#score-cell .score-star.hit {
+    animation: score-pulse 0.6s ease-out;
+}
+
+@keyframes score-pulse {
+    0% { transform: scale(1); filter: drop-shadow(0 0 0 gold); }
+    50% { transform: scale(1.4); filter: drop-shadow(0 0 10px gold); }
+    100% { transform: scale(1); filter: drop-shadow(0 0 0 gold); }
 }
 
