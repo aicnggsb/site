@@ -4,37 +4,37 @@
     let users = null;
 
     async function loadUsers(){
-        const res = await fetch(SHEET_URL + '&t=' + Date.now());
+        const res = await fetch(`${SHEET_URL}&t=${Date.now()}`);
         const text = await res.text();
-        const lines = text.trim().split(/\n+/).slice(1);
-        users = lines.map(l => {
-            const [classe, pseudo, pass, score, badges] = l.split(',');
+        users = text.trim().split(/\n+/).slice(1).map(line => {
+            const [classe, pseudo, pass, score, badges] = line.split(',');
             return {
-                classe: (classe||'').trim(),
+                classe: (classe || '').trim(),
                 pseudo: pseudo.trim(),
-                pass: (pass||'').trim(),
-                score: parseInt(score,10)||0,
-                badges: (badges||'').trim()
+                pass: (pass || '').trim(),
+                score: parseInt(score, 10) || 0,
+                badges: (badges || '').trim()
             };
         });
     }
 
     async function login(pseudo, pass){
-        if(!users) await loadUsers();
-        const user = users.find(u => u.pseudo===pseudo && u.pass===pass);
-        if(user){
-            localStorage.setItem('pseudo', user.pseudo);
-            localStorage.setItem('userScore', user.score);
-            localStorage.setItem('userBadges', user.badges);
-            localStorage.setItem('userClasse', user.classe);
-            updateUserInfo();
-            const loginBtn = document.getElementById('login-btn');
-            if(loginBtn) loginBtn.style.display = 'none';
-            const logoutBtn = document.getElementById('logout-btn');
-            if(logoutBtn) logoutBtn.style.display = '';
-            return true;
+        if(!users) {
+            await loadUsers();
         }
-        return false;
+        const user = users.find(u => u.pseudo === pseudo && u.pass === pass);
+        if(!user) return false;
+
+        localStorage.setItem('pseudo', user.pseudo);
+        localStorage.setItem('userScore', user.score);
+        localStorage.setItem('userBadges', user.badges);
+        localStorage.setItem('userClasse', user.classe);
+        updateUserInfo();
+        const loginBtn = document.getElementById('login-btn');
+        if(loginBtn) loginBtn.style.display = 'none';
+        const logoutBtn = document.getElementById('logout-btn');
+        if(logoutBtn) logoutBtn.style.display = '';
+        return true;
     }
 
     function logout(){
@@ -58,46 +58,32 @@
         return {pseudo, score, badges, classe};
     }
 
+    function getOrCreate(parent, id){
+        let el = document.getElementById(id);
+        if(!el){
+            el = document.createElement('div');
+            el.id = id;
+            el.className = 'user-cell';
+            parent.appendChild(el);
+        }
+        return el;
+    }
+
     function updateUserInfo(){
         const header = document.querySelector('header');
         if(!header) return;
+
         let container = document.getElementById('user-info');
         if(!container){
             container = document.createElement('div');
             container.id = 'user-info';
             header.appendChild(container);
         }
-        let pseudoCell = document.getElementById('pseudo-cell');
-        if(!pseudoCell){
-            pseudoCell = document.createElement('div');
-            pseudoCell.id = 'pseudo-cell';
-            pseudoCell.className = 'user-cell';
-            container.appendChild(pseudoCell);
-        }
 
-        let scoreCell = document.getElementById('score-cell');
-        if(!scoreCell){
-            scoreCell = document.createElement('div');
-            scoreCell.id = 'score-cell';
-            scoreCell.className = 'user-cell';
-            container.appendChild(scoreCell);
-        }
-
-        let loginCell = document.getElementById('login-cell');
-        if(!loginCell){
-            loginCell = document.createElement('div');
-            loginCell.id = 'login-cell';
-            loginCell.className = 'user-cell';
-            container.appendChild(loginCell);
-        }
-
-        let badgesCell = document.getElementById('badges-cell');
-        if(!badgesCell){
-            badgesCell = document.createElement('div');
-            badgesCell.id = 'badges-cell';
-            badgesCell.className = 'user-cell';
-            container.appendChild(badgesCell);
-        }
+        const pseudoCell = getOrCreate(container, 'pseudo-cell');
+        const scoreCell = getOrCreate(container, 'score-cell');
+        const loginCell = getOrCreate(container, 'login-cell');
+        const badgesCell = getOrCreate(container, 'badges-cell');
 
         const user = getUser();
         if(user){
@@ -105,8 +91,8 @@
             scoreCell.style.display = '';
             badgesCell.style.display = '';
             pseudoCell.textContent = user.pseudo;
-            scoreCell.innerHTML = user.score + ' <span class="score-star">⭐</span>';
-        }else{
+            scoreCell.innerHTML = `${user.score} <span class="score-star">⭐</span>`;
+        } else {
             pseudoCell.style.display = 'none';
             scoreCell.style.display = 'none';
             badgesCell.style.display = 'none';
@@ -157,9 +143,9 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
-        const user = getUser();
-        if(user) {
-            await refreshUserScore(user.pseudo);
+        let currentUser = getUser();
+        if(currentUser) {
+            await refreshUserScore(currentUser.pseudo);
         }
         updateUserInfo();
         const loginCell = document.getElementById('login-cell');
@@ -175,7 +161,8 @@
         }
         btn.addEventListener('click', promptLogin);
         loginCell.appendChild(btn);
-        if(getUser()) btn.style.display = 'none'; else btn.style.display = '';
+        currentUser = getUser();
+        btn.style.display = currentUser ? 'none' : '';
 
         let logoutBtn = document.getElementById('logout-btn');
         if(!logoutBtn){
@@ -188,8 +175,8 @@
             logoutBtn.parentNode.removeChild(logoutBtn);
         }
         loginCell.appendChild(logoutBtn);
-        if(getUser()) logoutBtn.style.display = '';
-        else logoutBtn.style.display = 'none';
+        currentUser = getUser();
+        logoutBtn.style.display = currentUser ? '' : 'none';
 
         let badgeBtn = document.getElementById('badges-btn');
         if(!badgeBtn){
@@ -204,8 +191,8 @@
             badgeBtn.parentNode.removeChild(badgeBtn);
         }
         badgeCell.appendChild(badgeBtn);
-        if(getUser()) badgeBtn.style.display = '';
-        else badgeBtn.style.display = 'none';
+        currentUser = getUser();
+        badgeBtn.style.display = currentUser ? '' : 'none';
     });
 
     window.auth = {login, logout, promptLogin, updateUserInfo, getUser, addPoints};
