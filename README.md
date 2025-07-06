@@ -43,10 +43,9 @@ function doPost(e) {
 L'envoi se fait en mode `no-cors` pour éviter les blocages liés aux politiques
 de sécurité du navigateur.
 
-Lorsqu'un utilisateur est connecté et termine un QCM, il gagne
-automatiquement **5 points**. Ces points sont ajoutés à son score stocké dans
-le navigateur et une nouvelle ligne est envoyée vers la feuille Google Sheets
-d'historique afin de tracer l'évolution des scores.
+Lorsqu'un utilisateur est connecté, chaque bonne réponse lui rapporte
+**1 point** ajouté immédiatement à son score. Une ligne est aussi envoyée vers
+la feuille Google Sheets d'historique afin de tracer l'évolution des scores.
 
-Une courte animation fait désormais apparaître des étoiles à la fin du quiz
-pour symboliser les points gagnés.
+Une courte animation fait désormais voler une étoile depuis la réponse
+sélectionnée jusqu'à l'icône de score pour symboliser les points gagnés.

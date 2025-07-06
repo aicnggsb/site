@@ -81,10 +81,7 @@ function showRandomQuestion() {
         const percent = count ? Math.round((score / count) * 100) : 0;
         container.innerHTML = `<p>Quiz terminé ! Score : ${score} / ${count} (${percent}%)</p>`;
         sendScore();
-        if (window.auth && typeof auth.addPoints === 'function') {
-            auth.addPoints(5);
-            showStarAnimation(5);
-        }
+        // Points are now awarded after each correct answer
 
         const results = history.reduce((acc, h) => {
             const t = h.theme || 'Autre';
@@ -211,7 +208,13 @@ function showRandomQuestion() {
         btn.className = 'quiz-btn';
         btn.addEventListener('click', () => {
             const correct = choice === current.answer;
-            if (correct) score++;
+            if (correct) {
+                score++;
+                if (window.auth && typeof auth.addPoints === 'function') {
+                    auth.addPoints(1);
+                }
+                flyStar(btn);
+            }
             history.push({
                 question: current.question,
                 selected: choice,
@@ -438,4 +441,33 @@ function showStarAnimation(points) {
     overlay.appendChild(box);
 
     document.body.appendChild(overlay);
+}
+
+function flyStar(fromElem) {
+    const target = document.querySelector('#score-cell .score-star');
+    if (!target) return;
+    const star = document.createElement('span');
+    star.className = 'flying-star';
+    star.textContent = '⭐';
+    document.body.appendChild(star);
+
+    const start = fromElem.getBoundingClientRect();
+    const end = target.getBoundingClientRect();
+    const startX = start.left + start.width / 2;
+    const startY = start.top + start.height / 2;
+    const endX = end.left + end.width / 2;
+    const endY = end.top + end.height / 2;
+
+    star.style.left = startX + 'px';
+    star.style.top = startY + 'px';
+    star.style.transform = 'translate(-50%, -50%)';
+
+    requestAnimationFrame(() => {
+        const dx = endX - startX;
+        const dy = endY - startY;
+        star.style.transform = `translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.5)`;
+        star.style.opacity = '0';
+    });
+
+    star.addEventListener('transitionend', () => star.remove());
 }
