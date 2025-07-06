@@ -430,14 +430,38 @@ function showStarAnimation(points) {
     overlay.appendChild(box);
     document.body.appendChild(overlay);
 
+    const stars = [];
     for (let i = 0; i < points; i++) {
         const star = document.createElement('div');
         star.className = 'falling-star';
         star.textContent = '⭐';
-        star.style.left = (5 + Math.random() * 90) + '%';
-        star.style.animationDelay = (i * 0.15) + 's';
-        overlay.appendChild(star);
+        box.appendChild(star);
+        const rect = box.getBoundingClientRect();
+        const x = Math.random() * (rect.width - 20);
+        const y = -20;
+        star.style.left = x + 'px';
+        star.style.top = y + 'px';
+        stars.push({el: star, x, y, vx: (Math.random() - 0.5) * 4, vy: 0});
     }
+
+    function animate() {
+        const rect = box.getBoundingClientRect();
+        stars.forEach(s => {
+            s.vy += 0.4;
+            s.x += s.vx;
+            s.y += s.vy;
+            const w = s.el.offsetWidth;
+            const h = s.el.offsetHeight;
+            if (s.x <= 0) { s.x = 0; s.vx *= -0.7; }
+            if (s.x + w >= rect.width) { s.x = rect.width - w; s.vx *= -0.7; }
+            if (s.y + h >= rect.height) { s.y = rect.height - h; s.vy *= -0.7; }
+            if (s.y <= 0 && s.vy < 0) { s.y = 0; s.vy *= -0.7; }
+            s.el.style.left = s.x + 'px';
+            s.el.style.top = s.y + 'px';
+        });
+        requestAnimationFrame(animate);
+    }
+    if (stars.length) requestAnimationFrame(animate);
 
     if (!pointsAwarded && window.auth && typeof auth.addPoints === 'function') {
         auth.addPoints(points);
