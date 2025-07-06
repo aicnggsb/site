@@ -1,27 +1,28 @@
 // Charge les questions depuis la feuille Google Sheets publiee.
 // Si le telechargement echoue, les questions sont lues dans 'sentrainer_data.json'.
 async function fetchQCM() {
-    const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSg_rqA997mD2J3beXWHz2dJPfQ7tuqZY_S768tXgAAgwTg3znMPZEnrH0VAdzALTScIdiLLv1GUffP/pub?output=csv&ts=' + Date.now();
+    const url =
+        'https://docs.google.com/spreadsheets/d/e/2PACX-1vSg_rqA997mD2J3beXWHz2dJPfQ7tuqZY_S768tXgAAgwTg3znMPZEnrH0VAdzALTScIdiLLv1GUffP/pub?output=csv&ts=' +
+        Date.now();
     try {
         const res = await fetch(url);
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        const text = await res.text();
-        const rows = parseCSV(text);
-        if (!rows.length) throw new Error('no data');
-        rows.shift(); // enleve l'en-tete
-        return rows.map(r => ({
-            theme: r[0] || 'Autre',
-            niveau: r[1] || 'Indefini',
-            question: r[2] || '',
-            image: r[3] || '',
-            choices: [r[4] || '', r[5] || '', r[6] || ''],
-            answer: r[4] || '',
-            correction: r[7] || ''
-        })).filter(q => q.question);
+        const rows = parseCSV(await res.text());
+        rows.shift();
+        return rows
+            .map(r => ({
+                theme: r[0] || 'Autre',
+                niveau: r[1] || 'Indefini',
+                question: r[2] || '',
+                image: r[3] || '',
+                choices: [r[4], r[5], r[6]].filter(Boolean),
+                answer: r[4] || '',
+                correction: r[7] || ''
+            }))
+            .filter(q => q.question);
     } catch (e) {
-        const localRes = await fetch('sentrainer_data.json');
-        const data = await localRes.json();
-        return data.map(q => ({
+        const res = await fetch('sentrainer_data.json');
+        return (await res.json()).map(q => ({
             niveau: q.niveau || 'Indefini',
             theme: q.theme || 'Autre',
             question: q.question,
@@ -65,6 +66,21 @@ function shuffle(arr) {
     return arr;
 }
 
+function ce(tag, cls, text) {
+    const el = document.createElement(tag);
+    if (cls) el.className = cls;
+    if (text) el.textContent = text;
+    return el;
+}
+
+function imgElem(src) {
+    if (!src.includes('/')) src = 'photos/' + src;
+    const img = ce('img', 'question-image');
+    img.src = src;
+    img.alt = '';
+    return img;
+}
+
 let questions = [];
 let allQuestions = [];
 let current = null;
@@ -76,138 +92,91 @@ let pseudo = '';
 const HIGHLIGHT_DELAY = 1000; // temps avant la question suivante
 let pointsAwarded = false; // évite un ajout multiple de points
 
+function showResults(container) {
+    const percent = count ? Math.round((score / count) * 100) : 0;
+    container.innerHTML = `<p>Quiz terminé ! Score : ${score} / ${count} (${percent}%)</p>`;
+    sendScore();
+    showStarAnimation(score);
+
+    const results = history.reduce((acc, h) => {
+        const t = h.theme || 'Autre';
+        if (!acc[t]) acc[t] = { total: 0, correct: 0 };
+        acc[t].total++;
+        if (h.isCorrect) acc[t].correct++;
+        return acc;
+    }, {});
+
+    const box = ce('div', 'filter-box');
+    box.style.marginBottom = '30px';
+    box.appendChild(ce('span', 'filter-tab', 'Bilan par thème'));
+
+    const inner = document.createElement('div');
+    Object.entries(results).forEach(([theme, res]) => {
+        const pct = Math.round((res.correct / res.total) * 100);
+        const line = ce('div', 'progress-container');
+        line.appendChild(ce('p', '', `${theme} : ${pct}% (${res.correct}/${res.total})`));
+        const bar = ce('div', 'progress-bar');
+        const prog = ce('div', 'progress-bar-inner');
+        prog.style.width = pct + '%';
+        const ratio = pct / 100;
+        const r = Math.round(255 * (1 - ratio));
+        const g = Math.round(255 * ratio);
+        prog.style.backgroundColor = `rgb(${r}, ${g}, 0)`;
+        bar.appendChild(prog);
+        line.appendChild(bar);
+        inner.appendChild(line);
+    });
+    box.appendChild(inner);
+    container.appendChild(box);
+
+    const historyDiv = ce('div');
+    history.forEach((h, i) => {
+        const block = ce('div', 'question-block ' + (h.isCorrect ? 'correct' : 'incorrect'));
+        block.appendChild(ce('span', 'question-tab', `Q${i + 1}`));
+        block.appendChild(ce('p', '', h.question));
+        if (h.image) {
+            const imgBox = ce('div', 'image-box');
+            imgBox.appendChild(imgElem(h.image));
+            block.appendChild(imgBox);
+        }
+        block.appendChild(ce('p', '', `Votre réponse : ${h.selected}`));
+        if (!h.isCorrect) block.appendChild(ce('p', '', `Bonne réponse : ${h.correct}`));
+        if (h.correction) block.appendChild(ce('p', '', `Correction : ${h.correction}`));
+        historyDiv.appendChild(block);
+    });
+    container.appendChild(historyDiv);
+
+    const restart = ce('button', 'quiz-btn', 'Nouveau test');
+    restart.addEventListener('click', showFilterSelection);
+    container.appendChild(restart);
+}
+
 function showRandomQuestion() {
     const container = document.getElementById('quiz-container');
     if (count >= maxQuestions || !questions.length) {
-        const percent = count ? Math.round((score / count) * 100) : 0;
-        container.innerHTML = `<p>Quiz terminé ! Score : ${score} / ${count} (${percent}%)</p>`;
-        sendScore();
-        showStarAnimation(score);
-        // Points are now awarded at the end of the quiz
-
-        const results = history.reduce((acc, h) => {
-            const t = h.theme || 'Autre';
-            if (!acc[t]) acc[t] = {total: 0, correct: 0};
-            acc[t].total++;
-            if (h.isCorrect) acc[t].correct++;
-            return acc;
-        }, {});
-
-        const resultsBox = document.createElement('div');
-        resultsBox.className = 'filter-box';
-        resultsBox.style.marginBottom = '30px';
-        const resultsTab = document.createElement('span');
-        resultsTab.className = 'filter-tab';
-        resultsTab.textContent = 'Bilan par thème';
-        resultsBox.appendChild(resultsTab);
-
-        const resultsDiv = document.createElement('div');
-        Object.entries(results).forEach(([theme, res]) => {
-            const pct = Math.round((res.correct / res.total) * 100);
-            const line = document.createElement('div');
-            line.className = 'progress-container';
-            const label = document.createElement('p');
-            label.textContent = `${theme} : ${pct}% (${res.correct}/${res.total})`;
-            line.appendChild(label);
-            const bar = document.createElement('div');
-            bar.className = 'progress-bar';
-            const inner = document.createElement('div');
-            inner.className = 'progress-bar-inner';
-            inner.style.width = pct + '%';
-            const ratio = pct / 100;
-            const r = Math.round(255 * (1 - ratio));
-            const g = Math.round(255 * ratio);
-            inner.style.backgroundColor = `rgb(${r}, ${g}, 0)`;
-            bar.appendChild(inner);
-            line.appendChild(bar);
-            resultsDiv.appendChild(line);
-        });
-        resultsBox.appendChild(resultsDiv);
-        container.appendChild(resultsBox);
-        const historyDiv = document.createElement('div');
-        history.forEach((h, i) => {
-            const block = document.createElement('div');
-            block.className = 'question-block ' + (h.isCorrect ? 'correct' : 'incorrect');
-            const tab = document.createElement('span');
-            tab.className = 'question-tab';
-            tab.textContent = `Q${i + 1}`;
-            block.appendChild(tab);
-            const q = document.createElement('p');
-            q.textContent = h.question;
-            block.appendChild(q);
-            if (h.image) {
-                const imgBox = document.createElement('div');
-                imgBox.className = 'image-box';
-                const img = document.createElement('img');
-                let src = h.image;
-                if (!src.includes('/')) src = 'photos/' + src;
-                img.src = src;
-                img.alt = '';
-                img.className = 'question-image';
-                imgBox.appendChild(img);
-                block.appendChild(imgBox);
-            }
-            const sel = document.createElement('p');
-            sel.innerHTML = `<strong>Votre réponse :</strong> ${h.selected}`;
-            block.appendChild(sel);
-            if (!h.isCorrect) {
-                const ans = document.createElement('p');
-                ans.innerHTML = `<strong>Bonne réponse :</strong> ${h.correct}`;
-                block.appendChild(ans);
-            }
-            if (h.correction) {
-                const cor = document.createElement('p');
-                cor.innerHTML = `<strong>Correction :</strong> ${h.correction}`;
-                block.appendChild(cor);
-            }
-            historyDiv.appendChild(block);
-        });
-        container.appendChild(historyDiv);
-        const restart = document.createElement('button');
-        restart.textContent = 'Nouveau test';
-        restart.className = 'quiz-btn';
-        restart.addEventListener('click', showFilterSelection);
-        container.appendChild(restart);
+        showResults(container);
         return;
     }
     const index = Math.floor(Math.random() * questions.length);
     current = questions.splice(index, 1)[0];
     count++;
     container.innerHTML = '';
-    const block = document.createElement('div');
-    block.className = 'question-block';
-
-    const tab = document.createElement('span');
-    tab.className = 'question-tab';
-    tab.textContent = `Q${count}`;
-    block.appendChild(tab);
-
-    const p = document.createElement('p');
-    p.textContent = current.question;
-    block.appendChild(p);
+    const block = ce('div', 'question-block');
+    block.appendChild(ce('span', 'question-tab', `Q${count}`));
+    block.appendChild(ce('p', '', current.question));
 
     if (current.image) {
-        const imgBox = document.createElement('div');
-        imgBox.className = 'image-box';
-        const img = document.createElement('img');
-        let src = current.image;
-        if (!src.includes('/')) src = 'photos/' + src;
-        img.src = src;
-        img.alt = '';
-        img.className = 'question-image';
-        imgBox.appendChild(img);
+        const imgBox = ce('div', 'image-box');
+        imgBox.appendChild(imgElem(current.image));
         block.appendChild(imgBox);
     }
 
     const answers = shuffle(current.choices.filter(c => c));
 
-    const answerBox = document.createElement('div');
-    answerBox.className = 'answer-box';
+    const answerBox = ce('div', 'answer-box');
 
     answers.forEach(choice => {
-        const btn = document.createElement('button');
-        btn.textContent = choice;
-        btn.className = 'quiz-btn';
+        const btn = ce('button', 'quiz-btn', choice);
         btn.addEventListener('click', () => {
             // Désactive immédiatement tous les boutons pour éviter
             // plusieurs clics qui compteraient plusieurs fois la même question
@@ -252,12 +221,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function createFilterBox(title, values) {
-    const box = document.createElement('div');
-    box.className = 'filter-box';
-    const tab = document.createElement('span');
-    tab.className = 'filter-tab';
-    tab.textContent = title;
-    box.appendChild(tab);
+    const box = ce('div', 'filter-box');
+    box.appendChild(ce('span', 'filter-tab', title));
     values.forEach(val => {
         const label = document.createElement('label');
         const cb = document.createElement('input');
@@ -271,21 +236,14 @@ function createFilterBox(title, values) {
     return box;
 }
 
-function createInfoBox(text) {
-    const box = document.createElement('div');
-    box.className = 'info-box';
-    box.textContent = text;
-    return box;
-}
+const createInfoBox = text => ce('div', 'info-box', text);
 
 function showFilterSelection() {
     const container = document.getElementById('quiz-container');
     container.innerHTML = '';
 
     const infoText = "Cet espace vous permet de vous entra\u00eener et de v\u00e9rifier vos acquis en technologie. Utilisez les filtres ci-dessous pour g\u00e9n\u00e9rer un quiz personnalis\u00e9 selon votre niveau et les comp\u00e9tences vis\u00e9es.";
-    const infoBox = createInfoBox(infoText);
-
-    container.appendChild(infoBox);
+    container.appendChild(createInfoBox(infoText));
 
     const themes = [...new Set(allQuestions.map(q => q.theme || 'Autre'))];
     const niveaux = [...new Set(allQuestions.map(q => q.niveau || 'Indefini'))];
@@ -293,14 +251,10 @@ function showFilterSelection() {
     const levelBox = createFilterBox('Niveau', niveaux);
     const themeBox = createFilterBox('Thème', themes);
 
-    const questionBox = document.createElement('div');
-    questionBox.className = 'filter-box';
-    const questionTab = document.createElement('span');
-    questionTab.className = 'filter-tab';
-    questionTab.textContent = 'Questions';
+    const questionBox = ce('div', 'filter-box');
+    const questionTab = ce('span', 'filter-tab', 'Questions');
     questionBox.appendChild(questionTab);
-    const qLabel = document.createElement('label');
-    qLabel.textContent = `Nombre de questions : ${maxQuestions}`;
+    const qLabel = ce('label', '', `Nombre de questions : ${maxQuestions}`);
     const qRange = document.createElement('input');
     qRange.type = 'range';
     qRange.min = '5';
@@ -313,9 +267,7 @@ function showFilterSelection() {
     questionBox.appendChild(qLabel);
     questionBox.appendChild(qRange);
 
-    const countBox = document.createElement('div');
-    countBox.className = 'count-box';
-    countBox.textContent = `${allQuestions.length} questions disponibles`;
+    const countBox = ce('div', 'count-box', `${allQuestions.length} questions disponibles`);
 
     questionBox.appendChild(countBox);
 
@@ -337,9 +289,7 @@ function showFilterSelection() {
     themeBox.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.addEventListener('change', updateAvailableCount));
     updateAvailableCount();
 
-    const start = document.createElement('button');
-    start.textContent = 'Commencer le test';
-    start.className = 'quiz-btn';
+    const start = ce('button', 'quiz-btn', 'Commencer le test');
     start.addEventListener('click', () => {
         pointsAwarded = false;
         const selectedThemes = Array.from(themeBox.querySelectorAll('input[type=checkbox]'))
@@ -368,12 +318,8 @@ function showLogin() {
     const container = document.getElementById('quiz-container');
     container.innerHTML = '';
 
-    const box = document.createElement('div');
-    box.className = 'filter-box';
-    const tab = document.createElement('span');
-    tab.className = 'filter-tab';
-    tab.textContent = 'Connexion';
-    box.appendChild(tab);
+    const box = ce('div', 'filter-box');
+    box.appendChild(ce('span', 'filter-tab', 'Connexion'));
 
     const label = document.createElement('label');
     label.textContent = 'Entrez votre pseudo : ';
@@ -383,9 +329,7 @@ function showLogin() {
     label.appendChild(input);
     box.appendChild(label);
 
-    const btn = document.createElement('button');
-    btn.textContent = 'Valider';
-    btn.className = 'quiz-btn';
+    const btn = ce('button', 'quiz-btn', 'Valider');
     btn.addEventListener('click', () => {
         const val = input.value.trim();
         if (val) {
@@ -410,20 +354,16 @@ function sendScore() {
 }
 
 function showStarAnimation(points) {
-    const overlay = document.createElement('div');
+    const overlay = ce('div');
     overlay.id = 'points-popup';
 
-    const box = document.createElement('div');
-    box.className = 'popup-box';
+    const box = ce('div', 'popup-box');
 
-    const close = document.createElement('span');
-    close.className = 'close';
+    const close = ce('span', 'close');
     close.innerHTML = '&times;';
     close.addEventListener('click', () => overlay.remove());
 
-    const message = document.createElement('p');
-    message.className = 'points-text';
-    message.textContent = `Vous avez gagné ${points} points !`;
+    const message = ce('p', 'points-text', `Vous avez gagné ${points} points !`);
 
     box.appendChild(close);
     box.appendChild(message);
@@ -432,9 +372,7 @@ function showStarAnimation(points) {
 
     const stars = [];
     for (let i = 0; i < points; i++) {
-        const star = document.createElement('div');
-        star.className = 'falling-star';
-        star.textContent = '⭐';
+        const star = ce('div', 'falling-star', '⭐');
         box.appendChild(star);
         const rect = box.getBoundingClientRect();
         const x = Math.random() * (rect.width - 20);
@@ -472,9 +410,7 @@ function showStarAnimation(points) {
 function flyStar(fromElem) {
     const target = document.querySelector('#score-cell .score-star');
     if (!target) return;
-    const star = document.createElement('span');
-    star.className = 'flying-star';
-    star.textContent = '⭐';
+    const star = ce('span', 'flying-star', '⭐');
     document.body.appendChild(star);
 
     const start = fromElem.getBoundingClientRect();
