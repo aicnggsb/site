@@ -81,6 +81,7 @@ function showRandomQuestion() {
         const percent = count ? Math.round((score / count) * 100) : 0;
         container.innerHTML = `<p>Quiz terminé ! Score : ${score} / ${count} (${percent}%)</p>`;
         sendScore();
+        showStarAnimation(score);
         // Points are now awarded after each correct answer
 
         const results = history.reduce((acc, h) => {
@@ -425,14 +426,6 @@ function showStarAnimation(points) {
     const starContainer = document.createElement('div');
     starContainer.className = 'star-container';
 
-    for (let i = 0; i < points; i++) {
-        const star = document.createElement('span');
-        star.className = 'star loop';
-        star.textContent = '⭐';
-        star.style.animationDelay = (i * 0.15) + 's';
-        starContainer.appendChild(star);
-    }
-
     const message = document.createElement('p');
     message.className = 'points-text';
     message.textContent = `Vous avez gagné ${points} points !`;
@@ -441,8 +434,20 @@ function showStarAnimation(points) {
     box.appendChild(starContainer);
     box.appendChild(message);
     overlay.appendChild(box);
-
     document.body.appendChild(overlay);
+
+    const width = starContainer.clientWidth - 40;
+    const spacing = 28;
+    for (let i = 0; i < points; i++) {
+        const star = document.createElement('span');
+        star.className = 'drop-star';
+        star.textContent = '⭐';
+        const x = Math.random() * width;
+        star.style.setProperty('--x', x + 'px');
+        star.style.setProperty('--target', (i * spacing) + 'px');
+        star.style.animationDelay = (i * 0.1) + 's';
+        starContainer.appendChild(star);
+    }
 }
 
 function flyStar(fromElem) {
