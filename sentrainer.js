@@ -82,7 +82,7 @@ function showRandomQuestion() {
         container.innerHTML = `<p>Quiz terminé ! Score : ${score} / ${count} (${percent}%)</p>`;
         sendScore();
         showStarAnimation(score);
-        // Points are now awarded after each correct answer
+        // Points are now awarded at the end of the quiz
 
         const results = history.reduce((acc, h) => {
             const t = h.theme || 'Autre';
@@ -214,10 +214,6 @@ function showRandomQuestion() {
             const correct = choice === current.answer;
             if (correct) {
                 score++;
-                if (window.auth && typeof auth.addPoints === 'function') {
-                    auth.addPoints(1);
-                }
-                flyStar(btn);
             }
             history.push({
                 question: current.question,
@@ -423,30 +419,17 @@ function showStarAnimation(points) {
     close.innerHTML = '&times;';
     close.addEventListener('click', () => overlay.remove());
 
-    const starContainer = document.createElement('div');
-    starContainer.className = 'star-container';
-
     const message = document.createElement('p');
     message.className = 'points-text';
     message.textContent = `Vous avez gagné ${points} points !`;
 
     box.appendChild(close);
-    box.appendChild(starContainer);
     box.appendChild(message);
     overlay.appendChild(box);
     document.body.appendChild(overlay);
 
-    const width = starContainer.clientWidth - 40;
-    const spacing = 28;
-    for (let i = 0; i < points; i++) {
-        const star = document.createElement('span');
-        star.className = 'drop-star';
-        star.textContent = '⭐';
-        const x = Math.random() * width;
-        star.style.setProperty('--x', x + 'px');
-        star.style.setProperty('--target', (i * spacing) + 'px');
-        star.style.animationDelay = (i * 0.1) + 's';
-        starContainer.appendChild(star);
+    if (window.auth && typeof auth.addPoints === 'function') {
+        auth.addPoints(points);
     }
 }
 
