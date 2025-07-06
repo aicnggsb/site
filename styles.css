@@ -594,7 +594,7 @@ header {
 
 .star {
     display: inline-block;
-    font-size: 2em;
+    font-size: 3em;
     opacity: 0;
     animation: star-pop 1.6s forwards;
 }
@@ -619,7 +619,8 @@ header {
     position: fixed;
     z-index: 10000;
     pointer-events: none;
-    font-size: 2em;
+    font-size: 3em;
+    filter: drop-shadow(0 0 6px gold);
     transition: transform 0.6s ease-out, opacity 0.6s ease-out;
 }
 

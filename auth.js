@@ -142,6 +142,8 @@
         if(!user) return;
         const newScore = user.score + points;
         localStorage.setItem('userScore', newScore);
+        // Mise à jour immédiate de l'affichage du score
+        updateUserInfo();
         try {
             await fetch(SCORE_HISTORY_URL, {
                 method: 'POST',
