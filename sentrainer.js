@@ -207,6 +207,9 @@ function showRandomQuestion() {
         btn.textContent = choice;
         btn.className = 'quiz-btn';
         btn.addEventListener('click', () => {
+            // Désactive immédiatement tous les boutons pour éviter
+            // plusieurs clics qui compteraient plusieurs fois la même question
+            Array.from(block.querySelectorAll('button')).forEach(b => b.disabled = true);
             const correct = choice === current.answer;
             if (correct) {
                 score++;
@@ -225,7 +228,6 @@ function showRandomQuestion() {
                 isCorrect: correct
             });
             btn.style.backgroundColor = correct ? '#00a000' : '#ff0000';
-            Array.from(block.querySelectorAll('button')).forEach(b => b.disabled = true);
             setTimeout(showRandomQuestion, HIGHLIGHT_DELAY);
         });
         answerBox.appendChild(btn);
