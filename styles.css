@@ -561,6 +561,8 @@ header {
     border-radius: 8px;
     text-align: center;
     color: #fff;
+    overflow: hidden; /* stars stay within the box */
+    min-height: 160px;
 }
 
 #points-popup .close {
@@ -579,17 +581,9 @@ header {
 
 #points-popup .falling-star {
     position: absolute;
-    top: -40px;
     font-size: 2em;
     pointer-events: none;
-    animation: starFall 1s ease forwards;
-}
-
-@keyframes starFall {
-    to {
-        transform: translateY(100vh) rotate(720deg);
-        opacity: 0;
-    }
+    user-select: none;
 }
 
 
