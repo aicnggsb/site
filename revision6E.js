@@ -384,45 +384,24 @@ function showStarAnimation(points, bonus = false) {
         const y = -20;
         star.style.left = x + 'px';
         star.style.top = y + 'px';
-        stars.push({el: star, x, y, vx: (Math.random() - 0.5) * 4, vy: 0});
+        // each star gets its own bounce factor for varied rebounds
+        const bounce = 0.5 + Math.random() * 0.4; // between 0.5 and 0.9
+        stars.push({el: star, x, y, vx: (Math.random() - 0.5) * 4, vy: 0, bounce});
     }
 
     function animate() {
         const rect = box.getBoundingClientRect();
-        const starSize = stars[0]?.el.offsetWidth || 0;
-        const radius = starSize / 2;
         stars.forEach(s => {
             s.vy += 0.4;
             s.x += s.vx;
             s.y += s.vy;
             const w = s.el.offsetWidth;
             const h = s.el.offsetHeight;
-            if (s.x <= 0) { s.x = 0; s.vx *= -0.7; }
-            if (s.x + w >= rect.width) { s.x = rect.width - w; s.vx *= -0.7; }
-            if (s.y + h >= rect.height) { s.y = rect.height - h; s.vy *= -0.7; }
-            if (s.y <= 0 && s.vy < 0) { s.y = 0; s.vy *= -0.7; }
+            if (s.x <= 0) { s.x = 0; s.vx *= -s.bounce; }
+            if (s.x + w >= rect.width) { s.x = rect.width - w; s.vx *= -s.bounce; }
+            if (s.y + h >= rect.height) { s.y = rect.height - h; s.vy *= -s.bounce; }
+            if (s.y <= 0 && s.vy < 0) { s.y = 0; s.vy *= -s.bounce; }
         });
-
-        for (let i = 0; i < stars.length; i++) {
-            for (let j = i + 1; j < stars.length; j++) {
-                const a = stars[i];
-                const b = stars[j];
-                const dx = (a.x + radius) - (b.x + radius);
-                const dy = (a.y + radius) - (b.y + radius);
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < starSize && dist > 0) {
-                    [a.vx, b.vx] = [b.vx, a.vx];
-                    [a.vy, b.vy] = [b.vy, a.vy];
-                    const overlap = starSize - dist;
-                    const ox = (dx / dist) * (overlap / 2);
-                    const oy = (dy / dist) * (overlap / 2);
-                    a.x += ox;
-                    a.y += oy;
-                    b.x -= ox;
-                    b.y -= oy;
-                }
-            }
-        }
 
         stars.forEach(s => {
             s.el.style.left = s.x + 'px';
