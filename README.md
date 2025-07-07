@@ -1,6 +1,11 @@
 # ICN_GGSB
 Site pour l'ICN
 
+Lorsqu'un utilisateur se connecte, le script redirige vers la page
+correspondant à sa classe. Les codes de classe peuvent inclure un numéro
+(par exemple `3e1`, `4e2` ou `5e3`) et sont tous regroupés sur
+`techno.html` pour les niveaux 3e, 4e et 5e.
+
 ## Google Sheets
 
 Certaines pages affichent des données issues d'une feuille Google Sheets

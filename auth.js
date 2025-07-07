@@ -5,20 +5,12 @@
     let originalNav = null;
 
     function pageForClass(classe){
-        switch((classe||'').toUpperCase()){
-            case '6E':
-                return 'revision6E.html';
-            case 'ICN':
-                return 'index.html';
-            case 'SNT':
-                return 'SNT.html';
-            case '3E':
-            case '4E':
-            case '5E':
-                return 'techno.html';
-            default:
-                return null;
-        }
+        const c = (classe || '').toUpperCase();
+        if(c === '6E') return 'revision6E.html';
+        if(c === 'ICN') return 'index.html';
+        if(c === 'SNT') return 'SNT.html';
+        if(/^3E/.test(c) || /^4E/.test(c) || /^5E/.test(c)) return 'techno.html';
+        return null;
     }
 
     function redirectToClassPage(user){
