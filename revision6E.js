@@ -389,6 +389,8 @@ function showStarAnimation(points, bonus = false) {
 
     function animate() {
         const rect = box.getBoundingClientRect();
+        const starSize = stars[0]?.el.offsetWidth || 0;
+        const radius = starSize / 2;
         stars.forEach(s => {
             s.vy += 0.4;
             s.x += s.vx;
@@ -399,9 +401,34 @@ function showStarAnimation(points, bonus = false) {
             if (s.x + w >= rect.width) { s.x = rect.width - w; s.vx *= -0.7; }
             if (s.y + h >= rect.height) { s.y = rect.height - h; s.vy *= -0.7; }
             if (s.y <= 0 && s.vy < 0) { s.y = 0; s.vy *= -0.7; }
+        });
+
+        for (let i = 0; i < stars.length; i++) {
+            for (let j = i + 1; j < stars.length; j++) {
+                const a = stars[i];
+                const b = stars[j];
+                const dx = (a.x + radius) - (b.x + radius);
+                const dy = (a.y + radius) - (b.y + radius);
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < starSize && dist > 0) {
+                    [a.vx, b.vx] = [b.vx, a.vx];
+                    [a.vy, b.vy] = [b.vy, a.vy];
+                    const overlap = starSize - dist;
+                    const ox = (dx / dist) * (overlap / 2);
+                    const oy = (dy / dist) * (overlap / 2);
+                    a.x += ox;
+                    a.y += oy;
+                    b.x -= ox;
+                    b.y -= oy;
+                }
+            }
+        }
+
+        stars.forEach(s => {
             s.el.style.left = s.x + 'px';
             s.el.style.top = s.y + 'px';
         });
+
         requestAnimationFrame(animate);
     }
     if (stars.length) requestAnimationFrame(animate);
