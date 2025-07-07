@@ -3,6 +3,33 @@
     const SCORE_HISTORY_URL = 'https://script.google.com/macros/s/AKfycbzHfWfQzgWHNx7iE2aeCcgC27Y-1lvr2SVnZQDoNOeLwgsebjQyGw8zWTavJ175GSmg/exec';
     let users = null;
     let originalNav = null;
+
+    function pageForClass(classe){
+        switch((classe||'').toUpperCase()){
+            case '6E':
+                return 'revision6E.html';
+            case 'ICN':
+                return 'index.html';
+            case 'SNT':
+                return 'SNT.html';
+            case '3E':
+            case '4E':
+            case '5E':
+                return 'techno.html';
+            default:
+                return null;
+        }
+    }
+
+    function redirectToClassPage(user){
+        if(!user) return;
+        const target = pageForClass(user.classe);
+        if(!target) return;
+        const current = location.pathname.split('/').pop();
+        if(current !== target){
+            location.href = target;
+        }
+    }
     async function loadUsers(){
         const res = await fetch(SHEET_URL + '&t=' + Date.now());
         const text = await res.text();
@@ -32,6 +59,7 @@
             if(loginBtn) loginBtn.style.display = 'none';
             const logoutBtn = document.getElementById('logout-btn');
             if(logoutBtn) logoutBtn.style.display = '';
+            redirectToClassPage(user);
             return true;
         }
         return false;
@@ -47,6 +75,7 @@
         if(loginBtn) loginBtn.style.display = '';
         const logoutBtn = document.getElementById('logout-btn');
         if(logoutBtn) logoutBtn.style.display = 'none';
+        location.href = 'index.html';
     }
 
     function getUser(){
@@ -62,11 +91,23 @@
         const nav = document.querySelector('header nav ul');
         if(!nav) return;
         if(originalNav === null) originalNav = nav.innerHTML;
-        if(user && user.classe === '6E'){
-            nav.innerHTML = '<li><a href="revision6E.html">Révision 6E</a></li>';
-        }else if(originalNav !== null){
-            nav.innerHTML = originalNav;
+        let html = '';
+        if(user){
+            const page = pageForClass(user.classe);
+            if(page){
+                let label = '';
+                switch(page){
+                    case 'revision6E.html': label = 'Révision 6E'; break;
+                    case 'techno.html': label = 'Technologie'; break;
+                    case 'SNT.html': label = 'SNT'; break;
+                    default: label = 'ICN';
+                }
+                html = `<li><a href="${page}">${label}</a></li>`;
+            }
+        }else{
+            html = '<li><a href="index.html">ICN</a></li><li><a href="techno.html">Technologie</a></li>';
         }
+        if(html) nav.innerHTML = html; else if(originalNav !== null) nav.innerHTML = originalNav;
     }
 
     function updateUserInfo(){
@@ -218,7 +259,9 @@
         badgeCell.appendChild(badgeBtn);
         if(getUser()) badgeBtn.style.display = '';
         else badgeBtn.style.display = 'none';
-        updateNavForClass(getUser());
+        const currentUser = getUser();
+        updateNavForClass(currentUser);
+        redirectToClassPage(currentUser);
     });
 
     window.auth = {login, logout, promptLogin, updateUserInfo, getUser, addPoints};
