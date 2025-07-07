@@ -2,7 +2,7 @@
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQCSH8hh-ykxl1L9joc4opVRARLGfcqi6uTW1bRXyyzsu99zo1OXuOYFwCBzxISzEjt2q3Abd9yU-NJ/pub?gid=1003065620&single=true&output=csv';
     const SCORE_HISTORY_URL = 'https://script.google.com/macros/s/AKfycbzHfWfQzgWHNx7iE2aeCcgC27Y-1lvr2SVnZQDoNOeLwgsebjQyGw8zWTavJ175GSmg/exec';
     let users = null;
-
+    let originalNav = null;
     async function loadUsers(){
         const res = await fetch(SHEET_URL + '&t=' + Date.now());
         const text = await res.text();
@@ -56,6 +56,17 @@
         const badges = (localStorage.getItem('userBadges')||'');
         const classe = (localStorage.getItem('userClasse')||'');
         return {pseudo, score, badges, classe};
+    }
+
+    function updateNavForClass(user){
+        const nav = document.querySelector('header nav ul');
+        if(!nav) return;
+        if(originalNav === null) originalNav = nav.innerHTML;
+        if(user && user.classe === '6E'){
+            nav.innerHTML = '<li><a href="revision6E.html">Révision 6E</a></li>';
+        }else if(originalNav !== null){
+            nav.innerHTML = originalNav;
+        }
     }
 
     function updateUserInfo(){
@@ -113,6 +124,7 @@
             pseudoCell.textContent = '';
             scoreCell.innerHTML = '';
         }
+        updateNavForClass(user);
     }
 
     function promptLogin(){
@@ -206,6 +218,7 @@
         badgeCell.appendChild(badgeBtn);
         if(getUser()) badgeBtn.style.display = '';
         else badgeBtn.style.display = 'none';
+        updateNavForClass(getUser());
     });
 
     window.auth = {login, logout, promptLogin, updateUserInfo, getUser, addPoints};
