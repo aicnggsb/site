@@ -54,3 +54,5 @@ la feuille Google Sheets d'historique afin de tracer l'évolution des scores.
 
 Une courte animation fait désormais voler une étoile depuis la réponse
 sélectionnée jusqu'à l'icône de score pour symboliser les points gagnés.
+Si toutes les réponses sont correctes, les points remportés sont doublés et
+l'animation affiche des étoiles brillantes en plus grand nombre.

@@ -94,11 +94,13 @@ let pointsAwarded = false; // évite un ajout multiple de points
 
 function showResults(container) {
     const percent = count ? Math.round((score / count) * 100) : 0;
-    container.innerHTML = `<p>Quiz terminé ! Score : ${score} / ${count} (${percent}%)</p>`;
+    const bonus = percent === 100;
+    const bonusText = bonus ? ' - Score parfait ! Points doublés !' : '';
+    container.innerHTML = `<p>Quiz terminé ! Score : ${score} / ${count} (${percent}%)${bonusText}</p>`;
     if (!(window.auth && typeof auth.getUser === 'function' && auth.getUser())) {
         sendScore();
     }
-    showStarAnimation(score);
+    showStarAnimation(bonus ? score * 2 : score, bonus);
 
     const results = history.reduce((acc, h) => {
         const t = h.theme || 'Autre';
@@ -355,7 +357,7 @@ function sendScore() {
     }).catch(() => {});
 }
 
-function showStarAnimation(points) {
+function showStarAnimation(points, bonus = false) {
     const overlay = ce('div');
     overlay.id = 'points-popup';
 
@@ -374,7 +376,8 @@ function showStarAnimation(points) {
 
     const stars = [];
     for (let i = 0; i < points; i++) {
-        const star = ce('div', 'falling-star', '⭐');
+        const starClass = bonus ? 'falling-star bonus-star' : 'falling-star';
+        const star = ce('div', starClass, '⭐');
         box.appendChild(star);
         const rect = box.getBoundingClientRect();
         const x = Math.random() * (rect.width - 20);

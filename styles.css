@@ -586,5 +586,16 @@ header {
     user-select: none;
 }
 
+#points-popup .bonus-star {
+    color: gold;
+    filter: drop-shadow(0 0 5px gold);
+    animation: shine 1s infinite alternate;
+}
+
+@keyframes shine {
+    from { filter: drop-shadow(0 0 5px gold); }
+    to { filter: drop-shadow(0 0 15px gold); }
+}
+
 
 
