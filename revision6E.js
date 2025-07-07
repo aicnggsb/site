@@ -66,6 +66,21 @@ function shuffle(arr) {
     return arr;
 }
 
+function prepareAnswers(choices) {
+    const answers = choices.filter(c => c);
+    const hasTrue = answers.some(a => /^vrai$/i.test(a));
+    const hasFalse = answers.some(a => /^faux$/i.test(a));
+    if (answers.length === 2 && hasTrue && hasFalse) {
+        const vrai = answers.find(a => /^vrai$/i.test(a));
+        const faux = answers.find(a => /^faux$/i.test(a));
+        return [vrai, faux];
+    }
+    if (answers.every(a => !isNaN(parseFloat(a)))) {
+        return answers.slice().sort((a, b) => parseFloat(a) - parseFloat(b));
+    }
+    return shuffle(answers);
+}
+
 function ce(tag, cls, text) {
     const el = document.createElement(tag);
     if (cls) el.className = cls;
@@ -175,7 +190,7 @@ function showRandomQuestion() {
         block.appendChild(imgBox);
     }
 
-    const answers = shuffle(current.choices.filter(c => c));
+    const answers = prepareAnswers(current.choices);
 
     const answerBox = ce('div', 'answer-box');
 
