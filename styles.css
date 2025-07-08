@@ -371,6 +371,10 @@ details[open] summary::before {
     cursor: pointer;
     font-size: 1.2em;
 }
+.question-icon.lightbulb-icon {
+    color: gold;
+    animation: shine 1.5s infinite alternate;
+}
 
 .image-box {
     background-color: #fff;
@@ -646,6 +650,8 @@ header {
     top: 5px;
     left: 10px;
     font-size: 2em;
+}
+.lightbulb-icon {
     color: gold;
     animation: shine 1.5s infinite alternate;
 }
