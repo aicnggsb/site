@@ -155,7 +155,8 @@ function showResults(container) {
     const historyDiv = ce('div');
     history.forEach((h, i) => {
         const block = ce('div', 'question-block ' + (h.isCorrect ? 'correct' : 'incorrect'));
-        block.appendChild(ce('span', 'question-tab', `Q${i + 1}`));
+        const qTheme = h.theme || 'Autre';
+        block.appendChild(ce('span', 'question-tab', `Q${i + 1} - ${qTheme}`));
         block.appendChild(ce('p', '', h.question));
         if (h.image) {
             const imgBox = ce('div', 'image-box');
@@ -189,7 +190,8 @@ function showRandomQuestion() {
     count++;
     container.innerHTML = '';
     const block = ce('div', 'question-block');
-    block.appendChild(ce('span', 'question-tab', `Q${count}`));
+    const themeLabel = current.theme || 'Autre';
+    block.appendChild(ce('span', 'question-tab', `Q${count} - ${themeLabel}`));
 
     const qLine = ce('div', 'question-line');
     qLine.appendChild(ce('p', '', current.question));
