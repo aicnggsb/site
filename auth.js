@@ -63,7 +63,6 @@
             if(loginBtn) loginBtn.style.display = 'none';
             const logoutBtn = document.getElementById('logout-btn');
             if(logoutBtn) logoutBtn.style.display = '';
-            redirectToClassPage(user);
             return true;
         }
         return false;
@@ -95,7 +94,6 @@
         const nav = document.querySelector('header nav ul');
         if(!nav) return;
         if(originalNav === null) originalNav = nav.innerHTML;
-        let html = '';
         if(user){
             const page = pageForClass(user.classe);
             if(page){
@@ -106,12 +104,11 @@
                     case 'SNT.html': label = 'SNT'; break;
                     default: label = 'ICN';
                 }
-                html = `<li><a href="${page}">${label}</a></li>`;
+                nav.innerHTML = `<li><a href="${page}">${label}</a></li>`;
+                return;
             }
-        }else{
-            html = '<li><a href="index.html">ICN</a></li><li><a href="techno.html">Technologie</a></li>';
         }
-        if(html) nav.innerHTML = html; else if(originalNav !== null) nav.innerHTML = originalNav;
+        if(originalNav !== null) nav.innerHTML = originalNav;
     }
 
     function updateUserInfo(){
@@ -265,7 +262,6 @@
         else badgeBtn.style.display = 'none';
         const currentUser = getUser();
         updateNavForClass(currentUser);
-        redirectToClassPage(currentUser);
     });
 
     window.auth = {login, logout, promptLogin, updateUserInfo, getUser, addPoints};
