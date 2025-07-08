@@ -56,6 +56,13 @@
         const list = document.getElementById('badge-list');
         const no = document.getElementById('no-badges');
 
+        const user = window.auth && auth.getUser();
+        if(!user){
+            no.style.display = 'block';
+            no.textContent = 'Veuillez vous connecter pour voir les badges.';
+            return;
+        }
+
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQCSH8hh-ykxl1L9joc4opVRARLGfcqi6uTW1bRXyyzsu99zo1OXuOYFwCBzxISzEjt2q3Abd9yU-NJ/pub?gid=1003065620&single=true&output=csv';
 
         try {
