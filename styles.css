@@ -567,6 +567,7 @@ header {
     align-items: center;
     justify-content: center;
     background: rgba(0, 0, 0, 0.8);
+    opacity: 0;
     animation: fadeIn 0.5s ease forwards;
     z-index: 10000;
 }
@@ -581,6 +582,7 @@ header {
     align-items: center;
     justify-content: center;
     background: rgba(0, 0, 0, 0.8);
+    opacity: 0;
     animation: fadeIn 0.5s ease forwards;
     z-index: 10000;
 }
@@ -589,11 +591,15 @@ header {
     position: relative;
     /* Slightly less transparent background */
     background: linear-gradient(to bottom, rgba(30, 144, 255, 0.5), rgba(0, 0, 0, 0.8));
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    padding: 20px 40px;
+    border: 3px solid #1e90ff;
     border-radius: 8px;
+    padding: 20px 40px;
     text-align: left;
     color: #fff;
+    box-shadow: 0 0 10px #1e90ff;
+    transform: scale(0.8);
+    opacity: 0;
+    animation: popupIn 0.5s ease forwards;
 }
 
 #info-popup .close {
@@ -607,12 +613,17 @@ header {
 #points-popup .popup-box {
     position: relative;
     background: linear-gradient(to bottom, #1e3c72, #000000);
-    padding: 20px 40px;
+    border: 3px solid #1e90ff;
     border-radius: 8px;
+    padding: 20px 40px;
     text-align: center;
     color: #fff;
     overflow: hidden; /* stars stay within the box */
     min-height: 160px;
+    box-shadow: 0 0 10px #1e90ff;
+    transform: scale(0.8);
+    opacity: 0;
+    animation: popupIn 0.5s ease forwards;
 }
 
 #points-popup .close {
@@ -667,6 +678,11 @@ header {
 @keyframes fadeOut {
     from { opacity: 1; }
     to { opacity: 0; }
+}
+
+@keyframes popupIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
 }
 
 
