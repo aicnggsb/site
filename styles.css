@@ -587,7 +587,8 @@ header {
 
 #info-popup .popup-box {
     position: relative;
-    background: rgba(30, 90, 180, 0.9);
+    background: linear-gradient(to bottom, rgba(30, 144, 255, 0.3), rgba(0, 0, 0, 0.6));
+    border: 1px solid rgba(255, 255, 255, 0.5);
     padding: 20px 40px;
     border-radius: 8px;
     text-align: left;
