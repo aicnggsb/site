@@ -194,16 +194,10 @@ function showRandomQuestion() {
     const qLine = ce('div', 'question-line');
     qLine.appendChild(ce('p', '', current.question));
     if (current.cours) {
-        const cIcon = ce('span', 'question-icon', '📖');
+        const cIcon = ce('span', 'question-icon lightbulb-icon', '💡');
         cIcon.title = 'Voir le cours';
         cIcon.addEventListener('click', () => showTextPopup(current.cours));
         qLine.appendChild(cIcon);
-    }
-    if (current.carte) {
-        const mIcon = ce('span', 'question-icon', '🗺️');
-        mIcon.title = 'Voir la carte mentale';
-        mIcon.addEventListener('click', () => showImagePopup(current.carte));
-        qLine.appendChild(mIcon);
     }
     block.appendChild(qLine);
 
