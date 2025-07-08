@@ -164,7 +164,11 @@ function showResults(container) {
         }
         block.appendChild(ce('p', '', `Votre réponse : ${h.selected}`));
         if (!h.isCorrect) block.appendChild(ce('p', '', `Bonne réponse : ${h.correct}`));
-        if (h.correction) block.appendChild(ce('p', '', `Correction : ${h.correction}`));
+        if (h.correction) {
+            const p = ce('p');
+            p.innerHTML = `Correction : ${h.correction}`;
+            block.appendChild(p);
+        }
         historyDiv.appendChild(block);
     });
     container.appendChild(historyDiv);
@@ -491,7 +495,9 @@ function showTextPopup(text) {
     close.innerHTML = '&times;';
     close.addEventListener('click', () => overlay.remove());
     box.appendChild(close);
-    box.appendChild(ce('p', '', text));
+    const content = ce('div');
+    content.innerHTML = text;
+    box.appendChild(content);
     overlay.appendChild(box);
     document.body.appendChild(overlay);
 }
