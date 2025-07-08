@@ -397,7 +397,10 @@ function showStarAnimation(points, bonus = false) {
 
     const close = ce('span', 'close');
     close.innerHTML = '&times;';
-    close.addEventListener('click', () => overlay.remove());
+    close.addEventListener('click', () => {
+        overlay.classList.add('fade-out');
+        overlay.addEventListener('animationend', () => overlay.remove(), {once: true});
+    });
 
     const message = ce('p', 'points-text', `Vous avez gagné ${points} points !`);
 
@@ -488,7 +491,10 @@ function showTextPopup(text) {
     const icon = ce('span', 'lightbulb-icon', '💡');
     const close = ce('span', 'close');
     close.innerHTML = '&times;';
-    close.addEventListener('click', () => overlay.remove());
+    close.addEventListener('click', () => {
+        overlay.classList.add('fade-out');
+        overlay.addEventListener('animationend', () => overlay.remove(), {once: true});
+    });
     box.appendChild(close);
     box.appendChild(icon);
     const content = ce('div');
@@ -504,7 +510,10 @@ function showImagePopup(src) {
     const box = ce('div', 'popup-box');
     const close = ce('span', 'close');
     close.innerHTML = '&times;';
-    close.addEventListener('click', () => overlay.remove());
+    close.addEventListener('click', () => {
+        overlay.classList.add('fade-out');
+        overlay.addEventListener('animationend', () => overlay.remove(), {once: true});
+    });
     const img = imgElem(src);
     box.appendChild(close);
     box.appendChild(img);

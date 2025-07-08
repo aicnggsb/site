@@ -587,7 +587,8 @@ header {
 
 #info-popup .popup-box {
     position: relative;
-    background: linear-gradient(to bottom, rgba(30, 144, 255, 0.3), rgba(0, 0, 0, 0.6));
+    /* Slightly less transparent background */
+    background: linear-gradient(to bottom, rgba(30, 144, 255, 0.5), rgba(0, 0, 0, 0.8));
     border: 1px solid rgba(255, 255, 255, 0.5);
     padding: 20px 40px;
     border-radius: 8px;
@@ -655,6 +656,16 @@ header {
 .lightbulb-icon {
     color: gold;
     animation: shine 1.5s infinite alternate;
+}
+
+/* Fade-out animation for the course popup */
+#info-popup.fade-out {
+    animation: fadeOut 0.5s ease forwards;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
 }
 
 
