@@ -23,23 +23,35 @@
         }
     }
     async function loadUsers(){
-        const res = await fetch(SHEET_URL + '&t=' + Date.now());
-        const text = await res.text();
-        const lines = text.trim().split(/\n+/).slice(1);
-        users = lines.map(l => {
-            const [classe, pseudo, pass, score, badges] = l.split(',');
-            return {
-                classe: (classe||'').trim(),
-                pseudo: pseudo.trim(),
-                pass: (pass||'').trim(),
-                score: parseInt(score,10)||0,
-                badges: (badges||'').trim()
-            };
-        });
+        try {
+            const res = await fetch(SHEET_URL + '&t=' + Date.now());
+            const text = await res.text();
+            const lines = text.trim().split(/\n+/).slice(1);
+            users = lines.map(l => {
+                const [classe, pseudo, pass, score, badges] = l.split(',');
+                return {
+                    classe: (classe||'').trim(),
+                    pseudo: pseudo.trim(),
+                    pass: (pass||'').trim(),
+                    score: parseInt(score,10)||0,
+                    badges: (badges||'').trim()
+                };
+            });
+        } catch(e) {
+            console.error('Failed to load users', e);
+            throw e;
+        }
     }
 
     async function login(pseudo, pass){
-        if(!users) await loadUsers();
+        if(!users){
+            try {
+                await loadUsers();
+            } catch(e) {
+                alert('Impossible de v\u00e9rifier vos identifiants. Veuillez v\u00e9rifier votre connexion internet.');
+                return false;
+            }
+        }
         const user = users.find(u => u.pseudo===pseudo && u.pass===pass);
         if(user){
             localStorage.setItem('pseudo', user.pseudo);
