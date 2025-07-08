@@ -359,6 +359,19 @@ details[open] summary::before {
     height: auto;
 }
 
+.question-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.question-icon {
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
 .image-box {
     background-color: #fff;
     padding: 10px;
@@ -552,6 +565,37 @@ header {
     background: rgba(0, 0, 0, 0.8);
     animation: fadeIn 0.5s ease forwards;
     z-index: 10000;
+}
+
+#info-popup {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.8);
+    animation: fadeIn 0.5s ease forwards;
+    z-index: 10000;
+}
+
+#info-popup .popup-box {
+    position: relative;
+    background: #222;
+    padding: 20px 40px;
+    border-radius: 8px;
+    text-align: center;
+    color: #fff;
+}
+
+#info-popup .close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 1.5em;
 }
 
 #points-popup .popup-box {

@@ -17,7 +17,9 @@ async function fetchQCM() {
                 image: r[3] || '',
                 choices: [r[4], r[5], r[6]].filter(Boolean),
                 answer: r[4] || '',
-                correction: r[7] || ''
+                correction: r[7] || '',
+                cours: r[8] || '',
+                carte: r[9] || ''
             }))
             .filter(q => q.question);
     } catch (e) {
@@ -29,7 +31,9 @@ async function fetchQCM() {
             choices: q.choices,
             answer: q.answer,
             correction: q.correction || '',
-            image: q.image || ''
+            image: q.image || '',
+            cours: q.cours || '',
+            carte: q.carte || ''
         }));
     }
 }
@@ -182,7 +186,22 @@ function showRandomQuestion() {
     container.innerHTML = '';
     const block = ce('div', 'question-block');
     block.appendChild(ce('span', 'question-tab', `Q${count}`));
-    block.appendChild(ce('p', '', current.question));
+
+    const qLine = ce('div', 'question-line');
+    qLine.appendChild(ce('p', '', current.question));
+    if (current.cours) {
+        const cIcon = ce('span', 'question-icon', '📖');
+        cIcon.title = 'Voir le cours';
+        cIcon.addEventListener('click', () => showTextPopup(current.cours));
+        qLine.appendChild(cIcon);
+    }
+    if (current.carte) {
+        const mIcon = ce('span', 'question-icon', '🗺️');
+        mIcon.title = 'Voir la carte mentale';
+        mIcon.addEventListener('click', () => showImagePopup(current.carte));
+        qLine.appendChild(mIcon);
+    }
+    block.appendChild(qLine);
 
     if (current.image) {
         const imgBox = ce('div', 'image-box');
@@ -462,4 +481,31 @@ function flyStar(fromElem) {
         target.classList.add('hit');
         target.addEventListener('animationend', () => target.classList.remove('hit'), {once: true});
     });
+}
+
+function showTextPopup(text) {
+    const overlay = ce('div');
+    overlay.id = 'info-popup';
+    const box = ce('div', 'popup-box');
+    const close = ce('span', 'close');
+    close.innerHTML = '&times;';
+    close.addEventListener('click', () => overlay.remove());
+    box.appendChild(close);
+    box.appendChild(ce('p', '', text));
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+}
+
+function showImagePopup(src) {
+    const overlay = ce('div');
+    overlay.id = 'info-popup';
+    const box = ce('div', 'popup-box');
+    const close = ce('span', 'close');
+    close.innerHTML = '&times;';
+    close.addEventListener('click', () => overlay.remove());
+    const img = imgElem(src);
+    box.appendChild(close);
+    box.appendChild(img);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
 }
