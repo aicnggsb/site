@@ -583,10 +583,10 @@ header {
 
 #info-popup .popup-box {
     position: relative;
-    background: #222;
+    background: rgba(30, 90, 180, 0.9);
     padding: 20px 40px;
     border-radius: 8px;
-    text-align: center;
+    text-align: left;
     color: #fff;
 }
 
@@ -639,6 +639,15 @@ header {
 @keyframes shine {
     from { filter: drop-shadow(0 0 5px gold); }
     to { filter: drop-shadow(0 0 15px gold); }
+}
+
+#info-popup .lightbulb-icon {
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    font-size: 2em;
+    color: gold;
+    animation: shine 1.5s infinite alternate;
 }
 
 
