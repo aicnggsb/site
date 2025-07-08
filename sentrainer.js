@@ -491,10 +491,12 @@ function showTextPopup(text) {
     const overlay = ce('div');
     overlay.id = 'info-popup';
     const box = ce('div', 'popup-box');
+    const icon = ce('span', 'lightbulb-icon', '💡');
     const close = ce('span', 'close');
     close.innerHTML = '&times;';
     close.addEventListener('click', () => overlay.remove());
     box.appendChild(close);
+    box.appendChild(icon);
     const content = ce('div');
     content.innerHTML = text;
     box.appendChild(content);
