@@ -606,7 +606,7 @@ header {
 
 #points-popup .popup-box {
     position: relative;
-    background: #222;
+    background: linear-gradient(to bottom, #1e3c72, #000000);
     padding: 20px 40px;
     border-radius: 8px;
     text-align: center;
@@ -658,7 +658,8 @@ header {
     animation: shine 1.5s infinite alternate;
 }
 
-/* Fade-out animation for the course popup */
+/* Fade-out animation for the popups */
+#points-popup.fade-out,
 #info-popup.fade-out {
     animation: fadeOut 0.5s ease forwards;
 }
