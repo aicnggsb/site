@@ -27,10 +27,6 @@
             height: 80px;
             object-fit: contain;
         }
-        .badge-count {
-            margin-top: 5px;
-            color: #fff;
-        }
     </style>
 </head>
 <body>
@@ -52,7 +48,7 @@
         <p id="no-badges" style="display:none; text-align:center;">Aucun badge pour le moment.</p>
     </main>
     <script>
-    document.addEventListener('DOMContentLoaded', async () => {
+    document.addEventListener('DOMContentLoaded', () => {
         const list = document.getElementById('badge-list');
         const no = document.getElementById('no-badges');
 
@@ -63,49 +59,23 @@
             return;
         }
 
-        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQCSH8hh-ykxl1L9joc4opVRARLGfcqi6uTW1bRXyyzsu99zo1OXuOYFwCBzxISzEjt2q3Abd9yU-NJ/pub?gid=1003065620&single=true&output=csv';
-
-        try {
-            const res = await fetch(SHEET_URL + '&t=' + Date.now());
-            const text = await res.text();
-            const lines = text.trim().split(/\n+/).slice(1);
-            const counts = {};
-            lines.forEach(l => {
-                const parts = l.split(',');
-                const badges = (parts[4] || '').trim();
-                badges.split(/\s+/).forEach(b => {
-                    if(!b) return;
-                    counts[b] = (counts[b] || 0) + 1;
-                });
-            });
-
-            const names = Object.keys(counts).sort();
-            if(!names.length){
-                no.style.display = 'block';
-                return;
-            }
-
-            names.forEach(name => {
-                const box = document.createElement('div');
-                box.className = 'badge-box';
-
-                const img = document.createElement('img');
-                img.src = 'photos/' + name;
-                img.alt = name;
-
-                const info = document.createElement('div');
-                info.className = 'badge-count';
-                const count = counts[name];
-                info.textContent = count + ' personne' + (count > 1 ? 's' : '');
-
-                box.appendChild(img);
-                box.appendChild(info);
-                list.appendChild(box);
-            });
-        } catch(e){
+        const badges = (user.badges || '').trim().split(/\s+/).filter(b => b);
+        if(!badges.length){
             no.style.display = 'block';
-            no.textContent = 'Impossible de charger les badges.';
+            return;
         }
+
+        badges.forEach(name => {
+            const box = document.createElement('div');
+            box.className = 'badge-box';
+
+            const img = document.createElement('img');
+            img.src = 'photos/' + name;
+            img.alt = name;
+
+            box.appendChild(img);
+            list.appendChild(box);
+        });
     });
     </script>
     <script src="auth.js"></script>
