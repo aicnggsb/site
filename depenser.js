@@ -48,6 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
             imgBox.appendChild(imgElem(r.image));
             box.appendChild(imgBox);
 
+            const details = ce('div', 'reward-details');
+
             const progC = ce('div', 'progress-container');
             const bar = ce('div', 'progress-bar');
             const inner = ce('div', 'progress-bar-inner');
@@ -55,11 +57,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const info = ce('p');
             progC.appendChild(bar);
             progC.appendChild(info);
-            box.appendChild(progC);
+            details.appendChild(progC);
 
             const btn = ce('button', 'quiz-btn', 'Acheter');
             btn.addEventListener('click', () => spend(r));
-            box.appendChild(btn);
+            details.appendChild(btn);
+
+            box.appendChild(details);
 
             boxes.push({ reward: r, inner, btn, info });
             section.appendChild(box);
