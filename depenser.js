@@ -60,8 +60,23 @@ document.addEventListener('DOMContentLoaded', () => {
         boxes.forEach(b => {
             const pct = Math.min(100, Math.floor(u.score / b.reward.cost * 100));
             b.inner.style.width = pct + '%';
+
+            const ratio = pct / 100;
+            const r = Math.round(255 * (1 - ratio));
+            const g = Math.round(255 * ratio);
+            b.inner.style.backgroundColor = `rgb(${r}, ${g}, 0)`;
+
             b.info.textContent = `${Math.min(u.score, b.reward.cost)}/${b.reward.cost} ⭐`;
-            b.btn.disabled = u.score < b.reward.cost;
+
+            if (u.score >= b.reward.cost) {
+                b.btn.textContent = 'Acheter';
+                b.btn.disabled = false;
+                b.btn.classList.remove('unavailable');
+            } else {
+                b.btn.textContent = 'non disponible';
+                b.btn.disabled = true;
+                b.btn.classList.add('unavailable');
+            }
         });
     }
 
