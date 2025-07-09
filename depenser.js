@@ -40,14 +40,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const bar = ce('div', 'progress-bar');
             const inner = ce('div', 'progress-bar-inner');
             bar.appendChild(inner);
+            const info = ce('p');
             progC.appendChild(bar);
+            progC.appendChild(info);
             box.appendChild(progC);
 
             const btn = ce('button', 'quiz-btn', 'Acheter');
             btn.addEventListener('click', () => spend(r));
             box.appendChild(btn);
 
-            boxes.push({ reward: r, inner, btn });
+            boxes.push({ reward: r, inner, btn, info });
             section.appendChild(box);
         });
         update();
@@ -58,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         boxes.forEach(b => {
             const pct = Math.min(100, Math.floor(u.score / b.reward.cost * 100));
             b.inner.style.width = pct + '%';
+            b.info.textContent = `${Math.min(u.score, b.reward.cost)}/${b.reward.cost} ⭐`;
             b.btn.disabled = u.score < b.reward.cost;
         });
     }
