@@ -313,6 +313,13 @@ function showFilterSelection() {
 
     questionBox.appendChild(countBox);
 
+    const bonusInfo = ce(
+        'p',
+        'bonus-info',
+        'Points doublés si tous les thèmes sont cochés et si vous faites 100 % de bonnes réponses.'
+    );
+    questionBox.appendChild(bonusInfo);
+
     function updateAvailableCount() {
         const selectedThemes = Array.from(themeBox.querySelectorAll('input[type="checkbox"]'))
             .filter(cb => cb.checked)
