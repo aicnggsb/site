@@ -465,6 +465,11 @@ details[open] summary::before {
     height: 100%;
 }
 
+.progress-container p {
+    margin: 5px 0 0;
+    text-align: center;
+}
+
 
 header {
     position: relative;
