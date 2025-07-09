@@ -95,11 +95,17 @@
         if(!nav) return;
         if(originalNav === null) originalNav = nav.innerHTML;
         if(user){
+            const c = (user.classe || '').toUpperCase();
+            if(c === '6E'){
+                nav.innerHTML =
+                    '<li><a href="revision6E.html">Gagner des étoiles</a></li>' +
+                    '<li><a href="depenser.html">Dépenser ses étoiles</a></li>';
+                return;
+            }
             const page = pageForClass(user.classe);
             if(page){
                 let label = '';
                 switch(page){
-                    case 'revision6E.html': label = 'Révision 6E'; break;
                     case 'techno.html': label = 'Technologie'; break;
                     case 'SNT.html': label = 'SNT'; break;
                     default: label = 'ICN';
