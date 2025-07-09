@@ -456,6 +456,14 @@ details[open] summary::before {
     color: #fff;
 }
 
+.bonus-info {
+    font-size: 0.9em;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    color: #fff;
+    text-align: center;
+}
+
 /* Barres de progression pour le bilan du QCM */
 .progress-container {
     margin-bottom: 10px;
