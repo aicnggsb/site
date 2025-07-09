@@ -366,6 +366,13 @@ details[open] summary::before {
     height: auto;
 }
 
+.reward-image {
+    display: block;
+    margin: 0 auto 10px;
+    max-width: 150px;
+    height: auto;
+}
+
 .question-line {
     display: flex;
     align-items: center;
