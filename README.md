@@ -57,3 +57,7 @@ sélectionnée jusqu'à l'icône de score pour symboliser les points gagnés.
 Si toutes les réponses sont correctes, les points remportés sont doublés et
 l'animation affiche des étoiles brillantes en plus grand nombre. Les étoiles
 qui tombent rebondissent également entre elles pour un rendu plus vivant.
+
+## Dépenser ses étoiles
+
+Les élèves de 6E disposent d'une page spéciale `depenser.html` pour convertir leurs étoiles en récompenses virtuelles. Un clic permet d'échanger 1000 étoiles contre 1000 Vbucks ou 800 étoiles contre 800 Robux. Lors de la conversion, un montant négatif est envoyé dans la feuille d'historique afin de tracer les dépenses.
