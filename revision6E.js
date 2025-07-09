@@ -110,11 +110,15 @@ let history = [];
 let pseudo = '';
 const HIGHLIGHT_DELAY = 1000; // temps avant la question suivante
 let pointsAwarded = false; // évite un ajout multiple de points
+let allThemesSelectedAtStart = false; // indique si tous les thèmes étaient cochés
 
 function showResults(container) {
     const percent = count ? Math.round((score / count) * 100) : 0;
-    const bonus = percent === 100;
-    const bonusText = bonus ? ' - Score parfait ! Points doublés !' : '';
+    const noError = percent === 100;
+    const bonus = noError && allThemesSelectedAtStart;
+    const bonusText = bonus
+        ? ' - Score parfait ! Points doublés !'
+        : (noError ? ' - Score parfait !' : '');
     container.innerHTML = `<p>Quiz terminé ! Score : ${score} / ${count} (${percent}%)${bonusText}</p>`;
     if (!(window.auth && typeof auth.getUser === 'function' && auth.getUser())) {
         sendScore();
@@ -330,6 +334,9 @@ function showFilterSelection() {
     const start = ce('button', 'quiz-btn', 'Commencer le test');
     start.addEventListener('click', () => {
         pointsAwarded = false;
+        allThemesSelectedAtStart =
+            themeBox.querySelectorAll('input[type="checkbox"]:checked').length ===
+            themeBox.querySelectorAll('input[type="checkbox"]').length;
         const selectedThemes = Array.from(themeBox.querySelectorAll('input[type=checkbox]'))
             .filter(cb => cb.checked)
             .map(cb => cb.value);
