@@ -115,15 +115,19 @@ let allThemesSelectedAtStart = false; // indique si tous les thèmes étaient co
 function showResults(container) {
     const percent = count ? Math.round((score / count) * 100) : 0;
     const noError = percent === 100;
-    const bonus = noError && allThemesSelectedAtStart;
+    let multiplier = 1;
+    if (noError && allThemesSelectedAtStart) {
+        multiplier = count > 10 ? 3 : 2;
+    }
+    const bonus = multiplier > 1;
     const bonusText = bonus
-        ? ' - Score parfait ! Points doublés !'
+        ? ` - Score parfait ! Points ${multiplier === 3 ? 'triplés' : 'doublés'} !`
         : (noError ? ' - Score parfait !' : '');
     container.innerHTML = `<p>Quiz terminé ! Score : ${score} / ${count} (${percent}%)${bonusText}</p>`;
     if (!(window.auth && typeof auth.getUser === 'function' && auth.getUser())) {
         sendScore();
     }
-    showStarAnimation(bonus ? score * 2 : score, bonus);
+    showStarAnimation(score * multiplier, bonus);
 
     const results = history.reduce((acc, h) => {
         const t = h.theme || 'Autre';
@@ -284,7 +288,8 @@ function showFilterSelection() {
     const container = document.getElementById('quiz-container');
     container.innerHTML = '';
 
-    const infoText = "Cet espace vous permet de vous entra\u00eener et de v\u00e9rifier vos acquis en technologie. Utilisez les filtres ci-dessous pour g\u00e9n\u00e9rer un quiz personnalis\u00e9 selon votre niveau et les comp\u00e9tences vis\u00e9es.";
+    const infoText =
+        "Cet espace vous permet de vous entra\u00eener et de v\u00e9rifier vos acquis en technologie. R\u00e9pondez correctement aux questions pour gagner des \u00e9toiles que vous pourrez d\u00e9penser en Vbucks ou en Robux. Utilisez les filtres ci-dessous pour g\u00e9n\u00e9rer un quiz personnalis\u00e9 selon votre niveau et les comp\u00e9tences vis\u00e9es.";
     container.appendChild(createInfoBox(infoText));
 
     const themes = [...new Set(allQuestions.map(q => q.theme || 'Autre'))];
@@ -316,7 +321,7 @@ function showFilterSelection() {
     const bonusInfo = ce(
         'p',
         'bonus-info',
-        'Points doublés si tous les thèmes sont cochés et si vous faites 100 % de bonnes réponses.'
+        'Points doubl\u00e9s si tous les th\u00e8mes sont coch\u00e9s et si vous faites 100 % de bonnes r\u00e9ponses. Si vous choisissez plus de 10 questions et r\u00e9ussissez tout, les points sont tripl\u00e9s !'
     );
     questionBox.appendChild(bonusInfo);
 
