@@ -315,6 +315,13 @@ details[open] summary::before {
 
 .quiz-btn { margin: 5px; padding: 5px 10px; border: 1px solid #fff; border-radius: 5px; background:#1e90ff; color:#fff; }
 .quiz-btn:hover { background:#0000ff; }
+.quiz-btn.unavailable {
+    background: linear-gradient(to bottom, darkred, black);
+    cursor: not-allowed;
+}
+.quiz-btn.unavailable:hover {
+    background: linear-gradient(to bottom, darkred, black);
+}
 
 .question-block {
     position: relative;
