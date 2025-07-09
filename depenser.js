@@ -15,8 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const rewards = [
-        { cost: 1000, label: 'Vbucks' },
-        { cost: 800, label: 'Robux' }
+        { cost: 1000, label: 'Vbucks', image: 'vbucks.png' },
+        { cost: 800, label: 'Robux', image: 'robux.png' }
     ];
 
     const section = document.getElementById('spend-section');
@@ -28,6 +28,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return el;
     };
 
+    function imgElem(src) {
+        if (!src.includes('/')) src = 'photos/' + src;
+        const img = ce('img', 'reward-image');
+        img.src = src;
+        img.alt = '';
+        return img;
+    }
+
     const boxes = [];
 
     function render() {
@@ -35,6 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
         rewards.forEach(r => {
             const box = ce('div', 'filter-box reward-box');
             box.appendChild(ce('span', 'filter-tab', `${r.cost} ⭐ → ${r.cost} ${r.label}`));
+
+            const imgBox = ce('div', 'image-box');
+            imgBox.appendChild(imgElem(r.image));
+            box.appendChild(imgBox);
 
             const progC = ce('div', 'progress-container');
             const bar = ce('div', 'progress-bar');
