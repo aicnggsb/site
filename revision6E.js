@@ -117,7 +117,11 @@ function showResults(container) {
     const noError = percent === 100;
     let multiplier = 1;
     if (noError && allThemesSelectedAtStart) {
-        multiplier = count > 10 ? 3 : 2;
+        if (count >= 10) {
+            multiplier = 3;
+        } else if (count >= 5) {
+            multiplier = 2;
+        }
     }
     const bonus = multiplier > 1;
     const bonusText = bonus
@@ -321,7 +325,7 @@ function showFilterSelection() {
     const bonusInfo = ce(
         'p',
         'bonus-info',
-        'Points doubl\u00e9s si tous les th\u00e8mes sont coch\u00e9s et si vous faites 100 % de bonnes r\u00e9ponses. Si vous choisissez plus de 10 questions et r\u00e9ussissez tout, les points sont tripl\u00e9s !'
+        '5 questions avec tous les th\u00e8mes coch\u00e9s et 100 % de r\u00e9ussite : points doubl\u00e9s. 10 questions avec tous les th\u00e8mes coch\u00e9s et 100 % de bonnes r\u00e9ponses : points tripl\u00e9s.'
     );
     questionBox.appendChild(bonusInfo);
 
