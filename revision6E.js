@@ -111,12 +111,17 @@ let pseudo = '';
 const HIGHLIGHT_DELAY = 1000; // temps avant la question suivante
 let pointsAwarded = false; // évite un ajout multiple de points
 let allThemesSelectedAtStart = false; // indique si tous les thèmes étaient cochés
+let challengeActive = false;
+let challengeTheme = '';
+let previousMaxQuestions = 5;
 
 function showResults(container) {
     const percent = count ? Math.round((score / count) * 100) : 0;
     const noError = percent === 100;
     let multiplier = 1;
-    if (noError && allThemesSelectedAtStart) {
+    if (challengeActive && noError && count === 5) {
+        multiplier = 3;
+    } else if (noError && allThemesSelectedAtStart) {
         if (count >= 10) {
             multiplier = 3;
         } else if (count >= 5) {
@@ -132,6 +137,10 @@ function showResults(container) {
         sendScore();
     }
     showStarAnimation(score * multiplier, bonus);
+    if (challengeActive) {
+        challengeActive = false;
+        maxQuestions = previousMaxQuestions;
+    }
 
     const results = history.reduce((acc, h) => {
         const t = h.theme || 'Autre';
@@ -289,6 +298,8 @@ function createFilterBox(title, values) {
 const createInfoBox = text => ce('div', 'info-box', text);
 
 function showFilterSelection() {
+    challengeActive = false;
+    maxQuestions = 5;
     const container = document.getElementById('quiz-container');
     container.innerHTML = '';
 
@@ -373,6 +384,8 @@ function showFilterSelection() {
     container.appendChild(themeBox);
     container.appendChild(questionBox);
     container.appendChild(start);
+
+    offerChallenge(themes);
 }
 
 function showLogin() {
@@ -540,6 +553,50 @@ function showImagePopup(src) {
     const img = imgElem(src);
     box.appendChild(close);
     box.appendChild(img);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+}
+
+function offerChallenge(themes) {
+    if (Math.random() >= 0.3 || !themes.length) return;
+    const theme = themes[Math.floor(Math.random() * themes.length)];
+    const overlay = ce('div');
+    overlay.id = 'challenge-popup';
+    const box = ce('div', 'popup-box');
+    const close = ce('span', 'close');
+    close.innerHTML = '&times;';
+    const icon = ce('span', 'challenge-icon', '🏆');
+    const msg = ce('p', '', `Challenge : réussis cette série de 5 questions sur le thème ${theme} et triple les points !`);
+    const accept = ce('button', 'quiz-btn', 'Accepter');
+    const refuse = ce('button', 'quiz-btn', 'Refuser');
+
+    function remove() {
+        overlay.classList.add('fade-out');
+        overlay.addEventListener('animationend', () => overlay.remove(), { once: true });
+    }
+
+    accept.addEventListener('click', () => {
+        remove();
+        challengeActive = true;
+        challengeTheme = theme;
+        previousMaxQuestions = maxQuestions;
+        maxQuestions = 5;
+        pointsAwarded = false;
+        questions = shuffle(allQuestions.filter(q => (q.theme || 'Autre') === theme)).slice(0, 5);
+        score = 0;
+        count = 0;
+        history = [];
+        showRandomQuestion();
+    });
+
+    refuse.addEventListener('click', remove);
+    close.addEventListener('click', remove);
+
+    box.appendChild(close);
+    box.appendChild(icon);
+    box.appendChild(msg);
+    box.appendChild(accept);
+    box.appendChild(refuse);
     overlay.appendChild(box);
     document.body.appendChild(overlay);
 }
