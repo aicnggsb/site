@@ -5,33 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mes badges</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        #badge-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            padding: 20px;
-        }
-        .badge-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: linear-gradient(to bottom, rgba(30, 144, 255, 0.3), rgba(0, 0, 0, 0.6));
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            border-radius: 8px;
-            padding: 10px;
-        }
-        .badge-box img {
-            width: 80px;
-            height: 80px;
-            object-fit: contain;
-        }
-        .badge-count {
-            margin-top: 5px;
-            color: #fff;
-        }
-    </style>
 </head>
 <body>
     <header>
@@ -48,8 +21,11 @@
         </nav>
     </header>
     <main>
-        <div id="badge-list"></div>
-        <p id="no-badges" style="display:none; text-align:center;">Aucun badge pour le moment.</p>
+        <section class="description-ateliers badge-section">
+            <h2>Vos badges</h2>
+            <div id="badge-list" class="badge-grid"></div>
+            <p id="no-badges" class="no-badges">Aucun badge pour le moment.</p>
+        </section>
     </main>
     <script>
     document.addEventListener('DOMContentLoaded', async () => {
@@ -87,13 +63,18 @@
 
         names.forEach(name => {
             const box = document.createElement('div');
-            box.className = 'badge-box';
+            box.className = 'badge-item';
 
             const img = document.createElement('img');
             img.src = 'photos/' + name;
             img.alt = name;
 
+            const caption = document.createElement('div');
+            caption.className = 'badge-name';
+            caption.textContent = name.replace(/\.[^/.]+$/, '');
+
             box.appendChild(img);
+            box.appendChild(caption);
             list.appendChild(box);
         });
     });
