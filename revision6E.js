@@ -243,6 +243,7 @@ function showRandomQuestion() {
             const correct = choice === current.answer;
             if (correct) {
                 score++;
+                if (Math.random() < 0.9) dropOtherChoices(btn);
             }
             history.push({
                 question: current.question,
@@ -518,8 +519,53 @@ function flyStar(fromElem) {
     star.addEventListener('transitionend', () => {
         star.remove();
         target.classList.add('hit');
-        target.addEventListener('animationend', () => target.classList.remove('hit'), {once: true});
+    target.addEventListener('animationend', () => target.classList.remove('hit'), {once: true});
     });
+}
+
+function dropOtherChoices(clicked) {
+    const box = clicked.parentElement;
+    box.style.position = 'relative';
+    const rect = box.getBoundingClientRect();
+    const others = Array.from(box.querySelectorAll('button')).filter(b => b !== clicked);
+    const items = others.map(btn => {
+        const r = btn.getBoundingClientRect();
+        const state = {
+            el: btn,
+            x: r.left - rect.left,
+            y: r.top - rect.top,
+            vx: (Math.random() - 0.5) * 2,
+            vy: 0,
+            bounce: 0.4 + Math.random() * 0.4
+        };
+        btn.style.position = 'absolute';
+        btn.style.left = state.x + 'px';
+        btn.style.top = state.y + 'px';
+        return state;
+    });
+
+    function animate() {
+        items.forEach(s => {
+            s.vy += 0.6;
+            s.x += s.vx;
+            s.y += s.vy;
+            const w = s.el.offsetWidth;
+            const h = s.el.offsetHeight;
+            if (s.x <= 0) { s.x = 0; s.vx *= -s.bounce; }
+            if (s.x + w >= rect.width) { s.x = rect.width - w; s.vx *= -s.bounce; }
+            if (s.y + h >= rect.height) { s.y = rect.height - h; s.vy *= -s.bounce; }
+        });
+
+        items.forEach(s => {
+            s.el.style.left = s.x + 'px';
+            s.el.style.top = s.y + 'px';
+        });
+
+        if (items.some(s => Math.abs(s.vy) > 0.5 || s.y + s.el.offsetHeight < rect.height)) {
+            requestAnimationFrame(animate);
+        }
+    }
+    if (items.length) requestAnimationFrame(animate);
 }
 
 function showTextPopup(text) {
