@@ -28,13 +28,26 @@
             const text = await res.text();
             const lines = text.trim().split(/\n+/).slice(1);
             users = lines.map(l => {
-                const [classe, pseudo, pass, score, badges] = l.split(',');
+                const parts = l.split(',');
+                const [classe, pseudo, pass, score] = parts;
+                const badgeVals = parts.slice(4);
+                const badgeNames = [
+                    'BadgeScore10.png',
+                    'BadgeScore100.png',
+                    'BadgeScore500.png',
+                    'BadgeScore1000.png'
+                ];
+                const badges = [];
+                badgeVals.forEach((v, idx) => {
+                    const num = parseFloat((v || '').replace(/[^0-9.-]/g, '')) || 0;
+                    if (num >= 100) badges.push(badgeNames[idx]);
+                });
                 return {
-                    classe: (classe||'').trim(),
-                    pseudo: pseudo.trim(),
-                    pass: (pass||'').trim(),
-                    score: parseInt(score,10)||0,
-                    badges: (badges||'').trim()
+                    classe: (classe || '').trim(),
+                    pseudo: (pseudo || '').trim(),
+                    pass: (pass || '').trim(),
+                    score: parseInt(score, 10) || 0,
+                    badges: badges.join(' ')
                 };
             });
         } catch(e) {
