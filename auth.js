@@ -22,33 +22,55 @@
             location.href = target;
         }
     }
+    function parseCSV(text){
+        const rows = [];
+        let cur = '', row = [], inQuotes = false;
+        for(let i=0;i<text.length;i++){
+            const c = text[i];
+            if(inQuotes){
+                if(c==='"'){
+                    if(text[i+1]==='"'){ cur+='"'; i++; }
+                    else inQuotes=false;
+                } else cur+=c;
+            } else {
+                if(c==='"') inQuotes=true;
+                else if(c===','){ row.push(cur); cur=''; }
+                else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
+                else if(c!=='\r') cur+=c;
+            }
+        }
+        if(cur || row.length) row.push(cur);
+        if(row.length) rows.push(row);
+        return rows;
+    }
+
     async function loadUsers(){
         try {
             const res = await fetch(SHEET_URL + '&t=' + Date.now());
-            const text = await res.text();
-            const lines = text.trim().split(/\n+/).slice(1);
-            users = lines.map(l => {
-                const parts = l.split(',');
-                const [classe, pseudo, pass, score] = parts;
-                const badgeVals = parts.slice(4);
-                const badgeNames = [
-                    'BadgeScore10.png',
-                    'BadgeScore100.png',
-                    'BadgeScore500.png',
-                    'BadgeScore1000.png'
-                ];
+            const rows = parseCSV(await res.text());
+            if(!rows.length) throw new Error('no data');
+            const header = rows.shift().map(h => h.trim());
+            const idx = name => header.findIndex(h => h.toLowerCase() === name.toLowerCase());
+            const badgeNames = [
+                'BadgeScore10.png',
+                'BadgeScore100.png',
+                'BadgeScore500.png',
+                'BadgeScore1000.png'
+            ];
+            const badgeIdx = badgeNames.map(n => idx(n));
+
+            users = rows.map(r => {
+                const classe = (r[idx('Classe')] || '').trim();
+                const pseudo = (r[idx('pseudo')] || '').trim();
+                const pass = (r[idx('mot de passe')] || '').trim();
+                const score = parseInt(r[idx('score')] || '0', 10) || 0;
                 const badges = [];
-                badgeVals.forEach((v, idx) => {
-                    const num = parseFloat((v || '').replace(/[^0-9.-]/g, '')) || 0;
-                    if (num >= 100) badges.push(badgeNames[idx]);
+                badgeIdx.forEach((i, bIdx) => {
+                    if(i === -1) return;
+                    const num = parseFloat((r[i] || '').replace(/[^0-9.-]/g,'')) || 0;
+                    if(num >= 100) badges.push(badgeNames[bIdx]);
                 });
-                return {
-                    classe: (classe || '').trim(),
-                    pseudo: (pseudo || '').trim(),
-                    pass: (pass || '').trim(),
-                    score: parseInt(score, 10) || 0,
-                    badges: badges.join(' ')
-                };
+                return {classe, pseudo, pass, score, badges: badges.join(' ')};
             });
         } catch(e) {
             console.error('Failed to load users', e);
