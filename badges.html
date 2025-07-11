@@ -92,32 +92,35 @@
         let userBadges = (user.badges || '').trim();
         try {
             const res = await fetch(USER_SHEET_URL + '&t=' + Date.now());
-            const text = await res.text();
-            const lines = text.trim().split(/\n+/).slice(1);
-            badgeCounts = {};
-            lines.forEach(line => {
-                const parts = line.split(',');
-                const [classe, pseudo, pass, score] = parts;
-                const badgeVals = parts.slice(4);
+            const rows = parseCSV(await res.text());
+            if(rows.length){
+                const header = rows.shift().map(h => h.trim());
+                const idx = name => header.findIndex(h => h.toLowerCase() === name.toLowerCase());
                 const badgeNames = [
                     'BadgeScore10.png',
                     'BadgeScore100.png',
                     'BadgeScore500.png',
                     'BadgeScore1000.png'
                 ];
-                const bnames = [];
-                badgeVals.forEach((v, idx) => {
-                    const num = parseFloat((v || '').replace(/[^0-9.-]/g, '')) || 0;
-                    if (num >= 100) bnames.push(badgeNames[idx]);
+                const badgeIdx = badgeNames.map(n => idx(n));
+                badgeCounts = {};
+                rows.forEach(row => {
+                    const pseudo = (row[idx('pseudo')] || '').trim();
+                    const bnames = [];
+                    badgeIdx.forEach((i, bIdx) => {
+                        if(i === -1) return;
+                        const num = parseFloat((row[i] || '').replace(/[^0-9.-]/g,'')) || 0;
+                        if(num >= 100) bnames.push(badgeNames[bIdx]);
+                    });
+                    if (pseudo === user.pseudo) {
+                        userBadges = bnames.join(' ');
+                        localStorage.setItem('userBadges', userBadges);
+                    }
+                    bnames.forEach(n => {
+                        badgeCounts[n] = (badgeCounts[n] || 0) + 1;
+                    });
                 });
-                if ((pseudo || '').trim() === user.pseudo) {
-                    userBadges = bnames.join(' ');
-                    localStorage.setItem('userBadges', userBadges);
-                }
-                bnames.forEach(n => {
-                    badgeCounts[n] = (badgeCounts[n] || 0) + 1;
-                });
-            });
+            }
         } catch(e) {}
 
         const defs = await loadBadgeDefs();
