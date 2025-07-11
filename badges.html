@@ -96,9 +96,21 @@
             const lines = text.trim().split(/\n+/).slice(1);
             badgeCounts = {};
             lines.forEach(line => {
-                const [classe, pseudo, pass, score, badges] = line.split(',');
-                const bnames = (badges || '').trim().split(/\s+/).filter(Boolean);
-                if(pseudo.trim() === user.pseudo){
+                const parts = line.split(',');
+                const [classe, pseudo, pass, score] = parts;
+                const badgeVals = parts.slice(4);
+                const badgeNames = [
+                    'BadgeScore10.png',
+                    'BadgeScore100.png',
+                    'BadgeScore500.png',
+                    'BadgeScore1000.png'
+                ];
+                const bnames = [];
+                badgeVals.forEach((v, idx) => {
+                    const num = parseFloat((v || '').replace(/[^0-9.-]/g, '')) || 0;
+                    if (num >= 100) bnames.push(badgeNames[idx]);
+                });
+                if ((pseudo || '').trim() === user.pseudo) {
                     userBadges = bnames.join(' ');
                     localStorage.setItem('userBadges', userBadges);
                 }
