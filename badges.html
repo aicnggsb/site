@@ -78,7 +78,13 @@
                 }));
             } catch(e){
                 const res = await fetch('badges_data.json');
-                return await res.json();
+                const data = await res.json();
+                return data.map(d => ({
+                    classe: (d.classe || d.Classe || '').trim(),
+                    theme: (d.theme || d.Theme || '').trim(),
+                    badge: (d.badge || '').trim(),
+                    desc: (d.desc || d.Description || '').trim()
+                }));
             }
         }
 
