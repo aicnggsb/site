@@ -68,7 +68,8 @@
                 const progress = {};
                 badgeIdx.forEach((i, bIdx) => {
                     if(i === -1) return;
-                    const num = parseFloat((r[i] || '').replace(/[^0-9.-]/g,'')) || 0;
+                    let num = parseFloat((r[i] || '').replace(/[^0-9.,-]/g,'').replace(',', '.')) || 0;
+                    if(num <= 1) num *= 100; // already provided as percentage
                     progress[badgeNames[bIdx]] = num;
                     if(num >= 100) badges.push(badgeNames[bIdx]);
                 });
