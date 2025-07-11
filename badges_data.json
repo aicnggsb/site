@@ -1,10 +1,10 @@
 [
-  {"Classe": "6E", "Theme": "Score", "badge": "BadgeScore10.png", "Description": "Atteindre 10 étoiles"},
-  {"Classe": "6E", "Theme": "Score", "badge": "BadgeScore100.png", "Description": "Atteindre 100 étoiles"},
-  {"Classe": "6E", "Theme": "Score", "badge": "BadgeScore500.png", "Description": "Atteindre 500 étoiles"},
-  {"Classe": "6E", "Theme": "Score", "badge": "BadgeScore1000.png", "Description": "Atteindre 1000 étoiles"},
-  {"Classe": "Technologie", "Theme": "Score", "badge": "BadgeScore10.png", "Description": "Atteindre 10 étoiles"},
-  {"Classe": "Technologie", "Theme": "Score", "badge": "BadgeScore100.png", "Description": "Atteindre 100 étoiles"},
-  {"Classe": "Technologie", "Theme": "Score", "badge": "BadgeScore500.png", "Description": "Atteindre 500 étoiles"},
-  {"Classe": "Technologie", "Theme": "Score", "badge": "BadgeScore1000.png", "Description": "Atteindre 1000 étoiles"}
+  {"classe": "6E", "theme": "Score", "badge": "BadgeScore10.png", "desc": "Atteindre 10 étoiles"},
+  {"classe": "6E", "theme": "Score", "badge": "BadgeScore100.png", "desc": "Atteindre 100 étoiles"},
+  {"classe": "6E", "theme": "Score", "badge": "BadgeScore500.png", "desc": "Atteindre 500 étoiles"},
+  {"classe": "6E", "theme": "Score", "badge": "BadgeScore1000.png", "desc": "Atteindre 1000 étoiles"},
+  {"classe": "Technologie", "theme": "Score", "badge": "BadgeScore10.png", "desc": "Atteindre 10 étoiles"},
+  {"classe": "Technologie", "theme": "Score", "badge": "BadgeScore100.png", "desc": "Atteindre 100 étoiles"},
+  {"classe": "Technologie", "theme": "Score", "badge": "BadgeScore500.png", "desc": "Atteindre 500 étoiles"},
+  {"classe": "Technologie", "theme": "Score", "badge": "BadgeScore1000.png", "desc": "Atteindre 1000 étoiles"}
 ]
