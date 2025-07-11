@@ -630,6 +630,19 @@ header {
     object-fit: contain;
 }
 
+.badge-unearned {
+    filter: grayscale(100%);
+    opacity: 0.4;
+}
+
+.badge-desc,
+.badge-count {
+    margin-top: 5px;
+    color: #fff;
+    text-align: center;
+    font-size: 0.9em;
+}
+
 .badge-name {
     margin-top: 5px;
     color: #fff;

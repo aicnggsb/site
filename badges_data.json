@@ -1,0 +1,10 @@
+[
+  {"Classe": "6E", "Theme": "Score", "badge": "BadgeScore10.png", "Description": "Atteindre 10 étoiles"},
+  {"Classe": "6E", "Theme": "Score", "badge": "BadgeScore100.png", "Description": "Atteindre 100 étoiles"},
+  {"Classe": "6E", "Theme": "Score", "badge": "BadgeScore500.png", "Description": "Atteindre 500 étoiles"},
+  {"Classe": "6E", "Theme": "Score", "badge": "BadgeScore1000.png", "Description": "Atteindre 1000 étoiles"},
+  {"Classe": "Technologie", "Theme": "Score", "badge": "BadgeScore10.png", "Description": "Atteindre 10 étoiles"},
+  {"Classe": "Technologie", "Theme": "Score", "badge": "BadgeScore100.png", "Description": "Atteindre 100 étoiles"},
+  {"Classe": "Technologie", "Theme": "Score", "badge": "BadgeScore500.png", "Description": "Atteindre 500 étoiles"},
+  {"Classe": "Technologie", "Theme": "Score", "badge": "BadgeScore1000.png", "Description": "Atteindre 1000 étoiles"}
+]

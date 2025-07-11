@@ -39,12 +39,53 @@
             return;
         }
 
-        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQCSH8hh-ykxl1L9joc4opVRARLGfcqi6uTW1bRXyyzsu99zo1OXuOYFwCBzxISzEjt2q3Abd9yU-NJ/pub?gid=1003065620&single=true&output=csv';
+        const USER_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQCSH8hh-ykxl1L9joc4opVRARLGfcqi6uTW1bRXyyzsu99zo1OXuOYFwCBzxISzEjt2q3Abd9yU-NJ/pub?gid=1003065620&single=true&output=csv';
+        const BADGE_DEF_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRcZj_54kDaBNabGnm_rYbBTofmvtjS9XznkFwvuc8M8TBmgJNV1rLAM_4SkrWUwHS0EUqbMRQtXuz-/pub?output=csv';
 
-        let badgesStr = user.badges || '';
+        function parseCSV(text){
+            const rows = [];
+            let cur = '', row = [], inQuotes = false;
+            for(let i=0;i<text.length;i++){
+                const c = text[i];
+                if(inQuotes){
+                    if(c==='"'){
+                        if(text[i+1]==='"'){ cur+='"'; i++; }
+                        else inQuotes=false;
+                    } else cur+=c;
+                } else {
+                    if(c==='"') inQuotes=true;
+                    else if(c===','){ row.push(cur); cur=''; }
+                    else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
+                    else if(c!=='\r') cur+=c;
+                }
+            }
+            if(cur || row.length) row.push(cur);
+            if(row.length) rows.push(row);
+            return rows;
+        }
+
+        async function loadBadgeDefs(){
+            try {
+                const res = await fetch(BADGE_DEF_URL + '&t=' + Date.now());
+                if(!res.ok) throw new Error('HTTP '+res.status);
+                const data = parseCSV(await res.text());
+                data.shift();
+                return data.map(r => ({
+                    classe: (r[0]||'').trim(),
+                    theme: (r[1]||'').trim(),
+                    badge: (r[2]||'').trim(),
+                    desc: (r[3]||'').trim()
+                }));
+            } catch(e){
+                const res = await fetch('badges_data.json');
+                return await res.json();
+            }
+        }
+
         let badgeCounts = null;
+        let userBadges = (user.badges || '').trim();
         try {
-            const res = await fetch(SHEET_URL + '&t=' + Date.now());
+            const res = await fetch(USER_SHEET_URL + '&t=' + Date.now());
             const text = await res.text();
             const lines = text.trim().split(/\n+/).slice(1);
             badgeCounts = {};
@@ -52,38 +93,46 @@
                 const [classe, pseudo, pass, score, badges] = line.split(',');
                 const bnames = (badges || '').trim().split(/\s+/).filter(Boolean);
                 if(pseudo.trim() === user.pseudo){
-                    badgesStr = bnames.join(' ');
-                    localStorage.setItem('userBadges', badgesStr);
+                    userBadges = bnames.join(' ');
+                    localStorage.setItem('userBadges', userBadges);
                 }
                 bnames.forEach(n => {
                     badgeCounts[n] = (badgeCounts[n] || 0) + 1;
                 });
             });
-        } catch(e) {
-            // Ignore fetch errors and use local data
-        }
+        } catch(e) {}
 
-        const names = badgesStr.split(/\s+/).filter(Boolean);
-        if(!names.length){
+        const defs = await loadBadgeDefs();
+        const owned = userBadges.split(/\s+/).filter(Boolean);
+
+        const classKey = (user.classe || '').toUpperCase() === '6E' ? '6E' : 'Technologie';
+        const filtered = defs.filter(d => d.classe.toUpperCase() === classKey);
+
+        if(!filtered.length){
             no.style.display = 'block';
             return;
         }
 
-        names.forEach(name => {
-            const box = document.createElement('div');
-            box.className = 'badge-item';
+        const ce = (tag, cls, txt) => { const el = document.createElement(tag); if(cls) el.className = cls; if(txt) el.textContent = txt; return el; };
 
-            const img = document.createElement('img');
-            img.src = 'photos/' + name;
-            img.alt = name;
+        filtered.forEach(def => {
+            const box = ce('div','filter-box reward-box');
+            box.appendChild(ce('span','filter-tab', def.theme));
 
-            const caption = document.createElement('div');
-            caption.className = 'badge-name';
-            const count = badgeCounts ? (badgeCounts[name] || 0) : '?';
-            caption.textContent = count;
+            const imgBox = ce('div','image-box');
+            const img = ce('img','');
+            img.src = 'photos/' + def.badge;
+            img.alt = def.badge;
+            if(!owned.includes(def.badge)) img.classList.add('badge-unearned');
+            imgBox.appendChild(img);
+            box.appendChild(imgBox);
 
-            box.appendChild(img);
-            box.appendChild(caption);
+            const details = ce('div','reward-details');
+            details.appendChild(ce('p','badge-desc', def.desc));
+            const count = badgeCounts ? (badgeCounts[def.badge] || 0) : '?';
+            details.appendChild(ce('p','badge-count', 'Obtenu par ' + count + ' élèves'));
+            box.appendChild(details);
+
             list.appendChild(box);
         });
     });
