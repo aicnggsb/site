@@ -123,7 +123,10 @@
             const img = ce('img','');
             img.src = 'photos/' + def.badge;
             img.alt = def.badge;
-            if(!owned.includes(def.badge)) img.classList.add('badge-unearned');
+            if(!owned.includes(def.badge)) {
+                img.classList.add('badge-unearned');
+                box.classList.add('badge-unearned');
+            }
             imgBox.appendChild(img);
             box.appendChild(imgBox);
 
