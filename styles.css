@@ -424,6 +424,7 @@ details[open] summary::before {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    position: relative; /* needed for falling buttons */
 }
 
 .answer-box .quiz-btn {
