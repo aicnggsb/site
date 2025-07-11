@@ -111,7 +111,8 @@
                     const progress = {};
                     badgeIdx.forEach((i, bIdx) => {
                         if(i === -1) return;
-                        const num = parseFloat((row[i] || '').replace(/[^0-9.-]/g,'')) || 0;
+                        let num = parseFloat((row[i] || '').replace(/[^0-9.,-]/g,'').replace(',', '.')) || 0;
+                        if(num <= 1) num *= 100; // convert from decimal if needed
                         progress[badgeNames[bIdx]] = num;
                         if(num >= 100) bnames.push(badgeNames[bIdx]);
                     });
