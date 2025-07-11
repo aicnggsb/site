@@ -22,9 +22,8 @@
     </header>
     <main>
         <section class="description-ateliers badge-section">
-            <h2>Vos badges</h2>
             <div id="badge-list" class="badge-grid"></div>
-            <p id="no-badges" class="no-badges">Aucun badge pour le moment.</p>
+            <p id="no-badges" class="no-badges" style="display:none;"></p>
         </section>
     </main>
     <script>
@@ -34,8 +33,10 @@
 
         const user = window.auth && auth.getUser();
         if(!user){
-            no.style.display = 'block';
-            no.textContent = 'Veuillez vous connecter pour voir les badges.';
+            if(no){
+                no.style.display = 'block';
+                no.textContent = 'Veuillez vous connecter pour voir les badges.';
+            }
             return;
         }
 
@@ -136,7 +137,7 @@
         const filtered = defs.filter(d => d.classe.toUpperCase() === classKey);
 
         if(!filtered.length){
-            no.style.display = 'block';
+            if(no) no.style.display = 'block';
             return;
         }
 
@@ -161,10 +162,6 @@
             details.appendChild(ce('p','badge-desc', def.desc));
             const count = badgeCounts ? (badgeCounts[def.badge] || 0) : '?';
             details.appendChild(ce('p','badge-count', 'Obtenu par ' + count + ' élèves'));
-            const progVal = userProgress[def.badge];
-            if(typeof progVal === 'number') {
-                details.appendChild(ce('p','badge-progress', 'Progression : ' + Math.floor(progVal) + '%'));
-            }
             box.appendChild(details);
 
             list.appendChild(box);
