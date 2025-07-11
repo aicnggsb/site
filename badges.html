@@ -90,6 +90,7 @@
 
         let badgeCounts = null;
         let userBadges = (user.badges || '').trim();
+        let userProgress = Object.assign({}, user.badgeProgress || {});
         try {
             const res = await fetch(USER_SHEET_URL + '&t=' + Date.now());
             const rows = parseCSV(await res.text());
@@ -107,14 +108,18 @@
                 rows.forEach(row => {
                     const pseudo = (row[idx('pseudo')] || '').trim();
                     const bnames = [];
+                    const progress = {};
                     badgeIdx.forEach((i, bIdx) => {
                         if(i === -1) return;
                         const num = parseFloat((row[i] || '').replace(/[^0-9.-]/g,'')) || 0;
+                        progress[badgeNames[bIdx]] = num;
                         if(num >= 100) bnames.push(badgeNames[bIdx]);
                     });
                     if (pseudo === user.pseudo) {
                         userBadges = bnames.join(' ');
                         localStorage.setItem('userBadges', userBadges);
+                        userProgress = progress;
+                        localStorage.setItem('userBadgeProgress', JSON.stringify(userProgress));
                     }
                     bnames.forEach(n => {
                         badgeCounts[n] = (badgeCounts[n] || 0) + 1;
@@ -155,6 +160,10 @@
             details.appendChild(ce('p','badge-desc', def.desc));
             const count = badgeCounts ? (badgeCounts[def.badge] || 0) : '?';
             details.appendChild(ce('p','badge-count', 'Obtenu par ' + count + ' élèves'));
+            const progVal = userProgress[def.badge];
+            if(typeof progVal === 'number') {
+                details.appendChild(ce('p','badge-progress', 'Progression : ' + Math.floor(progVal) + '%'));
+            }
             box.appendChild(details);
 
             list.appendChild(box);

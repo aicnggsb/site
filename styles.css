@@ -654,7 +654,8 @@ header {
 }
 
 .badge-desc,
-.badge-count {
+.badge-count,
+.badge-progress {
     margin-top: 5px;
     color: #fff;
     text-align: center;

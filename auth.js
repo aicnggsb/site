@@ -65,12 +65,14 @@
                 const pass = (r[idx('mot de passe')] || '').trim();
                 const score = parseInt(r[idx('score')] || '0', 10) || 0;
                 const badges = [];
+                const progress = {};
                 badgeIdx.forEach((i, bIdx) => {
                     if(i === -1) return;
                     const num = parseFloat((r[i] || '').replace(/[^0-9.-]/g,'')) || 0;
+                    progress[badgeNames[bIdx]] = num;
                     if(num >= 100) badges.push(badgeNames[bIdx]);
                 });
-                return {classe, pseudo, pass, score, badges: badges.join(' ')};
+                return {classe, pseudo, pass, score, badges: badges.join(' '), badgeProgress: progress};
             });
         } catch(e) {
             console.error('Failed to load users', e);
@@ -93,6 +95,7 @@
             localStorage.setItem('userScore', user.score);
             localStorage.setItem('userBadges', user.badges);
             localStorage.setItem('userClasse', user.classe);
+            localStorage.setItem('userBadgeProgress', JSON.stringify(user.badgeProgress || {}));
             updateUserInfo();
             const loginBtn = document.getElementById('login-btn');
             if(loginBtn) loginBtn.style.display = 'none';
@@ -108,6 +111,7 @@
         localStorage.removeItem('userScore');
         localStorage.removeItem('userBadges');
         localStorage.removeItem('userClasse');
+        localStorage.removeItem('userBadgeProgress');
         updateUserInfo();
         const loginBtn = document.getElementById('login-btn');
         if(loginBtn) loginBtn.style.display = '';
@@ -122,7 +126,8 @@
         const score = parseInt(localStorage.getItem('userScore')||'0',10);
         const badges = (localStorage.getItem('userBadges')||'');
         const classe = (localStorage.getItem('userClasse')||'');
-        return {pseudo, score, badges, classe};
+        const badgeProgress = JSON.parse(localStorage.getItem('userBadgeProgress') || '{}');
+        return {pseudo, score, badges, classe, badgeProgress};
     }
 
     function updateNavForClass(user){
@@ -228,6 +233,7 @@
                 localStorage.setItem('userScore', up.score);
                 localStorage.setItem('userBadges', up.badges);
                 localStorage.setItem('userClasse', up.classe);
+                localStorage.setItem('userBadgeProgress', JSON.stringify(up.badgeProgress || {}));
             }
         } catch(e) {}
     }
