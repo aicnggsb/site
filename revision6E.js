@@ -13,12 +13,12 @@ async function fetchQCM() {
             .map(r => ({
                 theme: r[0] || 'Autre',
                 niveau: r[1] || 'Indefini',
-                question: r[2] || '',
+                question: wrapLatex(r[2] || ''),
                 image: r[3] || '',
-                choices: [r[4], r[5], r[6]].filter(Boolean),
-                answer: r[4] || '',
-                correction: r[7] || '',
-                cours: r[8] || '',
+                choices: [r[4], r[5], r[6]].filter(Boolean).map(wrapLatex),
+                answer: wrapLatex(r[4] || ''),
+                correction: wrapLatex(r[7] || ''),
+                cours: wrapLatex(r[8] || ''),
                 carte: r[9] || ''
             }))
             .filter(q => q.question);
@@ -27,12 +27,12 @@ async function fetchQCM() {
         return (await res.json()).map(q => ({
             niveau: q.niveau || 'Indefini',
             theme: q.theme || 'Autre',
-            question: q.question,
-            choices: q.choices,
-            answer: q.answer,
-            correction: q.correction || '',
+            question: wrapLatex(q.question),
+            choices: (q.choices || []).map(wrapLatex),
+            answer: wrapLatex(q.answer),
+            correction: wrapLatex(q.correction || ''),
             image: q.image || '',
-            cours: q.cours || '',
+            cours: wrapLatex(q.cours || ''),
             carte: q.carte || ''
         }));
     }
@@ -97,6 +97,10 @@ function ceHtml(tag, cls, html) {
     if (cls) el.className = cls;
     if (html) el.innerHTML = html;
     return el;
+}
+
+function wrapLatex(str) {
+    return str.replace(/\\[a-zA-Z]+(?:\{[^{}]*\})*/g, m => `\\(${m}\\)`);
 }
 
 function typesetMath() {
