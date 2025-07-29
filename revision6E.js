@@ -92,6 +92,19 @@ function ce(tag, cls, text) {
     return el;
 }
 
+function ceHtml(tag, cls, html) {
+    const el = document.createElement(tag);
+    if (cls) el.className = cls;
+    if (html) el.innerHTML = html;
+    return el;
+}
+
+function typesetMath() {
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+    }
+}
+
 function imgElem(src) {
     if (!src.includes('/')) src = 'photos/' + src;
     const img = ce('img', 'question-image');
@@ -158,7 +171,7 @@ function showResults(container) {
     Object.entries(results).forEach(([theme, res]) => {
         const pct = Math.round((res.correct / res.total) * 100);
         const line = ce('div', 'progress-container');
-        line.appendChild(ce('p', '', `${theme} : ${pct}% (${res.correct}/${res.total})`));
+        line.appendChild(ceHtml('p', '', `${theme} : ${pct}% (${res.correct}/${res.total})`));
         const bar = ce('div', 'progress-bar');
         const prog = ce('div', 'progress-bar-inner');
         prog.style.width = pct + '%';
@@ -178,14 +191,14 @@ function showResults(container) {
         const block = ce('div', 'question-block ' + (h.isCorrect ? 'correct' : 'incorrect'));
         const qTheme = h.theme || 'Autre';
         block.appendChild(ce('span', 'question-tab', `Q${i + 1} - ${qTheme}`));
-        block.appendChild(ce('p', '', h.question));
+        block.appendChild(ceHtml('p', '', h.question));
         if (h.image) {
             const imgBox = ce('div', 'image-box');
             imgBox.appendChild(imgElem(h.image));
             block.appendChild(imgBox);
         }
-        block.appendChild(ce('p', '', `Votre réponse : ${h.selected}`));
-        if (!h.isCorrect) block.appendChild(ce('p', '', `Bonne réponse : ${h.correct}`));
+        block.appendChild(ceHtml('p', '', `Votre réponse : ${h.selected}`));
+        if (!h.isCorrect) block.appendChild(ceHtml('p', '', `Bonne réponse : ${h.correct}`));
         if (h.correction) {
             const p = ce('p');
             p.innerHTML = `Correction : ${h.correction}`;
@@ -198,6 +211,7 @@ function showResults(container) {
     const restart = ce('button', 'quiz-btn', 'Nouveau test');
     restart.addEventListener('click', showFilterSelection);
     container.appendChild(restart);
+    typesetMath();
 }
 
 function showRandomQuestion() {
@@ -215,7 +229,7 @@ function showRandomQuestion() {
     block.appendChild(ce('span', 'question-tab', `Q${count} - ${themeLabel}`));
 
     const qLine = ce('div', 'question-line');
-    qLine.appendChild(ce('p', '', current.question));
+    qLine.appendChild(ceHtml('p', '', current.question));
     if (current.cours) {
         const cIcon = ce('span', 'question-icon lightbulb-icon', '💡');
         cIcon.title = 'Voir le cours';
@@ -235,7 +249,7 @@ function showRandomQuestion() {
     const answerBox = ce('div', 'answer-box');
 
     answers.forEach(choice => {
-        const btn = ce('button', 'quiz-btn', choice);
+        const btn = ceHtml('button', 'quiz-btn', choice);
         btn.addEventListener('click', () => {
             // Désactive immédiatement tous les boutons pour éviter
             // plusieurs clics qui compteraient plusieurs fois la même question
@@ -268,6 +282,7 @@ function showRandomQuestion() {
     block.appendChild(answerBox);
 
     container.appendChild(block);
+    typesetMath();
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -547,6 +562,7 @@ function showTextPopup(text) {
     box.appendChild(content);
     overlay.appendChild(box);
     document.body.appendChild(overlay);
+    typesetMath();
 }
 
 function showImagePopup(src) {
