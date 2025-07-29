@@ -100,6 +100,15 @@ function ceHtml(tag, cls, html) {
 }
 
 function wrapLatex(str) {
+    // Replace explicit <html>...</html> segments with raw HTML
+    if (str.includes('<html>')) {
+        str = str.replace(/<html>([\s\S]*?)<\/html>/g, (_, html) => html);
+    }
+    // Replace explicit <latex>...</latex> segments with MathJax inline syntax
+    if (str.includes('<latex>')) {
+        str = str.replace(/<latex>([\s\S]*?)<\/latex>/g, (_, tex) => `\\(${tex}\\)`);
+    }
+    // Fallback: wrap any LaTeX style commands starting with a backslash
     return str.replace(/\\[a-zA-Z]+(?:\{[^{}]*\})*/g, m => `\\(${m}\\)`);
 }
 
