@@ -16,7 +16,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const rewards = [
         { cost: 1000, label: 'Vbucks', image: 'vbucks.png' },
-        { cost: 800, label: 'Robux', image: 'robux.png' }
+        { cost: 800, label: 'Robux', image: 'robux.png' },
+        {
+            cost: 2000,
+            label: 'LEGO CITY - le commissariat',
+            image:
+                'https://m.media-amazon.com/images/I/61efxiYfMQL._AC_SL1250_.jpg'
+        }
     ];
 
     const section = document.getElementById('spend-section');
