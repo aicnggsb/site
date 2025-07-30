@@ -60,4 +60,4 @@ qui tombent rebondissent également entre elles pour un rendu plus vivant.
 
 ## Dépenser ses étoiles
 
-Les élèves de 6E disposent d'une page spéciale `depenser.html` pour convertir leurs étoiles en récompenses virtuelles. Un clic permet d'échanger 1000 étoiles contre 1000 Vbucks ou 800 étoiles contre 800 Robux. Lors de la conversion, un montant négatif est envoyé dans la feuille d'historique afin de tracer les dépenses.
+Les élèves de 6E disposent d'une page spéciale `depenser.html` pour convertir leurs étoiles en récompenses virtuelles. La liste des récompenses est désormais chargée automatiquement depuis une feuille Google Sheets publiée au format CSV afin de pouvoir être mise à jour facilement. Si le téléchargement échoue, les données locales du fichier `depenser_data.json` sont utilisées. Lors de la conversion, un montant négatif est envoyé dans la feuille d'historique afin de tracer les dépenses.
