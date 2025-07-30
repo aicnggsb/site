@@ -1,6 +1,64 @@
 // Page permettant de dépenser les étoiles gagnées
 
-document.addEventListener('DOMContentLoaded', () => {
+const CSV_URL =
+    'https://docs.google.com/spreadsheets/d/e/2PACX-1vTzi_mBglmvJ-aojKAxNNkebHvfhTU8hm3M3Uxp7fRX19M3n4H0ZOTnF7dsBQ92qJqWkDdB46zKtwuB/pub?output=csv';
+
+function parseCSV(text) {
+    const rows = [];
+    let cur = '';
+    let row = [];
+    let inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQuotes) {
+            if (c === '"') {
+                if (text[i + 1] === '"') {
+                    cur += '"';
+                    i++;
+                } else inQuotes = false;
+            } else cur += c;
+        } else {
+            if (c === '"') inQuotes = true;
+            else if (c === ',') {
+                row.push(cur);
+                cur = '';
+            } else if (c === '\n') {
+                row.push(cur);
+                rows.push(row);
+                row = [];
+                cur = '';
+            } else if (c !== '\r') cur += c;
+        }
+    }
+    if (cur || row.length) row.push(cur);
+    if (row.length) rows.push(row);
+    return rows;
+}
+
+async function loadRewards() {
+    try {
+        const res = await fetch(CSV_URL + '&t=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const rows = parseCSV(await res.text());
+        if (!rows.length) throw new Error('empty');
+        const header = rows[0].map(c => c.trim().toLowerCase());
+        if (header.join(',') === 'nom,image,prix') rows.shift();
+        return rows
+            .map(r => ({
+                label: (r[0] || '').trim(),
+                image: (r[1] || '').trim(),
+                cost: parseInt((r[2] || '0').replace(/[^0-9-]/g, ''), 10) || 0
+            }))
+            .filter(r => r.label && r.cost);
+    } catch (e) {
+        const res = await fetch('depenser_data.json');
+        return res.json();
+    }
+}
+
+let rewards = [];
+
+document.addEventListener('DOMContentLoaded', async () => {
     if (!window.auth || !auth.getUser()) {
         alert('Vous devez être connecté pour accéder à cette page.');
         window.location.href = 'index.html';
@@ -14,18 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const rewards = [
-        { cost: 1000, label: 'Vbucks', image: 'vbucks.png' },
-        { cost: 800, label: 'Robux', image: 'robux.png' },
-        {
-            cost: 2000,
-            label: 'LEGO CITY - le commissariat',
-            image:
-                'https://m.media-amazon.com/images/I/61efxiYfMQL._AC_SL1250_.jpg'
-        }
-    ];
-
     const section = document.getElementById('spend-section');
+    rewards = await loadRewards();
+    if (!rewards.length) {
+        const p = document.createElement('p');
+        p.textContent = 'Aucune r\u00e9compense disponible.';
+        section.appendChild(p);
+        return;
+    }
 
     const ce = (tag, cls, txt) => {
         const el = document.createElement(tag);
