@@ -102,7 +102,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         section.querySelectorAll('.reward-box').forEach(b => b.remove());
         rewards.forEach(r => {
             const box = ce('div', 'filter-box reward-box');
-            box.appendChild(ce('span', 'filter-tab', `${r.cost} ⭐ → ${r.cost} ${r.label}`));
+            // display cost in stars followed by an arrow and the reward name
+            box.appendChild(ce('span', 'filter-tab', `${r.cost} ⭐ → ${r.label}`));
 
             const imgBox = ce('div', 'image-box');
             imgBox.appendChild(imgElem(r.image));
