@@ -570,7 +570,7 @@ function showTextPopup(text) {
         overlay.addEventListener('animationend', () => overlay.remove(), {once: true});
     });
     box.appendChild(close);
-    const content = ce('div');
+    const content = ce('div', 'popup-content');
     content.innerHTML = text;
     box.appendChild(content);
     overlay.appendChild(box);
