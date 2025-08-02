@@ -282,6 +282,9 @@ function showRandomQuestion() {
                 isCorrect: correct
             });
             btn.style.backgroundColor = correct ? '#00a000' : '#ff0000';
+            if (!correct && current.correction) {
+                showTextPopup(`Correction : ${current.correction}`);
+            }
             setTimeout(showRandomQuestion, HIGHLIGHT_DELAY);
         });
         answerBox.appendChild(btn);
