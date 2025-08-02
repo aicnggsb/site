@@ -387,7 +387,7 @@ function sendScore() {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pseudo: pseudo, score: score })
+        body: JSON.stringify(["historique", { pseudo: pseudo, score: score }])
     }).catch(() => {});
 }
 
