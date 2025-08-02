@@ -140,7 +140,8 @@
             if(c === '6E'){
                 nav.innerHTML =
                     '<li><a href="revision6E.html">Gagner des étoiles</a></li>' +
-                    '<li><a href="depenser.html">Dépenser ses étoiles</a></li>';
+                    '<li><a href="depenser.html">Dépenser ses étoiles</a></li>' +
+                    '<li><a href="statistiques.html">Statistiques</a></li>';
                 return;
             }
             const page = pageForClass(user.classe);
