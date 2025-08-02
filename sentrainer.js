@@ -11,20 +11,22 @@ async function fetchQCM() {
         rows.shift();
         return rows
             .map(r => ({
-                theme: r[0] || 'Autre',
-                niveau: r[1] || 'Indefini',
-                question: r[2] || '',
-                image: r[3] || '',
-                choices: [r[4], r[5], r[6]].filter(Boolean),
-                answer: r[4] || '',
-                correction: r[7] || '',
-                cours: r[8] || '',
-                carte: r[9] || ''
+                numero: r[0] || '',
+                theme: r[1] || 'Autre',
+                niveau: r[2] || 'Indefini',
+                question: r[3] || '',
+                image: r[4] || '',
+                choices: [r[5], r[6], r[7]].filter(Boolean),
+                answer: r[5] || '',
+                correction: r[8] || '',
+                cours: r[9] || '',
+                carte: r[10] || ''
             }))
             .filter(q => q.question);
     } catch (e) {
         const res = await fetch('sentrainer_data.json');
         return (await res.json()).map(q => ({
+            numero: q.numero || '',
             niveau: q.niveau || 'Indefini',
             theme: q.theme || 'Autre',
             question: q.question,
@@ -224,6 +226,7 @@ function showRandomQuestion() {
                 score++;
             }
             history.push({
+                numero: current.numero || '',
                 question: current.question,
                 selected: choice,
                 correct: current.answer,
