@@ -419,7 +419,7 @@ function showLogin() {
 
 function sendScore() {
     if (!pseudo) return;
-    fetch('https://script.google.com/macros/s/AKfycbwrGEvUtBgPPGg1UoYWccMsAST3SujPnSBgpcyFhsGSQq4vxLRVyFjfFnoY1baHvgqobQ/exec', {
+    fetch('https://script.google.com/macros/s/AKfycbxg1KZw9FZ7azPrv4SxFeJEmJJxe4Fl3KCkNU9s496EPR7VpP7aX-UE3a90HNesS1t2Iw/exec', {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
