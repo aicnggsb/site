@@ -40,6 +40,37 @@ async function fetchQCM() {
     }
 }
 
+const HISTORY_CSV_URL =
+    'https://docs.google.com/spreadsheets/d/e/2PACX-1vQCSH8hh-ykxl1L9joc4opVRARLGfcqi6uTW1bRXyyzsu99zo1OXuOYFwCBzxISzEjt2q3Abd9yU-NJ/pub?gid=1508430174&single=true&output=csv';
+
+async function fetchQuestionRates() {
+    try {
+        const res = await fetch(HISTORY_CSV_URL + '&t=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const rows = parseCSV(await res.text());
+        if (!rows.length) return {};
+        const header = rows.shift().map(h => h.trim().toLowerCase());
+        const qIdx = header.indexOf('question');
+        const sIdx = header.indexOf('score');
+        if (qIdx === -1 || sIdx === -1) return {};
+        const stats = {};
+        rows.forEach(r => {
+            const num = (r[qIdx] || '').trim();
+            const val = parseFloat(r[sIdx] || '0') || 0;
+            if (!stats[num]) stats[num] = { count: 0, score: 0 };
+            stats[num].count++;
+            stats[num].score += val;
+        });
+        const rates = {};
+        Object.entries(stats).forEach(([num, { count, score }]) => {
+            rates[num] = count ? score / count : 0;
+        });
+        return rates;
+    } catch (e) {
+        return {};
+    }
+}
+
 function parseCSV(text) {
     const rows = [];
     let cur = '';
@@ -127,7 +158,28 @@ function imgElem(src) {
     img.alt = '';
     return img;
 }
+function selectQuestions(candidates, count) {
+    if (!candidates.length) return [];
+    const pool = candidates.slice();
+    const firstIdx = Math.floor(Math.random() * pool.length);
+    const first = pool.splice(firstIdx, 1)[0];
+    const result = [first];
+    let prevRate = questionRates[first.numero] || 0;
+    while (result.length < count) {
+        const lower = pool.filter(q => (questionRates[q.numero] || 0) < prevRate);
+        if (!lower.length) break;
+        lower.sort((a, b) => (questionRates[b.numero] || 0) - (questionRates[a.numero] || 0));
+        const bestRate = questionRates[lower[0].numero] || 0;
+        const same = lower.filter(q => (questionRates[q.numero] || 0) === bestRate);
+        const next = same[Math.floor(Math.random() * same.length)];
+        pool.splice(pool.indexOf(next), 1);
+        result.push(next);
+        prevRate = bestRate;
+    }
+    return result;
+}
 
+let questionRates = {};
 let questions = [];
 let allQuestions = [];
 let current = null;
@@ -273,13 +325,14 @@ function showRandomQuestion() {
     if (doubleOrNothingActive && !questions.length) {
         questions = shuffle(allQuestions.slice());
     }
-    const index = Math.floor(Math.random() * questions.length);
-    current = questions.splice(index, 1)[0];
+    current = questions.shift();
     count++;
     container.innerHTML = '';
     const block = ce('div', 'question-block');
     const themeLabel = current.theme || 'Autre';
     block.appendChild(ce('span', 'question-tab', `Q${count} - ${themeLabel}`));
+    const rate = Math.round((questionRates[current.numero] || 0) * 100);
+    block.appendChild(ce('div', 'success-rate', `Taux de réussite : ${rate}%`));
 
     const qLine = ce('div', 'question-line');
     qLine.appendChild(ceHtml('p', '', current.question));
@@ -357,7 +410,9 @@ function showRandomQuestion() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    allQuestions = await fetchQCM();
+    const [qcm, rates] = await Promise.all([fetchQCM(), fetchQuestionRates()]);
+    allQuestions = qcm;
+    questionRates = rates;
     pseudo = localStorage.getItem('pseudo') || '';
     if (pseudo) {
         showFilterSelection();
@@ -459,10 +514,11 @@ function showFilterSelection() {
         const selectedLevels = Array.from(levelBox.querySelectorAll('input[type=checkbox]'))
             .filter(cb => cb.checked)
             .map(cb => cb.value);
-        questions = shuffle(allQuestions.filter(q =>
+        const candidates = allQuestions.filter(q =>
             selectedThemes.includes(q.theme || 'Autre') &&
             selectedLevels.includes(q.niveau || 'Indefini')
-        )).slice(0, maxQuestions);
+        );
+        questions = selectQuestions(candidates, maxQuestions);
         score = 0;
         count = 0;
         history = [];
