@@ -508,7 +508,7 @@ function showLogin() {
 
 function sendScore() {
     if (!pseudo) return;
-    fetch('https://script.google.com/macros/s/AKfycbzHfWfQzgWHNx7iE2aeCcgC27Y-1lvr2SVnZQDoNOeLwgsebjQyGw8zWTavJ175GSmg/exec', {
+    fetch('https://script.google.com/macros/s/AKfycbwrGEvUtBgPPGg1UoYWccMsAST3SujPnSBgpcyFhsGSQq4vxLRVyFjfFnoY1baHvgqobQ/exec', {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
@@ -518,7 +518,7 @@ function sendScore() {
 
 function sendCompetence(idQuestion, resultat) {
     if (!pseudo) return;
-    fetch('https://script.google.com/macros/s/AKfycbzHfWfQzgWHNx7iE2aeCcgC27Y-1lvr2SVnZQDoNOeLwgsebjQyGw8zWTavJ175GSmg/exec', {
+    fetch('https://script.google.com/macros/s/AKfycbwrGEvUtBgPPGg1UoYWccMsAST3SujPnSBgpcyFhsGSQq4vxLRVyFjfFnoY1baHvgqobQ/exec', {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
