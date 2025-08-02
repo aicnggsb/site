@@ -251,7 +251,7 @@
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pseudo: user.pseudo, score: points })
+                body: JSON.stringify(["historique", { pseudo: user.pseudo, score: points }])
             });
         } catch(e) {}
         await refreshUserScore(user.pseudo);
