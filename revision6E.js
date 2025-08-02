@@ -144,6 +144,39 @@ let challengeTheme = '';
 let previousMaxQuestions = 5;
 let doubleOrNothingActive = false;
 let doubleStake = 1;
+let isPaused = false;
+let pendingAction = null;
+let actionTimeout = null;
+
+function scheduleAction(fn, delay) {
+    pendingAction = fn;
+    if (!isPaused) {
+        actionTimeout = setTimeout(() => {
+            actionTimeout = null;
+            const act = pendingAction;
+            pendingAction = null;
+            act();
+        }, delay);
+    }
+}
+
+function pauseProgram() {
+    isPaused = true;
+    if (actionTimeout) {
+        clearTimeout(actionTimeout);
+        actionTimeout = null;
+    }
+}
+
+function resumeProgram() {
+    if (!isPaused) return;
+    isPaused = false;
+    if (pendingAction) {
+        const act = pendingAction;
+        pendingAction = null;
+        act();
+    }
+}
 
 function showResults(container) {
     const percent = count ? Math.round((score / count) * 100) : 0;
@@ -296,9 +329,9 @@ function showRandomQuestion() {
             }
             if (doubleOrNothingActive) {
                 if (correct) {
-                    setTimeout(askDoubleOrNothing, HIGHLIGHT_DELAY);
+                    scheduleAction(askDoubleOrNothing, HIGHLIGHT_DELAY);
                 } else {
-                    setTimeout(() => {
+                    scheduleAction(() => {
                         showStarAnimation(0);
                         doubleOrNothingActive = false;
                         doubleStake = 1;
@@ -306,7 +339,7 @@ function showRandomQuestion() {
                     }, HIGHLIGHT_DELAY);
                 }
             } else {
-                setTimeout(showRandomQuestion, HIGHLIGHT_DELAY);
+                scheduleAction(showRandomQuestion, HIGHLIGHT_DELAY);
             }
         });
         answerBox.appendChild(btn);
@@ -494,6 +527,7 @@ function sendCompetence(idQuestion, resultat) {
 }
 
 function showStarAnimation(points, bonus = false) {
+    pauseProgram();
     const overlay = ce('div');
     overlay.id = 'points-popup';
 
@@ -503,7 +537,10 @@ function showStarAnimation(points, bonus = false) {
     close.innerHTML = '&times;';
     close.addEventListener('click', () => {
         overlay.classList.add('fade-out');
-        overlay.addEventListener('animationend', () => overlay.remove(), {once: true});
+        overlay.addEventListener('animationend', () => {
+            overlay.remove();
+            resumeProgram();
+        }, {once: true});
     });
 
     const message = ce('p', 'points-text', `Vous avez gagné ${points} points !`);
@@ -597,6 +634,7 @@ function explodeOtherChoices(clicked) {
 }
 
 function showTextPopup(text) {
+    pauseProgram();
     const overlay = ce('div');
     overlay.id = 'info-popup';
     const box = ce('div', 'popup-box');
@@ -604,7 +642,10 @@ function showTextPopup(text) {
     close.innerHTML = '&times;';
     close.addEventListener('click', () => {
         overlay.classList.add('fade-out');
-        overlay.addEventListener('animationend', () => overlay.remove(), {once: true});
+        overlay.addEventListener('animationend', () => {
+            overlay.remove();
+            resumeProgram();
+        }, {once: true});
     });
     box.appendChild(close);
     const content = ce('div', 'popup-content');
@@ -616,6 +657,7 @@ function showTextPopup(text) {
 }
 
 function showImagePopup(src) {
+    pauseProgram();
     const overlay = ce('div');
     overlay.id = 'info-popup';
     const box = ce('div', 'popup-box');
@@ -623,7 +665,10 @@ function showImagePopup(src) {
     close.innerHTML = '&times;';
     close.addEventListener('click', () => {
         overlay.classList.add('fade-out');
-        overlay.addEventListener('animationend', () => overlay.remove(), {once: true});
+        overlay.addEventListener('animationend', () => {
+            overlay.remove();
+            resumeProgram();
+        }, {once: true});
     });
     const img = imgElem(src);
     box.appendChild(close);
@@ -635,6 +680,7 @@ function showImagePopup(src) {
 function offerChallenge(themes) {
     if (Math.random() >= 0.3) return;
     if (Math.random() < 0.5 && themes.length) {
+        pauseProgram();
         const theme = themes[Math.floor(Math.random() * themes.length)];
         const overlay = ce('div');
         overlay.id = 'challenge-popup';
@@ -648,7 +694,10 @@ function offerChallenge(themes) {
 
         function remove() {
             overlay.classList.add('fade-out');
-            overlay.addEventListener('animationend', () => overlay.remove(), { once: true });
+            overlay.addEventListener('animationend', () => {
+                overlay.remove();
+                resumeProgram();
+            }, { once: true });
         }
 
         accept.addEventListener('click', () => {
@@ -681,6 +730,7 @@ function offerChallenge(themes) {
 }
 
 function offerDoubleOrNothing() {
+    pauseProgram();
     const overlay = ce('div');
     overlay.id = 'challenge-popup';
     const box = ce('div', 'popup-box');
@@ -693,7 +743,10 @@ function offerDoubleOrNothing() {
 
     function remove() {
         overlay.classList.add('fade-out');
-        overlay.addEventListener('animationend', () => overlay.remove(), { once: true });
+        overlay.addEventListener('animationend', () => {
+            overlay.remove();
+            resumeProgram();
+        }, { once: true });
     }
 
     accept.addEventListener('click', () => {
@@ -721,6 +774,7 @@ function offerDoubleOrNothing() {
 }
 
 function askDoubleOrNothing() {
+    pauseProgram();
     const overlay = ce('div');
     overlay.id = 'challenge-popup';
     const box = ce('div', 'popup-box');
@@ -735,7 +789,10 @@ function askDoubleOrNothing() {
 
     function remove() {
         overlay.classList.add('fade-out');
-        overlay.addEventListener('animationend', () => overlay.remove(), { once: true });
+        overlay.addEventListener('animationend', () => {
+            overlay.remove();
+            resumeProgram();
+        }, { once: true });
     }
 
     stop.addEventListener('click', () => {
@@ -748,7 +805,7 @@ function askDoubleOrNothing() {
     cont.addEventListener('click', () => {
         remove();
         doubleStake *= 2;
-        setTimeout(showRandomQuestion, HIGHLIGHT_DELAY);
+        scheduleAction(showRandomQuestion, HIGHLIGHT_DELAY);
     });
 
     box.appendChild(msg);

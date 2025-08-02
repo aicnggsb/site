@@ -112,6 +112,39 @@ let history = [];
 let pseudo = '';
 const HIGHLIGHT_DELAY = 1000; // temps avant la question suivante
 let pointsAwarded = false; // évite un ajout multiple de points
+let isPaused = false;
+let pendingAction = null;
+let actionTimeout = null;
+
+function scheduleAction(fn, delay) {
+    pendingAction = fn;
+    if (!isPaused) {
+        actionTimeout = setTimeout(() => {
+            actionTimeout = null;
+            const act = pendingAction;
+            pendingAction = null;
+            act();
+        }, delay);
+    }
+}
+
+function pauseProgram() {
+    isPaused = true;
+    if (actionTimeout) {
+        clearTimeout(actionTimeout);
+        actionTimeout = null;
+    }
+}
+
+function resumeProgram() {
+    if (!isPaused) return;
+    isPaused = false;
+    if (pendingAction) {
+        const act = pendingAction;
+        pendingAction = null;
+        act();
+    }
+}
 
 function showResults(container) {
     const percent = count ? Math.round((score / count) * 100) : 0;
@@ -236,7 +269,7 @@ function showRandomQuestion() {
                 isCorrect: correct
             });
             btn.style.backgroundColor = correct ? '#00a000' : '#ff0000';
-            setTimeout(showRandomQuestion, HIGHLIGHT_DELAY);
+            scheduleAction(showRandomQuestion, HIGHLIGHT_DELAY);
         });
         answerBox.appendChild(btn);
     });
@@ -395,6 +428,7 @@ function sendScore() {
 }
 
 function showStarAnimation(points, bonus = false) {
+    pauseProgram();
     const overlay = ce('div');
     overlay.id = 'points-popup';
 
@@ -404,7 +438,10 @@ function showStarAnimation(points, bonus = false) {
     close.innerHTML = '&times;';
     close.addEventListener('click', () => {
         overlay.classList.add('fade-out');
-        overlay.addEventListener('animationend', () => overlay.remove(), {once: true});
+        overlay.addEventListener('animationend', () => {
+            overlay.remove();
+            resumeProgram();
+        }, {once: true});
     });
 
     const message = ce('p', 'points-text', `Vous avez gagné ${points} points !`);
@@ -490,6 +527,7 @@ function flyStar(fromElem) {
 }
 
 function showTextPopup(text) {
+    pauseProgram();
     const overlay = ce('div');
     overlay.id = 'info-popup';
     const box = ce('div', 'popup-box');
@@ -498,7 +536,10 @@ function showTextPopup(text) {
     close.innerHTML = '&times;';
     close.addEventListener('click', () => {
         overlay.classList.add('fade-out');
-        overlay.addEventListener('animationend', () => overlay.remove(), {once: true});
+        overlay.addEventListener('animationend', () => {
+            overlay.remove();
+            resumeProgram();
+        }, {once: true});
     });
     box.appendChild(close);
     box.appendChild(icon);
@@ -510,6 +551,7 @@ function showTextPopup(text) {
 }
 
 function showImagePopup(src) {
+    pauseProgram();
     const overlay = ce('div');
     overlay.id = 'info-popup';
     const box = ce('div', 'popup-box');
@@ -517,7 +559,10 @@ function showImagePopup(src) {
     close.innerHTML = '&times;';
     close.addEventListener('click', () => {
         overlay.classList.add('fade-out');
-        overlay.addEventListener('animationend', () => overlay.remove(), {once: true});
+        overlay.addEventListener('animationend', () => {
+            overlay.remove();
+            resumeProgram();
+        }, {once: true});
     });
     const img = imgElem(src);
     box.appendChild(close);
