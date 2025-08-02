@@ -1,4 +1,5 @@
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQCSH8hh-ykxl1L9joc4opVRARLGfcqi6uTW1bRXyyzsu99zo1OXuOYFwCBzxISzEjt2q3Abd9yU-NJ/pub?gid=1508430174&single=true&output=csv';
+const QCM_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRnMUhohCoWDFXkYob051ITZ1tFOlLsmNw5mJxPHrPB7g_RPwhKmyBULgMFQD2droRgam8MsJQ2ORsZ/pub?output=csv';
 
 function parseCSV(text) {
     const rows = [];
@@ -32,6 +33,20 @@ async function loadStats() {
     return parseCSV(await res.text());
 }
 
+async function loadThemes() {
+    const res = await fetch(QCM_URL + '&t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = parseCSV(await res.text());
+    rows.shift();
+    const map = {};
+    rows.forEach(r => {
+        const num = (r[0] || '').trim();
+        const theme = (r[1] || 'Inconnu').trim();
+        if (num) map[num] = theme;
+    });
+    return map;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     if (!window.auth || !auth.getUser()) {
         alert('Vous devez être connecté pour accéder à cette page.');
@@ -46,9 +61,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const container = document.getElementById('stats-container');
-    let rows;
+    let rows, themes;
     try {
-        rows = await loadStats();
+        [themes, rows] = await Promise.all([loadThemes(), loadStats()]);
     } catch (e) {
         container.innerHTML = '<p>Impossible de charger les statistiques.</p>';
         return;
@@ -68,7 +83,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const stats = {};
     rows.forEach(r => {
-        const theme = (r[qIdx] || 'Inconnu').trim();
+        const num = (r[qIdx] || '').trim();
+        const theme = themes[num] || 'Inconnu';
         const score = parseFloat(r[sIdx] || '0') || 0;
         if (!stats[theme]) stats[theme] = { count: 0, score: 0 };
         stats[theme].count++;
