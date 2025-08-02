@@ -289,6 +289,7 @@ function showRandomQuestion() {
                 theme: current.theme || 'Autre',
                 isCorrect: correct
             });
+            sendCompetence(current.numero || '', correct ? 1 : 0);
             btn.style.backgroundColor = correct ? '#00a000' : '#ff0000';
             if (!correct && current.correction) {
                 showTextPopup(`Correction : ${current.correction}`);
@@ -479,6 +480,16 @@ function sendScore() {
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(["historique", { pseudo: pseudo, score: score }])
+    }).catch(() => {});
+}
+
+function sendCompetence(idQuestion, resultat) {
+    if (!pseudo) return;
+    fetch('https://script.google.com/macros/s/AKfycbzHfWfQzgWHNx7iE2aeCcgC27Y-1lvr2SVnZQDoNOeLwgsebjQyGw8zWTavJ175GSmg/exec', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(["competence", { pseudo: pseudo, idQuestion: idQuestion, resultat: resultat }])
     }).catch(() => {});
 }
 
