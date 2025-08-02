@@ -140,6 +140,8 @@ let allThemesSelectedAtStart = false; // indique si tous les thèmes étaient co
 let challengeActive = false;
 let challengeTheme = '';
 let previousMaxQuestions = 5;
+let doubleOrNothingActive = false;
+let doubleStake = 1;
 
 function showResults(container) {
     const percent = count ? Math.round((score / count) * 100) : 0;
@@ -229,9 +231,12 @@ function showResults(container) {
 
 function showRandomQuestion() {
     const container = document.getElementById('quiz-container');
-    if (count >= maxQuestions || !questions.length) {
+    if (!doubleOrNothingActive && (count >= maxQuestions || !questions.length)) {
         showResults(container);
         return;
+    }
+    if (doubleOrNothingActive && !questions.length) {
+        questions = shuffle(allQuestions.slice());
     }
     const index = Math.floor(Math.random() * questions.length);
     current = questions.splice(index, 1)[0];
@@ -285,7 +290,20 @@ function showRandomQuestion() {
             if (!correct && current.correction) {
                 showTextPopup(`Correction : ${current.correction}`);
             }
-            setTimeout(showRandomQuestion, HIGHLIGHT_DELAY);
+            if (doubleOrNothingActive) {
+                if (correct) {
+                    setTimeout(askDoubleOrNothing, HIGHLIGHT_DELAY);
+                } else {
+                    setTimeout(() => {
+                        showStarAnimation(0);
+                        doubleOrNothingActive = false;
+                        doubleStake = 1;
+                        showFilterSelection();
+                    }, HIGHLIGHT_DELAY);
+                }
+            } else {
+                setTimeout(showRandomQuestion, HIGHLIGHT_DELAY);
+            }
         });
         answerBox.appendChild(btn);
     });
@@ -331,6 +349,8 @@ const createInfoBox = text => ce('div', 'info-box', text);
 
 function showFilterSelection() {
     challengeActive = false;
+    doubleOrNothingActive = false;
+    doubleStake = 1;
     maxQuestions = 5;
     const container = document.getElementById('quiz-container');
     container.innerHTML = '';
@@ -599,15 +619,61 @@ function showImagePopup(src) {
 }
 
 function offerChallenge(themes) {
-    if (Math.random() >= 0.3 || !themes.length) return;
-    const theme = themes[Math.floor(Math.random() * themes.length)];
+    if (Math.random() >= 0.3) return;
+    if (Math.random() < 0.5 && themes.length) {
+        const theme = themes[Math.floor(Math.random() * themes.length)];
+        const overlay = ce('div');
+        overlay.id = 'challenge-popup';
+        const box = ce('div', 'popup-box');
+        const close = ce('span', 'close');
+        close.innerHTML = '&times;';
+        const icon = ce('span', 'challenge-icon', '🏆');
+        const msg = ce('p', '', `Challenge : réussis cette série de 5 questions sur le thème ${theme} et triple les points !`);
+        const accept = ce('button', 'quiz-btn', 'Accepter');
+        const refuse = ce('button', 'quiz-btn', 'Refuser');
+
+        function remove() {
+            overlay.classList.add('fade-out');
+            overlay.addEventListener('animationend', () => overlay.remove(), { once: true });
+        }
+
+        accept.addEventListener('click', () => {
+            remove();
+            challengeActive = true;
+            challengeTheme = theme;
+            previousMaxQuestions = maxQuestions;
+            maxQuestions = 5;
+            pointsAwarded = false;
+            questions = shuffle(allQuestions.filter(q => (q.theme || 'Autre') === theme)).slice(0, 5);
+            score = 0;
+            count = 0;
+            history = [];
+            showRandomQuestion();
+        });
+
+        refuse.addEventListener('click', remove);
+        close.addEventListener('click', remove);
+
+        box.appendChild(close);
+        box.appendChild(icon);
+        box.appendChild(msg);
+        box.appendChild(accept);
+        box.appendChild(refuse);
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+    } else {
+        offerDoubleOrNothing();
+    }
+}
+
+function offerDoubleOrNothing() {
     const overlay = ce('div');
     overlay.id = 'challenge-popup';
     const box = ce('div', 'popup-box');
     const close = ce('span', 'close');
     close.innerHTML = '&times;';
-    const icon = ce('span', 'challenge-icon', '🏆');
-    const msg = ce('p', '', `Challenge : réussis cette série de 5 questions sur le thème ${theme} et triple les points !`);
+    const icon = ce('span', 'challenge-icon', '🎲');
+    const msg = ce('p', '', 'Challenge : Quitte ou double sur une série de questions !');
     const accept = ce('button', 'quiz-btn', 'Accepter');
     const refuse = ce('button', 'quiz-btn', 'Refuser');
 
@@ -618,12 +684,10 @@ function offerChallenge(themes) {
 
     accept.addEventListener('click', () => {
         remove();
-        challengeActive = true;
-        challengeTheme = theme;
-        previousMaxQuestions = maxQuestions;
-        maxQuestions = 5;
+        doubleOrNothingActive = true;
+        doubleStake = 1;
         pointsAwarded = false;
-        questions = shuffle(allQuestions.filter(q => (q.theme || 'Autre') === theme)).slice(0, 5);
+        questions = shuffle(allQuestions.slice());
         score = 0;
         count = 0;
         history = [];
@@ -638,6 +702,44 @@ function offerChallenge(themes) {
     box.appendChild(msg);
     box.appendChild(accept);
     box.appendChild(refuse);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+}
+
+function askDoubleOrNothing() {
+    const overlay = ce('div');
+    overlay.id = 'challenge-popup';
+    const box = ce('div', 'popup-box');
+    const plural = doubleStake > 1 ? 's' : '';
+    const msg = ce(
+        'p',
+        '',
+        `Bravo ! Tu as ${doubleStake} étoile${plural}. Souhaites-tu t'arrêter et les garder ou tenter d'en gagner ${doubleStake * 2} ?`
+    );
+    const stop = ce('button', 'quiz-btn', `Arrêter (${doubleStake} ⭐)`);
+    const cont = ce('button', 'quiz-btn', `Continuer (${doubleStake * 2} ⭐)`);
+
+    function remove() {
+        overlay.classList.add('fade-out');
+        overlay.addEventListener('animationend', () => overlay.remove(), { once: true });
+    }
+
+    stop.addEventListener('click', () => {
+        remove();
+        showStarAnimation(doubleStake);
+        doubleOrNothingActive = false;
+        doubleStake = 1;
+        showFilterSelection();
+    });
+    cont.addEventListener('click', () => {
+        remove();
+        doubleStake *= 2;
+        setTimeout(showRandomQuestion, HIGHLIGHT_DELAY);
+    });
+
+    box.appendChild(msg);
+    box.appendChild(stop);
+    box.appendChild(cont);
     overlay.appendChild(box);
     document.body.appendChild(overlay);
 }
