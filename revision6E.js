@@ -166,7 +166,7 @@ function selectQuestions(candidates, count) {
     const result = [first];
     let prevRate = questionRates[first.numero] || 0;
     while (result.length < count) {
-        const lower = pool.filter(q => (questionRates[q.numero] || 0) < prevRate);
+        const lower = pool.filter(q => (questionRates[q.numero] || 0) <= prevRate);
         if (!lower.length) break;
         lower.sort((a, b) => (questionRates[b.numero] || 0) - (questionRates[a.numero] || 0));
         const bestRate = questionRates[lower[0].numero] || 0;
