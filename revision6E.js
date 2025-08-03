@@ -734,8 +734,10 @@ function showImagePopup(src) {
 }
 
 function offerChallenge(themes) {
-    if (Math.random() >= 0.3) return;
-    if (Math.random() < 0.5 && themes.length) {
+    const chance = Math.random();
+    if (chance < 0.01) {
+        offerDoubleOrNothing();
+    } else if (chance < 0.16 && themes.length) {
         pauseProgram();
         const theme = themes[Math.floor(Math.random() * themes.length)];
         const overlay = ce('div');
@@ -780,8 +782,6 @@ function offerChallenge(themes) {
         box.appendChild(refuse);
         overlay.appendChild(box);
         document.body.appendChild(overlay);
-    } else {
-        offerDoubleOrNothing();
     }
 }
 
