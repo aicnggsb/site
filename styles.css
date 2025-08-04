@@ -869,5 +869,10 @@ header {
     to { transform: scale(1.5) rotate(45deg); opacity: 0; }
 }
 
+.smiley {
+    font-size: 2rem;
+    margin-right: 8px;
+}
+
 
 
