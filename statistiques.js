@@ -109,6 +109,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         const p3 = document.createElement('p');
         p3.textContent = `Taux de réussite : ${rate}%`;
         box.appendChild(p3);
+
+        let smiley = '', message = '';
+        if (rate >= 80) {
+            smiley = '😄';
+            message = 'Excellent travail, continue ainsi !';
+        } else if (rate >= 50) {
+            smiley = '🙂';
+            message = 'Beau progrès, tu es sur la bonne voie !';
+        } else {
+            smiley = '😟';
+            message = 'Ne te décourage pas, tu vas y arriver !';
+        }
+        const p4 = document.createElement('p');
+        p4.textContent = `${smiley} ${message}`;
+        box.appendChild(p4);
         container.appendChild(box);
     });
 });
