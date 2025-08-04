@@ -110,19 +110,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         p3.textContent = `Taux de réussite : ${rate}%`;
         box.appendChild(p3);
 
-        let smiley = '', message = '';
+        let smiley = '', messages = [];
         if (rate >= 80) {
             smiley = '😄';
-            message = 'Excellent travail, continue ainsi !';
+            messages = [
+                'Excellent travail, continue ainsi !',
+                'Super progression, bravo !',
+                'Tu maîtrises ce thème, félicitations !'
+            ];
         } else if (rate >= 50) {
             smiley = '🙂';
-            message = 'Beau progrès, tu es sur la bonne voie !';
+            messages = [
+                'Beau progrès, tu es sur la bonne voie !',
+                'Continue comme ça, tu avances bien !',
+                'Tu t\'améliores, bravo !'
+            ];
         } else {
             smiley = '😟';
-            message = 'Ne te décourage pas, tu vas y arriver !';
+            messages = [
+                'Ne te décourage pas, tu vas y arriver !',
+                'Chaque effort compte, persévère !',
+                'Courage, tu progresses à ton rythme !'
+            ];
         }
+        const message = messages[Math.floor(Math.random() * messages.length)];
         const p4 = document.createElement('p');
-        p4.textContent = `${smiley} ${message}`;
+        p4.innerHTML = `<span class="smiley">${smiley}</span>${message}`;
         box.appendChild(p4);
         container.appendChild(box);
     });
