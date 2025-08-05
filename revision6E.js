@@ -227,6 +227,44 @@ let doubleStake = 1;
 let isPaused = false;
 let pendingAction = null;
 let actionTimeout = null;
+let doubleOrNothingGuard = null;
+
+function activateDoubleOrNothingGuard() {
+    const warn = () => alert('⚠️ Mode Quitte ou double actif : navigation bloquée');
+    const handleBlur = () => { warn(); window.focus(); };
+    const handleMouseLeave = e => { if (e.relatedTarget === null) warn(); };
+    const handleClick = e => {
+        const link = e.target.closest('a');
+        if (link && link.href && !link.href.startsWith('#')) {
+            e.preventDefault();
+            warn();
+        }
+    };
+    const handleKey = e => {
+        if (e.ctrlKey && ['l', 't', 'n'].includes(e.key.toLowerCase())) {
+            e.preventDefault();
+            warn();
+        }
+    };
+    const handleBeforeUnload = e => { e.preventDefault(); e.returnValue = ''; };
+    window.addEventListener('blur', handleBlur);
+    document.addEventListener('mouseleave', handleMouseLeave);
+    document.addEventListener('click', handleClick, true);
+    document.addEventListener('keydown', handleKey, true);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    doubleOrNothingGuard = { handleBlur, handleMouseLeave, handleClick, handleKey, handleBeforeUnload };
+}
+
+function deactivateDoubleOrNothingGuard() {
+    if (!doubleOrNothingGuard) return;
+    const { handleBlur, handleMouseLeave, handleClick, handleKey, handleBeforeUnload } = doubleOrNothingGuard;
+    window.removeEventListener('blur', handleBlur);
+    document.removeEventListener('mouseleave', handleMouseLeave);
+    document.removeEventListener('click', handleClick, true);
+    document.removeEventListener('keydown', handleKey, true);
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+    doubleOrNothingGuard = null;
+}
 
 function scheduleAction(fn, delay) {
     pendingAction = fn;
@@ -421,6 +459,7 @@ function showRandomQuestion() {
                     scheduleAction(askDoubleOrNothing, HIGHLIGHT_DELAY);
                 } else {
                     scheduleAction(() => {
+                        deactivateDoubleOrNothingGuard();
                         showStarAnimation(0);
                         doubleOrNothingActive = false;
                         doubleStake = 1;
@@ -484,6 +523,7 @@ function showFilterSelection() {
     challengeActive = false;
     doubleOrNothingActive = false;
     doubleStake = 1;
+    deactivateDoubleOrNothingGuard();
     maxQuestions = 5;
     const container = document.getElementById('quiz-container');
     container.innerHTML = '';
@@ -856,6 +896,7 @@ function offerDoubleOrNothing() {
         score = 0;
         count = 0;
         history = [];
+        activateDoubleOrNothingGuard();
         showRandomQuestion();
     });
 
@@ -895,6 +936,7 @@ function askDoubleOrNothing() {
 
     stop.addEventListener('click', () => {
         remove();
+        deactivateDoubleOrNothingGuard();
         showStarAnimation(doubleStake);
         doubleOrNothingActive = false;
         doubleStake = 1;
