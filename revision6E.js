@@ -777,9 +777,9 @@ function showImagePopup(src) {
 
 function offerChallenge(themes) {
     const chance = Math.random();
-    if (chance < 0.10) {
+    if (chance < 0.05) {
         offerDoubleOrNothing();
-    } else if (chance < 0.25 && themes.length) {
+    } else if (chance < 0.20 && themes.length) {
         pauseProgram();
         const theme = themes[Math.floor(Math.random() * themes.length)];
         const overlay = ce('div');
