@@ -71,6 +71,33 @@ async function fetchQuestionRates() {
     }
 }
 
+async function fetchUserQuestionStats(pseudo) {
+    try {
+        const res = await fetch(HISTORY_CSV_URL + '&t=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const rows = parseCSV(await res.text());
+        if (!rows.length) return {};
+        const header = rows.shift().map(h => h.trim().toLowerCase());
+        const pIdx = header.indexOf('pseudo');
+        const qIdx = header.indexOf('question');
+        const sIdx = header.indexOf('score');
+        if (pIdx === -1 || qIdx === -1 || sIdx === -1) return {};
+        const stats = {};
+        rows.forEach(r => {
+            const p = (r[pIdx] || '').trim().toLowerCase();
+            if (p !== pseudo.toLowerCase()) return;
+            const num = (r[qIdx] || '').trim();
+            const val = parseFloat(r[sIdx] || '0') || 0;
+            if (!stats[num]) stats[num] = { count: 0, score: 0 };
+            stats[num].count++;
+            stats[num].score += val;
+        });
+        return stats;
+    } catch (e) {
+        return {};
+    }
+}
+
 function parseCSV(text) {
     const rows = [];
     let cur = '';
@@ -188,6 +215,7 @@ let count = 0;
 let maxQuestions = 5;
 let history = [];
 let pseudo = '';
+let userQuestionStats = {};
 const HIGHLIGHT_DELAY = 1000; // temps avant la question suivante
 let pointsAwarded = false; // évite un ajout multiple de points
 let allThemesSelectedAtStart = false; // indique si tous les thèmes étaient cochés
@@ -334,9 +362,8 @@ function showRandomQuestion() {
     const rate = Math.round((questionRates[current.numero] || 0) * 100);
     block.appendChild(ce('div', 'success-rate', `Taux de réussite : ${rate}%`));
 
-    const answered = count - 1;
-    const scoreText = answered > 0 ? `Score : ${score} / ${answered}` : `Score : ${score}`;
-    block.appendChild(ce('div', 'success-rate', scoreText));
+    const stats = userQuestionStats[current.numero] || { score: 0, count: 0 };
+    block.appendChild(ce('div', 'success-rate', `Score : ${stats.score} / ${stats.count}`));
 
     const qLine = ce('div', 'question-line');
     qLine.appendChild(ceHtml('p', '', current.question));
@@ -379,6 +406,11 @@ function showRandomQuestion() {
                 theme: current.theme || 'Autre',
                 isCorrect: correct
             });
+            if (!userQuestionStats[current.numero]) {
+                userQuestionStats[current.numero] = { score: 0, count: 0 };
+            }
+            userQuestionStats[current.numero].count++;
+            if (correct) userQuestionStats[current.numero].score++;
             sendCompetence(current.numero || '', correct ? 1 : 0);
             btn.style.backgroundColor = correct ? '#00a000' : '#ff0000';
             if (!correct && current.correction) {
@@ -414,10 +446,15 @@ function showRandomQuestion() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const [qcm, rates] = await Promise.all([fetchQCM(), fetchQuestionRates()]);
+    pseudo = localStorage.getItem('pseudo') || '';
+    const [qcm, rates, stats] = await Promise.all([
+        fetchQCM(),
+        fetchQuestionRates(),
+        pseudo ? fetchUserQuestionStats(pseudo) : Promise.resolve({})
+    ]);
     allQuestions = qcm;
     questionRates = rates;
-    pseudo = localStorage.getItem('pseudo') || '';
+    userQuestionStats = stats;
     if (pseudo) {
         showFilterSelection();
     } else {
@@ -553,11 +590,12 @@ function showLogin() {
     box.appendChild(label);
 
     const btn = ce('button', 'quiz-btn', 'Valider');
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
         const val = input.value.trim();
         if (val) {
             pseudo = val;
             localStorage.setItem('pseudo', pseudo);
+            userQuestionStats = await fetchUserQuestionStats(pseudo);
             showFilterSelection();
         }
     });
