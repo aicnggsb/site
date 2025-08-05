@@ -340,7 +340,7 @@ function showRandomQuestion() {
 
     const qLine = ce('div', 'question-line');
     qLine.appendChild(ceHtml('p', '', current.question));
-    if (current.cours) {
+    if (current.cours && !doubleOrNothingActive) {
         const cIcon = ce('span', 'question-icon lightbulb-icon', '💡');
         cIcon.title = 'Voir le cours';
         cIcon.addEventListener('click', () => showTextPopup(current.cours));
@@ -739,9 +739,9 @@ function showImagePopup(src) {
 
 function offerChallenge(themes) {
     const chance = Math.random();
-    if (chance < 0.01) {
+    if (chance < 0.10) {
         offerDoubleOrNothing();
-    } else if (chance < 0.16 && themes.length) {
+    } else if (chance < 0.25 && themes.length) {
         pauseProgram();
         const theme = themes[Math.floor(Math.random() * themes.length)];
         const overlay = ce('div');
