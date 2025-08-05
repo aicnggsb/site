@@ -334,6 +334,10 @@ function showRandomQuestion() {
     const rate = Math.round((questionRates[current.numero] || 0) * 100);
     block.appendChild(ce('div', 'success-rate', `Taux de réussite : ${rate}%`));
 
+    const answered = count - 1;
+    const scoreText = answered > 0 ? `Score : ${score} / ${answered}` : `Score : ${score}`;
+    block.appendChild(ce('div', 'success-rate', scoreText));
+
     const qLine = ce('div', 'question-line');
     qLine.appendChild(ceHtml('p', '', current.question));
     if (current.cours) {
