@@ -227,12 +227,23 @@ let doubleStake = 1;
 let isPaused = false;
 let pendingAction = null;
 let actionTimeout = null;
-let doubleOrNothingGuard = null;
+let challengeGuard = null;
+let challengeGuardWarned = false;
 
-function activateDoubleOrNothingGuard() {
-    const warn = () => alert('⚠️ Mode Quitte ou double actif : navigation bloquée');
-    const handleBlur = () => { warn(); window.focus(); };
-    const handleMouseLeave = e => { if (e.relatedTarget === null) warn(); };
+function activateChallengeGuard() {
+    const warn = () => {
+        if (challengeGuardWarned) return;
+        challengeGuardWarned = true;
+        alert('⚠️ Challenge en cours : navigation bloquée');
+        setTimeout(() => (challengeGuardWarned = false), 500);
+    };
+    const handleBlur = () => {
+        warn();
+        window.focus();
+    };
+    const handleMouseLeave = e => {
+        if (e.relatedTarget === null) warn();
+    };
     const handleClick = e => {
         const link = e.target.closest('a');
         if (link && link.href && !link.href.startsWith('#')) {
@@ -246,24 +257,27 @@ function activateDoubleOrNothingGuard() {
             warn();
         }
     };
-    const handleBeforeUnload = e => { e.preventDefault(); e.returnValue = ''; };
+    const handleBeforeUnload = e => {
+        e.preventDefault();
+        e.returnValue = '';
+    };
     window.addEventListener('blur', handleBlur);
     document.addEventListener('mouseleave', handleMouseLeave);
     document.addEventListener('click', handleClick, true);
     document.addEventListener('keydown', handleKey, true);
     window.addEventListener('beforeunload', handleBeforeUnload);
-    doubleOrNothingGuard = { handleBlur, handleMouseLeave, handleClick, handleKey, handleBeforeUnload };
+    challengeGuard = { handleBlur, handleMouseLeave, handleClick, handleKey, handleBeforeUnload };
 }
 
-function deactivateDoubleOrNothingGuard() {
-    if (!doubleOrNothingGuard) return;
-    const { handleBlur, handleMouseLeave, handleClick, handleKey, handleBeforeUnload } = doubleOrNothingGuard;
+function deactivateChallengeGuard() {
+    if (!challengeGuard) return;
+    const { handleBlur, handleMouseLeave, handleClick, handleKey, handleBeforeUnload } = challengeGuard;
     window.removeEventListener('blur', handleBlur);
     document.removeEventListener('mouseleave', handleMouseLeave);
     document.removeEventListener('click', handleClick, true);
     document.removeEventListener('keydown', handleKey, true);
     window.removeEventListener('beforeunload', handleBeforeUnload);
-    doubleOrNothingGuard = null;
+    challengeGuard = null;
 }
 
 function scheduleAction(fn, delay) {
@@ -459,7 +473,7 @@ function showRandomQuestion() {
                     scheduleAction(askDoubleOrNothing, HIGHLIGHT_DELAY);
                 } else {
                     scheduleAction(() => {
-                        deactivateDoubleOrNothingGuard();
+                        deactivateChallengeGuard();
                         showStarAnimation(0);
                         doubleOrNothingActive = false;
                         doubleStake = 1;
@@ -523,7 +537,7 @@ function showFilterSelection() {
     challengeActive = false;
     doubleOrNothingActive = false;
     doubleStake = 1;
-    deactivateDoubleOrNothingGuard();
+    deactivateChallengeGuard();
     maxQuestions = 5;
     const container = document.getElementById('quiz-container');
     container.innerHTML = '';
@@ -851,6 +865,7 @@ function offerChallenge(themes) {
             score = 0;
             count = 0;
             history = [];
+            activateChallengeGuard();
             showRandomQuestion();
         });
 
@@ -896,7 +911,7 @@ function offerDoubleOrNothing() {
         score = 0;
         count = 0;
         history = [];
-        activateDoubleOrNothingGuard();
+        activateChallengeGuard();
         showRandomQuestion();
     });
 
@@ -936,7 +951,7 @@ function askDoubleOrNothing() {
 
     stop.addEventListener('click', () => {
         remove();
-        deactivateDoubleOrNothingGuard();
+        deactivateChallengeGuard();
         showStarAnimation(doubleStake);
         doubleOrNothingActive = false;
         doubleStake = 1;
