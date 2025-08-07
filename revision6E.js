@@ -232,6 +232,7 @@ let challengeGuardWarned = false;
 let offZoneTimeout = null;
 
 function activateChallengeGuard() {
+    showWarningPopup("Challenge : l'utilisation d'internet est interdite");
     const warn = () => {
         if (challengeGuardWarned) return;
         challengeGuardWarned = true;
@@ -239,22 +240,13 @@ function activateChallengeGuard() {
         startOffZoneTimer();
         setTimeout(() => (challengeGuardWarned = false), 500);
     };
-    const requestFullScreen = () => {
-        const el = document.documentElement;
-        if (el.requestFullscreen) {
-            el.requestFullscreen().catch(() => {});
-        }
-    };
-    requestFullScreen();
     const handleBlur = () => {
         warn();
-        requestFullScreen();
         window.focus();
     };
     const handleVisibility = () => {
         if (document.hidden) {
             warn();
-            requestFullScreen();
         } else {
             clearOffZoneTimer();
         }
@@ -353,6 +345,7 @@ function resumeProgram() {
 }
 
 function showResults(container) {
+    deactivateChallengeGuard();
     const percent = count ? Math.round((score / count) * 100) : 0;
     const noError = percent === 100;
     let multiplier = 1;
