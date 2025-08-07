@@ -229,12 +229,14 @@ let pendingAction = null;
 let actionTimeout = null;
 let challengeGuard = null;
 let challengeGuardWarned = false;
+let offZoneTimeout = null;
 
 function activateChallengeGuard() {
     const warn = () => {
         if (challengeGuardWarned) return;
         challengeGuardWarned = true;
-        alert('⚠️ Challenge en cours : navigation bloquée');
+        showWarningPopup('Challenge en cours : navigation bloquée');
+        startOffZoneTimer();
         setTimeout(() => (challengeGuardWarned = false), 500);
     };
     const requestFullScreen = () => {
@@ -253,7 +255,12 @@ function activateChallengeGuard() {
         if (document.hidden) {
             warn();
             requestFullScreen();
+        } else {
+            clearOffZoneTimer();
         }
+    };
+    const handleFocus = () => {
+        clearOffZoneTimer();
     };
     const handleMouseLeave = e => {
         if (e.relatedTarget === null) warn();
@@ -276,6 +283,7 @@ function activateChallengeGuard() {
         e.returnValue = '';
     };
     window.addEventListener('blur', handleBlur);
+    window.addEventListener('focus', handleFocus);
     document.addEventListener('mouseleave', handleMouseLeave);
     document.addEventListener('click', handleClick, true);
     document.addEventListener('keydown', handleKey, true);
@@ -283,6 +291,7 @@ function activateChallengeGuard() {
     window.addEventListener('beforeunload', handleBeforeUnload);
     challengeGuard = {
         handleBlur,
+        handleFocus,
         handleMouseLeave,
         handleClick,
         handleKey,
@@ -295,6 +304,7 @@ function deactivateChallengeGuard() {
     if (!challengeGuard) return;
     const {
         handleBlur,
+        handleFocus,
         handleMouseLeave,
         handleClick,
         handleKey,
@@ -302,11 +312,13 @@ function deactivateChallengeGuard() {
         handleVisibility
     } = challengeGuard;
     window.removeEventListener('blur', handleBlur);
+    window.removeEventListener('focus', handleFocus);
     document.removeEventListener('mouseleave', handleMouseLeave);
     document.removeEventListener('click', handleClick, true);
     document.removeEventListener('keydown', handleKey, true);
     document.removeEventListener('visibilitychange', handleVisibility);
     window.removeEventListener('beforeunload', handleBeforeUnload);
+    clearOffZoneTimer();
     challengeGuard = null;
 }
 
@@ -857,6 +869,70 @@ function showImagePopup(src) {
     box.appendChild(img);
     overlay.appendChild(box);
     document.body.appendChild(overlay);
+}
+
+function showWarningPopup(text) {
+    pauseProgram();
+    const overlay = ce('div');
+    overlay.id = 'warning-popup';
+    const box = ce('div', 'popup-box');
+    const close = ce('span', 'close');
+    close.innerHTML = '&times;';
+    close.addEventListener('click', () => {
+        overlay.classList.add('fade-out');
+        overlay.addEventListener('animationend', () => {
+            overlay.remove();
+            resumeProgram();
+        }, {once: true});
+    });
+    const icon = ce('span', 'warning-icon', '⚠️');
+    const content = ce('div', 'popup-content');
+    content.innerHTML = text;
+    box.appendChild(close);
+    box.appendChild(icon);
+    box.appendChild(content);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+}
+
+function markQuestionWrong() {
+    if (!current) return;
+    const block = document.querySelector('.question-block');
+    if (block) {
+        Array.from(block.querySelectorAll('button')).forEach(b => b.disabled = true);
+    }
+    history.push({
+        numero: current.numero || '',
+        question: current.question,
+        selected: '(hors zone)',
+        correct: current.answer,
+        correction: current.correction || '',
+        image: current.image || '',
+        theme: current.theme || 'Autre',
+        isCorrect: false
+    });
+    if (!userQuestionStats[current.numero]) {
+        userQuestionStats[current.numero] = { score: 0, count: 0 };
+    }
+    userQuestionStats[current.numero].count++;
+    sendCompetence(current.numero || '', 0);
+    scheduleAction(showRandomQuestion, HIGHLIGHT_DELAY);
+}
+
+function startOffZoneTimer() {
+    if (offZoneTimeout) return;
+    offZoneTimeout = setTimeout(() => {
+        offZoneTimeout = null;
+        showWarningPopup('Temps écoulé : la question est considérée comme fausse');
+        markQuestionWrong();
+    }, 10000);
+}
+
+function clearOffZoneTimer() {
+    if (offZoneTimeout) {
+        clearTimeout(offZoneTimeout);
+        offZoneTimeout = null;
+    }
 }
 
 function offerChallenge(themes) {
