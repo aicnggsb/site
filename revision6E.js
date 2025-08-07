@@ -237,9 +237,23 @@ function activateChallengeGuard() {
         alert('⚠️ Challenge en cours : navigation bloquée');
         setTimeout(() => (challengeGuardWarned = false), 500);
     };
+    const requestFullScreen = () => {
+        const el = document.documentElement;
+        if (el.requestFullscreen) {
+            el.requestFullscreen().catch(() => {});
+        }
+    };
+    requestFullScreen();
     const handleBlur = () => {
         warn();
+        requestFullScreen();
         window.focus();
+    };
+    const handleVisibility = () => {
+        if (document.hidden) {
+            warn();
+            requestFullScreen();
+        }
     };
     const handleMouseLeave = e => {
         if (e.relatedTarget === null) warn();
@@ -265,17 +279,33 @@ function activateChallengeGuard() {
     document.addEventListener('mouseleave', handleMouseLeave);
     document.addEventListener('click', handleClick, true);
     document.addEventListener('keydown', handleKey, true);
+    document.addEventListener('visibilitychange', handleVisibility);
     window.addEventListener('beforeunload', handleBeforeUnload);
-    challengeGuard = { handleBlur, handleMouseLeave, handleClick, handleKey, handleBeforeUnload };
+    challengeGuard = {
+        handleBlur,
+        handleMouseLeave,
+        handleClick,
+        handleKey,
+        handleBeforeUnload,
+        handleVisibility
+    };
 }
 
 function deactivateChallengeGuard() {
     if (!challengeGuard) return;
-    const { handleBlur, handleMouseLeave, handleClick, handleKey, handleBeforeUnload } = challengeGuard;
+    const {
+        handleBlur,
+        handleMouseLeave,
+        handleClick,
+        handleKey,
+        handleBeforeUnload,
+        handleVisibility
+    } = challengeGuard;
     window.removeEventListener('blur', handleBlur);
     document.removeEventListener('mouseleave', handleMouseLeave);
     document.removeEventListener('click', handleClick, true);
     document.removeEventListener('keydown', handleKey, true);
+    document.removeEventListener('visibilitychange', handleVisibility);
     window.removeEventListener('beforeunload', handleBeforeUnload);
     challengeGuard = null;
 }
