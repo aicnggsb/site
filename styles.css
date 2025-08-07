@@ -783,6 +783,49 @@ header {
     margin-bottom: 10px;
 }
 
+#warning-popup {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.8);
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards;
+    z-index: 10000;
+}
+
+#warning-popup .popup-box {
+    position: relative;
+    background: linear-gradient(to bottom, rgba(255, 0, 0, 0.6), rgba(0, 0, 0, 0.8));
+    border: 3px solid red;
+    border-radius: 8px;
+    padding: 20px 40px;
+    text-align: center;
+    color: #fff;
+    box-shadow: 0 0 10px red;
+    transform: scale(0.8);
+    opacity: 0;
+    animation: popupIn 0.5s ease forwards;
+}
+
+#warning-popup .close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 1.5em;
+}
+
+.warning-icon {
+    font-size: 2em;
+    display: block;
+    margin-bottom: 10px;
+}
+
 #points-popup .popup-box {
     position: relative;
     background: linear-gradient(to bottom, #1e3c72, #000000);
@@ -845,7 +888,8 @@ header {
 /* Fade-out animation for the popups */
 #points-popup.fade-out,
 #info-popup.fade-out,
-#challenge-popup.fade-out {
+#challenge-popup.fade-out,
+#warning-popup.fade-out {
     animation: fadeOut 0.5s ease forwards;
 }
 
