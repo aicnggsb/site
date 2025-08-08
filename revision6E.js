@@ -229,7 +229,6 @@ let pendingAction = null;
 let actionTimeout = null;
 let challengeGuard = null;
 let challengeGuardWarned = false;
-let offZoneTimeout = null;
 
 function activateChallengeGuard() {
     showWarningPopup("Challenge : l'utilisation d'internet est interdite");
@@ -237,7 +236,6 @@ function activateChallengeGuard() {
         if (challengeGuardWarned) return;
         challengeGuardWarned = true;
         showWarningPopup('Challenge en cours : navigation bloquée');
-        startOffZoneTimer();
         setTimeout(() => (challengeGuardWarned = false), 500);
     };
     const handleBlur = () => {
@@ -247,12 +245,7 @@ function activateChallengeGuard() {
     const handleVisibility = () => {
         if (document.hidden) {
             warn();
-        } else {
-            clearOffZoneTimer();
         }
-    };
-    const handleFocus = () => {
-        clearOffZoneTimer();
     };
     const handleMouseLeave = e => {
         if (e.relatedTarget === null) warn();
@@ -275,7 +268,6 @@ function activateChallengeGuard() {
         e.returnValue = '';
     };
     window.addEventListener('blur', handleBlur);
-    window.addEventListener('focus', handleFocus);
     document.addEventListener('mouseleave', handleMouseLeave);
     document.addEventListener('click', handleClick, true);
     document.addEventListener('keydown', handleKey, true);
@@ -283,7 +275,6 @@ function activateChallengeGuard() {
     window.addEventListener('beforeunload', handleBeforeUnload);
     challengeGuard = {
         handleBlur,
-        handleFocus,
         handleMouseLeave,
         handleClick,
         handleKey,
@@ -296,7 +287,6 @@ function deactivateChallengeGuard() {
     if (!challengeGuard) return;
     const {
         handleBlur,
-        handleFocus,
         handleMouseLeave,
         handleClick,
         handleKey,
@@ -304,13 +294,11 @@ function deactivateChallengeGuard() {
         handleVisibility
     } = challengeGuard;
     window.removeEventListener('blur', handleBlur);
-    window.removeEventListener('focus', handleFocus);
     document.removeEventListener('mouseleave', handleMouseLeave);
     document.removeEventListener('click', handleClick, true);
     document.removeEventListener('keydown', handleKey, true);
     document.removeEventListener('visibilitychange', handleVisibility);
     window.removeEventListener('beforeunload', handleBeforeUnload);
-    clearOffZoneTimer();
     challengeGuard = null;
 }
 
@@ -910,22 +898,6 @@ function markQuestionWrong() {
     userQuestionStats[current.numero].count++;
     sendCompetence(current.numero || '', 0);
     scheduleAction(showRandomQuestion, HIGHLIGHT_DELAY);
-}
-
-function startOffZoneTimer() {
-    if (offZoneTimeout) return;
-    offZoneTimeout = setTimeout(() => {
-        offZoneTimeout = null;
-        showWarningPopup('Temps écoulé : la question est considérée comme fausse');
-        markQuestionWrong();
-    }, 10000);
-}
-
-function clearOffZoneTimer() {
-    if (offZoneTimeout) {
-        clearTimeout(offZoneTimeout);
-        offZoneTimeout = null;
-    }
 }
 
 function offerChallenge(themes) {
