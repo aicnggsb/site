@@ -76,10 +76,71 @@ document.addEventListener('DOMContentLoaded', async () => {
     const header = rows.shift().map(h => h.trim().toLowerCase());
     const qIdx = header.findIndex(h => h === 'question');
     const sIdx = header.findIndex(h => h === 'score');
-    if (qIdx === -1 || sIdx === -1) {
+    const tIdx = header.findIndex(h => ['timestamp', 'date', 'time'].includes(h));
+    if (qIdx === -1 || sIdx === -1 || tIdx === -1) {
         container.innerHTML = '<p>Données invalides.</p>';
         return;
     }
+
+    const histSection = document.getElementById('histogram');
+
+    function getWeekNumber(d) {
+        const onejan = new Date(d.getFullYear(), 0, 1);
+        const diff = d - onejan + (onejan.getTimezoneOffset() - d.getTimezoneOffset()) * 60000;
+        return Math.ceil(((diff / 86400000) + onejan.getDay() + 1) / 7);
+    }
+
+    function groupRows(period) {
+        const map = new Map();
+        rows.forEach(r => {
+            const d = new Date(r[tIdx]);
+            if (isNaN(d)) return;
+            let key;
+            if (period === 'day') key = d.toISOString().slice(0, 10);
+            else if (period === 'hour') key = d.toISOString().slice(0, 13);
+            else {
+                key = `${d.getFullYear()}-W${String(getWeekNumber(d)).padStart(2, '0')}`;
+            }
+            const entry = map.get(key) || { total: 0, success: 0 };
+            entry.total++;
+            if (parseFloat(r[sIdx] || '0') > 0) entry.success++;
+            map.set(key, entry);
+        });
+        return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0])).map(([key, v]) => ({ key, total: v.total, success: v.success }));
+    }
+
+    function renderHistogram(data) {
+        const max = Math.max(...data.map(d => d.total), 1);
+        histSection.innerHTML = '';
+        data.forEach(d => {
+            const wrap = document.createElement('div');
+            wrap.className = 'bar-wrapper';
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            const fail = document.createElement('div');
+            fail.className = 'bar-fail';
+            fail.style.height = ((d.total - d.success) / max * 100) + '%';
+            const success = document.createElement('div');
+            success.className = 'bar-success';
+            success.style.height = (d.success / max * 100) + '%';
+            bar.appendChild(fail);
+            bar.appendChild(success);
+            wrap.appendChild(bar);
+            const label = document.createElement('span');
+            label.className = 'bar-label';
+            label.textContent = d.key;
+            wrap.appendChild(label);
+            histSection.appendChild(wrap);
+        });
+    }
+
+    const periodInputs = document.querySelectorAll('input[name="period"]');
+    function updateHistogram() {
+        const period = document.querySelector('input[name="period"]:checked').value;
+        renderHistogram(groupRows(period));
+    }
+    periodInputs.forEach(i => i.addEventListener('change', updateHistogram));
+    updateHistogram();
 
     const stats = {};
     rows.forEach(r => {
