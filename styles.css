@@ -520,6 +520,52 @@ details[open] summary::before {
     text-align: center;
 }
 
+/* Histogramme des statistiques */
+#histogram-section {
+    margin-bottom: 20px;
+}
+
+#period-selector {
+    margin-bottom: 10px;
+}
+
+#histogram {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 200px;
+}
+
+.bar-wrapper {
+    width: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.bar {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    flex-grow: 1;
+}
+
+.bar-success {
+    background: #0a0;
+}
+
+.bar-fail {
+    background: #d00;
+}
+
+.bar-label {
+    margin-top: 4px;
+    font-size: 0.7em;
+    text-align: center;
+    word-break: break-all;
+}
+
 
 header {
     position: relative;
