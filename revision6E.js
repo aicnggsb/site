@@ -122,6 +122,49 @@ function parseCSV(text) {
     return rows;
 }
 
+async function showGoalProgress() {
+    const goalSection = document.getElementById('goal-container');
+    if (!goalSection) return;
+    try {
+        const res = await fetch(HISTORY_CSV_URL + '&t=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const rows = parseCSV(await res.text());
+        if (!rows.length) return;
+        const header = rows.shift().map(h => h.trim().toLowerCase());
+        const sIdx = header.indexOf('score');
+        const tIdx = header.findIndex(h => ['timestamp', 'date', 'time'].includes(h));
+        if (sIdx === -1 || tIdx === -1) return;
+        const now = new Date();
+        const start = new Date(now);
+        start.setHours(now.getHours() < 12 ? 0 : 12, 0, 0, 0);
+        const end = new Date(start);
+        end.setHours(start.getHours() + 12);
+        let successCount = 0;
+        rows.forEach(r => {
+            const d = new Date(r[tIdx]);
+            if (d >= start && d < end && parseFloat(r[sIdx] || '0') > 0) successCount++;
+        });
+        const ratio = Math.min(successCount / 50, 1);
+        goalSection.innerHTML = '';
+        const box = ce('div', 'filter-box');
+        box.appendChild(ce('span', 'filter-tab', 'Objectif demi-journée'));
+        const line = ce('div', 'progress-container');
+        const bar = ce('div', 'progress-bar');
+        const prog = ce('div', 'progress-bar-inner');
+        prog.style.width = ratio * 100 + '%';
+        const r = Math.round(255 * (1 - ratio));
+        const g = Math.round(255 * ratio);
+        prog.style.backgroundColor = `rgb(${r}, ${g}, 0)`;
+        bar.appendChild(prog);
+        line.appendChild(bar);
+        line.appendChild(ce('p', '', `${successCount}/50 questions réussies`));
+        box.appendChild(line);
+        goalSection.appendChild(box);
+    } catch (e) {
+        // ignore errors
+    }
+}
+
 function shuffle(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -522,6 +565,7 @@ function showRandomQuestion() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    showGoalProgress();
     pseudo = localStorage.getItem('pseudo') || '';
     const [qcm, rates, stats] = await Promise.all([
         fetchQCM(),
@@ -692,13 +736,15 @@ function sendScore() {
 }
 
 function sendCompetence(idQuestion, resultat) {
-    if (!pseudo) return;
-    fetch('https://script.google.com/macros/s/AKfycbxg1KZw9FZ7azPrv4SxFeJEmJJxe4Fl3KCkNU9s496EPR7VpP7aX-UE3a90HNesS1t2Iw/exec', {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(["competence", { pseudo: pseudo, idQuestion: idQuestion, resultat: resultat }])
-    }).catch(() => {});
+    if (pseudo) {
+        fetch('https://script.google.com/macros/s/AKfycbxg1KZw9FZ7azPrv4SxFeJEmJJxe4Fl3KCkNU9s496EPR7VpP7aX-UE3a90HNesS1t2Iw/exec', {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(["competence", { pseudo: pseudo, idQuestion: idQuestion, resultat: resultat }])
+        }).catch(() => {});
+    }
+    showGoalProgress();
 }
 
 function showStarAnimation(points, bonus = false) {
