@@ -124,20 +124,24 @@ function parseCSV(text) {
 
 const GOAL_KEY = 'goalProgress';
 
+function getProgressKey() {
+    if (!pseudo) return null;
+    const now = new Date();
+    const date = now.toISOString().slice(0, 10);
+    const slot = now.getHours() < 12 ? 'AM' : 'PM';
+    return `${GOAL_KEY}_${pseudo}_${date}_${slot}`;
+}
+
 function getGoalProgress() {
-    const today = new Date().toISOString().slice(0, 10);
-    const stored = JSON.parse(localStorage.getItem(GOAL_KEY) || '{}');
-    if (stored.date !== today) {
-        const fresh = { date: today, count: 0 };
-        localStorage.setItem(GOAL_KEY, JSON.stringify(fresh));
-        return fresh;
-    }
-    return { date: today, count: stored.count || 0 };
+    const key = getProgressKey();
+    if (!key) return 0;
+    return parseInt(localStorage.getItem(key) || '0', 10);
 }
 
 function setGoalProgress(count) {
-    const today = new Date().toISOString().slice(0, 10);
-    localStorage.setItem(GOAL_KEY, JSON.stringify({ date: today, count }));
+    const key = getProgressKey();
+    if (!key) return;
+    localStorage.setItem(key, count);
 }
 
 function updateGoalDisplay(count) {
@@ -162,13 +166,12 @@ function updateGoalDisplay(count) {
 }
 
 function showGoalProgress() {
-    const { count } = getGoalProgress();
+    const count = getGoalProgress();
     updateGoalDisplay(count);
 }
 
 function incrementGoalProgress() {
-    const prog = getGoalProgress();
-    const newCount = prog.count + 1;
+    const newCount = getGoalProgress() + 1;
     setGoalProgress(newCount);
     updateGoalDisplay(newCount);
 }
@@ -573,8 +576,8 @@ function showRandomQuestion() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    showGoalProgress();
     pseudo = localStorage.getItem('pseudo') || '';
+    showGoalProgress();
     const [qcm, rates, stats] = await Promise.all([
         fetchQCM(),
         fetchQuestionRates(),
@@ -725,6 +728,7 @@ function showLogin() {
             pseudo = val;
             localStorage.setItem('pseudo', pseudo);
             userQuestionStats = await fetchUserQuestionStats(pseudo);
+            showGoalProgress();
             showFilterSelection();
         }
     });

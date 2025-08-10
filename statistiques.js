@@ -85,11 +85,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const header = rows.shift().map(h => h.trim().toLowerCase());
+    const pIdx = header.findIndex(h => h === 'pseudo');
     const qIdx = header.findIndex(h => h === 'question');
     const sIdx = header.findIndex(h => h === 'score');
     const tIdx = header.findIndex(h => ['timestamp', 'date', 'time'].includes(h));
-    if (qIdx === -1 || sIdx === -1 || tIdx === -1) {
+    if (pIdx === -1 || qIdx === -1 || sIdx === -1 || tIdx === -1) {
         container.innerHTML = '<p>Données invalides.</p>';
+        return;
+    }
+
+    rows = rows.filter(r => (r[pIdx] || '').trim().toLowerCase() === user.pseudo.toLowerCase());
+    if (!rows.length) {
+        container.innerHTML = '<p>Aucune donnée disponible.</p>';
         return;
     }
 
