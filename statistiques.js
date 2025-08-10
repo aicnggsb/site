@@ -82,7 +82,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    const histSection = document.getElementById('histogram');
+    const histCanvas = document.getElementById('histogram');
+    let chart;
 
     function getWeekNumber(d) {
         const onejan = new Date(d.getFullYear(), 0, 1);
@@ -97,7 +98,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (isNaN(d)) return;
             let key;
             if (period === 'day') key = d.toISOString().slice(0, 10);
-            else if (period === 'hour') key = d.toISOString().slice(0, 13);
             else {
                 key = `${d.getFullYear()}-W${String(getWeekNumber(d)).padStart(2, '0')}`;
             }
@@ -108,36 +108,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0])).map(([key, v]) => ({ key, total: v.total, success: v.success }));
     }
-
-    function renderHistogram(data) {
-        const max = Math.max(...data.map(d => d.total), 1);
-        histSection.innerHTML = '';
-        data.forEach(d => {
-            const wrap = document.createElement('div');
-            wrap.className = 'bar-wrapper';
-            const bar = document.createElement('div');
-            bar.className = 'bar';
-            const fail = document.createElement('div');
-            fail.className = 'bar-fail';
-            fail.style.height = ((d.total - d.success) / max * 100) + '%';
-            const success = document.createElement('div');
-            success.className = 'bar-success';
-            success.style.height = (d.success / max * 100) + '%';
-            bar.appendChild(fail);
-            bar.appendChild(success);
-            wrap.appendChild(bar);
-            const label = document.createElement('span');
-            label.className = 'bar-label';
-            label.textContent = d.key;
-            wrap.appendChild(label);
-            histSection.appendChild(wrap);
-        });
+    function formatDate(key) {
+        const [year, month, day] = key.split('-');
+        return `${day}/${month}`;
     }
 
     const periodInputs = document.querySelectorAll('input[name="period"]');
     function updateHistogram() {
         const period = document.querySelector('input[name="period"]:checked').value;
-        renderHistogram(groupRows(period));
+        const data = groupRows(period);
+        const labels = data.map((d, idx) => period === 'week' ? `S${idx + 1}` : formatDate(d.key));
+        const success = data.map(d => d.success);
+        const fail = data.map(d => d.total - d.success);
+        const chartData = {
+            labels,
+            datasets: [
+                { label: 'Réussies', data: success, backgroundColor: '#0a0' },
+                { label: 'Échouées', data: fail, backgroundColor: '#d00' }
+            ]
+        };
+        const options = {
+            responsive: true,
+            scales: {
+                x: { stacked: true, grid: { color: 'rgba(0,0,0,0.1)' } },
+                y: { beginAtZero: true, stacked: true, grid: { color: 'rgba(0,0,0,0.1)' }, ticks: { stepSize: 1 } }
+            }
+        };
+        if (chart) {
+            chart.data = chartData;
+            chart.options = options;
+            chart.update();
+        } else {
+            chart = new Chart(histCanvas, { type: 'bar', data: chartData, options });
+        }
     }
     periodInputs.forEach(i => i.addEventListener('change', updateHistogram));
     updateHistogram();
