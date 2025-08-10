@@ -86,9 +86,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     let chart;
 
     function getWeekNumber(d) {
-        const onejan = new Date(d.getFullYear(), 0, 1);
-        const diff = d - onejan + (onejan.getTimezoneOffset() - d.getTimezoneOffset()) * 60000;
-        return Math.ceil(((diff / 86400000) + onejan.getDay() + 1) / 7);
+        const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        const dayNum = date.getUTCDay() || 7; // Lundi=1, Dimanche=7
+        date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+        const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+        return Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
     }
 
     function groupRows(period) {
@@ -117,7 +119,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function updateHistogram() {
         const period = document.querySelector('input[name="period"]:checked').value;
         const data = groupRows(period);
-        const labels = data.map((d, idx) => period === 'week' ? `S${idx + 1}` : formatDate(d.key));
+        const labels = data.map(d => period === 'week' ? `S${d.key.slice(-2)}` : formatDate(d.key));
         const success = data.map(d => d.success);
         const fail = data.map(d => d.total - d.success);
         const chartData = {
