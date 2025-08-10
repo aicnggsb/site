@@ -128,8 +128,7 @@ function getProgressKey() {
     if (!pseudo) return null;
     const now = new Date();
     const date = now.toISOString().slice(0, 10);
-    const slot = now.getHours() < 12 ? 'AM' : 'PM';
-    return `${GOAL_KEY}_${pseudo}_${date}_${slot}`;
+    return `${GOAL_KEY}_${pseudo}_${date}`;
 }
 
 function getGoalProgress() {
@@ -147,10 +146,10 @@ function setGoalProgress(count) {
 function updateGoalDisplay(count) {
     const goalSection = document.getElementById('goal-container');
     if (!goalSection) return;
-    const ratio = Math.min(count / 50, 1);
+    const ratio = Math.min(count / 100, 1);
     goalSection.innerHTML = '';
     const box = ce('div', 'filter-box');
-    box.appendChild(ce('span', 'filter-tab', 'Objectif demi-journée'));
+    box.appendChild(ce('span', 'filter-tab', 'Objectif journée'));
     const line = ce('div', 'progress-container');
     const bar = ce('div', 'progress-bar');
     const prog = ce('div', 'progress-bar-inner');
@@ -160,7 +159,7 @@ function updateGoalDisplay(count) {
     prog.style.backgroundColor = `rgb(${r}, ${g}, 0)`;
     bar.appendChild(prog);
     line.appendChild(bar);
-    line.appendChild(ce('p', '', `${count}/50 questions réussies`));
+    line.appendChild(ce('p', '', `${count}/100 questions réussies`));
     box.appendChild(line);
     goalSection.appendChild(box);
 }

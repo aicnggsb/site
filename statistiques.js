@@ -168,20 +168,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     const goalSection = document.getElementById('goal-container');
     const now = new Date();
     const start = new Date(now);
-    start.setHours(now.getHours() < 12 ? 0 : 12, 0, 0, 0);
+    start.setHours(0, 0, 0, 0);
     const end = new Date(start);
-    end.setHours(start.getHours() + 12);
+    end.setDate(end.getDate() + 1);
     let successCount = 0;
     rows.forEach(r => {
         const d = parseDate(r[tIdx]);
         if (d && d >= start && d < end && parseFloat(r[sIdx] || '0') > 0) successCount++;
     });
-    const ratio = Math.min(successCount / 50, 1);
+    const ratio = Math.min(successCount / 100, 1);
     const goalBox = document.createElement('div');
     goalBox.className = 'filter-box';
     const goalTab = document.createElement('span');
     goalTab.className = 'filter-tab';
-    goalTab.textContent = 'Objectif demi-journée';
+    goalTab.textContent = 'Objectif journée';
     goalBox.appendChild(goalTab);
     const progContainer = document.createElement('div');
     progContainer.className = 'progress-container';
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     progBar.appendChild(progInner);
     progContainer.appendChild(progBar);
     const progInfo = document.createElement('p');
-    progInfo.textContent = `${successCount}/50 questions réussies`;
+    progInfo.textContent = `${successCount}/100 questions réussies`;
     progContainer.appendChild(progInfo);
     goalBox.appendChild(progContainer);
     goalSection.appendChild(goalBox);
