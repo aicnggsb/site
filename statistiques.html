@@ -22,16 +22,16 @@
             <span class="filter-tab">Questions par période</span>
             <div id="period-selector">
                 <label><input type="radio" name="period" value="day" checked> Par jour</label>
-                <label><input type="radio" name="period" value="hour"> Par heure</label>
                 <label><input type="radio" name="period" value="week"> Par semaine</label>
             </div>
-            <div id="histogram"></div>
+            <canvas id="histogram"></canvas>
         </section>
         <section id="goal-container"></section>
         <section id="stats-container">
             <p>Chargement des statistiques...</p>
         </section>
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="auth.js"></script>
     <script src="statistiques.js"></script>
 </body>
