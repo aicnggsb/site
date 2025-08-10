@@ -122,47 +122,55 @@ function parseCSV(text) {
     return rows;
 }
 
-async function showGoalProgress() {
+const GOAL_KEY = 'goalProgress';
+
+function getGoalProgress() {
+    const today = new Date().toISOString().slice(0, 10);
+    const stored = JSON.parse(localStorage.getItem(GOAL_KEY) || '{}');
+    if (stored.date !== today) {
+        const fresh = { date: today, count: 0 };
+        localStorage.setItem(GOAL_KEY, JSON.stringify(fresh));
+        return fresh;
+    }
+    return { date: today, count: stored.count || 0 };
+}
+
+function setGoalProgress(count) {
+    const today = new Date().toISOString().slice(0, 10);
+    localStorage.setItem(GOAL_KEY, JSON.stringify({ date: today, count }));
+}
+
+function updateGoalDisplay(count) {
     const goalSection = document.getElementById('goal-container');
     if (!goalSection) return;
-    try {
-        const res = await fetch(HISTORY_CSV_URL + '&t=' + Date.now());
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const rows = parseCSV(await res.text());
-        if (!rows.length) return;
-        const header = rows.shift().map(h => h.trim().toLowerCase());
-        const sIdx = header.indexOf('score');
-        const tIdx = header.findIndex(h => ['timestamp', 'date', 'time'].includes(h));
-        if (sIdx === -1 || tIdx === -1) return;
-        const now = new Date();
-        const start = new Date(now);
-        start.setHours(now.getHours() < 12 ? 0 : 12, 0, 0, 0);
-        const end = new Date(start);
-        end.setHours(start.getHours() + 12);
-        let successCount = 0;
-        rows.forEach(r => {
-            const d = new Date(r[tIdx]);
-            if (d >= start && d < end && parseFloat(r[sIdx] || '0') > 0) successCount++;
-        });
-        const ratio = Math.min(successCount / 50, 1);
-        goalSection.innerHTML = '';
-        const box = ce('div', 'filter-box');
-        box.appendChild(ce('span', 'filter-tab', 'Objectif demi-journée'));
-        const line = ce('div', 'progress-container');
-        const bar = ce('div', 'progress-bar');
-        const prog = ce('div', 'progress-bar-inner');
-        prog.style.width = ratio * 100 + '%';
-        const r = Math.round(255 * (1 - ratio));
-        const g = Math.round(255 * ratio);
-        prog.style.backgroundColor = `rgb(${r}, ${g}, 0)`;
-        bar.appendChild(prog);
-        line.appendChild(bar);
-        line.appendChild(ce('p', '', `${successCount}/50 questions réussies`));
-        box.appendChild(line);
-        goalSection.appendChild(box);
-    } catch (e) {
-        // ignore errors
-    }
+    const ratio = Math.min(count / 50, 1);
+    goalSection.innerHTML = '';
+    const box = ce('div', 'filter-box');
+    box.appendChild(ce('span', 'filter-tab', 'Objectif demi-journée'));
+    const line = ce('div', 'progress-container');
+    const bar = ce('div', 'progress-bar');
+    const prog = ce('div', 'progress-bar-inner');
+    prog.style.width = ratio * 100 + '%';
+    const r = Math.round(255 * (1 - ratio));
+    const g = Math.round(255 * ratio);
+    prog.style.backgroundColor = `rgb(${r}, ${g}, 0)`;
+    bar.appendChild(prog);
+    line.appendChild(bar);
+    line.appendChild(ce('p', '', `${count}/50 questions réussies`));
+    box.appendChild(line);
+    goalSection.appendChild(box);
+}
+
+function showGoalProgress() {
+    const { count } = getGoalProgress();
+    updateGoalDisplay(count);
+}
+
+function incrementGoalProgress() {
+    const prog = getGoalProgress();
+    const newCount = prog.count + 1;
+    setGoalProgress(newCount);
+    updateGoalDisplay(newCount);
 }
 
 function shuffle(arr) {
@@ -744,7 +752,7 @@ function sendCompetence(idQuestion, resultat) {
             body: JSON.stringify(["competence", { pseudo: pseudo, idQuestion: idQuestion, resultat: resultat }])
         }).catch(() => {});
     }
-    showGoalProgress();
+    if (resultat > 0) incrementGoalProgress();
 }
 
 function showStarAnimation(points, bonus = false) {
