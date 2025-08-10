@@ -27,6 +27,17 @@ function parseCSV(text) {
     return rows;
 }
 
+function parseDate(str) {
+    const d = new Date(str);
+    if (!isNaN(d)) return d;
+    const m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+    if (m) {
+        const [, day, month, year, hh = '0', mm = '0', ss = '0'] = m;
+        return new Date(+year, +month - 1, +day, +hh, +mm, +ss);
+    }
+    return null;
+}
+
 async function loadStats() {
     const res = await fetch(CSV_URL + '&t=' + Date.now());
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -96,8 +107,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     function groupRows(period) {
         const map = new Map();
         rows.forEach(r => {
-            const d = new Date(r[tIdx]);
-            if (isNaN(d)) return;
+            const d = parseDate(r[tIdx]);
+            if (!d) return;
             let key;
             if (period === 'day') key = d.toISOString().slice(0, 10);
             else {
@@ -155,8 +166,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     end.setHours(start.getHours() + 12);
     let successCount = 0;
     rows.forEach(r => {
-        const d = new Date(r[tIdx]);
-        if (d >= start && d < end && parseFloat(r[sIdx] || '0') > 0) successCount++;
+        const d = parseDate(r[tIdx]);
+        if (d && d >= start && d < end && parseFloat(r[sIdx] || '0') > 0) successCount++;
     });
     const ratio = Math.min(successCount / 50, 1);
     const goalBox = document.createElement('div');
