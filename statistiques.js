@@ -111,9 +111,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         return Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
     }
 
-    function groupRows(period) {
+    function groupRows(period, srcRows = rows) {
         const map = new Map();
-        rows.forEach(r => {
+        srcRows.forEach(r => {
             const d = parseDate(r[tIdx]);
             if (!d) return;
             let key;
@@ -170,9 +170,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const num = (r[qIdx] || '').trim();
         const theme = themes[num] || 'Inconnu';
         const score = parseFloat(r[sIdx] || '0') || 0;
-        if (!stats[theme]) stats[theme] = { count: 0, score: 0 };
+        if (!stats[theme]) stats[theme] = { count: 0, score: 0, rows: [] };
         stats[theme].count++;
         stats[theme].score += score;
+        stats[theme].rows.push(r);
     });
 
     container.innerHTML = '';
@@ -193,6 +194,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         const p3 = document.createElement('p');
         p3.textContent = `Taux de réussite : ${rate}%`;
         box.appendChild(p3);
+
+        const miniCanvas = document.createElement('canvas');
+        miniCanvas.className = 'mini-histogram';
+        box.appendChild(miniCanvas);
+        const themeData = groupRows('day', obj.rows);
+        const miniLabels = themeData.map(d => formatDate(d.key));
+        const miniSuccess = themeData.map(d => d.success);
+        const miniFail = themeData.map(d => d.total - d.success);
+        new Chart(miniCanvas, {
+            type: 'bar',
+            data: {
+                labels: miniLabels,
+                datasets: [
+                    { data: miniSuccess, backgroundColor: '#0a0' },
+                    { data: miniFail, backgroundColor: '#d00' }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { display: false, stacked: true },
+                    y: { display: false, stacked: true }
+                }
+            }
+        });
 
         let smiley = '', messages = [];
         if (rate >= 80) {
