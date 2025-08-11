@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const todayStr = new Date().toISOString().slice(0, 10);
     const todaySuccess = rows.reduce((acc, r) => {
         const d = parseDate(r[tIdx]);
-        return acc + (d && d.toISOString().slice(0, 10) === todayStr && parseFloat(r[sIdx] || '0') > 0 ? 1 : 0);
+        return acc + (d && d.toISOString().slice(0, 10) === todayStr && parseFloat(r[sIdx] || '0') === 1 ? 1 : 0);
     }, 0);
     const successElem = document.getElementById('success-count');
     if (successElem) successElem.textContent = todaySuccess;
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             const entry = map.get(key) || { total: 0, success: 0 };
             entry.total++;
-            if (parseFloat(r[sIdx] || '0') > 0) entry.success++;
+            if (parseFloat(r[sIdx] || '0') === 1) entry.success++;
             map.set(key, entry);
         });
         return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0])).map(([key, v]) => ({ key, total: v.total, success: v.success }));
