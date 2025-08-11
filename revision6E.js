@@ -95,7 +95,7 @@ async function fetchUserQuestionStats(pseudo) {
             stats[num].count++;
             stats[num].score += val;
             const d = parseDate(r[tIdx]);
-            if (d && d.toISOString().slice(0, 10) === today && val > 0) todaySuccess++;
+            if (d && d.toISOString().slice(0, 10) === today && val === 1) todaySuccess++;
         });
         return { stats, todaySuccess };
     } catch (e) {
@@ -246,6 +246,15 @@ let pendingAction = null;
 let actionTimeout = null;
 let challengeGuard = null;
 let challengeGuardWarned = false;
+
+async function updateTodaySuccess() {
+    if (!pseudo) return;
+    const data = await fetchUserQuestionStats(pseudo);
+    userQuestionStats = data.stats;
+    todaySuccess = data.todaySuccess;
+    const successElem = document.getElementById('success-count');
+    if (successElem) successElem.textContent = todaySuccess;
+}
 
 function activateChallengeGuard() {
     showWarningPopup("Challenge : l'utilisation d'internet est interdite");
@@ -479,16 +488,14 @@ function showRandomQuestion() {
 
     answers.forEach(choice => {
         const btn = ceHtml('button', 'quiz-btn', choice);
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
             // Désactive immédiatement tous les boutons pour éviter
             // plusieurs clics qui compteraient plusieurs fois la même question
             Array.from(block.querySelectorAll('button')).forEach(b => b.disabled = true);
             const correct = choice === current.answer;
             if (correct) {
                 score++;
-                todaySuccess++;
-                const successElem = document.getElementById('success-count');
-                if (successElem) successElem.textContent = todaySuccess;
+                await updateTodaySuccess();
                 if (Math.random() < 0.9) explodeOtherChoices(btn);
             }
             history.push({
@@ -543,18 +550,14 @@ function showRandomQuestion() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     pseudo = localStorage.getItem('pseudo') || '';
-    const [qcm, rates, data] = await Promise.all([
+    const [qcm, rates] = await Promise.all([
         fetchQCM(),
-        fetchQuestionRates(),
-        pseudo ? fetchUserQuestionStats(pseudo) : Promise.resolve({ stats: {}, todaySuccess: 0 })
+        fetchQuestionRates()
     ]);
     allQuestions = qcm;
     questionRates = rates;
-    userQuestionStats = data.stats;
-    todaySuccess = data.todaySuccess;
-    const successElem = document.getElementById('success-count');
-    if (successElem) successElem.textContent = todaySuccess;
     if (pseudo) {
+        await updateTodaySuccess();
         showFilterSelection();
     } else {
         showLogin();
@@ -695,11 +698,7 @@ function showLogin() {
         if (val) {
             pseudo = val;
             localStorage.setItem('pseudo', pseudo);
-            const data = await fetchUserQuestionStats(pseudo);
-            userQuestionStats = data.stats;
-            todaySuccess = data.todaySuccess;
-            const successElem = document.getElementById('success-count');
-            if (successElem) successElem.textContent = todaySuccess;
+            await updateTodaySuccess();
             showFilterSelection();
         }
     });
