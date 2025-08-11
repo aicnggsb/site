@@ -95,6 +95,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     rows = rows.filter(r => (r[pIdx] || '').trim().toLowerCase() === user.pseudo.toLowerCase());
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const todaySuccess = rows.reduce((acc, r) => {
+        const d = parseDate(r[tIdx]);
+        return acc + (d && d.toISOString().slice(0, 10) === todayStr && parseFloat(r[sIdx] || '0') > 0 ? 1 : 0);
+    }, 0);
+    const successElem = document.getElementById('success-count');
+    if (successElem) successElem.textContent = todaySuccess;
     if (!rows.length) {
         container.innerHTML = '<p>Aucune donnée disponible.</p>';
         return;
