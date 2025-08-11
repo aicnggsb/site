@@ -232,7 +232,6 @@ let maxQuestions = 5;
 let history = [];
 let pseudo = '';
 let userQuestionStats = {};
-let todaySuccess = 0;
 const HIGHLIGHT_DELAY = 1000; // temps avant la question suivante
 let pointsAwarded = false; // évite un ajout multiple de points
 let allThemesSelectedAtStart = false; // indique si tous les thèmes étaient cochés
@@ -247,13 +246,10 @@ let actionTimeout = null;
 let challengeGuard = null;
 let challengeGuardWarned = false;
 
-async function updateTodaySuccess() {
+async function updateUserStats() {
     if (!pseudo) return;
     const data = await fetchUserQuestionStats(pseudo);
     userQuestionStats = data.stats;
-    todaySuccess = data.todaySuccess;
-    const successElem = document.getElementById('success-count');
-    if (successElem) successElem.textContent = todaySuccess;
 }
 
 function activateChallengeGuard() {
@@ -495,7 +491,7 @@ function showRandomQuestion() {
             const correct = choice === current.answer;
             if (correct) {
                 score++;
-                await updateTodaySuccess();
+                await updateUserStats();
                 if (Math.random() < 0.9) explodeOtherChoices(btn);
             }
             history.push({
@@ -557,7 +553,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     allQuestions = qcm;
     questionRates = rates;
     if (pseudo) {
-        await updateTodaySuccess();
+        await updateUserStats();
         showFilterSelection();
     } else {
         showLogin();
@@ -698,7 +694,7 @@ function showLogin() {
         if (val) {
             pseudo = val;
             localStorage.setItem('pseudo', pseudo);
-            await updateTodaySuccess();
+            await updateUserStats();
             showFilterSelection();
         }
     });
