@@ -76,13 +76,16 @@ async function fetchUserQuestionStats(pseudo) {
         const res = await fetch(HISTORY_CSV_URL + '&t=' + Date.now());
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const rows = parseCSV(await res.text());
-        if (!rows.length) return {};
+        if (!rows.length) return { stats: {}, todaySuccess: 0 };
         const header = rows.shift().map(h => h.trim().toLowerCase());
         const pIdx = header.indexOf('pseudo');
         const qIdx = header.indexOf('question');
         const sIdx = header.indexOf('score');
-        if (pIdx === -1 || qIdx === -1 || sIdx === -1) return {};
+        const tIdx = header.findIndex(h => ['timestamp', 'date', 'time'].includes(h));
+        if (pIdx === -1 || qIdx === -1 || sIdx === -1 || tIdx === -1) return { stats: {}, todaySuccess: 0 };
         const stats = {};
+        let todaySuccess = 0;
+        const today = new Date().toISOString().slice(0, 10);
         rows.forEach(r => {
             const p = (r[pIdx] || '').trim().toLowerCase();
             if (p !== pseudo.toLowerCase()) return;
@@ -91,10 +94,12 @@ async function fetchUserQuestionStats(pseudo) {
             if (!stats[num]) stats[num] = { count: 0, score: 0 };
             stats[num].count++;
             stats[num].score += val;
+            const d = parseDate(r[tIdx]);
+            if (d && d.toISOString().slice(0, 10) === today && val > 0) todaySuccess++;
         });
-        return stats;
+        return { stats, todaySuccess };
     } catch (e) {
-        return {};
+        return { stats: {}, todaySuccess: 0 };
     }
 }
 
@@ -122,6 +127,16 @@ function parseCSV(text) {
     return rows;
 }
 
+function parseDate(str) {
+    const d = new Date(str);
+    if (!isNaN(d)) return d;
+    const m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+    if (m) {
+        const [, day, month, year, hh = '0', mm = '0', ss = '0'] = m;
+        return new Date(+year, +month - 1, +day, +hh, +mm, +ss);
+    }
+    return null;
+}
 
 function shuffle(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
@@ -217,6 +232,7 @@ let maxQuestions = 5;
 let history = [];
 let pseudo = '';
 let userQuestionStats = {};
+let todaySuccess = 0;
 const HIGHLIGHT_DELAY = 1000; // temps avant la question suivante
 let pointsAwarded = false; // évite un ajout multiple de points
 let allThemesSelectedAtStart = false; // indique si tous les thèmes étaient cochés
@@ -470,6 +486,9 @@ function showRandomQuestion() {
             const correct = choice === current.answer;
             if (correct) {
                 score++;
+                todaySuccess++;
+                const successElem = document.getElementById('success-count');
+                if (successElem) successElem.textContent = todaySuccess;
                 if (Math.random() < 0.9) explodeOtherChoices(btn);
             }
             history.push({
@@ -524,14 +543,17 @@ function showRandomQuestion() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     pseudo = localStorage.getItem('pseudo') || '';
-    const [qcm, rates, stats] = await Promise.all([
+    const [qcm, rates, data] = await Promise.all([
         fetchQCM(),
         fetchQuestionRates(),
-        pseudo ? fetchUserQuestionStats(pseudo) : Promise.resolve({})
+        pseudo ? fetchUserQuestionStats(pseudo) : Promise.resolve({ stats: {}, todaySuccess: 0 })
     ]);
     allQuestions = qcm;
     questionRates = rates;
-    userQuestionStats = stats;
+    userQuestionStats = data.stats;
+    todaySuccess = data.todaySuccess;
+    const successElem = document.getElementById('success-count');
+    if (successElem) successElem.textContent = todaySuccess;
     if (pseudo) {
         showFilterSelection();
     } else {
@@ -673,7 +695,11 @@ function showLogin() {
         if (val) {
             pseudo = val;
             localStorage.setItem('pseudo', pseudo);
-            userQuestionStats = await fetchUserQuestionStats(pseudo);
+            const data = await fetchUserQuestionStats(pseudo);
+            userQuestionStats = data.stats;
+            todaySuccess = data.todaySuccess;
+            const successElem = document.getElementById('success-count');
+            if (successElem) successElem.textContent = todaySuccess;
             showFilterSelection();
         }
     });
