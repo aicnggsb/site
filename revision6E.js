@@ -122,58 +122,6 @@ function parseCSV(text) {
     return rows;
 }
 
-const GOAL_KEY = 'goalProgress';
-
-function getProgressKey() {
-    if (!pseudo) return null;
-    const now = new Date();
-    const date = now.toISOString().slice(0, 10);
-    return `${GOAL_KEY}_${pseudo}_${date}`;
-}
-
-function getGoalProgress() {
-    const key = getProgressKey();
-    if (!key) return 0;
-    return parseInt(localStorage.getItem(key) || '0', 10);
-}
-
-function setGoalProgress(count) {
-    const key = getProgressKey();
-    if (!key) return;
-    localStorage.setItem(key, count);
-}
-
-function updateGoalDisplay(count) {
-    const goalSection = document.getElementById('goal-container');
-    if (!goalSection) return;
-    const ratio = Math.min(count / 100, 1);
-    goalSection.innerHTML = '';
-    const box = ce('div', 'filter-box');
-    box.appendChild(ce('span', 'filter-tab', 'Objectif journée'));
-    const line = ce('div', 'progress-container');
-    const bar = ce('div', 'progress-bar');
-    const prog = ce('div', 'progress-bar-inner');
-    prog.style.width = ratio * 100 + '%';
-    const r = Math.round(255 * (1 - ratio));
-    const g = Math.round(255 * ratio);
-    prog.style.backgroundColor = `rgb(${r}, ${g}, 0)`;
-    bar.appendChild(prog);
-    line.appendChild(bar);
-    line.appendChild(ce('p', '', `${count}/100 questions réussies`));
-    box.appendChild(line);
-    goalSection.appendChild(box);
-}
-
-function showGoalProgress() {
-    const count = getGoalProgress();
-    updateGoalDisplay(count);
-}
-
-function incrementGoalProgress() {
-    const newCount = getGoalProgress() + 1;
-    setGoalProgress(newCount);
-    updateGoalDisplay(newCount);
-}
 
 function shuffle(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
@@ -576,7 +524,6 @@ function showRandomQuestion() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     pseudo = localStorage.getItem('pseudo') || '';
-    showGoalProgress();
     const [qcm, rates, stats] = await Promise.all([
         fetchQCM(),
         fetchQuestionRates(),
@@ -727,7 +674,6 @@ function showLogin() {
             pseudo = val;
             localStorage.setItem('pseudo', pseudo);
             userQuestionStats = await fetchUserQuestionStats(pseudo);
-            showGoalProgress();
             showFilterSelection();
         }
     });
@@ -755,7 +701,6 @@ function sendCompetence(idQuestion, resultat) {
             body: JSON.stringify(["competence", { pseudo: pseudo, idQuestion: idQuestion, resultat: resultat }])
         }).catch(() => {});
     }
-    if (resultat > 0) incrementGoalProgress();
 }
 
 function showStarAnimation(points, bonus = false) {

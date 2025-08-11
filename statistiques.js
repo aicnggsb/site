@@ -165,42 +165,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     periodInputs.forEach(i => i.addEventListener('change', updateHistogram));
     updateHistogram();
 
-    const goalSection = document.getElementById('goal-container');
-    const now = new Date();
-    const start = new Date(now);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(start);
-    end.setDate(end.getDate() + 1);
-    let successCount = 0;
-    rows.forEach(r => {
-        const d = parseDate(r[tIdx]);
-        if (d && d >= start && d < end && parseFloat(r[sIdx] || '0') > 0) successCount++;
-    });
-    const ratio = Math.min(successCount / 100, 1);
-    const goalBox = document.createElement('div');
-    goalBox.className = 'filter-box';
-    const goalTab = document.createElement('span');
-    goalTab.className = 'filter-tab';
-    goalTab.textContent = 'Objectif journée';
-    goalBox.appendChild(goalTab);
-    const progContainer = document.createElement('div');
-    progContainer.className = 'progress-container';
-    const progBar = document.createElement('div');
-    progBar.className = 'progress-bar';
-    const progInner = document.createElement('div');
-    progInner.className = 'progress-bar-inner';
-    progInner.style.width = (ratio * 100) + '%';
-    const rCol = Math.round(255 * (1 - ratio));
-    const gCol = Math.round(255 * ratio);
-    progInner.style.backgroundColor = `rgb(${rCol}, ${gCol}, 0)`;
-    progBar.appendChild(progInner);
-    progContainer.appendChild(progBar);
-    const progInfo = document.createElement('p');
-    progInfo.textContent = `${successCount}/100 questions réussies`;
-    progContainer.appendChild(progInfo);
-    goalBox.appendChild(progContainer);
-    goalSection.appendChild(goalBox);
-
     const stats = {};
     rows.forEach(r => {
         const num = (r[qIdx] || '').trim();
