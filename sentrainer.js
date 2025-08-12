@@ -109,6 +109,7 @@ function renderAxes(root) {
         const min = parseFloat(axe.getAttribute('min')) || 0;
         const max = parseFloat(axe.getAttribute('max')) || 10;
         const step = parseFloat(axe.getAttribute('graduation')) || 1;
+        const color = axe.getAttribute('couleur') || '#000';
         const width = 300;
         const height = 40;
         const padding = 10;
@@ -122,7 +123,7 @@ function renderAxes(root) {
         axis.setAttribute('y1', height / 2);
         axis.setAttribute('x2', width - padding);
         axis.setAttribute('y2', height / 2);
-        axis.setAttribute('stroke', '#000');
+        axis.setAttribute('stroke', color);
         svg.appendChild(axis);
         const range = max - min || 1;
         for (let v = min; v <= max; v += step) {
@@ -132,7 +133,7 @@ function renderAxes(root) {
             tick.setAttribute('y1', height / 2 - 5);
             tick.setAttribute('x2', x);
             tick.setAttribute('y2', height / 2 + 5);
-            tick.setAttribute('stroke', '#000');
+            tick.setAttribute('stroke', color);
             svg.appendChild(tick);
             const label = document.createElementNS(ns, 'text');
             label.setAttribute('x', x);
@@ -148,10 +149,11 @@ function renderAxes(root) {
             const lbl = pt.textContent.trim();
             const x = padding + ((xVal - min) / range) * (width - 2 * padding);
             const circle = document.createElementNS(ns, 'circle');
+            const pColor = pt.getAttribute('couleur') || 'red';
             circle.setAttribute('cx', x);
             circle.setAttribute('cy', height / 2);
             circle.setAttribute('r', 3);
-            circle.setAttribute('fill', 'red');
+            circle.setAttribute('fill', pColor);
             svg.appendChild(circle);
             if (lbl) {
                 const txt = document.createElementNS(ns, 'text');
