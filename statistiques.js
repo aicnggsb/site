@@ -101,6 +101,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const histCanvas = document.getElementById('histogram');
+    histCanvas.width = 400;
+    histCanvas.height = 300;
     let chart;
 
     function getWeekNumber(d) {
@@ -148,7 +150,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             ]
         };
         const options = {
-            responsive: true,
+            responsive: false,
+            maintainAspectRatio: false,
             scales: {
                 x: { stacked: true, grid: { color: 'rgba(0,0,0,0.1)' } },
                 y: { beginAtZero: true, stacked: true, grid: { color: 'rgba(0,0,0,0.1)' }, ticks: { stepSize: 1 } }
@@ -197,6 +200,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const miniCanvas = document.createElement('canvas');
         miniCanvas.className = 'mini-histogram';
+        miniCanvas.width = 400;
+        miniCanvas.height = 300;
         box.appendChild(miniCanvas);
         const themeData = groupRows('day', obj.rows);
         const miniLabels = themeData.map(d => formatDate(d.key));
@@ -212,7 +217,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ]
             },
             options: {
-                responsive: true,
+                responsive: false,
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {

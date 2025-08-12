@@ -465,9 +465,8 @@ details[open] summary::before {
 }
 
 .mini-histogram {
-    width: 100%;
-    max-width: 400px;
-    height: 80px;
+    width: 400px;
+    height: 300px;
     margin-top: 10px;
 }
 
@@ -537,10 +536,8 @@ details[open] summary::before {
 }
 
 #histogram {
-    width: 100%;
-    max-width: 400px;
-    height: 200px;
-    max-height: 300px;
+    width: 400px;
+    height: 300px;
 }
 
 
