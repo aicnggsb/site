@@ -237,10 +237,9 @@ function renderAxes(root) {
             if (lbl) {
                 const txt = document.createElementNS(ns, 'text');
                 txt.setAttribute('x', x);
-                txt.setAttribute('y', height / 2);
+                txt.setAttribute('y', height / 2 - 8);
                 txt.setAttribute('font-size', '10');
                 txt.setAttribute('text-anchor', 'middle');
-                txt.setAttribute('dominant-baseline', 'middle');
                 txt.setAttribute('fill', pColor);
                 txt.textContent = lbl;
                 svg.appendChild(txt);

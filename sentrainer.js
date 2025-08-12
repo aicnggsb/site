@@ -169,6 +169,7 @@ function renderAxes(root) {
                 txt.setAttribute('y', height / 2 - 8);
                 txt.setAttribute('font-size', '10');
                 txt.setAttribute('text-anchor', 'middle');
+                txt.setAttribute('fill', pColor);
                 txt.textContent = lbl;
                 svg.appendChild(txt);
             }
