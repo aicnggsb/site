@@ -238,8 +238,10 @@ function renderAxes(root) {
                 const txt = document.createElementNS(ns, 'text');
                 txt.setAttribute('x', x);
                 txt.setAttribute('y', height / 2 - 8);
+
                 txt.setAttribute('font-size', '12');
                 txt.setAttribute('font-weight', 'bold');
+
                 txt.setAttribute('text-anchor', 'middle');
                 txt.setAttribute('fill', pColor);
                 txt.textContent = lbl;
