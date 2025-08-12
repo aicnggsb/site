@@ -180,12 +180,26 @@ function wrapLatex(str) {
     if (str.includes('<html>')) {
         str = str.replace(/<html>([\s\S]*?)<\/html>/g, (_, html) => html);
     }
+    const tikzBlocks = [];
+    if (str.includes('<tikz>')) {
+        str = str.replace(/<tikz>([\s\S]*?)<\/tikz>/g, (_, tikz) => {
+            const hasEnv = /\\begin{tikzpicture}/.test(tikz);
+            const body = hasEnv ? tikz : `\\begin{tikzpicture}${tikz}\\end{tikzpicture}`;
+            const token = `@@TIKZ${tikzBlocks.length}@@`;
+            tikzBlocks.push(`\\[\\require{tikz}${body}\\]`);
+            return token;
+        });
+    }
     // Replace explicit <latex>...</latex> segments with MathJax inline syntax
     if (str.includes('<latex>')) {
         str = str.replace(/<latex>([\s\S]*?)<\/latex>/g, (_, tex) => `\\(${tex}\\)`);
     }
     // Fallback: wrap any LaTeX style commands starting with a backslash
-    return str.replace(/\\[a-zA-Z]+(?:\{[^{}]*\})*/g, m => `\\(${m}\\)`);
+    str = str.replace(/\\[a-zA-Z]+(?:\{[^{}]*\})*/g, m => `\\(${m}\\)`);
+    tikzBlocks.forEach((block, i) => {
+        str = str.replace(`@@TIKZ${i}@@`, block);
+    });
+    return str;
 }
 
 function typesetMath() {
