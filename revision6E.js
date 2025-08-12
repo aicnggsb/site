@@ -171,10 +171,77 @@ function ce(tag, cls, text) {
 function ceHtml(tag, cls, html) {
     const el = document.createElement(tag);
     if (cls) el.className = cls;
-    if (html) el.innerHTML = html;
+    if (html) {
+        el.innerHTML = html;
+        renderAxes(el);
+    }
     return el;
 }
 
+
+function renderAxes(root) {
+    const ns = 'http://www.w3.org/2000/svg';
+    root.querySelectorAll('axe').forEach(axe => {
+        const min = parseFloat(axe.getAttribute('min')) || 0;
+        const max = parseFloat(axe.getAttribute('max')) || 10;
+        const step = parseFloat(axe.getAttribute('graduation')) || 1;
+        const width = 300;
+        const height = 40;
+        const padding = 10;
+        const svg = document.createElementNS(ns, 'svg');
+        svg.classList.add('axe');
+        svg.setAttribute('width', width);
+        svg.setAttribute('height', height);
+        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        const axis = document.createElementNS(ns, 'line');
+        axis.setAttribute('x1', padding);
+        axis.setAttribute('y1', height / 2);
+        axis.setAttribute('x2', width - padding);
+        axis.setAttribute('y2', height / 2);
+        axis.setAttribute('stroke', '#000');
+        svg.appendChild(axis);
+        const range = max - min || 1;
+        for (let v = min; v <= max; v += step) {
+            const x = padding + ((v - min) / range) * (width - 2 * padding);
+            const tick = document.createElementNS(ns, 'line');
+            tick.setAttribute('x1', x);
+            tick.setAttribute('y1', height / 2 - 5);
+            tick.setAttribute('x2', x);
+            tick.setAttribute('y2', height / 2 + 5);
+            tick.setAttribute('stroke', '#000');
+            svg.appendChild(tick);
+            const label = document.createElementNS(ns, 'text');
+            label.setAttribute('x', x);
+            label.setAttribute('y', height / 2 + 15);
+            label.setAttribute('font-size', '10');
+            label.setAttribute('text-anchor', 'middle');
+            label.textContent = v;
+            svg.appendChild(label);
+        }
+        axe.querySelectorAll('point').forEach(pt => {
+            const xVal = parseFloat(pt.getAttribute('x'));
+            if (isNaN(xVal)) return;
+            const lbl = pt.textContent.trim();
+            const x = padding + ((xVal - min) / range) * (width - 2 * padding);
+            const circle = document.createElementNS(ns, 'circle');
+            circle.setAttribute('cx', x);
+            circle.setAttribute('cy', height / 2);
+            circle.setAttribute('r', 3);
+            circle.setAttribute('fill', 'red');
+            svg.appendChild(circle);
+            if (lbl) {
+                const txt = document.createElementNS(ns, 'text');
+                txt.setAttribute('x', x);
+                txt.setAttribute('y', height / 2 - 8);
+                txt.setAttribute('font-size', '10');
+                txt.setAttribute('text-anchor', 'middle');
+                txt.textContent = lbl;
+                svg.appendChild(txt);
+            }
+        });
+        axe.replaceWith(svg);
+    });
+}
 function wrapLatex(str) {
     // Replace explicit <html>...</html> segments with raw HTML
     if (str.includes('<html>')) {
@@ -441,9 +508,7 @@ function showResults(container) {
         block.appendChild(ceHtml('p', '', `Votre réponse : ${h.selected}`));
         if (!h.isCorrect) block.appendChild(ceHtml('p', '', `Bonne réponse : ${h.correct}`));
         if (h.correction) {
-            const p = ce('p');
-            p.innerHTML = `Correction : ${h.correction}`;
-            block.appendChild(p);
+            block.appendChild(ceHtml('p', '', `Correction : ${h.correction}`));
         }
         historyDiv.appendChild(block);
     });
@@ -862,6 +927,7 @@ function showTextPopup(text) {
     box.appendChild(close);
     const content = ce('div', 'popup-content');
     content.innerHTML = text;
+    renderAxes(content);
     box.appendChild(content);
     overlay.appendChild(box);
     document.body.appendChild(overlay);
@@ -906,6 +972,7 @@ function showWarningPopup(text) {
     const icon = ce('span', 'warning-icon', '⚠️');
     const content = ce('div', 'popup-content');
     content.innerHTML = text;
+    renderAxes(content);
     box.appendChild(close);
     box.appendChild(icon);
     box.appendChild(content);
