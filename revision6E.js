@@ -181,11 +181,19 @@ function ceHtml(tag, cls, html) {
 
 function renderAxes(root) {
     const ns = 'http://www.w3.org/2000/svg';
+
+    function getAttr(el, name) {
+        let val = el.getAttribute(name);
+        if (val !== null) return val;
+        const attr = Array.from(el.attributes).find(a => a.name.startsWith(name + ':'));
+        return attr ? attr.name.split(':')[1] : null;
+    }
+
     root.querySelectorAll('axe').forEach(axe => {
-        const min = parseFloat(axe.getAttribute('min')) || 0;
-        const max = parseFloat(axe.getAttribute('max')) || 10;
-        const step = parseFloat(axe.getAttribute('graduation')) || 1;
-        const color = axe.getAttribute('couleur') || '#fff';
+        const min = parseFloat(getAttr(axe, 'min')) || 0;
+        const max = parseFloat(getAttr(axe, 'max')) || 10;
+        const step = parseFloat(getAttr(axe, 'graduation')) || 1;
+        const color = getAttr(axe, 'couleur') || '#fff';
         const width = 300;
         const height = 40;
         const padding = 10;
@@ -221,11 +229,11 @@ function renderAxes(root) {
             svg.appendChild(label);
         }
         axe.querySelectorAll('point').forEach(pt => {
-            const xVal = parseFloat(pt.getAttribute('x'));
+            const xVal = parseFloat(getAttr(pt, 'x'));
             if (isNaN(xVal)) return;
             const lbl = pt.textContent.trim();
             const x = padding + ((xVal - min) / range) * (width - 2 * padding);
-            const pColor = pt.getAttribute('couleur') || color;
+            const pColor = getAttr(pt, 'couleur') || color;
             if (lbl) {
                 const txt = document.createElementNS(ns, 'text');
                 txt.setAttribute('x', x);
