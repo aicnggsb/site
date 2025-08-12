@@ -180,6 +180,12 @@ function wrapLatex(str) {
     if (str.includes('<html>')) {
         str = str.replace(/<html>([\s\S]*?)<\/html>/g, (_, html) => html);
     }
+    // Many questions export LaTeX commands wrapped in \( ... \). Remove these
+    // wrappers so we can inspect the raw commands below.
+    if (str.includes('\\(') || str.includes('\\)')) {
+        str = str.replace(/\\\(/g, '').replace(/\\\)/g, '');
+    }
+
     const tikzBlocks = [];
     if (str.includes('<tikz>')) {
         str = str.replace(/<tikz>([\s\S]*?)<\/tikz>/g, (_, tikz) => {
@@ -187,6 +193,14 @@ function wrapLatex(str) {
             const body = hasEnv ? tikz : `\\begin{tikzpicture}${tikz}\\end{tikzpicture}`;
             const token = `@@TIKZ${tikzBlocks.length}@@`;
             tikzBlocks.push(`\\[\\require{tikz}${body}\\]`);
+            return token;
+        });
+    }
+    // Handle raw TikZ environments that may appear without <tikz> tags
+    if (str.includes('tikzpicture')) {
+        str = str.replace(/\\begin{tikzpicture}[\s\S]*?\\end{tikzpicture}/g, tikz => {
+            const token = `@@TIKZ${tikzBlocks.length}@@`;
+            tikzBlocks.push(`\\[\\require{tikz}${tikz}\\]`);
             return token;
         });
     }
