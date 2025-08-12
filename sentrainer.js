@@ -94,6 +94,79 @@ function ce(tag, cls, text) {
     return el;
 }
 
+
+function ceHtml(tag, cls, html) {
+    const el = document.createElement(tag);
+    if (cls) el.className = cls;
+    if (html) el.innerHTML = html;
+    renderAxes(el);
+    return el;
+}
+
+function renderAxes(root) {
+    const ns = 'http://www.w3.org/2000/svg';
+    root.querySelectorAll('axe').forEach(axe => {
+        const min = parseFloat(axe.getAttribute('min')) || 0;
+        const max = parseFloat(axe.getAttribute('max')) || 10;
+        const step = parseFloat(axe.getAttribute('graduation')) || 1;
+        const width = 300;
+        const height = 40;
+        const padding = 10;
+        const svg = document.createElementNS(ns, 'svg');
+        svg.classList.add('axe');
+        svg.setAttribute('width', width);
+        svg.setAttribute('height', height);
+        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        const axis = document.createElementNS(ns, 'line');
+        axis.setAttribute('x1', padding);
+        axis.setAttribute('y1', height / 2);
+        axis.setAttribute('x2', width - padding);
+        axis.setAttribute('y2', height / 2);
+        axis.setAttribute('stroke', '#000');
+        svg.appendChild(axis);
+        const range = max - min || 1;
+        for (let v = min; v <= max; v += step) {
+            const x = padding + ((v - min) / range) * (width - 2 * padding);
+            const tick = document.createElementNS(ns, 'line');
+            tick.setAttribute('x1', x);
+            tick.setAttribute('y1', height / 2 - 5);
+            tick.setAttribute('x2', x);
+            tick.setAttribute('y2', height / 2 + 5);
+            tick.setAttribute('stroke', '#000');
+            svg.appendChild(tick);
+            const label = document.createElementNS(ns, 'text');
+            label.setAttribute('x', x);
+            label.setAttribute('y', height / 2 + 15);
+            label.setAttribute('font-size', '10');
+            label.setAttribute('text-anchor', 'middle');
+            label.textContent = v;
+            svg.appendChild(label);
+        }
+        axe.querySelectorAll('point').forEach(pt => {
+            const xVal = parseFloat(pt.getAttribute('x'));
+            if (isNaN(xVal)) return;
+            const lbl = pt.textContent.trim();
+            const x = padding + ((xVal - min) / range) * (width - 2 * padding);
+            const circle = document.createElementNS(ns, 'circle');
+            circle.setAttribute('cx', x);
+            circle.setAttribute('cy', height / 2);
+            circle.setAttribute('r', 3);
+            circle.setAttribute('fill', 'red');
+            svg.appendChild(circle);
+            if (lbl) {
+                const txt = document.createElementNS(ns, 'text');
+                txt.setAttribute('x', x);
+                txt.setAttribute('y', height / 2 - 8);
+                txt.setAttribute('font-size', '10');
+                txt.setAttribute('text-anchor', 'middle');
+                txt.textContent = lbl;
+                svg.appendChild(txt);
+            }
+        });
+        axe.replaceWith(svg);
+    });
+}
+
 function imgElem(src) {
     if (!src.includes('/')) src = 'photos/' + src;
     const img = ce('img', 'question-image');
@@ -192,7 +265,7 @@ function showResults(container) {
         const block = ce('div', 'question-block ' + (h.isCorrect ? 'correct' : 'incorrect'));
         const themeText = h.theme ? ` - ${h.theme}` : '';
         block.appendChild(ce('span', 'question-tab', `Q${i + 1}${themeText}`));
-        block.appendChild(ce('p', '', h.question));
+        block.appendChild(ceHtml('p', '', h.question));
         if (h.image) {
             const imgBox = ce('div', 'image-box');
             imgBox.appendChild(imgElem(h.image));
@@ -201,9 +274,7 @@ function showResults(container) {
         block.appendChild(ce('p', '', `Votre réponse : ${h.selected}`));
         if (!h.isCorrect) block.appendChild(ce('p', '', `Bonne réponse : ${h.correct}`));
         if (h.correction) {
-            const p = ce('p');
-            p.innerHTML = `Correction : ${h.correction}`;
-            block.appendChild(p);
+            block.appendChild(ceHtml('p', '', `Correction : ${h.correction}`));
         }
         historyDiv.appendChild(block);
     });
@@ -229,7 +300,7 @@ function showRandomQuestion() {
     block.appendChild(ce('span', 'question-tab', `Q${count}${themeText}`));
 
     const qLine = ce('div', 'question-line');
-    qLine.appendChild(ce('p', '', current.question));
+    qLine.appendChild(ceHtml('p', '', current.question));
     if (current.cours) {
         const cIcon = ce('span', 'question-icon lightbulb-icon', '💡');
         cIcon.title = 'Voir le cours';
@@ -249,7 +320,7 @@ function showRandomQuestion() {
     const answerBox = ce('div', 'answer-box');
 
     answers.forEach(choice => {
-        const btn = ce('button', 'quiz-btn', choice);
+        const btn = ceHtml('button', 'quiz-btn', choice);
         btn.addEventListener('click', () => {
             // Désactive immédiatement tous les boutons pour éviter
             // plusieurs clics qui compteraient plusieurs fois la même question
@@ -545,6 +616,7 @@ function showTextPopup(text) {
     box.appendChild(icon);
     const content = ce('div');
     content.innerHTML = text;
+    renderAxes(content);
     box.appendChild(content);
     overlay.appendChild(box);
     document.body.appendChild(overlay);
