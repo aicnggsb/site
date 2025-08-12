@@ -185,7 +185,7 @@ function renderAxes(root) {
         const min = parseFloat(axe.getAttribute('min')) || 0;
         const max = parseFloat(axe.getAttribute('max')) || 10;
         const step = parseFloat(axe.getAttribute('graduation')) || 1;
-        const color = axe.getAttribute('couleur') || '#000';
+        const color = axe.getAttribute('couleur') || '#fff';
         const width = 300;
         const height = 40;
         const padding = 10;
@@ -216,6 +216,7 @@ function renderAxes(root) {
             label.setAttribute('y', height / 2 + 15);
             label.setAttribute('font-size', '10');
             label.setAttribute('text-anchor', 'middle');
+            label.setAttribute('fill', color);
             label.textContent = v;
             svg.appendChild(label);
         }
@@ -224,19 +225,15 @@ function renderAxes(root) {
             if (isNaN(xVal)) return;
             const lbl = pt.textContent.trim();
             const x = padding + ((xVal - min) / range) * (width - 2 * padding);
-            const circle = document.createElementNS(ns, 'circle');
-            const pColor = pt.getAttribute('couleur') || 'red';
-            circle.setAttribute('cx', x);
-            circle.setAttribute('cy', height / 2);
-            circle.setAttribute('r', 3);
-            circle.setAttribute('fill', pColor);
-            svg.appendChild(circle);
+            const pColor = pt.getAttribute('couleur') || color;
             if (lbl) {
                 const txt = document.createElementNS(ns, 'text');
                 txt.setAttribute('x', x);
-                txt.setAttribute('y', height / 2 - 8);
+                txt.setAttribute('y', height / 2);
                 txt.setAttribute('font-size', '10');
                 txt.setAttribute('text-anchor', 'middle');
+                txt.setAttribute('dominant-baseline', 'middle');
+                txt.setAttribute('fill', pColor);
                 txt.textContent = lbl;
                 svg.appendChild(txt);
             }
