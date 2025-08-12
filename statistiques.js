@@ -221,8 +221,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    x: { display: false, stacked: true },
-                    y: { display: false, stacked: true }
+                    x: { stacked: true, grid: { color: 'rgba(0,0,0,0.1)' } },
+                    y: {
+                        beginAtZero: true,
+                        stacked: true,
+                        grid: { color: 'rgba(0,0,0,0.1)' },
+                        ticks: { stepSize: 1 }
+                    }
                 }
             }
         });
