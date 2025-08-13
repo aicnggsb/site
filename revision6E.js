@@ -269,6 +269,9 @@ function wrapLatex(str) {
     if (str.includes('<latex>')) {
         str = str.replace(/<latex>([\s\S]*?)<\/latex>/g, (_, tex) => `\\(${tex}\\)`);
     }
+
+    
+
     tikzBlocks.forEach((block, i) => {
         str = str.replace(`@@TIKZ${i}@@`, block);
     });
