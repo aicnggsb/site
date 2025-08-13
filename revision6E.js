@@ -257,12 +257,16 @@ function wrapLatex(str) {
         str = str.replace(/<html>([\s\S]*?)<\/html>/g, (_, html) => html);
     }
     if (str.includes('<latex>')) {
-        str = str.replace(/<latex>([\s\S]*?)<\/latex>/g, (_, tex) => `\\(${tex}\\)`);
+        str = str.replace(
+            /<latex>([\s\S]*?)<\/latex>/g,
+            (_, tex) => `<span t="Latex">\\(${tex}\\)</span>`
+        );
     }
+    const hasSpan = /<span t="Latex">/.test(str);
     const hasLatex = /\\[a-zA-Z]+/.test(str);
     const hasDelims = str.includes('\\(') || str.includes('\\[') || str.includes('$$');
-    if (hasLatex && !hasDelims) {
-        str = `\\(${str}\\)`;
+    if (!hasSpan && hasLatex && !hasDelims) {
+        return `<span t="Latex">\\(${str}\\)</span>`;
     }
     return str;
 }
