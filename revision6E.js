@@ -14,12 +14,12 @@ async function fetchQCM() {
                 numero: r[0] || '',
                 theme: r[1] || 'Autre',
                 niveau: r[2] || 'Indefini',
-                question: unwrapHtml(r[3] || ''),
+                question: wrapLatex(r[3] || ''),
                 image: r[4] || '',
-                choices: [r[5], r[6], r[7]].filter(Boolean).map(unwrapHtml),
-                answer: unwrapHtml(r[5] || ''),
-                correction: unwrapHtml(r[8] || ''),
-                cours: unwrapHtml(r[9] || ''),
+                choices: [r[5], r[6], r[7]].filter(Boolean).map(wrapLatex),
+                answer: wrapLatex(r[5] || ''),
+                correction: wrapLatex(r[8] || ''),
+                cours: wrapLatex(r[9] || ''),
                 carte: r[10] || ''
             }))
             .filter(q => q.question);
@@ -29,12 +29,12 @@ async function fetchQCM() {
             numero: q.numero || '',
             niveau: q.niveau || 'Indefini',
             theme: q.theme || 'Autre',
-            question: unwrapHtml(q.question),
-            choices: (q.choices || []).map(unwrapHtml),
-            answer: unwrapHtml(q.answer),
-            correction: unwrapHtml(q.correction || ''),
+            question: wrapLatex(q.question),
+            choices: (q.choices || []).map(wrapLatex),
+            answer: wrapLatex(q.answer),
+            correction: wrapLatex(q.correction || ''),
             image: q.image || '',
-            cours: unwrapHtml(q.cours || ''),
+            cours: wrapLatex(q.cours || ''),
             carte: q.carte || ''
         }));
     }
@@ -251,12 +251,36 @@ function renderAxes(root) {
         axe.replaceWith(svg);
     });
 }
-function unwrapHtml(str) {
-    // Replace explicit <html>...</html> segments with raw HTML
+
+function wrapLatex(str) {
     if (str.includes('<html>')) {
         str = str.replace(/<html>([\s\S]*?)<\/html>/g, (_, html) => html);
     }
+    const tikzBlocks = [];
+    if (str.includes('<tikz>')) {
+        str = str.replace(/<tikz>([\s\S]*?)<\/tikz>/g, (_, tikz) => {
+            const hasEnv = /\\begin{tikzpicture}/.test(tikz);
+            const body = hasEnv ? tikz : `\\begin{tikzpicture}${tikz}\\end{tikzpicture}`;
+            const token = `@@TIKZ${tikzBlocks.length}@@`;
+            tikzBlocks.push(`\\[\\require{tikz}${body}\\]`);
+            return token;
+        });
+    }
+    if (str.includes('<latex>')) {
+        str = str.replace(/<latex>([\s\S]*?)<\/latex>/g, (_, tex) => `\\(${tex}\\)`);
+    }
+    tikzBlocks.forEach((block, i) => {
+        str = str.replace(`@@TIKZ${i}@@`, block);
+    });
     return str;
+}
+
+function typesetMath() {
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+    } else {
+        setTimeout(typesetMath, 100);
+    }
 }
 
 function imgElem(src) {
@@ -501,6 +525,7 @@ function showResults(container) {
     const restart = ce('button', 'quiz-btn', 'Nouveau test');
     restart.addEventListener('click', showFilterSelection);
     container.appendChild(restart);
+    typesetMath();
 }
 
 function showRandomQuestion() {
@@ -603,6 +628,7 @@ function showRandomQuestion() {
     block.appendChild(answerBox);
 
     container.appendChild(block);
+    typesetMath();
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -913,6 +939,7 @@ function showTextPopup(text) {
     box.appendChild(content);
     overlay.appendChild(box);
     document.body.appendChild(overlay);
+    typesetMath();
 }
 
 function showImagePopup(src) {
