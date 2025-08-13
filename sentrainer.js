@@ -14,12 +14,12 @@ async function fetchQCM() {
                 numero: r[0] || '',
                 theme: r[1] || 'Autre',
                 niveau: r[2] || 'Indefini',
-                question: r[3] || '',
+                question: wrapLatex(r[3] || ''),
                 image: r[4] || '',
-                choices: [r[5], r[6], r[7]].filter(Boolean),
-                answer: r[5] || '',
-                correction: r[8] || '',
-                cours: r[9] || '',
+                choices: [r[5], r[6], r[7]].filter(Boolean).map(wrapLatex),
+                answer: wrapLatex(r[5] || ''),
+                correction: wrapLatex(r[8] || ''),
+                cours: wrapLatex(r[9] || ''),
                 carte: r[10] || ''
             }))
             .filter(q => q.question);
@@ -29,12 +29,12 @@ async function fetchQCM() {
             numero: q.numero || '',
             niveau: q.niveau || 'Indefini',
             theme: q.theme || 'Autre',
-            question: q.question,
-            choices: q.choices,
-            answer: q.answer,
-            correction: q.correction || '',
+            question: wrapLatex(q.question),
+            choices: (q.choices || []).map(wrapLatex),
+            answer: wrapLatex(q.answer),
+            correction: wrapLatex(q.correction || ''),
             image: q.image || '',
-            cours: q.cours || '',
+            cours: wrapLatex(q.cours || ''),
             carte: q.carte || ''
         }));
     }
@@ -179,6 +179,38 @@ function renderAxes(root) {
     });
 }
 
+function wrapLatex(str) {
+    if (str.includes('<html>')) {
+        str = str.replace(/<html>([\s\S]*?)<\/html>/g, (_, html) => html);
+    }
+    const tikzBlocks = [];
+    if (str.includes('<tikz>')) {
+        str = str.replace(/<tikz>([\s\S]*?)<\/tikz>/g, (_, tikz) => {
+            const hasEnv = /\\begin{tikzpicture}/.test(tikz);
+            const body = hasEnv ? tikz : `\\begin{tikzpicture}${tikz}\\end{tikzpicture}`;
+            const token = `@@TIKZ${tikzBlocks.length}@@`;
+            tikzBlocks.push(`\\[\\require{tikz}${body}\\]`);
+            return token;
+        });
+    }
+    if (str.includes('<latex>')) {
+        str = str.replace(/<latex>([\s\S]*?)<\/latex>/g, (_, tex) => `\\(${tex}\\)`);
+    }
+    str = str.replace(/\\[a-zA-Z]+(?:\{[^{}]*\})*/g, m => `\\(${m}\\)`);
+    tikzBlocks.forEach((block, i) => {
+        str = str.replace(`@@TIKZ${i}@@`, block);
+    });
+    return str;
+}
+
+function typesetMath() {
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+    } else {
+        setTimeout(typesetMath, 100);
+    }
+}
+
 function imgElem(src) {
     if (!src.includes('/')) src = 'photos/' + src;
     const img = ce('img', 'question-image');
@@ -295,6 +327,7 @@ function showResults(container) {
     const restart = ce('button', 'quiz-btn', 'Nouveau test');
     restart.addEventListener('click', showFilterSelection);
     container.appendChild(restart);
+    typesetMath();
 }
 
 function showRandomQuestion() {
@@ -365,6 +398,7 @@ function showRandomQuestion() {
     block.appendChild(answerBox);
 
     container.appendChild(block);
+    typesetMath();
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
