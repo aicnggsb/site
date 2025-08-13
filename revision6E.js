@@ -281,6 +281,8 @@ function wrapLatex(str) {
 function typesetMath() {
     if (window.MathJax && MathJax.typesetPromise) {
         MathJax.typesetPromise();
+    } else {
+        setTimeout(typesetMath, 100);
     }
 }
 
