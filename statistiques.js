@@ -115,9 +115,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function groupRows(period, srcRows = rows) {
         const map = new Map();
+        let minDate = null;
         srcRows.forEach(r => {
             const d = parseDate(r[tIdx]);
             if (!d) return;
+            if (!minDate || d < minDate) minDate = d;
             let key;
             if (period === 'day') key = d.toISOString().slice(0, 10);
             else {
@@ -128,7 +130,31 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (parseFloat(r[sIdx] || '0') === 1) entry.success++;
             map.set(key, entry);
         });
-        return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0])).map(([key, v]) => ({ key, total: v.total, success: v.success }));
+        if (!minDate) return [];
+
+        const today = new Date();
+        const result = [];
+        if (period === 'day') {
+            for (let d = new Date(minDate); d <= today; d.setDate(d.getDate() + 1)) {
+                const key = d.toISOString().slice(0, 10);
+                const v = map.get(key) || { total: 0, success: 0 };
+                result.push({ key, total: v.total, success: v.success });
+            }
+        } else {
+            let year = minDate.getFullYear();
+            let week = getWeekNumber(minDate);
+            const endYear = today.getFullYear();
+            const endWeek = getWeekNumber(today);
+            while (year < endYear || (year === endYear && week <= endWeek)) {
+                const key = `${year}-W${String(week).padStart(2, '0')}`;
+                const v = map.get(key) || { total: 0, success: 0 };
+                result.push({ key, total: v.total, success: v.success });
+                week++;
+                const weeksInYear = getWeekNumber(new Date(year, 11, 31));
+                if (week > weeksInYear) { week = 1; year++; }
+            }
+        }
+        return result;
     }
     function formatDate(key) {
         const [year, month, day] = key.split('-');
