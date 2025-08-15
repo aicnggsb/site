@@ -120,6 +120,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         return Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
     }
 
+
+    function dateKey(d) {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+
     function groupRows(period, srcRows = rows, startDate = globalMinDate) {
         const map = new Map();
         let minDate = null;
@@ -128,7 +134,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!d) return;
             if (!minDate || d < minDate) minDate = d;
             let key;
-            if (period === 'day') key = d.toISOString().slice(0, 10);
+            if (period === 'day') key = dateKey(d);
             else {
                 key = `${d.getFullYear()}-W${String(getWeekNumber(d)).padStart(2, '0')}`;
             }
@@ -145,7 +151,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const result = [];
         if (period === 'day') {
             for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
-                const key = d.toISOString().slice(0, 10);
+
+                const key = dateKey(d);
+
                 const v = map.get(key) || { success: 0, fail: 0 };
                 result.push({ key, success: v.success, fail: v.fail });
             }
