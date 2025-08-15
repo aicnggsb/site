@@ -128,14 +128,14 @@ function parseCSV(text) {
 }
 
 function parseDate(str) {
-    const d = new Date(str);
-    if (!isNaN(d)) return d;
+    if (!str) return null;
     const m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
     if (m) {
         const [, day, month, year, hh = '0', mm = '0', ss = '0'] = m;
         return new Date(+year, +month - 1, +day, +hh, +mm, +ss);
     }
-    return null;
+    const d = new Date(str);
+    return isNaN(d) ? null : d;
 }
 
 function shuffle(arr) {
