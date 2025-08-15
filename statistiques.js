@@ -122,9 +122,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function groupRows(period, srcRows = rows, startDate = globalMinDate) {
         const map = new Map();
+        let minDate = null;
         srcRows.forEach(r => {
             const d = parseDate(r[tIdx]);
             if (!d) return;
+            if (!minDate || d < minDate) minDate = d;
             let key;
             if (period === 'day') key = d.toISOString().slice(0, 10);
             else {
@@ -135,6 +137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             else entry.fail++;
             map.set(key, entry);
         });
+
         if (!startDate) return [];
 
         const today = new Date();
@@ -149,12 +152,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             let year = startDate.getFullYear();
             let week = getWeekNumber(startDate);
+
             const endYear = today.getFullYear();
             const endWeek = getWeekNumber(today);
             while (year < endYear || (year === endYear && week <= endWeek)) {
                 const key = `${year}-W${String(week).padStart(2, '0')}`;
+
                 const v = map.get(key) || { success: 0, fail: 0 };
                 result.push({ key, success: v.success, fail: v.fail });
+
                 week++;
                 const weeksInYear = getWeekNumber(new Date(year, 11, 31));
                 if (week > weeksInYear) { week = 1; year++; }
