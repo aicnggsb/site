@@ -120,15 +120,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         return Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
     }
 
+
     function dateKey(d) {
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
+
     function groupRows(period, srcRows = rows, startDate = globalMinDate) {
         const map = new Map();
+        let minDate = null;
         srcRows.forEach(r => {
             const d = parseDate(r[tIdx]);
             if (!d) return;
+            if (!minDate || d < minDate) minDate = d;
             let key;
             if (period === 'day') key = dateKey(d);
             else {
@@ -139,6 +143,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             else entry.fail++;
             map.set(key, entry);
         });
+
         if (!startDate) return [];
 
         const today = new Date();
@@ -146,19 +151,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         const result = [];
         if (period === 'day') {
             for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
+
                 const key = dateKey(d);
+
                 const v = map.get(key) || { success: 0, fail: 0 };
                 result.push({ key, success: v.success, fail: v.fail });
             }
         } else {
             let year = startDate.getFullYear();
             let week = getWeekNumber(startDate);
+
             const endYear = today.getFullYear();
             const endWeek = getWeekNumber(today);
             while (year < endYear || (year === endYear && week <= endWeek)) {
                 const key = `${year}-W${String(week).padStart(2, '0')}`;
+
                 const v = map.get(key) || { success: 0, fail: 0 };
                 result.push({ key, success: v.success, fail: v.fail });
+
                 week++;
                 const weeksInYear = getWeekNumber(new Date(year, 11, 31));
                 if (week > weeksInYear) { week = 1; year++; }
