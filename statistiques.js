@@ -94,6 +94,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    let globalMinDate = null;
+    rows.forEach(r => {
+        const d = parseDate(r[tIdx]);
+        if (d && (!globalMinDate || d < globalMinDate)) globalMinDate = d;
+    });
+    if (globalMinDate) globalMinDate.setHours(0, 0, 0, 0);
+
     rows = rows.filter(r => (r[pIdx] || '').trim().toLowerCase() === user.pseudo.toLowerCase());
     if (!rows.length) {
         container.innerHTML = '<p>Aucune donnée disponible.</p>';
@@ -113,7 +120,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
     }
 
-    function groupRows(period, srcRows = rows) {
+    function groupRows(period, srcRows = rows, startDate = globalMinDate) {
         const map = new Map();
         let minDate = null;
         srcRows.forEach(r => {
@@ -125,30 +132,35 @@ document.addEventListener('DOMContentLoaded', async () => {
             else {
                 key = `${d.getFullYear()}-W${String(getWeekNumber(d)).padStart(2, '0')}`;
             }
-            const entry = map.get(key) || { total: 0, success: 0 };
-            entry.total++;
+            const entry = map.get(key) || { success: 0, fail: 0 };
             if (parseFloat(r[sIdx] || '0') === 1) entry.success++;
+            else entry.fail++;
             map.set(key, entry);
         });
-        if (!minDate) return [];
+
+        if (!startDate) return [];
 
         const today = new Date();
+        today.setHours(0, 0, 0, 0);
         const result = [];
         if (period === 'day') {
-            for (let d = new Date(minDate); d <= today; d.setDate(d.getDate() + 1)) {
+            for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
                 const key = d.toISOString().slice(0, 10);
-                const v = map.get(key) || { total: 0, success: 0 };
-                result.push({ key, total: v.total, success: v.success });
+                const v = map.get(key) || { success: 0, fail: 0 };
+                result.push({ key, success: v.success, fail: v.fail });
             }
         } else {
-            let year = minDate.getFullYear();
-            let week = getWeekNumber(minDate);
+            let year = startDate.getFullYear();
+            let week = getWeekNumber(startDate);
+
             const endYear = today.getFullYear();
             const endWeek = getWeekNumber(today);
             while (year < endYear || (year === endYear && week <= endWeek)) {
                 const key = `${year}-W${String(week).padStart(2, '0')}`;
-                const v = map.get(key) || { total: 0, success: 0 };
-                result.push({ key, total: v.total, success: v.success });
+
+                const v = map.get(key) || { success: 0, fail: 0 };
+                result.push({ key, success: v.success, fail: v.fail });
+
                 week++;
                 const weeksInYear = getWeekNumber(new Date(year, 11, 31));
                 if (week > weeksInYear) { week = 1; year++; }
@@ -167,7 +179,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const data = groupRows(period);
         const labels = data.map(d => period === 'week' ? `S${d.key.slice(-2)}` : formatDate(d.key));
         const success = data.map(d => d.success);
-        const fail = data.map(d => d.total - d.success);
+        const fail = data.map(d => d.fail);
         const chartData = {
             labels,
             datasets: [
@@ -232,7 +244,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const themeData = groupRows('day', obj.rows);
         const miniLabels = themeData.map(d => formatDate(d.key));
         const miniSuccess = themeData.map(d => d.success);
-        const miniFail = themeData.map(d => d.total - d.success);
+        const miniFail = themeData.map(d => d.fail);
         new Chart(miniCanvas, {
             type: 'bar',
             data: {
