@@ -112,32 +112,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     histCanvas.height = 300;
     let chart;
 
-    function getWeekNumber(d) {
-        const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-        const dayNum = date.getUTCDay() || 7; // Lundi=1, Dimanche=7
-        date.setUTCDate(date.getUTCDate() + 4 - dayNum);
-        const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-        return Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
-    }
-
-
     function dateKey(d) {
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
+    function mondayKey(d) {
+        const monday = new Date(d);
+        const diff = (monday.getDay() + 6) % 7; // Lundi = 0
+        monday.setDate(monday.getDate() - diff);
+        monday.setHours(0, 0, 0, 0);
+        return dateKey(monday);
+    }
 
     function groupRows(period, srcRows = rows, startDate = globalMinDate) {
         const map = new Map();
-        let minDate = null;
         srcRows.forEach(r => {
             const d = parseDate(r[tIdx]);
             if (!d) return;
-            if (!minDate || d < minDate) minDate = d;
-            let key;
-            if (period === 'day') key = dateKey(d);
-            else {
-                key = `${d.getFullYear()}-W${String(getWeekNumber(d)).padStart(2, '0')}`;
-            }
+            const key = period === 'day' ? dateKey(d) : mondayKey(d);
             const entry = map.get(key) || { success: 0, fail: 0 };
             if (parseFloat(r[sIdx] || '0') === 1) entry.success++;
             else entry.fail++;
@@ -151,27 +143,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         const result = [];
         if (period === 'day') {
             for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
-
                 const key = dateKey(d);
-
                 const v = map.get(key) || { success: 0, fail: 0 };
                 result.push({ key, success: v.success, fail: v.fail });
             }
         } else {
-            let year = startDate.getFullYear();
-            let week = getWeekNumber(startDate);
-
-            const endYear = today.getFullYear();
-            const endWeek = getWeekNumber(today);
-            while (year < endYear || (year === endYear && week <= endWeek)) {
-                const key = `${year}-W${String(week).padStart(2, '0')}`;
-
+            const start = new Date(startDate);
+            start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
+            for (let d = new Date(start); d <= today; d.setDate(d.getDate() + 7)) {
+                const key = dateKey(d);
                 const v = map.get(key) || { success: 0, fail: 0 };
                 result.push({ key, success: v.success, fail: v.fail });
-
-                week++;
-                const weeksInYear = getWeekNumber(new Date(year, 11, 31));
-                if (week > weeksInYear) { week = 1; year++; }
             }
         }
         return result;
@@ -185,7 +167,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function updateHistogram() {
         const period = document.querySelector('input[name="period"]:checked').value;
         const data = groupRows(period);
-        const labels = data.map(d => period === 'week' ? `S${d.key.slice(-2)}` : formatDate(d.key));
+        const labels = data.map(d => formatDate(d.key));
         const success = data.map(d => d.success);
         const fail = data.map(d => d.fail);
         const chartData = {
