@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organisation de la famille</title>
+  <style>
+    :root {
+      --primary: #4c7ef3;
+      --secondary: #f5f7fb;
+      --text: #1f2933;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --card-bg: #ffffff;
+      --shadow: 0 8px 20px rgba(0,0,0,0.06);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--secondary);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      padding: 1.5rem;
+      background: var(--card-bg);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: none;
+    }
+    main {
+      display: grid;
+      grid-template-columns: 240px 1.4fr 1fr;
+      gap: 1rem;
+      padding: 1rem;
+      align-items: start;
+    }
+    aside, section {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 1rem 1.2rem;
+      box-shadow: var(--shadow);
+    }
+    h1 { margin: 0; font-size: 1.4rem; }
+    h2 { margin: 0 0 0.6rem; font-size: 1.1rem; }
+    nav button, .btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 0.6rem 0.9rem;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.2s ease;
+    }
+    nav button:hover, .btn:hover { box-shadow: 0 6px 14px rgba(76,126,243,0.3); transform: translateY(-1px); }
+    nav button:focus, .btn:focus { outline: 3px solid rgba(76,126,243,0.35); }
+    nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+    .summary-box {
+      background: linear-gradient(135deg, #f0f4ff, #ffffff);
+      border: 1px solid var(--border);
+      padding: 0.8rem;
+      border-radius: 12px;
+    }
+    .grid-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+    }
+    .day-name { text-align: center; font-weight: 600; color: var(--muted); }
+    .day {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      min-height: 90px;
+      padding: 0.5rem;
+      cursor: pointer;
+      position: relative;
+      transition: border 0.2s ease, transform 0.1s ease;
+    }
+    .day:hover { border-color: var(--primary); transform: translateY(-1px); }
+    .day-number { font-weight: 700; }
+    .today { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(76,126,243,0.15); }
+    .event-dot {
+      width: 9px; height: 9px; border-radius: 50%; position: absolute; bottom: 6px; right: 6px;
+    }
+    .event-pill { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 20px; font-size: 0.8rem; color: #fff; margin: 0.1rem 0; }
+    .event-list { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.6rem; }
+    label { font-weight: 600; font-size: 0.9rem; }
+    input, select, textarea {
+      width: 100%; padding: 0.55rem 0.65rem; border-radius: 10px; border: 1px solid var(--border);
+      font: inherit; background: #fff; transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(76,126,243,0.15); }
+    .task-item { display: flex; align-items: center; gap: 0.6rem; border: 1px solid var(--border); padding: 0.6rem; border-radius: 10px; background: #f9fafb; }
+    .task-text { flex: 1; }
+    .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 8px; background: #eef2ff; color: var(--primary); font-weight: 600; font-size: 0.8rem; margin-right: 0.35rem; }
+    .filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.5rem 0; }
+    .link-card { border: 1px solid var(--border); padding: 0.7rem; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; background: #f9fafb; }
+    .link-card a { color: var(--primary); text-decoration: none; font-weight: 700; }
+    .timetable-grid {
+      display: grid;
+      grid-template-columns: 110px repeat(7, 1fr);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .timetable-grid > div { border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); padding: 0.6rem; min-height: 60px; background: #fff; }
+    .timetable-grid > div:nth-child(-n+8) { background: #f3f4f6; font-weight: 700; text-align: center; }
+    .slot-label { background: #f3f4f6; font-weight: 700; }
+    .editable { cursor: text; white-space: pre-line; }
+    .today-col { background: #eef2ff; }
+    .modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center; justify-content: center; z-index: 10;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: #fff; padding: 1rem; border-radius: 14px; width: min(700px, 95%);
+      box-shadow: 0 16px 30px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto;
+    }
+    .list-empty { color: var(--muted); font-style: italic; }
+    .delete-btn { background: #fff0f0; color: #c0392b; border: 1px solid #fadbd8; border-radius: 10px; padding: 0.35rem 0.6rem; cursor: pointer; }
+    .delete-btn:hover { background: #ffe5e5; }
+    .pill-person { border-radius: 12px; padding: 0.15rem 0.45rem; color: #fff; font-weight: 700; font-size: 0.8rem; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    .small { font-size: 0.85rem; }
+
+    @media (max-width: 1100px) {
+      main { grid-template-columns: 220px 1fr; }
+      #tasks-section, #timetable-section, #links-section { grid-column: span 1; }
+      .right-column { display: grid; grid-template-rows: auto auto auto; gap: 1rem; }
+    }
+    @media (max-width: 860px) {
+      main { grid-template-columns: 1fr; }
+      aside { order: -1; position: sticky; top: 0; z-index: 3; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <aside>
+      <h1>Organisation de la famille</h1>
+      <nav aria-label="Navigation sections">
+        <button data-target="calendar-section">Calendrier</button>
+        <button data-target="tasks-section">Tâches</button>
+        <button data-target="timetable-section">Emploi du temps</button>
+        <button data-target="links-section">Liens utiles</button>
+      </nav>
+      <div class="summary-box" id="summaryBox">
+        <strong>Aujourd'hui</strong>
+        <div id="summaryDate" class="muted small"></div>
+        <div id="summaryEvents"></div>
+        <div id="summaryTasks"></div>
+      </div>
+    </aside>
+
+    <section id="calendar-section">
+      <div class="grid-header">
+        <h2>Calendrier</h2>
+        <div>
+          <button class="btn" id="prevMonth" aria-label="Mois précédent">◀</button>
+          <span id="monthLabel" style="margin:0 0.5rem; font-weight:700;"></span>
+          <button class="btn" id="nextMonth" aria-label="Mois suivant">▶</button>
+        </div>
+      </div>
+      <div class="calendar-grid" id="weekdayRow"></div>
+      <div class="calendar-grid" id="daysGrid"></div>
+    </section>
+
+    <div class="right-column" style="display: grid; gap: 1rem;">
+      <section id="tasks-section">
+        <div class="grid-header">
+          <h2>Tâches</h2>
+          <div class="filters">
+            <select id="statusFilter" aria-label="Filtrer par statut">
+              <option value="all">Toutes</option>
+              <option value="todo">À faire</option>
+              <option value="done">Terminées</option>
+            </select>
+            <select id="personFilter" aria-label="Filtrer par personne">
+              <option value="all">Toutes les personnes</option>
+            </select>
+          </div>
+        </div>
+        <form id="taskForm" class="form-grid" autocomplete="off">
+          <div>
+            <label for="taskText">Tâche</label>
+            <input type="text" id="taskText" required placeholder="Ex: Sortir le chien">
+          </div>
+          <div>
+            <label for="taskPerson">Personne</label>
+            <select id="taskPerson" required></select>
+          </div>
+          <div>
+            <label for="taskDue">Date limite</label>
+            <input type="date" id="taskDue">
+          </div>
+          <div>
+            <label for="taskCategory">Catégorie</label>
+            <select id="taskCategory">
+              <option>Maison</option>
+              <option>École</option>
+              <option>Courses</option>
+              <option>Autre</option>
+            </select>
+          </div>
+          <div style="align-self:end;">
+            <button class="btn" type="submit">Ajouter une tâche</button>
+          </div>
+        </form>
+        <div id="tasksList" style="display: grid; gap: 0.6rem; margin-top: 0.6rem;"></div>
+      </section>
+
+      <section id="timetable-section">
+        <div class="grid-header">
+          <h2>Emploi du temps d'Iris</h2>
+          <span class="muted small">Touchez une case pour éditer</span>
+        </div>
+        <div class="timetable-grid" id="timetableGrid"></div>
+      </section>
+
+      <section id="links-section">
+        <div class="grid-header">
+          <h2>Liens utiles</h2>
+        </div>
+        <form id="linkForm" class="form-grid" autocomplete="off">
+          <div>
+            <label for="linkLabel">Titre</label>
+            <input type="text" id="linkLabel" required placeholder="Ex: Tableau budget">
+          </div>
+          <div>
+            <label for="linkUrl">URL</label>
+            <input type="url" id="linkUrl" required placeholder="https://...">
+          </div>
+          <div>
+            <label for="linkCategory">Catégorie</label>
+            <select id="linkCategory">
+              <option>Organisation</option>
+              <option>Devoirs</option>
+              <option>Budget</option>
+              <option>Autre</option>
+            </select>
+          </div>
+          <div style="align-self:end;">
+            <button class="btn" type="submit">Ajouter un lien</button>
+          </div>
+        </form>
+        <div id="linksList" style="display: grid; gap: 0.6rem; margin-top: 0.6rem;"></div>
+      </section>
+    </div>
+  </main>
+
+  <div class="modal" id="eventModal" aria-modal="true" role="dialog">
+    <div class="modal-content">
+      <div class="grid-header">
+        <div>
+          <h2 id="modalDate"></h2>
+          <div class="muted">Gérer les événements</div>
+        </div>
+        <button class="btn" id="closeModal">Fermer</button>
+      </div>
+      <div class="event-list" id="modalEvents"></div>
+      <h3>Ajouter / Modifier</h3>
+      <form id="eventForm" class="form-grid" autocomplete="off">
+        <input type="hidden" id="eventId">
+        <div>
+          <label for="eventTitle">Titre</label>
+          <input type="text" id="eventTitle" required placeholder="Ex: RDV médecin">
+        </div>
+        <div>
+          <label for="eventTime">Heure</label>
+          <input type="time" id="eventTime" required>
+        </div>
+        <div>
+          <label for="eventPerson">Personne</label>
+          <select id="eventPerson" required></select>
+        </div>
+        <div style="grid-column: 1 / -1;">
+          <label for="eventDesc">Description</label>
+          <textarea id="eventDesc" rows="3" placeholder="Détails"></textarea>
+        </div>
+        <div style="align-self:end;">
+          <button class="btn" type="submit">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Color mapping for each person
+      const personColors = {
+        'Papa': '#4b7bec',
+        'Maman': '#e65f5c',
+        'Iris': '#f0b429',
+        'Anaïs': '#7ed957',
+        'Famille': '#9b59b6'
+      };
+
+      const persons = Object.keys(personColors);
+      const state = {
+        events: [],
+        tasks: [],
+        timetable: {},
+        links: [],
+        currentDate: new Date(),
+        selectedDate: null
+      };
+
+      // Helper to read from localStorage safely
+      function readStorage(key, fallback) {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : fallback;
+        } catch (e) {
+          console.warn('Storage parse error', e);
+          return fallback;
+        }
+      }
+      function writeStorage(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+
+      function initSampleData() {
+        if (!localStorage.getItem('familyPlannerEvents')) {
+          const today = new Date();
+          const isoToday = today.toISOString().slice(0,10);
+          const tomorrow = new Date(today.getTime() + 86400000).toISOString().slice(0,10);
+          const sampleEvents = [
+            { id: 'e1', date: isoToday, title: 'RDV médecin', description: 'Pédiatre pour Iris', time: '15:30', person: 'Iris' },
+            { id: 'e2', date: isoToday, title: 'Courses', description: 'Supermarché', time: '18:00', person: 'Famille' },
+            { id: 'e3', date: tomorrow, title: 'Devoirs de maths', description: 'Chapitre 3', time: '17:00', person: 'Iris' }
+          ];
+          writeStorage('familyPlannerEvents', sampleEvents);
+        }
+        if (!localStorage.getItem('familyPlannerTasks')) {
+          const sampleTasks = [
+            { id: 't1', text: 'Sortir le chien', person: 'Papa', dueDate: '', category: 'Maison', done: false },
+            { id: 't2', text: 'Préparer le sac de sport', person: 'Iris', dueDate: '', category: 'École', done: true }
+          ];
+          writeStorage('familyPlannerTasks', sampleTasks);
+        }
+        if (!localStorage.getItem('familyPlannerTimetable')) {
+          const sampleTimetable = {
+            'Lundi': { matin: 'Collège', apresmidi: 'Devoirs de maths', soir: 'Lecture' },
+            'Mardi': { matin: 'Collège', apresmidi: 'Danse', soir: 'Temps libre' },
+            'Mercredi': { matin: 'Piano', apresmidi: 'Devoirs', soir: 'Film en famille' },
+            'Jeudi': { matin: 'Collège', apresmidi: 'Sport', soir: 'Révisions' },
+            'Vendredi': { matin: 'Collège', apresmidi: 'Amis', soir: 'Jeu de société' },
+            'Samedi': { matin: 'Courses', apresmidi: 'Famille', soir: 'Cinéma' },
+            'Dimanche': { matin: 'Repos', apresmidi: 'Préparation semaine', soir: 'Coucher tôt' }
+          };
+          writeStorage('familyPlannerTimetable', sampleTimetable);
+        }
+        if (!localStorage.getItem('familyPlannerLinks')) {
+          const sampleLinks = [
+            { id: 'l1', label: 'Tableau budget (Google Sheets)', url: 'https://docs.google.com/budget', category: 'Budget' },
+            { id: 'l2', label: 'Liste courses', url: 'https://docs.google.com/courses', category: 'Organisation' }
+          ];
+          writeStorage('familyPlannerLinks', sampleLinks);
+        }
+      }
+
+      function loadData() {
+        state.events = readStorage('familyPlannerEvents', []);
+        state.tasks = readStorage('familyPlannerTasks', []);
+        state.timetable = readStorage('familyPlannerTimetable', {});
+        state.links = readStorage('familyPlannerLinks', []);
+      }
+
+      function saveEvents() { writeStorage('familyPlannerEvents', state.events); }
+      function saveTasks() { writeStorage('familyPlannerTasks', state.tasks); }
+      function saveTimetable() { writeStorage('familyPlannerTimetable', state.timetable); }
+      function saveLinks() { writeStorage('familyPlannerLinks', state.links); }
+
+      // Navigation buttons
+      document.querySelectorAll('nav button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = document.getElementById(btn.dataset.target);
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+
+      // Populate person selects
+      function populatePersonOptions() {
+        const personSelects = [document.getElementById('eventPerson'), document.getElementById('taskPerson'), document.getElementById('personFilter')];
+        personSelects.forEach(sel => {
+          sel.innerHTML = '';
+          if (sel.id === 'personFilter') sel.insertAdjacentHTML('beforeend', '<option value="all">Toutes les personnes</option>');
+          persons.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p; opt.textContent = p; sel.appendChild(opt);
+          });
+        });
+      }
+
+      function formatDateLabel(dateStr) {
+        const date = new Date(dateStr + 'T00:00:00');
+        return date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+      }
+
+      // Calendar rendering
+      const weekdayRow = document.getElementById('weekdayRow');
+      const daysGrid = document.getElementById('daysGrid');
+      const monthLabel = document.getElementById('monthLabel');
+
+      function renderWeekdays() {
+        const weekdays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+        weekdayRow.innerHTML = '';
+        weekdays.forEach(day => {
+          const div = document.createElement('div');
+          div.textContent = day;
+          div.className = 'day-name';
+          weekdayRow.appendChild(div);
+        });
+      }
+
+      function renderCalendar() {
+        const year = state.currentDate.getFullYear();
+        const month = state.currentDate.getMonth();
+        const firstDay = new Date(year, month, 1);
+        const startOffset = (firstDay.getDay() + 6) % 7; // Monday start
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        daysGrid.innerHTML = '';
+        monthLabel.textContent = state.currentDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+        for (let i = 0; i < startOffset; i++) {
+          const empty = document.createElement('div');
+          empty.className = 'day';
+          empty.style.visibility = 'hidden';
+          daysGrid.appendChild(empty);
+        }
+        for (let d = 1; d <= daysInMonth; d++) {
+          const dateStr = new Date(year, month, d).toISOString().slice(0,10);
+          const dayDiv = document.createElement('div');
+          dayDiv.className = 'day';
+          const num = document.createElement('div');
+          num.textContent = d;
+          num.className = 'day-number';
+          dayDiv.appendChild(num);
+          const eventsForDay = state.events.filter(ev => ev.date === dateStr);
+          if (eventsForDay.length) {
+            const dot = document.createElement('div');
+            dot.className = 'event-dot';
+            dot.style.background = personColors[eventsForDay[0].person] || varPrimary();
+            dayDiv.appendChild(dot);
+          }
+          const today = new Date();
+          const todayStr = today.toISOString().slice(0,10);
+          if (dateStr === todayStr) dayDiv.classList.add('today');
+          dayDiv.addEventListener('click', () => openEventModal(dateStr));
+          daysGrid.appendChild(dayDiv);
+        }
+      }
+
+      function varPrimary() { return getComputedStyle(document.documentElement).getPropertyValue('--primary'); }
+
+      // Modal logic
+      const eventModal = document.getElementById('eventModal');
+      const modalDate = document.getElementById('modalDate');
+      const modalEvents = document.getElementById('modalEvents');
+      const eventForm = document.getElementById('eventForm');
+      const eventIdInput = document.getElementById('eventId');
+      const eventTitleInput = document.getElementById('eventTitle');
+      const eventDescInput = document.getElementById('eventDesc');
+      const eventTimeInput = document.getElementById('eventTime');
+      const eventPersonInput = document.getElementById('eventPerson');
+
+      function openEventModal(dateStr) {
+        state.selectedDate = dateStr;
+        modalDate.textContent = formatDateLabel(dateStr);
+        eventForm.reset();
+        eventIdInput.value = '';
+        renderModalEvents(dateStr);
+        eventModal.classList.add('active');
+      }
+      document.getElementById('closeModal').addEventListener('click', () => eventModal.classList.remove('active'));
+      eventModal.addEventListener('click', (e) => { if (e.target === eventModal) eventModal.classList.remove('active'); });
+
+      function renderModalEvents(dateStr) {
+        modalEvents.innerHTML = '';
+        const events = state.events.filter(ev => ev.date === dateStr).sort((a,b) => a.time.localeCompare(b.time));
+        if (!events.length) {
+          modalEvents.innerHTML = '<div class="list-empty">Aucun événement ce jour.</div>';
+          return;
+        }
+        events.forEach(ev => {
+          const card = document.createElement('div');
+          card.className = 'task-item';
+          const info = document.createElement('div');
+          info.innerHTML = `<div><span class="event-pill" style="background:${personColors[ev.person] || varPrimary()}">${ev.person}</span> <strong>${ev.time}</strong> - ${ev.title}</div><div class="muted small">${ev.description || ''}</div>`;
+          const actions = document.createElement('div');
+          actions.style.display = 'flex';
+          actions.style.gap = '0.4rem';
+          const editBtn = document.createElement('button');
+          editBtn.className = 'btn';
+          editBtn.textContent = 'Modifier';
+          editBtn.addEventListener('click', () => fillEventForm(ev));
+          const delBtn = document.createElement('button');
+          delBtn.className = 'delete-btn';
+          delBtn.setAttribute('aria-label', 'Supprimer');
+          delBtn.textContent = 'Supprimer';
+          delBtn.addEventListener('click', () => deleteEvent(ev.id));
+          actions.append(editBtn, delBtn);
+          card.append(info, actions);
+          modalEvents.appendChild(card);
+        });
+      }
+
+      function fillEventForm(ev) {
+        eventIdInput.value = ev.id;
+        eventTitleInput.value = ev.title;
+        eventDescInput.value = ev.description;
+        eventTimeInput.value = ev.time;
+        eventPersonInput.value = ev.person;
+      }
+
+      eventForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const payload = {
+          id: eventIdInput.value || 'ev-' + Date.now(),
+          date: state.selectedDate,
+          title: eventTitleInput.value.trim(),
+          description: eventDescInput.value.trim(),
+          time: eventTimeInput.value,
+          person: eventPersonInput.value
+        };
+        if (eventIdInput.value) {
+          state.events = state.events.map(ev => ev.id === payload.id ? payload : ev);
+        } else {
+          state.events.push(payload);
+        }
+        saveEvents();
+        renderCalendar();
+        renderModalEvents(state.selectedDate);
+        updateSummary();
+        eventForm.reset();
+        eventIdInput.value = '';
+      });
+
+      function deleteEvent(id) {
+        state.events = state.events.filter(ev => ev.id !== id);
+        saveEvents();
+        renderCalendar();
+        renderModalEvents(state.selectedDate);
+        updateSummary();
+      }
+
+      document.getElementById('prevMonth').addEventListener('click', () => { state.currentDate.setMonth(state.currentDate.getMonth() - 1); renderCalendar(); });
+      document.getElementById('nextMonth').addEventListener('click', () => { state.currentDate.setMonth(state.currentDate.getMonth() + 1); renderCalendar(); });
+
+      // Tasks
+      const taskForm = document.getElementById('taskForm');
+      const tasksList = document.getElementById('tasksList');
+      const statusFilter = document.getElementById('statusFilter');
+      const personFilter = document.getElementById('personFilter');
+
+      taskForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newTask = {
+          id: 'task-' + Date.now(),
+          text: document.getElementById('taskText').value.trim(),
+          person: document.getElementById('taskPerson').value,
+          dueDate: document.getElementById('taskDue').value,
+          category: document.getElementById('taskCategory').value,
+          done: false
+        };
+        state.tasks.push(newTask);
+        saveTasks();
+        taskForm.reset();
+        renderTasks();
+        updateSummary();
+      });
+
+      statusFilter.addEventListener('change', renderTasks);
+      personFilter.addEventListener('change', renderTasks);
+
+      function renderTasks() {
+        tasksList.innerHTML = '';
+        const filtered = state.tasks.filter(task => {
+          if (statusFilter.value === 'todo' && task.done) return false;
+          if (statusFilter.value === 'done' && !task.done) return false;
+          if (personFilter.value !== 'all' && task.person !== personFilter.value) return false;
+          return true;
+        });
+        if (!filtered.length) {
+          tasksList.innerHTML = '<div class="list-empty">Aucune tâche.</div>';
+          return;
+        }
+        filtered.forEach(task => {
+          const row = document.createElement('div');
+          row.className = 'task-item';
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = task.done;
+          checkbox.addEventListener('change', () => {
+            task.done = checkbox.checked;
+            saveTasks();
+            renderTasks();
+            updateSummary();
+          });
+          const text = document.createElement('div');
+          text.className = 'task-text';
+          text.innerHTML = `<div ${task.done ? 'style="text-decoration:line-through; color:var(--muted);"' : ''}>${task.text}</div>` +
+            `<div class="muted small">${task.person} · ${task.category}${task.dueDate ? ' · Échéance: ' + task.dueDate : ''}</div>`;
+          const del = document.createElement('button');
+          del.className = 'delete-btn';
+          del.setAttribute('aria-label', 'Supprimer la tâche');
+          del.textContent = 'Supprimer';
+          del.addEventListener('click', () => {
+            state.tasks = state.tasks.filter(t => t.id !== task.id);
+            saveTasks();
+            renderTasks();
+            updateSummary();
+          });
+          row.append(checkbox, text, del);
+          tasksList.appendChild(row);
+        });
+      }
+
+      // Timetable
+      const timetableGrid = document.getElementById('timetableGrid');
+      const days = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+      const slots = [
+        { id: 'matin', label: 'Matin' },
+        { id: 'apresmidi', label: 'Après-midi' },
+        { id: 'soir', label: 'Soir' }
+      ];
+
+      function renderTimetable() {
+        timetableGrid.innerHTML = '';
+        timetableGrid.style.gridTemplateRows = `repeat(${slots.length + 1}, auto)`;
+        // Header row
+        timetableGrid.appendChild(document.createElement('div')); // empty corner
+        days.forEach(day => {
+          const cell = document.createElement('div');
+          cell.textContent = day;
+          if (isToday(day)) cell.classList.add('today-col');
+          timetableGrid.appendChild(cell);
+        });
+        // Body rows
+        slots.forEach(slot => {
+          const labelCell = document.createElement('div');
+          labelCell.textContent = slot.label;
+          labelCell.className = 'slot-label';
+          timetableGrid.appendChild(labelCell);
+          days.forEach(day => {
+            const cell = document.createElement('div');
+            cell.className = 'editable';
+            if (isToday(day)) cell.classList.add('today-col');
+            cell.contentEditable = true;
+            const value = state.timetable?.[day]?.[slot.id] || '';
+            cell.textContent = value;
+            cell.addEventListener('blur', () => saveTimetableCell(day, slot.id, cell.textContent.trim()));
+            cell.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                cell.blur();
+              }
+            });
+            timetableGrid.appendChild(cell);
+          });
+        });
+      }
+
+      function isToday(dayName) {
+        const index = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+        const todayIndex = (new Date().getDay() + 6) % 7; // Monday start
+        return index[todayIndex] === dayName;
+      }
+
+      function saveTimetableCell(day, slot, value) {
+        if (!state.timetable[day]) state.timetable[day] = {};
+        state.timetable[day][slot] = value;
+        saveTimetable();
+      }
+
+      // Links
+      const linkForm = document.getElementById('linkForm');
+      const linksList = document.getElementById('linksList');
+
+      linkForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newLink = {
+          id: 'link-' + Date.now(),
+          label: document.getElementById('linkLabel').value.trim(),
+          url: document.getElementById('linkUrl').value.trim(),
+          category: document.getElementById('linkCategory').value
+        };
+        state.links.push(newLink);
+        saveLinks();
+        linkForm.reset();
+        renderLinks();
+      });
+
+      function renderLinks() {
+        linksList.innerHTML = '';
+        if (!state.links.length) {
+          linksList.innerHTML = '<div class="list-empty">Aucun lien enregistré.</div>';
+          return;
+        }
+        state.links.forEach(link => {
+          const card = document.createElement('div');
+          card.className = 'link-card';
+          const info = document.createElement('div');
+          info.innerHTML = `<div><strong>${link.label}</strong></div><div class="muted small">${link.category}</div>`;
+          const actions = document.createElement('div');
+          actions.style.display = 'flex';
+          actions.style.gap = '0.4rem';
+          const open = document.createElement('a');
+          open.href = link.url; open.target = '_blank';
+          open.className = 'btn';
+          open.textContent = 'Ouvrir';
+          const del = document.createElement('button');
+          del.className = 'delete-btn';
+          del.setAttribute('aria-label', 'Supprimer le lien');
+          del.textContent = 'Supprimer';
+          del.addEventListener('click', () => {
+            state.links = state.links.filter(l => l.id !== link.id);
+            saveLinks();
+            renderLinks();
+          });
+          actions.append(open, del);
+          card.append(info, actions);
+          linksList.appendChild(card);
+        });
+      }
+
+      // Summary info
+      const summaryDate = document.getElementById('summaryDate');
+      const summaryEvents = document.getElementById('summaryEvents');
+      const summaryTasks = document.getElementById('summaryTasks');
+
+      function updateSummary() {
+        const today = new Date().toISOString().slice(0,10);
+        const eventsToday = state.events.filter(ev => ev.date === today).length;
+        const tasksTodo = state.tasks.filter(t => !t.done).length;
+        summaryDate.textContent = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+        summaryEvents.textContent = `${eventsToday} événement(s) aujourd'hui`;
+        summaryTasks.textContent = `${tasksTodo} tâche(s) à faire`;
+      }
+
+      // Init
+      initSampleData();
+      loadData();
+      populatePersonOptions();
+      renderWeekdays();
+      renderCalendar();
+      renderTasks();
+      renderTimetable();
+      renderLinks();
+      updateSummary();
+    });
+  </script>
+</body>
+</html>
