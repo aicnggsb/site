@@ -33,6 +33,9 @@
 
                     <div class="barre-wrapper" aria-label="Niveau sonore en direct">
                         <div id="barre-niveau" class="barre-niveau"></div>
+                        <div id="seuil-marker" class="seuil-marker" aria-hidden="true">
+                            <span id="seuil-marker-label" class="seuil-marker-label">55%</span>
+                        </div>
                     </div>
 
                     <p id="niveau-live">Niveau actuel : 0%</p>
@@ -40,7 +43,7 @@
 
                     <div class="sonometre-actions">
                         <button id="start-sonometre" type="button">Démarrer le sonomètre</button>
-                        <button id="pause-sonometre" type="button" disabled>Mettre en pause</button>
+                        <button id="pause-sonometre" type="button">Mettre en pause</button>
                         <button id="decrement-compteur" type="button">-1 dépassement</button>
                         <button id="increment-compteur" type="button">+1 dépassement</button>
                         <button id="reset-compteur" type="button">Réinitialiser le compteur</button>

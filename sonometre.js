@@ -2,6 +2,8 @@
   const seuilInput = document.getElementById('seuil');
   const seuilValeur = document.getElementById('seuil-valeur');
   const barreNiveau = document.getElementById('barre-niveau');
+  const seuilMarker = document.getElementById('seuil-marker');
+  const seuilMarkerLabel = document.getElementById('seuil-marker-label');
   const niveauLive = document.getElementById('niveau-live');
   const depassementsEl = document.getElementById('depassements');
   const startBtn = document.getElementById('start-sonometre');
@@ -10,7 +12,7 @@
   const incrementBtn = document.getElementById('increment-compteur');
   const resetBtn = document.getElementById('reset-compteur');
 
-  if (!seuilInput || !startBtn || !pauseBtn || !decrementBtn || !incrementBtn || !resetBtn) return;
+  if (!seuilInput || !barreNiveau || !startBtn || !pauseBtn || !decrementBtn || !incrementBtn || !resetBtn) return;
 
   let audioContext;
   let analyser;
@@ -50,7 +52,15 @@
   };
 
   const updateSeuilLabel = () => {
-    seuilValeur.textContent = `${seuilInput.value}%`;
+    const seuil = Number(seuilInput.value);
+    seuilValeur.textContent = `${seuil}%`;
+
+    if (seuilMarker) {
+      seuilMarker.style.left = `${seuil}%`;
+      if (seuilMarkerLabel) {
+        seuilMarkerLabel.textContent = `${seuil}%`;
+      }
+    }
   };
 
   const normalizeVolume = (arr) => {
@@ -104,6 +114,7 @@
       dataArray = new Uint8Array(analyser.frequencyBinCount);
       source.connect(analyser);
       pauseBtn.disabled = false;
+      pauseBtn.removeAttribute('disabled');
       pauseBtn.textContent = 'Mettre en pause';
 
       render();
@@ -145,5 +156,7 @@
     updateCompteur();
   });
 
+  pauseBtn.disabled = false;
+  pauseBtn.removeAttribute('disabled');
   updateSeuilLabel();
 })();
