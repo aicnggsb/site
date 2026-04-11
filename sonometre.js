@@ -5,35 +5,48 @@
   const niveauLive = document.getElementById('niveau-live');
   const depassementsEl = document.getElementById('depassements');
   const startBtn = document.getElementById('start-sonometre');
+  const pauseBtn = document.getElementById('pause-sonometre');
+  const decrementBtn = document.getElementById('decrement-compteur');
+  const incrementBtn = document.getElementById('increment-compteur');
   const resetBtn = document.getElementById('reset-compteur');
 
-  if (!seuilInput || !startBtn) return;
+  if (!seuilInput || !startBtn || !pauseBtn || !decrementBtn || !incrementBtn || !resetBtn) return;
 
   let audioContext;
   let analyser;
   let dataArray;
   let depassements = 0;
   let lastTriggerAt = 0;
+  let isPaused = false;
   const triggerCooldownMs = 1200;
 
   const playAlertSignal = () => {
     if (!audioContext) return;
 
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
     const now = audioContext.currentTime;
+    const envelope = audioContext.createGain();
+    envelope.gain.setValueAtTime(0.0001, now);
+    envelope.gain.exponentialRampToValueAtTime(0.55, now + 0.02);
+    envelope.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+    envelope.connect(audioContext.destination);
 
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(880, now);
-    gainNode.gain.setValueAtTime(0.0001, now);
-    gainNode.gain.exponentialRampToValueAtTime(0.2, now + 0.01);
-    gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+    const freqs = [920, 640, 920];
+    const beepDuration = 0.12;
+    const gap = 0.05;
 
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+    freqs.forEach((freq, index) => {
+      const oscillator = audioContext.createOscillator();
+      const startAt = now + index * (beepDuration + gap);
+      oscillator.type = 'square';
+      oscillator.frequency.setValueAtTime(freq, startAt);
+      oscillator.connect(envelope);
+      oscillator.start(startAt);
+      oscillator.stop(startAt + beepDuration);
+    });
+  };
 
-    oscillator.start(now);
-    oscillator.stop(now + 0.25);
+  const updateCompteur = () => {
+    depassementsEl.textContent = `Dépassements : ${depassements}`;
   };
 
   const updateSeuilLabel = () => {
@@ -52,6 +65,12 @@
 
   const render = () => {
     if (!analyser) return;
+
+    if (isPaused) {
+      requestAnimationFrame(render);
+      return;
+    }
+
     analyser.getByteTimeDomainData(dataArray);
     const level = normalizeVolume(dataArray);
     const seuil = Number(seuilInput.value);
@@ -64,7 +83,7 @@
     if (level >= seuil && now - lastTriggerAt > triggerCooldownMs) {
       depassements += 1;
       lastTriggerAt = now;
-      depassementsEl.textContent = `Dépassements : ${depassements}`;
+      updateCompteur();
       playAlertSignal();
     }
 
@@ -84,6 +103,8 @@
       analyser.fftSize = 1024;
       dataArray = new Uint8Array(analyser.frequencyBinCount);
       source.connect(analyser);
+      pauseBtn.disabled = false;
+      pauseBtn.textContent = 'Mettre en pause';
 
       render();
     } catch (err) {
@@ -93,11 +114,35 @@
     }
   };
 
+  const togglePause = async () => {
+    if (!audioContext) return;
+
+    if (!isPaused) {
+      isPaused = true;
+      pauseBtn.textContent = 'Reprendre';
+      niveauLive.textContent = 'Niveau actuel : pause';
+      await audioContext.suspend();
+    } else {
+      isPaused = false;
+      pauseBtn.textContent = 'Mettre en pause';
+      await audioContext.resume();
+    }
+  };
+
   seuilInput.addEventListener('input', updateSeuilLabel);
   startBtn.addEventListener('click', start);
+  pauseBtn.addEventListener('click', togglePause);
+  decrementBtn.addEventListener('click', () => {
+    depassements = Math.max(0, depassements - 1);
+    updateCompteur();
+  });
+  incrementBtn.addEventListener('click', () => {
+    depassements += 1;
+    updateCompteur();
+  });
   resetBtn.addEventListener('click', () => {
     depassements = 0;
-    depassementsEl.textContent = 'Dépassements : 0';
+    updateCompteur();
   });
 
   updateSeuilLabel();
