@@ -16,6 +16,26 @@
   let lastTriggerAt = 0;
   const triggerCooldownMs = 1200;
 
+  const playAlertSignal = () => {
+    if (!audioContext) return;
+
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    const now = audioContext.currentTime;
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(880, now);
+    gainNode.gain.setValueAtTime(0.0001, now);
+    gainNode.gain.exponentialRampToValueAtTime(0.2, now + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.start(now);
+    oscillator.stop(now + 0.25);
+  };
+
   const updateSeuilLabel = () => {
     seuilValeur.textContent = `${seuilInput.value}%`;
   };
@@ -45,6 +65,7 @@
       depassements += 1;
       lastTriggerAt = now;
       depassementsEl.textContent = `Dépassements : ${depassements}`;
+      playAlertSignal();
     }
 
     requestAnimationFrame(render);
