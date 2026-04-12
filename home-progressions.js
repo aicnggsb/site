@@ -3,8 +3,9 @@
 
     const statusElement = document.getElementById('progression-status');
     const listElement = document.getElementById('progression-steps-list');
+    const classFilterElement = document.getElementById('progression-class-filter');
 
-    if (!statusElement || !listElement) {
+    if (!statusElement || !listElement || !classFilterElement) {
         return;
     }
 
@@ -80,11 +81,48 @@
         statusElement.classList.toggle('calendar-error', Boolean(isError));
     }
 
+    function formatDetails(entry) {
+        const parts = [entry.classText];
+        if (entry.projectText) {
+            parts.push(entry.projectText);
+        }
+        parts.push(`Étape : ${entry.stepText}`);
+        return parts.join(' — ');
+    }
+
+    function populateClassFilter() {
+        const classes = Array.from(
+            new Set(
+                allRows
+                    .map((row) => (row[classIdx] || '').trim())
+                    .filter(Boolean)
+            )
+        ).sort((a, b) => a.localeCompare(b));
+
+        classFilterElement.innerHTML = '';
+        const allOption = document.createElement('option');
+        allOption.value = '';
+        allOption.textContent = 'Toutes les classes';
+        classFilterElement.appendChild(allOption);
+
+        classes.forEach((className) => {
+            const option = document.createElement('option');
+            option.value = className;
+            option.textContent = className;
+            classFilterElement.appendChild(option);
+        });
+    }
+
     function renderSteps() {
+        const selectedClass = classFilterElement.value;
         const entries = allRows
+            .filter((row) => {
+                if (!selectedClass) return true;
+                return (row[classIdx] || '').trim() === selectedClass;
+            })
             .map((row) => ({
                 classText: row[classIdx] || 'Classe non renseignée',
-                projectText: row[projectIdx] || 'Projet non renseigné',
+                projectText: (row[projectIdx] || '').trim(),
                 dateText: row[dateIdx] || '',
                 dateValue: parseDate(row[dateIdx]),
                 stepText: row[stepIdx] || 'Étape non renseignée'
@@ -109,7 +147,7 @@
             strong.textContent = entry.dateText || 'Date non renseignée';
 
             const details = document.createElement('div');
-            details.textContent = `${entry.classText} — ${entry.projectText} — Étape : ${entry.stepText}`;
+            details.textContent = formatDetails(entry);
 
             item.appendChild(strong);
             item.appendChild(details);
@@ -158,10 +196,13 @@
             setStatus('Aucune donnée trouvée dans le suivi.', true);
             return;
         }
+        populateClassFilter();
         renderSteps();
     }
 
-    setStatus('Chargement du suivi des progressions...');
+    classFilterElement.addEventListener('change', renderSteps);
+
+    setStatus('Chargement du planning...');
     loadRows().catch((error) => {
         listElement.innerHTML = '';
         setStatus(`Impossible de charger le suivi : ${error.message}`, true);

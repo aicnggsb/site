@@ -59,8 +59,14 @@
         <section class="description-ateliers">
             <article class="atelier agenda-card">
                 <div class="atelier-content">
-                    <h2>Suivi des progressions (Google Sheets)</h2>
-                    <p>Toutes les dates et étapes disponibles dans le Google Sheets sont affichées ci-dessous.</p>
+                    <h2>Planning</h2>
+
+                    <div class="progression-controls">
+                        <label for="progression-class-filter">Classe :</label>
+                        <select id="progression-class-filter">
+                            <option value="">Toutes les classes</option>
+                        </select>
+                    </div>
 
                     <p id="progression-status" class="calendar-status" aria-live="polite">Initialisation...</p>
                     <ul id="progression-steps-list" class="calendar-events-list"></ul>
