@@ -1,12 +1,10 @@
 (function () {
     const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRVQMq6u1Wl-Tzjl27ir1iMcj1hTdSIsoJrVQAtW31i1AhvBoPGLT3rZoc6wfuizX7f1KWuaBphf2IX/pub?output=csv';
 
-    const classSelect = document.getElementById('progression-classe');
-    const projectSelect = document.getElementById('progression-projet');
     const statusElement = document.getElementById('progression-status');
     const listElement = document.getElementById('progression-steps-list');
 
-    if (!classSelect || !projectSelect || !statusElement || !listElement) {
+    if (!statusElement || !listElement) {
         return;
     }
 
@@ -82,24 +80,11 @@
         statusElement.classList.toggle('calendar-error', Boolean(isError));
     }
 
-    function fillSelect(select, values) {
-        select.innerHTML = '';
-        values.forEach((value) => {
-            const option = document.createElement('option');
-            option.value = value;
-            option.textContent = value;
-            select.appendChild(option);
-        });
-        select.disabled = values.length === 0;
-    }
-
     function renderSteps() {
-        const selectedClass = classSelect.value;
-        const selectedProject = projectSelect.value;
-
-        const filtered = allRows
-            .filter((row) => row[classIdx] === selectedClass && row[projectIdx] === selectedProject)
+        const entries = allRows
             .map((row) => ({
+                classText: row[classIdx] || 'Classe non renseignée',
+                projectText: row[projectIdx] || 'Projet non renseigné',
                 dateText: row[dateIdx] || '',
                 dateValue: parseDate(row[dateIdx]),
                 stepText: row[stepIdx] || 'Étape non renseignée'
@@ -113,46 +98,25 @@
 
         listElement.innerHTML = '';
 
-        if (!filtered.length) {
-            setStatus('Aucune étape trouvée pour cette sélection.', true);
+        if (!entries.length) {
+            setStatus('Aucune étape trouvée.', true);
             return;
         }
 
-        filtered.forEach((entry) => {
+        entries.forEach((entry) => {
             const item = document.createElement('li');
             const strong = document.createElement('strong');
             strong.textContent = entry.dateText || 'Date non renseignée';
 
             const details = document.createElement('div');
-            details.textContent = `Étape : ${entry.stepText}`;
+            details.textContent = `${entry.classText} — ${entry.projectText} — Étape : ${entry.stepText}`;
 
             item.appendChild(strong);
             item.appendChild(details);
             listElement.appendChild(item);
         });
 
-        setStatus(`${filtered.length} étape(s) affichée(s).`);
-    }
-
-    function updateProjects() {
-        const selectedClass = classSelect.value;
-        const projects = Array.from(
-            new Set(
-                allRows
-                    .filter((row) => row[classIdx] === selectedClass)
-                    .map((row) => row[projectIdx])
-                    .filter(Boolean)
-            )
-        ).sort((a, b) => a.localeCompare(b, 'fr'));
-
-        fillSelect(projectSelect, projects);
-        if (projects.length) {
-            projectSelect.value = projects[0];
-            renderSteps();
-        } else {
-            listElement.innerHTML = '';
-            setStatus('Aucun projet disponible pour cette classe.', true);
-        }
+        setStatus(`${entries.length} étape(s) affichée(s).`);
     }
 
     async function loadRows() {
@@ -188,26 +152,14 @@
             throw new Error('Colonnes attendues introuvables (classe/projet/date/tache-etape).');
         }
 
-        allRows = rows.filter((row) => row[classIdx] && row[projectIdx]);
-
-        const classes = Array.from(new Set(allRows.map((row) => row[classIdx]))).sort((a, b) =>
-            a.localeCompare(b, 'fr')
-        );
-
-        fillSelect(classSelect, classes);
-        if (!classes.length) {
-            setStatus('Aucune classe trouvée dans le suivi.', true);
+        allRows = rows.filter((row) => row[dateIdx] || row[stepIdx] || row[classIdx] || row[projectIdx]);
+        if (!allRows.length) {
+            listElement.innerHTML = '';
+            setStatus('Aucune donnée trouvée dans le suivi.', true);
             return;
         }
-
-        classSelect.value = classes[0];
-        updateProjects();
-
-        setStatus('Sélectionnez une classe et un projet.');
+        renderSteps();
     }
-
-    classSelect.addEventListener('change', updateProjects);
-    projectSelect.addEventListener('change', renderSteps);
 
     setStatus('Chargement du suivi des progressions...');
     loadRows().catch((error) => {
