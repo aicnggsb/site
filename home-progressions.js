@@ -82,12 +82,7 @@
     }
 
     function formatDetails(entry) {
-        const parts = [entry.classText];
-        if (entry.projectText) {
-            parts.push(entry.projectText);
-        }
-        parts.push(`Étape : ${entry.stepText}`);
-        return parts.join(' — ');
+        return `${entry.classText} - ${entry.stepText}`;
     }
 
     function populateClassFilter() {
@@ -137,7 +132,7 @@
         listElement.innerHTML = '';
 
         if (!entries.length) {
-            setStatus('Aucune étape trouvée.', true);
+            setStatus('Aucune tâche trouvée.', true);
             return;
         }
 
@@ -154,7 +149,7 @@
             listElement.appendChild(item);
         });
 
-        setStatus(`${entries.length} étape(s) affichée(s).`);
+        setStatus('Planning mis à jour.');
     }
 
     async function loadRows() {
