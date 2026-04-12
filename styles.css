@@ -1084,8 +1084,8 @@ svg.axe { display: block; margin: 0.5em 0; }
 }
 
 .task-detail-card {
-    align-items: center;
-    text-align: center;
+    align-items: flex-start;
+    text-align: left;
 }
 
 .task-detail-empty {
