@@ -59,10 +59,19 @@
         <section class="description-ateliers">
             <article class="atelier agenda-card">
                 <div class="atelier-content">
-                    <h2>Prochains événements Google Agenda</h2>
-                    <p>Affiche uniquement les événements dont le titre commence par <strong>5E1</strong>.</p>
-                    <p id="calendar-status" class="calendar-status" aria-live="polite">Initialisation...</p>
-                    <ul id="calendar-events-list" class="calendar-events-list"></ul>
+                    <h2>Suivi des progressions (Google Sheets)</h2>
+                    <p>Sélectionnez une classe et un projet pour afficher les dates et étapes prévues.</p>
+
+                    <div class="progression-controls">
+                        <label for="progression-classe">Classe :</label>
+                        <select id="progression-classe"></select>
+
+                        <label for="progression-projet">Projet :</label>
+                        <select id="progression-projet"></select>
+                    </div>
+
+                    <p id="progression-status" class="calendar-status" aria-live="polite">Initialisation...</p>
+                    <ul id="progression-steps-list" class="calendar-events-list"></ul>
                 </div>
             </article>
         </section>
@@ -74,7 +83,7 @@
     </footer>
 
     <script src="sonometre.js"></script>
-    <script src="calendar-events.js"></script>
+    <script src="home-progressions.js"></script>
 </body>
 
 </html>
