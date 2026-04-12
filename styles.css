@@ -980,8 +980,9 @@ svg.axe { display: block; margin: 0.5em 0; }
 
 .datetime-card {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
+    text-align: center;
 }
 
 .datetime-value {
@@ -1083,7 +1084,8 @@ svg.axe { display: block; margin: 0.5em 0; }
 }
 
 .task-detail-card {
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
 }
 
 .task-detail-empty {
@@ -1096,8 +1098,13 @@ svg.axe { display: block; margin: 0.5em 0; }
 }
 
 .task-detail-card .task-detail-step {
-    margin: 0;
+    margin: 0 0 10px;
     font-size: 1.05rem;
+    line-height: 1.5;
+}
+
+.task-detail-card .task-detail-description {
+    margin: 0;
     line-height: 1.5;
 }
 
@@ -1177,4 +1184,15 @@ svg.axe { display: block; margin: 0.5em 0; }
 .calendar-task-button.active {
     border-color: rgba(30, 144, 255, 0.9);
     background: rgba(30, 144, 255, 0.45);
+}
+
+.calendar-task-button.calendar-task-button-dst {
+    background: rgba(220, 20, 60, 0.6);
+    border-color: rgba(255, 120, 120, 0.9);
+}
+
+.calendar-task-button.calendar-task-button-dst:hover,
+.calendar-task-button.calendar-task-button-dst:focus-visible,
+.calendar-task-button.calendar-task-button-dst.active {
+    background: rgba(255, 0, 0, 0.75);
 }
