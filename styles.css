@@ -948,6 +948,35 @@ svg.axe { display: block; margin: 0.5em 0; }
     align-items: stretch;
 }
 
+.home-top-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    align-items: stretch;
+}
+
+.home-top-grid .atelier {
+    margin: 0;
+}
+
+.datetime-card {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.datetime-value {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    margin: 8px 0;
+}
+
+.datetime-label {
+    margin: 0;
+    text-transform: capitalize;
+    font-size: 1.1rem;
+}
+
 .sonometre-controls {
     display: flex;
     align-items: center;
@@ -1032,6 +1061,12 @@ svg.axe { display: block; margin: 0.5em 0; }
 
 .agenda-card {
     align-items: flex-start;
+}
+
+@media (max-width: 900px) {
+    .home-top-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 
