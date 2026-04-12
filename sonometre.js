@@ -1,6 +1,8 @@
 (() => {
   const seuilInput = document.getElementById('seuil');
   const seuilValeur = document.getElementById('seuil-valeur');
+  const sensibiliteInput = document.getElementById('sensibilite');
+  const sensibiliteValeur = document.getElementById('sensibilite-valeur');
   const barreNiveau = document.getElementById('barre-niveau');
   const seuilMarker = document.getElementById('seuil-marker');
   const seuilMarkerLabel = document.getElementById('seuil-marker-label');
@@ -12,7 +14,7 @@
   const incrementBtn = document.getElementById('increment-compteur');
   const resetBtn = document.getElementById('reset-compteur');
 
-  if (!seuilInput || !barreNiveau || !startBtn || !pauseBtn || !decrementBtn || !incrementBtn || !resetBtn) return;
+  if (!seuilInput || !sensibiliteInput || !barreNiveau || !startBtn || !pauseBtn || !decrementBtn || !incrementBtn || !resetBtn) return;
 
   let audioContext;
   let analyser;
@@ -63,14 +65,20 @@
     }
   };
 
-  const normalizeVolume = (arr) => {
+  const updateSensibiliteLabel = () => {
+    const sensibilite = Number(sensibiliteInput.value);
+    sensibiliteValeur.textContent = `${sensibilite}%`;
+  };
+
+  const normalizeVolume = (arr, sensibilite) => {
     let sum = 0;
     for (let i = 0; i < arr.length; i += 1) {
       const centered = arr[i] - 128;
       sum += centered * centered;
     }
     const rms = Math.sqrt(sum / arr.length);
-    return Math.min(100, Math.round((rms / 64) * 100));
+    const adjustedRms = rms * (sensibilite / 100);
+    return Math.min(100, Math.round((adjustedRms / 64) * 100));
   };
 
   const render = () => {
@@ -82,7 +90,8 @@
     }
 
     analyser.getByteTimeDomainData(dataArray);
-    const level = normalizeVolume(dataArray);
+    const sensibilite = Number(sensibiliteInput.value);
+    const level = normalizeVolume(dataArray, sensibilite);
     const seuil = Number(seuilInput.value);
 
     barreNiveau.style.width = `${level}%`;
@@ -141,6 +150,7 @@
   };
 
   seuilInput.addEventListener('input', updateSeuilLabel);
+  sensibiliteInput.addEventListener('input', updateSensibiliteLabel);
   startBtn.addEventListener('click', start);
   pauseBtn.addEventListener('click', togglePause);
   decrementBtn.addEventListener('click', () => {
@@ -159,4 +169,5 @@
   pauseBtn.disabled = false;
   pauseBtn.removeAttribute('disabled');
   updateSeuilLabel();
+  updateSensibiliteLabel();
 })();

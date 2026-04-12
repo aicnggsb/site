@@ -23,12 +23,17 @@
             <article class="atelier sonometre-card">
                 <div class="atelier-content">
                     <h2>Régulation du bruit</h2>
-                    <p>Utilisez ce sonomètre pour réguler le bruit pendant les activités. Le compteur augmente à chaque dépassement du seuil.</p>
 
                     <div class="sonometre-controls">
                         <label for="seuil">Seuil de bruit (%) :</label>
                         <input id="seuil" type="range" min="10" max="90" value="55">
                         <span id="seuil-valeur">55%</span>
+                    </div>
+
+                    <div class="sonometre-controls">
+                        <label for="sensibilite">Sensibilité :</label>
+                        <input id="sensibilite" type="range" min="50" max="200" value="100" step="5">
+                        <span id="sensibilite-valeur">100%</span>
                     </div>
 
                     <div class="barre-wrapper" aria-label="Niveau sonore en direct">
