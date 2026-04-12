@@ -1029,3 +1029,34 @@ svg.axe { display: block; margin: 0.5em 0; }
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+.agenda-card {
+    align-items: flex-start;
+}
+
+.calendar-status {
+    font-style: italic;
+    margin-bottom: 12px;
+}
+
+.calendar-error {
+    color: #ffb3b3;
+}
+
+.calendar-events-list {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.calendar-events-list li {
+    margin-bottom: 10px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 10px;
+}
+
+.calendar-events-list strong {
+    display: block;
+    margin-bottom: 4px;
+}
