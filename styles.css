@@ -948,15 +948,34 @@ svg.axe { display: block; margin: 0.5em 0; }
     align-items: stretch;
 }
 
-.home-top-grid {
+.home-dashboard-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: minmax(320px, 2fr) minmax(260px, 1fr);
+    grid-template-areas:
+        "sonometre datetime"
+        "detail agenda";
     gap: 20px;
     align-items: stretch;
 }
 
-.home-top-grid .atelier {
+.home-dashboard-grid .atelier {
     margin: 0;
+}
+
+.home-card-sonometre {
+    grid-area: sonometre;
+}
+
+.home-card-datetime {
+    grid-area: datetime;
+}
+
+.home-card-detail {
+    grid-area: detail;
+}
+
+.home-card-agenda {
+    grid-area: agenda;
 }
 
 .datetime-card {
@@ -1063,9 +1082,33 @@ svg.axe { display: block; margin: 0.5em 0; }
     align-items: flex-start;
 }
 
+.task-detail-card {
+    align-items: flex-start;
+}
+
+.task-detail-empty {
+    opacity: 0.8;
+    font-style: italic;
+}
+
+.task-detail-card .task-detail-meta {
+    margin: 0 0 10px;
+}
+
+.task-detail-card .task-detail-step {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.5;
+}
+
 @media (max-width: 900px) {
-    .home-top-grid {
+    .home-dashboard-grid {
         grid-template-columns: 1fr;
+        grid-template-areas:
+            "sonometre"
+            "datetime"
+            "agenda"
+            "detail";
     }
 }
 
@@ -1112,4 +1155,26 @@ svg.axe { display: block; margin: 0.5em 0; }
 .calendar-events-list strong {
     display: block;
     margin-bottom: 4px;
+}
+
+.calendar-task-button {
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    border-radius: 6px;
+    padding: 8px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.calendar-task-button:hover,
+.calendar-task-button:focus-visible {
+    background: rgba(30, 144, 255, 0.35);
+    outline: none;
+}
+
+.calendar-task-button.active {
+    border-color: rgba(30, 144, 255, 0.9);
+    background: rgba(30, 144, 255, 0.45);
 }

@@ -4,6 +4,7 @@
     const statusElement = document.getElementById('progression-status');
     const listElement = document.getElementById('progression-steps-list');
     const classFilterElement = document.getElementById('progression-class-filter');
+    const taskDetailElement = document.getElementById('progression-task-detail');
 
     if (!statusElement || !listElement || !classFilterElement) {
         return;
@@ -14,6 +15,7 @@
     let projectIdx = -1;
     let dateIdx = -1;
     let stepIdx = -1;
+    let selectedEntryKey = '';
 
     function normalize(value) {
         return (value || '')
@@ -85,6 +87,35 @@
         return `${entry.classText} - ${entry.stepText}`;
     }
 
+    function getEntryKey(entry) {
+        return `${entry.classText}|${entry.projectText}|${entry.dateText}|${entry.stepText}`;
+    }
+
+    function renderTaskDetail(entry) {
+        if (!taskDetailElement) {
+            return;
+        }
+
+        if (!entry) {
+            taskDetailElement.className = 'task-detail-empty';
+            taskDetailElement.textContent = 'Cliquez sur une tâche du planning pour afficher ses détails ici.';
+            return;
+        }
+
+        const safeClass = entry.classText || 'Classe non renseignée';
+        const safeProject = entry.projectText || 'Projet non renseigné';
+        const safeDate = entry.dateText || 'Date non renseignée';
+        const safeStep = entry.stepText || 'Tâche non renseignée';
+
+        taskDetailElement.className = '';
+        taskDetailElement.innerHTML = `
+            <p class="task-detail-meta"><strong>Classe :</strong> ${safeClass}</p>
+            <p class="task-detail-meta"><strong>Projet :</strong> ${safeProject}</p>
+            <p class="task-detail-meta"><strong>Date :</strong> ${safeDate}</p>
+            <p class="task-detail-step"><strong>Tâche :</strong> ${safeStep}</p>
+        `;
+    }
+
     function populateClassFilter() {
         const classes = Array.from(
             new Set(
@@ -132,22 +163,43 @@
         listElement.innerHTML = '';
 
         if (!entries.length) {
+            renderTaskDetail(null);
             setStatus('Aucune tâche trouvée.', true);
             return;
         }
 
         entries.forEach((entry) => {
             const item = document.createElement('li');
+            const entryKey = getEntryKey(entry);
+            const taskButton = document.createElement('button');
+            taskButton.type = 'button';
+            taskButton.className = 'calendar-task-button';
+            if (entryKey === selectedEntryKey) {
+                taskButton.classList.add('active');
+            }
+
             const strong = document.createElement('strong');
             strong.textContent = entry.dateText || 'Date non renseignée';
 
             const details = document.createElement('div');
             details.textContent = formatDetails(entry);
 
-            item.appendChild(strong);
-            item.appendChild(details);
+            taskButton.appendChild(strong);
+            taskButton.appendChild(details);
+            taskButton.addEventListener('click', () => {
+                selectedEntryKey = entryKey;
+                renderSteps();
+                renderTaskDetail(entry);
+            });
+
+            item.appendChild(taskButton);
             listElement.appendChild(item);
         });
+
+        if (!entries.some((entry) => getEntryKey(entry) === selectedEntryKey)) {
+            selectedEntryKey = '';
+            renderTaskDetail(null);
+        }
 
         setStatus('Planning mis à jour.');
     }
