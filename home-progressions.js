@@ -15,7 +15,7 @@
     let projectIdx = -1;
     let dateIdx = -1;
     let stepIdx = -1;
-    let descriptionIdx = -1;
+    let detailsIdx = -1;
     let selectedEntryKey = '';
 
     function normalize(value) {
@@ -103,13 +103,11 @@
             return;
         }
 
-        const safeStep = entry.stepText || 'Tâche non renseignée';
-        const safeDescription = entry.descriptionText || 'Description non renseignée.';
+        const safeDetails = entry.detailsText || 'Détails non renseignés.';
 
         taskDetailElement.className = '';
         taskDetailElement.innerHTML = `
-            <p class="task-detail-step"><strong>Tâche :</strong> ${safeStep}</p>
-            <p class="task-detail-description">${safeDescription}</p>
+            <p class="task-detail-description">${safeDetails}</p>
         `;
     }
 
@@ -149,7 +147,7 @@
                 dateText: row[dateIdx] || '',
                 dateValue: parseDate(row[dateIdx]),
                 stepText: row[stepIdx] || 'Étape non renseignée',
-                descriptionText: descriptionIdx >= 0 ? (row[descriptionIdx] || '').trim() : ''
+                detailsText: detailsIdx >= 0 ? (row[detailsIdx] || '').trim() : ''
             }))
             .sort((a, b) => {
                 if (!a.dateValue && !b.dateValue) return 0;
@@ -233,7 +231,7 @@
         projectIdx = header.findIndex((col) => normalize(col) === 'projet');
         dateIdx = header.findIndex((col) => normalize(col) === 'date');
         stepIdx = header.findIndex((col) => ['tache', 'etape'].includes(normalize(col)));
-        descriptionIdx = header.findIndex((col) => normalize(col) === 'description');
+        detailsIdx = header.findIndex((col) => ['details', 'detail', 'description'].includes(normalize(col)));
 
         if (classIdx === -1 || projectIdx === -1 || dateIdx === -1 || stepIdx === -1) {
             throw new Error('Colonnes attendues introuvables (classe/projet/date/tache-etape).');
