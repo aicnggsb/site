@@ -15,6 +15,7 @@
     let projectIdx = -1;
     let dateIdx = -1;
     let stepIdx = -1;
+    let descriptionIdx = -1;
     let selectedEntryKey = '';
 
     function normalize(value) {
@@ -98,21 +99,17 @@
 
         if (!entry) {
             taskDetailElement.className = 'task-detail-empty';
-            taskDetailElement.textContent = 'Cliquez sur une tâche du planning pour afficher ses détails ici.';
+            taskDetailElement.textContent = 'Cliquez sur une tâche du planning pour afficher son contenu ici.';
             return;
         }
 
-        const safeClass = entry.classText || 'Classe non renseignée';
-        const safeProject = entry.projectText || 'Projet non renseigné';
-        const safeDate = entry.dateText || 'Date non renseignée';
         const safeStep = entry.stepText || 'Tâche non renseignée';
+        const safeDescription = entry.descriptionText || 'Description non renseignée.';
 
         taskDetailElement.className = '';
         taskDetailElement.innerHTML = `
-            <p class="task-detail-meta"><strong>Classe :</strong> ${safeClass}</p>
-            <p class="task-detail-meta"><strong>Projet :</strong> ${safeProject}</p>
-            <p class="task-detail-meta"><strong>Date :</strong> ${safeDate}</p>
             <p class="task-detail-step"><strong>Tâche :</strong> ${safeStep}</p>
+            <p class="task-detail-description">${safeDescription}</p>
         `;
     }
 
@@ -151,7 +148,8 @@
                 projectText: (row[projectIdx] || '').trim(),
                 dateText: row[dateIdx] || '',
                 dateValue: parseDate(row[dateIdx]),
-                stepText: row[stepIdx] || 'Étape non renseignée'
+                stepText: row[stepIdx] || 'Étape non renseignée',
+                descriptionText: descriptionIdx >= 0 ? (row[descriptionIdx] || '').trim() : ''
             }))
             .sort((a, b) => {
                 if (!a.dateValue && !b.dateValue) return 0;
@@ -174,6 +172,9 @@
             const taskButton = document.createElement('button');
             taskButton.type = 'button';
             taskButton.className = 'calendar-task-button';
+            if ((entry.stepText || '').toUpperCase().includes('DST')) {
+                taskButton.classList.add('calendar-task-button-dst');
+            }
             if (entryKey === selectedEntryKey) {
                 taskButton.classList.add('active');
             }
@@ -232,6 +233,7 @@
         projectIdx = header.findIndex((col) => normalize(col) === 'projet');
         dateIdx = header.findIndex((col) => normalize(col) === 'date');
         stepIdx = header.findIndex((col) => ['tache', 'etape'].includes(normalize(col)));
+        descriptionIdx = header.findIndex((col) => normalize(col) === 'description');
 
         if (classIdx === -1 || projectIdx === -1 || dateIdx === -1 || stepIdx === -1) {
             throw new Error('Colonnes attendues introuvables (classe/projet/date/tache-etape).');
