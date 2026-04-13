@@ -1197,6 +1197,17 @@ svg.axe { display: block; margin: 0.5em 0; }
     background: rgba(255, 0, 0, 0.75);
 }
 
+.calendar-task-button.calendar-task-button-evaluation {
+    background: rgba(220, 20, 60, 0.6);
+    border-color: rgba(255, 120, 120, 0.9);
+}
+
+.calendar-task-button.calendar-task-button-evaluation:hover,
+.calendar-task-button.calendar-task-button-evaluation:focus-visible,
+.calendar-task-button.calendar-task-button-evaluation.active {
+    background: rgba(255, 0, 0, 0.75);
+}
+
 .calendar-task-button.calendar-task-button-cancelled {
     background: rgba(128, 128, 128, 0.45);
     border-color: rgba(200, 200, 200, 0.75);
