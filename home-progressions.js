@@ -173,6 +173,9 @@
             if ((entry.stepText || '').toUpperCase().includes('DST')) {
                 taskButton.classList.add('calendar-task-button-dst');
             }
+            if ((entry.stepText || '').toLowerCase().includes('annul')) {
+                taskButton.classList.add('calendar-task-button-cancelled');
+            }
             if (entryKey === selectedEntryKey) {
                 taskButton.classList.add('active');
             }
