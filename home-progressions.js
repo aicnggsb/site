@@ -4,9 +4,10 @@
     const statusElement = document.getElementById('progression-status');
     const listElement = document.getElementById('progression-steps-list');
     const classFilterElement = document.getElementById('progression-class-filter');
+    const showPastElement = document.getElementById('progression-show-past');
     const taskDetailElement = document.getElementById('progression-task-detail');
 
-    if (!statusElement || !listElement || !classFilterElement) {
+    if (!statusElement || !listElement || !classFilterElement || !showPastElement) {
         return;
     }
 
@@ -136,6 +137,8 @@
 
     function renderSteps() {
         const selectedClass = classFilterElement.value;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
         const entries = allRows
             .filter((row) => {
                 if (!selectedClass) return true;
@@ -149,6 +152,11 @@
                 stepText: row[stepIdx] || 'Étape non renseignée',
                 detailsText: detailsIdx >= 0 ? (row[detailsIdx] || '').trim() : ''
             }))
+            .filter((entry) => {
+                if (showPastElement.checked) return true;
+                if (!entry.dateValue) return true;
+                return entry.dateValue >= today;
+            })
             .sort((a, b) => {
                 if (!a.dateValue && !b.dateValue) return 0;
                 if (!a.dateValue) return 1;
@@ -254,6 +262,7 @@
     }
 
     classFilterElement.addEventListener('change', renderSteps);
+    showPastElement.addEventListener('change', renderSteps);
 
     setStatus('Chargement du planning...');
     loadRows().catch((error) => {

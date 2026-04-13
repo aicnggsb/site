@@ -1137,6 +1137,21 @@ svg.axe { display: block; margin: 0.5em 0; }
     color: #fff;
 }
 
+.progression-controls-checkbox {
+    grid-template-columns: 1fr;
+}
+
+.progression-controls-checkbox label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.progression-controls-checkbox input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
 .calendar-status {
     font-style: italic;
     margin-bottom: 12px;
