@@ -105,6 +105,21 @@
     .task-text { flex: 1; }
     .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 8px; background: #eef2ff; color: var(--primary); font-weight: 600; font-size: 0.8rem; margin-right: 0.35rem; }
     .filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.5rem 0; }
+    .filter-checkbox {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.9rem;
+      color: var(--text);
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.4rem 0.55rem;
+    }
+    .filter-checkbox input {
+      width: auto;
+      margin: 0;
+    }
     .link-card { border: 1px solid var(--border); padding: 0.7rem; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; background: #f9fafb; }
     .link-card a { color: var(--primary); text-decoration: none; font-weight: 700; }
     .timetable-grid {
@@ -189,6 +204,10 @@
             <select id="personFilter" aria-label="Filtrer par personne">
               <option value="all">Toutes les personnes</option>
             </select>
+            <label for="showPastTasks" class="filter-checkbox">
+              <input type="checkbox" id="showPastTasks">
+              Voir les tâches passées
+            </label>
           </div>
         </div>
         <form id="taskForm" class="form-grid" autocomplete="off">
@@ -562,6 +581,7 @@
       const tasksList = document.getElementById('tasksList');
       const statusFilter = document.getElementById('statusFilter');
       const personFilter = document.getElementById('personFilter');
+      const showPastTasks = document.getElementById('showPastTasks');
 
       taskForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -582,13 +602,16 @@
 
       statusFilter.addEventListener('change', renderTasks);
       personFilter.addEventListener('change', renderTasks);
+      showPastTasks.addEventListener('change', renderTasks);
 
       function renderTasks() {
         tasksList.innerHTML = '';
+        const todayIso = new Date().toISOString().slice(0,10);
         const filtered = state.tasks.filter(task => {
           if (statusFilter.value === 'todo' && task.done) return false;
           if (statusFilter.value === 'done' && !task.done) return false;
           if (personFilter.value !== 'all' && task.person !== personFilter.value) return false;
+          if (!showPastTasks.checked && task.dueDate && task.dueDate < todayIso) return false;
           return true;
         });
         if (!filtered.length) {
