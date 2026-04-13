@@ -8,6 +8,7 @@
   const seuilMarkerLabel = document.getElementById('seuil-marker-label');
   const niveauLive = document.getElementById('niveau-live');
   const depassementsEl = document.getElementById('depassements');
+  const sonometreCard = document.querySelector('.sonometre-card');
   const startBtn = document.getElementById('start-sonometre');
   const pauseBtn = document.getElementById('pause-sonometre');
   const decrementBtn = document.getElementById('decrement-compteur');
@@ -51,6 +52,17 @@
 
   const updateCompteur = () => {
     depassementsEl.textContent = `Dépassements : ${depassements}`;
+    updateSonometreColor();
+  };
+
+  const updateSonometreColor = () => {
+    if (!sonometreCard) return;
+    const ratio = Math.min(depassements, 20) / 20;
+    const red = Math.round(30 + (255 - 30) * ratio);
+    const green = Math.round(144 * (1 - ratio));
+    const blue = Math.round(255 * (1 - ratio));
+    const alpha = 0.2 + ratio * 0.35;
+    sonometreCard.style.backgroundColor = `rgba(${red}, ${green}, ${blue}, ${alpha.toFixed(2)})`;
   };
 
   const updateSeuilLabel = () => {
@@ -170,4 +182,5 @@
   pauseBtn.removeAttribute('disabled');
   updateSeuilLabel();
   updateSensibiliteLabel();
+  updateCompteur();
 })();
