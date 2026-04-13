@@ -214,7 +214,7 @@
             renderTaskDetail(null);
         }
 
-        setStatus('Planning mis à jour.');
+        setStatus('');
     }
 
     async function loadRows() {
