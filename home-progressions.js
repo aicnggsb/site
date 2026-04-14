@@ -354,21 +354,24 @@
         }, 220);
     }
 
-    function renderImportantMessages(messages) {
+    function renderImportantMessages(messages, options = {}) {
         if (!importantMessagesPanelElement || !importantMessageTextElement) {
             return;
         }
 
+        const { hideWhenEmpty = false } = options;
         stopImportantMessagesRotation();
         currentImportantMessageIndex = 0;
 
         if (!messages.length) {
+            importantMessagesPanelElement.hidden = hideWhenEmpty;
             importantMessagesPanelElement.classList.remove('has-important-messages');
             importantMessageTextElement.className = 'important-messages-empty';
             importantMessageTextElement.textContent = 'Aucun message important.';
             return;
         }
 
+        importantMessagesPanelElement.hidden = false;
         const uniqueMessages = Array.from(new Set(messages));
         importantMessagesPanelElement.classList.add('has-important-messages');
         importantMessageTextElement.className = 'important-messages-content';
@@ -383,12 +386,12 @@
     }
 
     function buildTasksList(tasks) {
-        const list = document.createElement('ol');
+        const list = document.createElement('ul');
         list.className = 'task-detail-tasks';
 
         tasks.forEach((task) => {
             const item = document.createElement('li');
-            const label = document.createElement('span');
+            const label = document.createElement('strong');
             const inlineSubtasks = parseInlineSubtasks(task.label);
 
             if (inlineSubtasks) {
@@ -511,9 +514,13 @@
             return;
         }
 
-        const importantMessages = displayedEntries
-            .flatMap((entry) => parseSessionDetails(entry.detailsText || '').importantMessages || []);
-        renderImportantMessages(importantMessages);
+        const selectedEntry = displayedEntries.find((entry) => getEntryKey(entry) === selectedEntryKey);
+        if (selectedEntry) {
+            const importantMessages = parseSessionDetails(selectedEntry.detailsText || '').importantMessages || [];
+            renderImportantMessages(importantMessages);
+        } else {
+            renderImportantMessages([], { hideWhenEmpty: true });
+        }
 
         displayedEntries.forEach((entry) => {
             const item = document.createElement('li');
