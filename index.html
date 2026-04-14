@@ -22,7 +22,10 @@
         <section class="description-ateliers home-dashboard-grid">
             <article class="atelier sonometre-card home-card-sonometre">
                 <div class="atelier-content">
-                    <h2>Régulation du bruit</h2>
+                    <div class="card-header-with-toggle">
+                        <h2>Régulation du bruit</h2>
+                        <button id="toggle-sonometre-compact" type="button" class="panel-toggle-button" aria-expanded="true">Masquer</button>
+                    </div>
 
                     <div class="sonometre-controls">
                         <label for="seuil">Seuil de bruit (%) :</label>
@@ -86,7 +89,10 @@
             </article>
             <article class="atelier agenda-card home-card-agenda">
                 <div class="atelier-content">
-                    <h2>Planning</h2>
+                    <div class="card-header-with-toggle">
+                        <h2>Planning</h2>
+                        <button id="progression-toggle-count" type="button" class="panel-toggle-button" aria-expanded="false">+</button>
+                    </div>
 
                     <div class="progression-controls">
                         <label for="progression-class-filter">Classe :</label>

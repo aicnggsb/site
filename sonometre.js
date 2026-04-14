@@ -14,6 +14,7 @@
   const decrementBtn = document.getElementById('decrement-compteur');
   const incrementBtn = document.getElementById('increment-compteur');
   const resetBtn = document.getElementById('reset-compteur');
+  const compactToggleBtn = document.getElementById('toggle-sonometre-compact');
 
   if (!seuilInput || !sensibiliteInput || !barreNiveau || !startBtn || !pauseBtn || !decrementBtn || !incrementBtn || !resetBtn) return;
 
@@ -23,6 +24,7 @@
   let depassements = 0;
   let lastTriggerAt = 0;
   let isPaused = false;
+  let isCompact = false;
   const triggerCooldownMs = 1200;
 
   const playAlertSignal = () => {
@@ -48,6 +50,14 @@
       oscillator.start(startAt);
       oscillator.stop(startAt + beepDuration);
     });
+  };
+
+  const updateCompactMode = () => {
+    if (!sonometreCard || !compactToggleBtn) return;
+
+    sonometreCard.classList.toggle('is-compact', isCompact);
+    compactToggleBtn.textContent = isCompact ? 'Afficher' : 'Masquer';
+    compactToggleBtn.setAttribute('aria-expanded', String(!isCompact));
   };
 
   const updateCompteur = () => {
@@ -178,9 +188,15 @@
     updateCompteur();
   });
 
+  compactToggleBtn?.addEventListener('click', () => {
+    isCompact = !isCompact;
+    updateCompactMode();
+  });
+
   pauseBtn.disabled = false;
   pauseBtn.removeAttribute('disabled');
   updateSeuilLabel();
   updateSensibiliteLabel();
   updateCompteur();
+  updateCompactMode();
 })();

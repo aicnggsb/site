@@ -1164,11 +1164,6 @@ svg.axe { display: block; margin: 0.5em 0; }
     font-size: 0.98rem;
 }
 
-.task-subtask-duration {
-    margin: 6px 0 0;
-    opacity: 0.85;
-    font-size: 0.9rem;
-}
 
 .task-subtask-timer {
     margin: 8px 0;
@@ -1360,9 +1355,44 @@ svg.axe { display: block; margin: 0.5em 0; }
 .datetime-card .atelier-content h2,
 .task-detail-card .atelier-content h2,
 .agenda-card .atelier-content h2 {
-    margin: 0 0 10px;
+    margin: 0;
     font-size: 1.2rem;
 }
+
+
+.card-header-with-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.panel-toggle-button {
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    padding: 4px 12px;
+    font-size: 0.82rem;
+    cursor: pointer;
+}
+
+.panel-toggle-button:hover {
+    background: rgba(255, 255, 255, 0.24);
+}
+
+.sonometre-card.is-compact .sonometre-controls,
+.sonometre-card.is-compact #niveau-live,
+.sonometre-card.is-compact .sonometre-actions,
+.sonometre-card.is-compact .seuil-marker,
+.sonometre-card.is-compact .seuil-marker-label {
+    display: none;
+}
+
+.sonometre-card.is-compact .barre-wrapper {
+    margin-top: 8px;
+}
+
 
 .sonometre-card .atelier-content > p {
     margin: 6px 0;
