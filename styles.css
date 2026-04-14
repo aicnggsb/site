@@ -1132,6 +1132,75 @@ svg.axe { display: block; margin: 0.5em 0; }
     margin-top: 6px;
 }
 
+.task-group-title {
+    display: inline-block;
+    margin-bottom: 8px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+.task-subtasks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.task-subtask-card {
+    background: rgba(7, 16, 39, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.task-subtask-card-complete {
+    border-color: #47d16d;
+    box-shadow: 0 0 0 2px rgba(71, 209, 109, 0.25);
+}
+
+.task-subtask-title {
+    margin: 0;
+    font-size: 0.98rem;
+}
+
+.task-subtask-duration {
+    margin: 6px 0 0;
+    opacity: 0.85;
+    font-size: 0.9rem;
+}
+
+.task-subtask-timer {
+    margin: 8px 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.task-subtask-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.task-subtask-actions button {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 8px;
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    cursor: pointer;
+}
+
+.task-subtask-actions button:hover {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+.task-subtask-actions button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 @media (max-width: 900px) {
     .home-dashboard-grid {
         grid-template-columns: 1fr;
