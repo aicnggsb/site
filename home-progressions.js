@@ -9,6 +9,8 @@
     const taskListElement = document.getElementById('progression-task-list');
     const taskToggleButtons = Array.from(document.querySelectorAll('.task-toggle-button'));
     const planningToggleCountButton = document.getElementById('progression-toggle-count');
+    const importantMessagesPanelElement = document.getElementById('important-messages-panel');
+    const importantMessageTextElement = document.getElementById('important-message-text');
 
     if (!statusElement || !listElement || !classFilterElement || !showPastElement) {
         return;
@@ -22,6 +24,8 @@
     let detailsIdx = -1;
     let selectedEntryKey = '';
     let showAllPlanningDates = false;
+    let importantMessagesIntervalId = null;
+    let currentImportantMessageIndex = 0;
 
     function normalize(value) {
         return (value || '')
@@ -288,7 +292,17 @@
     }
 
     function parseSessionDetails(detailsText) {
-        const parsed = parseBracketContent(detailsText || '', 0);
+        const sourceText = detailsText || '';
+        const importantMessages = [];
+        const textWithoutMessages = sourceText.replace(/\$([^$]+)\$/g, (_, message) => {
+            const cleanedMessage = cleanText(message);
+            if (cleanedMessage) {
+                importantMessages.push(cleanedMessage);
+            }
+            return ' ';
+        });
+
+        const parsed = parseBracketContent(textWithoutMessages, 0);
         const content = cleanText(parsed.plainText);
 
         function normalizeTasks(tasks) {
@@ -302,8 +316,44 @@
 
         return {
             content,
-            tasks: normalizeTasks(parsed.tasks || [])
+            tasks: normalizeTasks(parsed.tasks || []),
+            importantMessages
         };
+    }
+
+    function stopImportantMessagesRotation() {
+        if (importantMessagesIntervalId) {
+            clearInterval(importantMessagesIntervalId);
+            importantMessagesIntervalId = null;
+        }
+    }
+
+    function renderImportantMessages(messages) {
+        if (!importantMessagesPanelElement || !importantMessageTextElement) {
+            return;
+        }
+
+        stopImportantMessagesRotation();
+        currentImportantMessageIndex = 0;
+
+        if (!messages.length) {
+            importantMessagesPanelElement.classList.remove('has-important-messages');
+            importantMessageTextElement.className = 'important-messages-empty';
+            importantMessageTextElement.textContent = 'Aucun message important.';
+            return;
+        }
+
+        const uniqueMessages = Array.from(new Set(messages));
+        importantMessagesPanelElement.classList.add('has-important-messages');
+        importantMessageTextElement.className = 'important-messages-content';
+        importantMessageTextElement.textContent = uniqueMessages[currentImportantMessageIndex];
+
+        if (uniqueMessages.length > 1) {
+            importantMessagesIntervalId = setInterval(() => {
+                currentImportantMessageIndex = (currentImportantMessageIndex + 1) % uniqueMessages.length;
+                importantMessageTextElement.textContent = uniqueMessages[currentImportantMessageIndex];
+            }, 30000);
+        }
     }
 
     function buildTasksList(tasks) {
@@ -430,9 +480,14 @@
 
         if (!displayedEntries.length) {
             renderTaskDetail(null);
+            renderImportantMessages([]);
             setStatus('Aucune tâche trouvée.', true);
             return;
         }
+
+        const importantMessages = displayedEntries
+            .flatMap((entry) => parseSessionDetails(entry.detailsText || '').importantMessages || []);
+        renderImportantMessages(importantMessages);
 
         displayedEntries.forEach((entry) => {
             const item = document.createElement('li');
@@ -554,6 +609,7 @@
     setStatus('Chargement du planning...');
     loadRows().catch((error) => {
         listElement.innerHTML = '';
+        renderImportantMessages([]);
         setStatus(`Impossible de charger le suivi : ${error.message}`, true);
     });
 })();
