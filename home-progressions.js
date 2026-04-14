@@ -25,6 +25,7 @@
     let selectedEntryKey = '';
     let showAllPlanningDates = false;
     let importantMessagesIntervalId = null;
+    let importantMessageTransitionTimeoutId = null;
     let currentImportantMessageIndex = 0;
 
     function normalize(value) {
@@ -326,6 +327,31 @@
             clearInterval(importantMessagesIntervalId);
             importantMessagesIntervalId = null;
         }
+
+        if (importantMessageTransitionTimeoutId) {
+            clearTimeout(importantMessageTransitionTimeoutId);
+            importantMessageTransitionTimeoutId = null;
+        }
+    }
+
+    function updateImportantMessageWithTransition(message) {
+        const supportsMotion = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (!supportsMotion) {
+            importantMessageTextElement.textContent = message;
+            return;
+        }
+
+        importantMessageTextElement.classList.remove('is-transitioning-in');
+        void importantMessageTextElement.offsetWidth;
+        importantMessageTextElement.classList.add('is-transitioning-out');
+
+        importantMessageTransitionTimeoutId = setTimeout(() => {
+            importantMessageTextElement.textContent = message;
+            importantMessageTextElement.classList.remove('is-transitioning-out');
+            importantMessageTextElement.classList.add('is-transitioning-in');
+            importantMessageTransitionTimeoutId = null;
+        }, 220);
     }
 
     function renderImportantMessages(messages) {
@@ -351,8 +377,8 @@
         if (uniqueMessages.length > 1) {
             importantMessagesIntervalId = setInterval(() => {
                 currentImportantMessageIndex = (currentImportantMessageIndex + 1) % uniqueMessages.length;
-                importantMessageTextElement.textContent = uniqueMessages[currentImportantMessageIndex];
-            }, 30000);
+                updateImportantMessageWithTransition(uniqueMessages[currentImportantMessageIndex]);
+            }, 8000);
         }
     }
 
