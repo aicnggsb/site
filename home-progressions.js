@@ -316,10 +316,6 @@
             const inlineSubtasks = parseInlineSubtasks(task.label);
 
             if (inlineSubtasks) {
-                label.className = 'task-group-title';
-                label.textContent = 'Sous-tâches';
-                item.appendChild(label);
-
                 const subtaskGrid = document.createElement('div');
                 subtaskGrid.className = 'task-subtasks-grid';
                 inlineSubtasks.forEach((subtask) => {
