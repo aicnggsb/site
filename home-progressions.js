@@ -8,6 +8,7 @@
     const taskContentElement = document.getElementById('progression-task-content');
     const taskListElement = document.getElementById('progression-task-list');
     const taskToggleButtons = Array.from(document.querySelectorAll('.task-toggle-button'));
+    const planningToggleCountButton = document.getElementById('progression-toggle-count');
 
     if (!statusElement || !listElement || !classFilterElement || !showPastElement) {
         return;
@@ -20,6 +21,7 @@
     let stepIdx = -1;
     let detailsIdx = -1;
     let selectedEntryKey = '';
+    let showAllPlanningDates = false;
 
     function normalize(value) {
         return (value || '')
@@ -145,10 +147,6 @@
         title.className = 'task-subtask-title';
         title.textContent = subtask.name;
 
-        const plannedDuration = document.createElement('p');
-        plannedDuration.className = 'task-subtask-duration';
-        plannedDuration.textContent = `Durée prévue : ${subtask.durationMinutes} min`;
-
         const timer = document.createElement('p');
         timer.className = 'task-subtask-timer';
         timer.textContent = formatRemaining(remainingSeconds);
@@ -219,7 +217,6 @@
         actions.appendChild(resetButton);
 
         card.appendChild(title);
-        card.appendChild(plannedDuration);
         card.appendChild(timer);
         card.appendChild(actions);
 
@@ -425,15 +422,23 @@
                 return a.dateValue - b.dateValue;
             });
 
+        const displayedEntries = showAllPlanningDates ? entries : entries.slice(0, 3);
+
+        if (planningToggleCountButton) {
+            planningToggleCountButton.textContent = showAllPlanningDates ? '-' : '+';
+            planningToggleCountButton.setAttribute('aria-expanded', String(showAllPlanningDates));
+            planningToggleCountButton.title = showAllPlanningDates ? 'Afficher seulement les 3 prochaines dates' : 'Afficher toutes les dates';
+        }
+
         listElement.innerHTML = '';
 
-        if (!entries.length) {
+        if (!displayedEntries.length) {
             renderTaskDetail(null);
             setStatus('Aucune tâche trouvée.', true);
             return;
         }
 
-        entries.forEach((entry) => {
+        displayedEntries.forEach((entry) => {
             const item = document.createElement('li');
             const entryKey = getEntryKey(entry);
             const taskButton = document.createElement('button');
@@ -470,7 +475,7 @@
             listElement.appendChild(item);
         });
 
-        if (!entries.some((entry) => getEntryKey(entry) === selectedEntryKey)) {
+        if (!displayedEntries.some((entry) => getEntryKey(entry) === selectedEntryKey)) {
             selectedEntryKey = '';
             renderTaskDetail(null);
         }
@@ -543,6 +548,10 @@
 
     classFilterElement.addEventListener('change', renderSteps);
     showPastElement.addEventListener('change', renderSteps);
+    planningToggleCountButton?.addEventListener('click', () => {
+        showAllPlanningDates = !showAllPlanningDates;
+        renderSteps();
+    });
 
     setupTaskSectionToggles();
 
