@@ -1108,6 +1108,30 @@ svg.axe { display: block; margin: 0.5em 0; }
     line-height: 1.5;
 }
 
+.task-detail-card .task-detail-section + .task-detail-section {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.task-detail-card .task-detail-section h3 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+}
+
+.task-detail-list-container {
+    line-height: 1.5;
+}
+
+.task-detail-tasks {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.task-detail-tasks .task-detail-tasks {
+    margin-top: 6px;
+}
+
 @media (max-width: 900px) {
     .home-dashboard-grid {
         grid-template-columns: 1fr;

@@ -5,7 +5,8 @@
     const listElement = document.getElementById('progression-steps-list');
     const classFilterElement = document.getElementById('progression-class-filter');
     const showPastElement = document.getElementById('progression-show-past');
-    const taskDetailElement = document.getElementById('progression-task-detail');
+    const taskContentElement = document.getElementById('progression-task-content');
+    const taskListElement = document.getElementById('progression-task-list');
 
     if (!statusElement || !listElement || !classFilterElement || !showPastElement) {
         return;
@@ -93,23 +94,112 @@
         return `${entry.classText}|${entry.projectText}|${entry.dateText}|${entry.stepText}`;
     }
 
+    function cleanText(value) {
+        return (value || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function parseBracketContent(text, startIndex = 0) {
+        let plainText = '';
+        const tasks = [];
+        let cursor = startIndex;
+
+        while (cursor < text.length) {
+            const char = text[cursor];
+            if (char === '[') {
+                const nested = parseBracketContent(text, cursor + 1);
+                tasks.push({
+                    label: cleanText(nested.plainText),
+                    subtasks: nested.tasks
+                });
+                cursor = nested.nextIndex;
+                continue;
+            }
+
+            if (char === ']') {
+                return {
+                    plainText,
+                    tasks,
+                    nextIndex: cursor + 1
+                };
+            }
+
+            plainText += char;
+            cursor += 1;
+        }
+
+        return {
+            plainText,
+            tasks,
+            nextIndex: cursor
+        };
+    }
+
+    function parseSessionDetails(detailsText) {
+        const parsed = parseBracketContent(detailsText || '', 0);
+        const content = cleanText(parsed.plainText);
+
+        function normalizeTasks(tasks) {
+            return tasks
+                .map((task) => ({
+                    label: cleanText(task.label),
+                    subtasks: normalizeTasks(task.subtasks || [])
+                }))
+                .filter((task) => task.label || task.subtasks.length > 0);
+        }
+
+        return {
+            content,
+            tasks: normalizeTasks(parsed.tasks || [])
+        };
+    }
+
+    function buildTasksList(tasks) {
+        const list = document.createElement('ol');
+        list.className = 'task-detail-tasks';
+
+        tasks.forEach((task) => {
+            const item = document.createElement('li');
+            const label = document.createElement('span');
+            label.textContent = task.label || 'Tâche sans titre';
+            item.appendChild(label);
+
+            if (task.subtasks && task.subtasks.length) {
+                item.appendChild(buildTasksList(task.subtasks));
+            }
+
+            list.appendChild(item);
+        });
+
+        return list;
+    }
+
     function renderTaskDetail(entry) {
-        if (!taskDetailElement) {
+        if (!taskContentElement || !taskListElement) {
             return;
         }
 
         if (!entry) {
-            taskDetailElement.className = 'task-detail-empty';
-            taskDetailElement.textContent = 'Cliquez sur une tâche du planning pour afficher son contenu ici.';
+            taskContentElement.className = 'task-detail-empty';
+            taskContentElement.textContent = 'Cliquez sur une tâche du planning pour afficher son contenu ici.';
+            taskListElement.className = 'task-detail-empty';
+            taskListElement.textContent = 'Aucune tâche à afficher.';
             return;
         }
 
-        const safeDetails = entry.detailsText || 'Détails non renseignés.';
+        const details = parseSessionDetails(entry.detailsText || '');
 
-        taskDetailElement.className = '';
-        taskDetailElement.innerHTML = `
-            <p class="task-detail-description">${safeDetails}</p>
-        `;
+        taskContentElement.className = 'task-detail-description';
+        taskContentElement.textContent = details.content || 'Contenu non renseigné.';
+
+        taskListElement.innerHTML = '';
+        if (!details.tasks.length) {
+            taskListElement.className = 'task-detail-empty';
+            taskListElement.textContent = 'Aucune tâche définie.';
+            return;
+        }
+
+        taskListElement.className = 'task-detail-list-container';
+        taskListElement.appendChild(buildTasksList(details.tasks));
     }
 
     function populateClassFilter() {
