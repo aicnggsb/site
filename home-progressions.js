@@ -98,6 +98,129 @@
         return (value || '').replace(/\s+/g, ' ').trim();
     }
 
+    function parseInlineSubtasks(labelText) {
+        const parts = (labelText || '')
+            .split(';')
+            .map((part) => cleanText(part))
+            .filter(Boolean);
+
+        if (parts.length < 2 || parts.length % 2 !== 0) {
+            return null;
+        }
+
+        const parsed = [];
+        for (let i = 0; i < parts.length; i += 2) {
+            const name = parts[i];
+            const durationRaw = parts[i + 1].replace(',', '.');
+            const durationMinutes = Number.parseFloat(durationRaw);
+            if (!name || !Number.isFinite(durationMinutes) || durationMinutes <= 0) {
+                return null;
+            }
+            parsed.push({
+                name,
+                durationMinutes
+            });
+        }
+
+        return parsed.length ? parsed : null;
+    }
+
+    function formatRemaining(seconds) {
+        const safeSeconds = Math.max(0, Math.floor(seconds));
+        const minutes = String(Math.floor(safeSeconds / 60)).padStart(2, '0');
+        const remainingSeconds = String(safeSeconds % 60).padStart(2, '0');
+        return `${minutes}:${remainingSeconds}`;
+    }
+
+    function createSubtaskTimerCard(subtask) {
+        const totalSeconds = Math.round(subtask.durationMinutes * 60);
+        let remainingSeconds = totalSeconds;
+        let intervalId = null;
+
+        const card = document.createElement('article');
+        card.className = 'task-subtask-card';
+
+        const title = document.createElement('h5');
+        title.className = 'task-subtask-title';
+        title.textContent = subtask.name;
+
+        const plannedDuration = document.createElement('p');
+        plannedDuration.className = 'task-subtask-duration';
+        plannedDuration.textContent = `Durée prévue : ${subtask.durationMinutes} min`;
+
+        const timer = document.createElement('p');
+        timer.className = 'task-subtask-timer';
+        timer.textContent = formatRemaining(remainingSeconds);
+
+        const actions = document.createElement('div');
+        actions.className = 'task-subtask-actions';
+
+        const startButton = document.createElement('button');
+        startButton.type = 'button';
+        startButton.textContent = 'Démarrer';
+
+        const pauseButton = document.createElement('button');
+        pauseButton.type = 'button';
+        pauseButton.textContent = 'Pause';
+
+        const resetButton = document.createElement('button');
+        resetButton.type = 'button';
+        resetButton.textContent = 'Remise à zéro';
+
+        function updateDisplay() {
+            timer.textContent = formatRemaining(remainingSeconds);
+            const isDone = remainingSeconds <= 0;
+            card.classList.toggle('task-subtask-card-complete', isDone);
+            startButton.disabled = isDone;
+            pauseButton.disabled = !intervalId;
+        }
+
+        function stopTimer() {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            updateDisplay();
+        }
+
+        startButton.addEventListener('click', () => {
+            if (intervalId || remainingSeconds <= 0) {
+                return;
+            }
+
+            intervalId = setInterval(() => {
+                remainingSeconds -= 1;
+                if (remainingSeconds <= 0) {
+                    remainingSeconds = 0;
+                    stopTimer();
+                } else {
+                    updateDisplay();
+                }
+            }, 1000);
+
+            updateDisplay();
+        });
+
+        pauseButton.addEventListener('click', stopTimer);
+        resetButton.addEventListener('click', () => {
+            stopTimer();
+            remainingSeconds = totalSeconds;
+            updateDisplay();
+        });
+
+        actions.appendChild(startButton);
+        actions.appendChild(pauseButton);
+        actions.appendChild(resetButton);
+
+        card.appendChild(title);
+        card.appendChild(plannedDuration);
+        card.appendChild(timer);
+        card.appendChild(actions);
+
+        updateDisplay();
+        return card;
+    }
+
     function sanitizeSessionHtml(html) {
         const template = document.createElement('template');
         template.innerHTML = html || '';
@@ -187,8 +310,23 @@
         tasks.forEach((task) => {
             const item = document.createElement('li');
             const label = document.createElement('span');
-            label.textContent = task.label || 'Tâche sans titre';
-            item.appendChild(label);
+            const inlineSubtasks = parseInlineSubtasks(task.label);
+
+            if (inlineSubtasks) {
+                label.className = 'task-group-title';
+                label.textContent = 'Sous-tâches';
+                item.appendChild(label);
+
+                const subtaskGrid = document.createElement('div');
+                subtaskGrid.className = 'task-subtasks-grid';
+                inlineSubtasks.forEach((subtask) => {
+                    subtaskGrid.appendChild(createSubtaskTimerCard(subtask));
+                });
+                item.appendChild(subtaskGrid);
+            } else {
+                label.textContent = task.label || 'Tâche sans titre';
+                item.appendChild(label);
+            }
 
             if (task.subtasks && task.subtasks.length) {
                 item.appendChild(buildTasksList(task.subtasks));
