@@ -7,6 +7,7 @@
     const showPastElement = document.getElementById('progression-show-past');
     const taskContentElement = document.getElementById('progression-task-content');
     const taskListElement = document.getElementById('progression-task-list');
+    const taskToggleButtons = Array.from(document.querySelectorAll('.task-toggle-button'));
 
     if (!statusElement || !listElement || !classFilterElement || !showPastElement) {
         return;
@@ -170,7 +171,12 @@
         function updateDisplay() {
             timer.textContent = formatRemaining(remainingSeconds);
             const isDone = remainingSeconds <= 0;
+            const progressRatio = totalSeconds > 0 ? Math.min(1, Math.max(0, 1 - (remainingSeconds / totalSeconds))) : 0;
+
+            card.style.setProperty('--timer-progress', String(progressRatio));
             card.classList.toggle('task-subtask-card-complete', isDone);
+            card.classList.toggle('task-subtask-card-running', Boolean(intervalId) && !isDone);
+
             startButton.disabled = isDone;
             pauseButton.disabled = !intervalId;
         }
@@ -516,8 +522,29 @@
         renderSteps();
     }
 
+
+    function setupTaskSectionToggles() {
+        taskToggleButtons.forEach((button) => {
+            const targetId = button.dataset.toggleTarget;
+            const section = button.closest('[data-collapsible-section]');
+            const target = targetId ? document.getElementById(targetId) : null;
+
+            if (!section || !target) {
+                return;
+            }
+
+            button.addEventListener('click', () => {
+                const isCollapsed = section.classList.toggle('is-collapsed');
+                button.textContent = isCollapsed ? 'Afficher' : 'Masquer';
+                button.setAttribute('aria-expanded', String(!isCollapsed));
+            });
+        });
+    }
+
     classFilterElement.addEventListener('change', renderSteps);
     showPastElement.addEventListener('change', renderSteps);
+
+    setupTaskSectionToggles();
 
     setStatus('Chargement du planning...');
     loadRows().catch((error) => {
