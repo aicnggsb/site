@@ -1328,3 +1328,97 @@ svg.axe { display: block; margin: 0.5em 0; }
     background: rgba(110, 110, 110, 0.6);
     border-color: rgba(220, 220, 220, 0.85);
 }
+
+.home-header {
+    padding: 10px 16px;
+    margin: 8px 10px;
+}
+
+.home-header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    line-height: 1.2;
+}
+
+.home-header nav ul {
+    margin: 6px 0 0;
+}
+
+.home-header nav li {
+    margin: 0 10px 0 0;
+}
+
+.home-header nav a {
+    font-size: 0.95rem;
+}
+
+.home-dashboard-grid .atelier {
+    padding: 14px;
+}
+
+.sonometre-card .atelier-content h2,
+.datetime-card .atelier-content h2,
+.task-detail-card .atelier-content h2,
+.agenda-card .atelier-content h2 {
+    margin: 0 0 10px;
+    font-size: 1.2rem;
+}
+
+.sonometre-card .atelier-content > p {
+    margin: 6px 0;
+}
+
+.sonometre-controls {
+    margin: 6px 0;
+}
+
+.datetime-card {
+    min-height: 0;
+    padding-block: 10px;
+}
+
+.datetime-value {
+    font-size: clamp(1.5rem, 4vw, 2.4rem);
+    margin: 2px 0;
+}
+
+.datetime-label {
+    font-size: 1rem;
+}
+
+.task-detail-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.task-toggle-button {
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    padding: 4px 10px;
+    font-size: 0.82rem;
+    cursor: pointer;
+}
+
+.task-toggle-button:hover {
+    background: rgba(255, 255, 255, 0.24);
+}
+
+.task-detail-section.is-collapsed > #progression-task-content,
+.task-detail-section.is-collapsed > #progression-task-list {
+    display: none;
+}
+
+.task-subtask-card {
+    --timer-progress: 0;
+}
+
+.task-subtask-card-running {
+    background: linear-gradient(120deg,
+            rgb(calc(30 + (225 * var(--timer-progress))), 110, calc(255 - (210 * var(--timer-progress)))) 0%,
+            rgb(calc(5 + (250 * var(--timer-progress))), 20, calc(70 - (55 * var(--timer-progress)))) 100%);
+    transition: background 0.35s linear;
+}

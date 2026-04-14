@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <header>
+    <header class="home-header">
         <h1>Accueil</h1>
         <nav>
             <ul>
@@ -64,14 +64,20 @@
             <article class="atelier task-detail-card home-card-detail">
                 <div class="atelier-content">
                     <h2>Contenu de séance</h2>
-                    <section class="task-detail-section">
-                        <h3>Contenu</h3>
+                    <section class="task-detail-section" data-collapsible-section>
+                        <div class="task-detail-section-header">
+                            <h3>Contenu</h3>
+                            <button type="button" class="task-toggle-button" data-toggle-target="progression-task-content" aria-expanded="true">Masquer</button>
+                        </div>
                         <p id="progression-task-content" class="task-detail-empty">
                             Cliquez sur une tâche du planning pour afficher son contenu ici.
                         </p>
                     </section>
-                    <section class="task-detail-section">
-                        <h3>Tâches</h3>
+                    <section class="task-detail-section" data-collapsible-section>
+                        <div class="task-detail-section-header">
+                            <h3>Tâches</h3>
+                            <button type="button" class="task-toggle-button" data-toggle-target="progression-task-list" aria-expanded="true">Masquer</button>
+                        </div>
                         <div id="progression-task-list" class="task-detail-empty">
                             Aucune tâche à afficher.
                         </div>
