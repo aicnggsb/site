@@ -98,6 +98,33 @@
         return (value || '').replace(/\s+/g, ' ').trim();
     }
 
+    function sanitizeSessionHtml(html) {
+        const template = document.createElement('template');
+        template.innerHTML = html || '';
+
+        template.content.querySelectorAll('script, style, iframe, object, embed').forEach((node) => {
+            node.remove();
+        });
+
+        template.content.querySelectorAll('*').forEach((element) => {
+            Array.from(element.attributes).forEach((attribute) => {
+                const attributeName = attribute.name.toLowerCase();
+                const attributeValue = (attribute.value || '').trim().toLowerCase();
+
+                if (attributeName.startsWith('on')) {
+                    element.removeAttribute(attribute.name);
+                    return;
+                }
+
+                if ((attributeName === 'href' || attributeName === 'src') && attributeValue.startsWith('javascript:')) {
+                    element.removeAttribute(attribute.name);
+                }
+            });
+        });
+
+        return template.innerHTML.trim();
+    }
+
     function parseBracketContent(text, startIndex = 0) {
         let plainText = '';
         const tasks = [];
@@ -189,7 +216,7 @@
         const details = parseSessionDetails(entry.detailsText || '');
 
         taskContentElement.className = 'task-detail-description';
-        taskContentElement.textContent = details.content || 'Contenu non renseigné.';
+        taskContentElement.innerHTML = sanitizeSessionHtml(details.content) || 'Contenu non renseigné.';
 
         taskListElement.innerHTML = '';
         if (!details.tasks.length) {
