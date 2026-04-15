@@ -1157,8 +1157,9 @@ svg.axe { display: block; margin: 0.5em 0; }
 }
 
 .task-subtask-card-complete {
-    border-color: #47d16d;
-    box-shadow: 0 0 0 2px rgba(71, 209, 109, 0.25);
+    background: linear-gradient(135deg, rgba(31, 135, 76, 0.95) 0%, rgba(13, 94, 50, 0.98) 100%);
+    border-color: #6ff0a5;
+    box-shadow: 0 0 0 2px rgba(111, 240, 165, 0.3);
 }
 
 .task-subtask-title {
@@ -1168,9 +1169,11 @@ svg.axe { display: block; margin: 0.5em 0; }
 
 
 .task-subtask-timer {
-    margin: 8px 0;
-    font-size: 1.35rem;
-    font-weight: 700;
+    margin: 10px 0;
+    text-align: center;
+    font-size: 1.9rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
     font-variant-numeric: tabular-nums;
 }
 

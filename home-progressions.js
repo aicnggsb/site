@@ -140,10 +140,47 @@
         return `${minutes}:${remainingSeconds}`;
     }
 
-    function createSubtaskTimerCard(subtask) {
-        const totalSeconds = Math.round(subtask.durationMinutes * 60);
+    function playTimerAlert() {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) {
+            return;
+        }
+
+        const audioContext = new AudioContextClass();
+        const now = audioContext.currentTime;
+        const notes = [784, 1047, 784, 1175, 988, 1319];
+
+        notes.forEach((frequency, index) => {
+            const startAt = now + (index * 0.22);
+            const stopAt = startAt + 0.18;
+
+            const oscillator = audioContext.createOscillator();
+            oscillator.type = index % 2 === 0 ? 'square' : 'sawtooth';
+            oscillator.frequency.setValueAtTime(frequency, startAt);
+
+            const gainNode = audioContext.createGain();
+            gainNode.gain.setValueAtTime(0.0001, startAt);
+            gainNode.gain.exponentialRampToValueAtTime(0.42, startAt + 0.02);
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, stopAt);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.start(startAt);
+            oscillator.stop(stopAt + 0.02);
+        });
+
+        window.setTimeout(() => {
+            audioContext.close();
+        }, Math.ceil((notes.length * 220) + 250));
+    }
+
+    function createSubtaskTimerCard(subtask, options = {}) {
+        const onComplete = typeof options.onComplete === 'function' ? options.onComplete : null;
+        const initialTotalSeconds = Math.max(0, Math.round(subtask.durationMinutes * 60));
+        let totalSeconds = initialTotalSeconds;
         let remainingSeconds = totalSeconds;
         let intervalId = null;
+        let hasTriggeredCompletion = false;
 
         const card = document.createElement('article');
         card.className = 'task-subtask-card';
@@ -171,6 +208,14 @@
         resetButton.type = 'button';
         resetButton.textContent = 'Remise à zéro';
 
+        const removeMinuteButton = document.createElement('button');
+        removeMinuteButton.type = 'button';
+        removeMinuteButton.textContent = '-1 min';
+
+        const addMinuteButton = document.createElement('button');
+        addMinuteButton.type = 'button';
+        addMinuteButton.textContent = '+1 min';
+
         function updateDisplay() {
             timer.textContent = formatRemaining(remainingSeconds);
             const isDone = remainingSeconds <= 0;
@@ -182,6 +227,7 @@
 
             startButton.disabled = isDone;
             pauseButton.disabled = !intervalId;
+            removeMinuteButton.disabled = remainingSeconds <= 0;
         }
 
         function stopTimer() {
@@ -192,7 +238,19 @@
             updateDisplay();
         }
 
-        startButton.addEventListener('click', () => {
+        function finishTimer() {
+            remainingSeconds = 0;
+            stopTimer();
+            if (!hasTriggeredCompletion) {
+                hasTriggeredCompletion = true;
+                playTimerAlert();
+                if (onComplete) {
+                    onComplete();
+                }
+            }
+        }
+
+        function startTimer() {
             if (intervalId || remainingSeconds <= 0) {
                 return;
             }
@@ -200,33 +258,56 @@
             intervalId = setInterval(() => {
                 remainingSeconds -= 1;
                 if (remainingSeconds <= 0) {
-                    remainingSeconds = 0;
-                    stopTimer();
+                    finishTimer();
                 } else {
                     updateDisplay();
                 }
             }, 1000);
 
             updateDisplay();
-        });
+        }
 
+        function adjustTime(deltaSeconds) {
+            remainingSeconds = Math.max(0, remainingSeconds + deltaSeconds);
+            totalSeconds = Math.max(remainingSeconds, totalSeconds + deltaSeconds, 0);
+            if (remainingSeconds > 0) {
+                hasTriggeredCompletion = false;
+            }
+            if (remainingSeconds <= 0) {
+                finishTimer();
+                return;
+            }
+            updateDisplay();
+        }
+
+        startButton.addEventListener('click', startTimer);
         pauseButton.addEventListener('click', stopTimer);
         resetButton.addEventListener('click', () => {
             stopTimer();
+            totalSeconds = initialTotalSeconds;
             remainingSeconds = totalSeconds;
+            hasTriggeredCompletion = false;
             updateDisplay();
         });
+        removeMinuteButton.addEventListener('click', () => adjustTime(-60));
+        addMinuteButton.addEventListener('click', () => adjustTime(60));
 
         actions.appendChild(startButton);
         actions.appendChild(pauseButton);
         actions.appendChild(resetButton);
+        actions.appendChild(removeMinuteButton);
+        actions.appendChild(addMinuteButton);
 
         card.appendChild(title);
         card.appendChild(timer);
         card.appendChild(actions);
 
         updateDisplay();
-        return card;
+        return {
+            element: card,
+            start: startTimer,
+            isComplete: () => remainingSeconds <= 0
+        };
     }
 
     function sanitizeSessionHtml(html) {
@@ -397,8 +478,17 @@
             if (inlineSubtasks) {
                 const subtaskGrid = document.createElement('div');
                 subtaskGrid.className = 'task-subtasks-grid';
-                inlineSubtasks.forEach((subtask) => {
-                    subtaskGrid.appendChild(createSubtaskTimerCard(subtask));
+                const timerCards = inlineSubtasks.map((subtask, index) => createSubtaskTimerCard(subtask, {
+                    onComplete: () => {
+                        const nextTimer = timerCards[index + 1];
+                        if (nextTimer && !nextTimer.isComplete()) {
+                            nextTimer.start();
+                        }
+                    }
+                }));
+
+                timerCards.forEach((timerCard) => {
+                    subtaskGrid.appendChild(timerCard.element);
                 });
                 item.appendChild(subtaskGrid);
             } else {
