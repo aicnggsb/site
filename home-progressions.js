@@ -185,9 +185,19 @@
         const card = document.createElement('article');
         card.className = 'task-subtask-card';
 
+        const header = document.createElement('div');
+        header.className = 'task-subtask-header';
+
         const title = document.createElement('h5');
         title.className = 'task-subtask-title';
         title.textContent = subtask.name;
+
+        const compactToggleButton = document.createElement('button');
+        compactToggleButton.type = 'button';
+        compactToggleButton.className = 'task-subtask-compact-toggle';
+        compactToggleButton.textContent = '-';
+        compactToggleButton.setAttribute('aria-expanded', 'true');
+        compactToggleButton.setAttribute('aria-label', 'Basculer l’affichage des boutons du minuteur');
 
         const timer = document.createElement('p');
         timer.className = 'task-subtask-timer';
@@ -215,6 +225,15 @@
         const addMinuteButton = document.createElement('button');
         addMinuteButton.type = 'button';
         addMinuteButton.textContent = '+1 min';
+
+        function setCompactMode(isCompact) {
+            card.classList.toggle('task-subtask-card-compact', isCompact);
+            compactToggleButton.textContent = isCompact ? '+' : '-';
+            compactToggleButton.setAttribute('aria-expanded', String(!isCompact));
+            compactToggleButton.setAttribute('aria-label', isCompact
+                ? 'Afficher les boutons du minuteur'
+                : 'Masquer les boutons du minuteur');
+        }
 
         function updateDisplay() {
             timer.textContent = formatRemaining(remainingSeconds);
@@ -291,14 +310,20 @@
         });
         removeMinuteButton.addEventListener('click', () => adjustTime(-60));
         addMinuteButton.addEventListener('click', () => adjustTime(60));
+        compactToggleButton.addEventListener('click', () => {
+            const isCompact = !card.classList.contains('task-subtask-card-compact');
+            setCompactMode(isCompact);
+        });
 
+        header.appendChild(title);
+        header.appendChild(compactToggleButton);
         actions.appendChild(startButton);
         actions.appendChild(pauseButton);
         actions.appendChild(resetButton);
         actions.appendChild(removeMinuteButton);
         actions.appendChild(addMinuteButton);
 
-        card.appendChild(title);
+        card.appendChild(header);
         card.appendChild(timer);
         card.appendChild(actions);
 
