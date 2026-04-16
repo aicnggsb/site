@@ -60,6 +60,9 @@
             </article>
             <article class="atelier datetime-card home-card-datetime">
                 <div class="atelier-content">
+                    <div class="datetime-header-actions">
+                        <button id="open-datetime-popup" type="button" class="datetime-icon-button" aria-label="Ouvrir la popup date et heure">🗖</button>
+                    </div>
                     <p id="live-time" class="datetime-value">--:--:--</p>
                     <p id="live-date" class="datetime-label">--</p>
                 </div>
@@ -121,6 +124,12 @@
     <footer>
         <p>© Lycée XXXX - Tous droits réservés.</p>
     </footer>
+
+    <div id="datetime-popup" class="datetime-popup" hidden>
+        <div class="datetime-popup-panel">
+            <button id="close-datetime-popup" type="button" class="datetime-popup-close">Fermer</button>
+        </div>
+    </div>
 
     <script src="sonometre.js"></script>
     <script src="home-progressions.js"></script>
