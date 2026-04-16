@@ -220,11 +220,11 @@
 
         const removeMinuteButton = document.createElement('button');
         removeMinuteButton.type = 'button';
-        removeMinuteButton.textContent = '-1 min';
+        removeMinuteButton.textContent = '-1';
 
         const addMinuteButton = document.createElement('button');
         addMinuteButton.type = 'button';
-        addMinuteButton.textContent = '+1 min';
+        addMinuteButton.textContent = '+1';
 
         function setCompactMode(isCompact) {
             card.classList.toggle('task-subtask-card-compact', isCompact);
