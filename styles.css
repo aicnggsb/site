@@ -1535,6 +1535,10 @@ svg.axe { display: block; margin: 0.5em 0; }
     z-index: 5000;
 }
 
+.datetime-popup[hidden] {
+    display: none;
+}
+
 .datetime-popup-panel {
     width: 90vw;
     height: 90vh;
