@@ -1503,6 +1503,58 @@ svg.axe { display: block; margin: 0.5em 0; }
     padding-block: 10px;
 }
 
+.datetime-header-actions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 4px;
+}
+
+.datetime-icon-button {
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    font-size: 1rem;
+    width: 34px;
+    height: 34px;
+    cursor: pointer;
+}
+
+.datetime-icon-button:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.datetime-popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5000;
+}
+
+.datetime-popup-panel {
+    width: 90vw;
+    height: 90vh;
+    background: #ffffff;
+    border-radius: 12px;
+    position: relative;
+}
+
+.datetime-popup-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    border: 1px solid #222;
+    border-radius: 8px;
+    padding: 8px 12px;
+    background: #fff;
+    color: #111;
+    cursor: pointer;
+}
+
 .datetime-value {
     font-size: clamp(1.5rem, 4vw, 2.4rem);
     margin: 2px 0;

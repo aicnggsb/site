@@ -31,9 +31,10 @@
     if (!audioContext) return;
 
     const now = audioContext.currentTime;
+    const peakGain = Math.min(1.6, 0.75 + depassements * 0.08);
     const envelope = audioContext.createGain();
     envelope.gain.setValueAtTime(0.0001, now);
-    envelope.gain.exponentialRampToValueAtTime(0.55, now + 0.02);
+    envelope.gain.exponentialRampToValueAtTime(peakGain, now + 0.02);
     envelope.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
     envelope.connect(audioContext.destination);
 
