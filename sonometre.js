@@ -37,36 +37,37 @@
   const maxAutoAdjustDelta = 15;
   const depassementTimestamps = [];
 
+  const getBeepCount = () => {
+    if (depassements > 10) return 3;
+    if (depassements > 5) return 2;
+    return 1;
+  };
+
   const playAlertSignal = () => {
     if (!audioContext) return;
 
     const now = audioContext.currentTime;
-    const peakGain = Math.min(1.6, 0.75 + depassements * 0.08);
-    const envelope = audioContext.createGain();
-    envelope.gain.setValueAtTime(0.0001, now);
-    envelope.gain.exponentialRampToValueAtTime(peakGain, now + 0.02);
-    envelope.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
-    envelope.connect(audioContext.destination);
-
-    let beepCount = 1;
-    if (depassements >= 5 && depassements <= 10) {
-      beepCount = 2;
-    } else if (depassements > 10) {
-      beepCount = 3;
-    }
-
+    const peakGain = Math.min(1.8, 0.8 + depassements * 0.08);
+    const beepCount = getBeepCount();
     const freqs = [920, 640, 920].slice(0, beepCount);
-    const beepDuration = 0.12;
-    const gap = 0.05;
+    const beepDuration = 0.14;
+    const gap = 0.08;
 
     freqs.forEach((freq, index) => {
-      const oscillator = audioContext.createOscillator();
+      const envelope = audioContext.createGain();
       const startAt = now + index * (beepDuration + gap);
+      const stopAt = startAt + beepDuration;
+      envelope.gain.setValueAtTime(0.0001, startAt);
+      envelope.gain.exponentialRampToValueAtTime(peakGain, startAt + 0.015);
+      envelope.gain.exponentialRampToValueAtTime(0.0001, stopAt);
+      envelope.connect(audioContext.destination);
+
+      const oscillator = audioContext.createOscillator();
       oscillator.type = 'square';
       oscillator.frequency.setValueAtTime(freq, startAt);
       oscillator.connect(envelope);
       oscillator.start(startAt);
-      oscillator.stop(startAt + beepDuration);
+      oscillator.stop(stopAt);
     });
   };
 
@@ -122,7 +123,8 @@
     }
   };
 
-  const autoAdjustSensibilite = (now, niveauAmbiantCible) => {
+  const autoAdjustSensibilite = (now, niveauAmbiantCible, { onDepassement = false, onStagnation = false } = {}) => {
+    if (!onDepassement && !onStagnation) return;
     if (now - lastAutoAdjustAt < autoAdjustCooldownMs) return;
     if (ambientRmsEstimate <= 0.05) return;
 
@@ -136,11 +138,11 @@
     const delta = Math.max(-maxAutoAdjustDelta, Math.min(maxAutoAdjustDelta, diff));
     setSensibilite(sensibiliteActuelle + delta);
 
-    if (depassementTimestamps.length >= rapidIncreaseThreshold && diff > 0) {
+    if (onDepassement && depassementTimestamps.length >= rapidIncreaseThreshold && diff > 0) {
       setSensibilite(sensibiliteActuelle - maxAutoAdjustDelta);
     }
 
-    if (lastDepassementAt > 0 && now - lastDepassementAt >= stagnationWindowMs) {
+    if (onStagnation) {
       lastDepassementAt = now;
     }
 
@@ -195,9 +197,10 @@
       depassementTimestamps.push(now);
       updateCompteur();
       playAlertSignal();
+      autoAdjustSensibilite(now, niveauAmbiantCible, { onDepassement: true });
+    } else if (lastDepassementAt > 0 && now - lastDepassementAt >= stagnationWindowMs) {
+      autoAdjustSensibilite(now, niveauAmbiantCible, { onStagnation: true });
     }
-
-    autoAdjustSensibilite(now, niveauAmbiantCible);
 
     requestAnimationFrame(render);
   };
