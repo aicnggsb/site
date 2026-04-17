@@ -23,9 +23,16 @@
   let dataArray;
   let depassements = 0;
   let lastTriggerAt = 0;
+  let lastDepassementAt = 0;
+  let lastAutoAdjustAt = 0;
   let isPaused = false;
   let isCompact = false;
   const triggerCooldownMs = 1200;
+  const rapidIncreaseWindowMs = 20000;
+  const rapidIncreaseThreshold = 4;
+  const stagnationWindowMs = 30000;
+  const autoAdjustCooldownMs = 5000;
+  const depassementTimestamps = [];
 
   const playAlertSignal = () => {
     if (!audioContext) return;
@@ -100,6 +107,39 @@
     sensibiliteValeur.textContent = `${sensibilite}%`;
   };
 
+  const setSensibilite = (newValue) => {
+    const min = Number(sensibiliteInput.min || 50);
+    const max = Number(sensibiliteInput.max || 200);
+    const step = Number(sensibiliteInput.step || 5);
+    const clamped = Math.min(max, Math.max(min, newValue));
+    const stepped = Math.round(clamped / step) * step;
+
+    if (Number(sensibiliteInput.value) !== stepped) {
+      sensibiliteInput.value = String(stepped);
+      updateSensibiliteLabel();
+    }
+  };
+
+  const autoAdjustSensibilite = (now) => {
+    if (now - lastAutoAdjustAt < autoAdjustCooldownMs) return;
+
+    while (depassementTimestamps.length && now - depassementTimestamps[0] > rapidIncreaseWindowMs) {
+      depassementTimestamps.shift();
+    }
+
+    if (depassementTimestamps.length >= rapidIncreaseThreshold) {
+      setSensibilite(Number(sensibiliteInput.value) - 5);
+      lastAutoAdjustAt = now;
+      return;
+    }
+
+    if (lastDepassementAt > 0 && now - lastDepassementAt >= stagnationWindowMs) {
+      setSensibilite(Number(sensibiliteInput.value) + 5);
+      lastAutoAdjustAt = now;
+      lastDepassementAt = now;
+    }
+  };
+
   const normalizeVolume = (arr, sensibilite) => {
     let sum = 0;
     for (let i = 0; i < arr.length; i += 1) {
@@ -132,9 +172,13 @@
     if (level >= seuil && now - lastTriggerAt > triggerCooldownMs) {
       depassements += 1;
       lastTriggerAt = now;
+      lastDepassementAt = now;
+      depassementTimestamps.push(now);
       updateCompteur();
       playAlertSignal();
     }
+
+    autoAdjustSensibilite(now);
 
     requestAnimationFrame(render);
   };
@@ -155,6 +199,10 @@
       pauseBtn.disabled = false;
       pauseBtn.removeAttribute('disabled');
       pauseBtn.textContent = 'Mettre en pause';
+      const now = Date.now();
+      lastAutoAdjustAt = now;
+      lastDepassementAt = now;
+      depassementTimestamps.length = 0;
 
       render();
     } catch (err) {
