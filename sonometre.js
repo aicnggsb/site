@@ -25,13 +25,16 @@
   let lastTriggerAt = 0;
   let lastDepassementAt = 0;
   let lastAutoAdjustAt = 0;
+  let ambientRmsEstimate = 0;
   let isPaused = false;
   let isCompact = false;
   const triggerCooldownMs = 1200;
   const rapidIncreaseWindowMs = 20000;
   const rapidIncreaseThreshold = 4;
   const stagnationWindowMs = 30000;
-  const autoAdjustCooldownMs = 5000;
+  const autoAdjustCooldownMs = 1000;
+  const targetMarginBelowThreshold = 2;
+  const maxAutoAdjustDelta = 15;
   const depassementTimestamps = [];
 
   const playAlertSignal = () => {
@@ -110,43 +113,50 @@
   const setSensibilite = (newValue) => {
     const min = Number(sensibiliteInput.min || 50);
     const max = Number(sensibiliteInput.max || 200);
-    const step = Number(sensibiliteInput.step || 5);
     const clamped = Math.min(max, Math.max(min, newValue));
-    const stepped = Math.round(clamped / step) * step;
+    const rounded = Math.round(clamped);
 
-    if (Number(sensibiliteInput.value) !== stepped) {
-      sensibiliteInput.value = String(stepped);
+    if (Number(sensibiliteInput.value) !== rounded) {
+      sensibiliteInput.value = String(rounded);
       updateSensibiliteLabel();
     }
   };
 
-  const autoAdjustSensibilite = (now) => {
+  const autoAdjustSensibilite = (now, niveauAmbiantCible) => {
     if (now - lastAutoAdjustAt < autoAdjustCooldownMs) return;
+    if (ambientRmsEstimate <= 0.05) return;
 
     while (depassementTimestamps.length && now - depassementTimestamps[0] > rapidIncreaseWindowMs) {
       depassementTimestamps.shift();
     }
 
-    if (depassementTimestamps.length >= rapidIncreaseThreshold) {
-      setSensibilite(Number(sensibiliteInput.value) - 5);
-      lastAutoAdjustAt = now;
-      return;
+    const sensibiliteActuelle = Number(sensibiliteInput.value);
+    const sensibiliteCible = (niveauAmbiantCible * 64) / ambientRmsEstimate;
+    const diff = sensibiliteCible - sensibiliteActuelle;
+    const delta = Math.max(-maxAutoAdjustDelta, Math.min(maxAutoAdjustDelta, diff));
+    setSensibilite(sensibiliteActuelle + delta);
+
+    if (depassementTimestamps.length >= rapidIncreaseThreshold && diff > 0) {
+      setSensibilite(sensibiliteActuelle - maxAutoAdjustDelta);
     }
 
     if (lastDepassementAt > 0 && now - lastDepassementAt >= stagnationWindowMs) {
-      setSensibilite(Number(sensibiliteInput.value) + 5);
-      lastAutoAdjustAt = now;
       lastDepassementAt = now;
     }
+
+    lastAutoAdjustAt = now;
   };
 
-  const normalizeVolume = (arr, sensibilite) => {
+  const calculateRms = (arr) => {
     let sum = 0;
     for (let i = 0; i < arr.length; i += 1) {
       const centered = arr[i] - 128;
       sum += centered * centered;
     }
-    const rms = Math.sqrt(sum / arr.length);
+    return Math.sqrt(sum / arr.length);
+  };
+
+  const normalizeVolume = (rms, sensibilite) => {
     const adjustedRms = rms * (sensibilite / 100);
     return Math.min(100, Math.round((adjustedRms / 64) * 100));
   };
@@ -161,8 +171,17 @@
 
     analyser.getByteTimeDomainData(dataArray);
     const sensibilite = Number(sensibiliteInput.value);
-    const level = normalizeVolume(dataArray, sensibilite);
+    const rms = calculateRms(dataArray);
+    const level = normalizeVolume(rms, sensibilite);
     const seuil = Number(seuilInput.value);
+    const niveauAmbiantCible = Math.max(5, seuil - targetMarginBelowThreshold);
+
+    const facteurLissage = level >= seuil ? 0.05 : 0.12;
+    if (ambientRmsEstimate === 0) {
+      ambientRmsEstimate = rms;
+    } else {
+      ambientRmsEstimate = ambientRmsEstimate + (rms - ambientRmsEstimate) * facteurLissage;
+    }
 
     barreNiveau.style.width = `${level}%`;
     barreNiveau.classList.toggle('warning', level >= seuil);
@@ -178,7 +197,7 @@
       playAlertSignal();
     }
 
-    autoAdjustSensibilite(now);
+    autoAdjustSensibilite(now, niveauAmbiantCible);
 
     requestAnimationFrame(render);
   };
@@ -203,6 +222,7 @@
       lastAutoAdjustAt = now;
       lastDepassementAt = now;
       depassementTimestamps.length = 0;
+      ambientRmsEstimate = 0;
 
       render();
     } catch (err) {
