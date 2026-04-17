@@ -38,7 +38,14 @@
     envelope.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
     envelope.connect(audioContext.destination);
 
-    const freqs = [920, 640, 920];
+    let beepCount = 1;
+    if (depassements >= 5 && depassements <= 10) {
+      beepCount = 2;
+    } else if (depassements > 10) {
+      beepCount = 3;
+    }
+
+    const freqs = [920, 640, 920].slice(0, beepCount);
     const beepDuration = 0.12;
     const gap = 0.05;
 

@@ -1463,6 +1463,10 @@ svg.axe { display: block; margin: 0.5em 0; }
     gap: 10px;
 }
 
+.agenda-card .card-header-with-toggle {
+    margin-bottom: 8px;
+}
+
 .panel-toggle-button {
     border: 1px solid rgba(255, 255, 255, 0.55);
     border-radius: 999px;
@@ -1503,11 +1507,19 @@ svg.axe { display: block; margin: 0.5em 0; }
     padding-block: 10px;
 }
 
-.datetime-header-actions {
-    width: 100%;
+.datetime-card .atelier-content {
     display: flex;
-    justify-content: flex-end;
-    margin-bottom: 4px;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+.datetime-header-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: auto;
+    padding-top: 8px;
 }
 
 .datetime-icon-button {
