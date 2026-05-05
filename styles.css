@@ -1009,6 +1009,30 @@ svg.axe { display: block; margin: 0.5em 0; }
     accent-color: #1e90ff;
 }
 
+
+.sonometre-bruit-mode {
+    gap: 10px;
+}
+
+.sonometre-mode-btn {
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 999px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.sonometre-mode-btn:hover {
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.sonometre-mode-btn.is-active {
+    background: #1e90ff;
+    border-color: #1e90ff;
+}
+
 .barre-wrapper {
     position: relative;
     width: 100%;
@@ -1489,7 +1513,31 @@ svg.axe { display: block; margin: 0.5em 0; }
     display: none;
 }
 
-.sonometre-card.is-compact .barre-wrapper {
+.sonometre-card.is-compact 
+.sonometre-bruit-mode {
+    gap: 10px;
+}
+
+.sonometre-mode-btn {
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 999px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.sonometre-mode-btn:hover {
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.sonometre-mode-btn.is-active {
+    background: #1e90ff;
+    border-color: #1e90ff;
+}
+
+.barre-wrapper {
     margin-top: 8px;
 }
 

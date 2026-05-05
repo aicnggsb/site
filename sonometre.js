@@ -1,8 +1,8 @@
 (() => {
   const seuilInput = document.getElementById('seuil');
   const seuilValeur = document.getElementById('seuil-valeur');
-  const sensibiliteInput = document.getElementById('sensibilite');
-  const sensibiliteValeur = document.getElementById('sensibilite-valeur');
+  const modeCalmeBtn = document.getElementById('mode-calme');
+  const modeBruyantBtn = document.getElementById('mode-bruyant');
   const barreNiveau = document.getElementById('barre-niveau');
   const seuilMarker = document.getElementById('seuil-marker');
   const seuilMarkerLabel = document.getElementById('seuil-marker-label');
@@ -16,26 +16,16 @@
   const resetBtn = document.getElementById('reset-compteur');
   const compactToggleBtn = document.getElementById('toggle-sonometre-compact');
 
-  if (!seuilInput || !sensibiliteInput || !barreNiveau || !startBtn || !pauseBtn || !decrementBtn || !incrementBtn || !resetBtn) return;
+  if (!seuilInput || !barreNiveau || !startBtn || !pauseBtn || !decrementBtn || !incrementBtn || !resetBtn || !modeCalmeBtn || !modeBruyantBtn) return;
 
   let audioContext;
   let analyser;
   let dataArray;
   let depassements = 0;
   let lastTriggerAt = 0;
-  let lastDepassementAt = 0;
-  let lastAutoAdjustAt = 0;
-  let ambientRmsEstimate = 0;
   let isPaused = false;
   let isCompact = false;
   const triggerCooldownMs = 1200;
-  const rapidIncreaseWindowMs = 20000;
-  const rapidIncreaseThreshold = 4;
-  const stagnationWindowMs = 30000;
-  const autoAdjustCooldownMs = 1000;
-  const targetMarginBelowThreshold = 2;
-  const maxAutoAdjustDelta = 15;
-  const depassementTimestamps = [];
 
   const getBeepCount = () => {
     if (depassements > 10) return 3;
@@ -106,47 +96,18 @@
     }
   };
 
-  const updateSensibiliteLabel = () => {
-    const sensibilite = Number(sensibiliteInput.value);
-    sensibiliteValeur.textContent = `${sensibilite}%`;
-  };
+  let sensibilite = Number(modeCalmeBtn.dataset.sensibilite || 115);
 
-  const setSensibilite = (newValue) => {
-    const min = Number(sensibiliteInput.min || 50);
-    const max = Number(sensibiliteInput.max || 200);
-    const clamped = Math.min(max, Math.max(min, newValue));
-    const rounded = Math.round(clamped);
+  const setBruitMode = (mode) => {
+    const isCalme = mode === 'calme';
+    sensibilite = isCalme
+      ? Number(modeCalmeBtn.dataset.sensibilite || 115)
+      : Number(modeBruyantBtn.dataset.sensibilite || 80);
 
-    if (Number(sensibiliteInput.value) !== rounded) {
-      sensibiliteInput.value = String(rounded);
-      updateSensibiliteLabel();
-    }
-  };
-
-  const autoAdjustSensibilite = (now, niveauAmbiantCible, { onDepassement = false, onStagnation = false } = {}) => {
-    if (!onDepassement && !onStagnation) return;
-    if (now - lastAutoAdjustAt < autoAdjustCooldownMs) return;
-    if (ambientRmsEstimate <= 0.05) return;
-
-    while (depassementTimestamps.length && now - depassementTimestamps[0] > rapidIncreaseWindowMs) {
-      depassementTimestamps.shift();
-    }
-
-    const sensibiliteActuelle = Number(sensibiliteInput.value);
-    const sensibiliteCible = (niveauAmbiantCible * 64) / ambientRmsEstimate;
-    const diff = sensibiliteCible - sensibiliteActuelle;
-    const delta = Math.max(-maxAutoAdjustDelta, Math.min(maxAutoAdjustDelta, diff));
-    setSensibilite(sensibiliteActuelle + delta);
-
-    if (onDepassement && depassementTimestamps.length >= rapidIncreaseThreshold && diff > 0) {
-      setSensibilite(sensibiliteActuelle - maxAutoAdjustDelta);
-    }
-
-    if (onStagnation) {
-      lastDepassementAt = now;
-    }
-
-    lastAutoAdjustAt = now;
+    modeCalmeBtn.classList.toggle('is-active', isCalme);
+    modeBruyantBtn.classList.toggle('is-active', !isCalme);
+    modeCalmeBtn.setAttribute('aria-pressed', String(isCalme));
+    modeBruyantBtn.setAttribute('aria-pressed', String(!isCalme));
   };
 
   const calculateRms = (arr) => {
@@ -172,18 +133,9 @@
     }
 
     analyser.getByteTimeDomainData(dataArray);
-    const sensibilite = Number(sensibiliteInput.value);
     const rms = calculateRms(dataArray);
     const level = normalizeVolume(rms, sensibilite);
     const seuil = Number(seuilInput.value);
-    const niveauAmbiantCible = Math.max(5, seuil - targetMarginBelowThreshold);
-
-    const facteurLissage = level >= seuil ? 0.05 : 0.12;
-    if (ambientRmsEstimate === 0) {
-      ambientRmsEstimate = rms;
-    } else {
-      ambientRmsEstimate = ambientRmsEstimate + (rms - ambientRmsEstimate) * facteurLissage;
-    }
 
     barreNiveau.style.width = `${level}%`;
     barreNiveau.classList.toggle('warning', level >= seuil);
@@ -193,13 +145,8 @@
     if (level >= seuil && now - lastTriggerAt > triggerCooldownMs) {
       depassements += 1;
       lastTriggerAt = now;
-      lastDepassementAt = now;
-      depassementTimestamps.push(now);
       updateCompteur();
       playAlertSignal();
-      autoAdjustSensibilite(now, niveauAmbiantCible, { onDepassement: true });
-    } else if (lastDepassementAt > 0 && now - lastDepassementAt >= stagnationWindowMs) {
-      autoAdjustSensibilite(now, niveauAmbiantCible, { onStagnation: true });
     }
 
     requestAnimationFrame(render);
@@ -221,12 +168,6 @@
       pauseBtn.disabled = false;
       pauseBtn.removeAttribute('disabled');
       pauseBtn.textContent = 'Mettre en pause';
-      const now = Date.now();
-      lastAutoAdjustAt = now;
-      lastDepassementAt = now;
-      depassementTimestamps.length = 0;
-      ambientRmsEstimate = 0;
-
       render();
     } catch (err) {
       startBtn.disabled = false;
@@ -251,7 +192,8 @@
   };
 
   seuilInput.addEventListener('input', updateSeuilLabel);
-  sensibiliteInput.addEventListener('input', updateSensibiliteLabel);
+  modeCalmeBtn.addEventListener('click', () => setBruitMode('calme'));
+  modeBruyantBtn.addEventListener('click', () => setBruitMode('bruyant'));
   startBtn.addEventListener('click', start);
   pauseBtn.addEventListener('click', togglePause);
   decrementBtn.addEventListener('click', () => {
@@ -275,7 +217,7 @@
   pauseBtn.disabled = false;
   pauseBtn.removeAttribute('disabled');
   updateSeuilLabel();
-  updateSensibiliteLabel();
+  setBruitMode('calme');
   updateCompteur();
   updateCompactMode();
 })();

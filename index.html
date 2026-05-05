@@ -33,10 +33,10 @@
                         <span id="seuil-valeur">55%</span>
                     </div>
 
-                    <div class="sonometre-controls">
-                        <label for="sensibilite">Sensibilité :</label>
-                        <input id="sensibilite" type="range" min="50" max="200" value="100" step="1">
-                        <span id="sensibilite-valeur">100%</span>
+                    <div class="sonometre-controls sonometre-bruit-mode" role="group" aria-label="Niveau de bruit ambiant">
+                        <span>Ambiance actuelle :</span>
+                        <button id="mode-calme" type="button" class="sonometre-mode-btn is-active" data-sensibilite="115">Calme</button>
+                        <button id="mode-bruyant" type="button" class="sonometre-mode-btn" data-sensibilite="80">Bruyant</button>
                     </div>
 
                     <div class="barre-wrapper" aria-label="Niveau sonore en direct">
