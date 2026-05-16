@@ -73,6 +73,14 @@
     .monster-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem;margin-top:.5rem;}
     .monster-meta{color:#93c5fd;font-size:.86rem;}
     .cap-row{display:grid;gap:.35rem;margin:.45rem 0;padding:.5rem;border:1px solid #374151;border-radius:8px;background:#0b1220;}
+    .combat-body{margin-top:.7rem;}
+    .combat-body.hidden{display:none;}
+    .combat-selected-monster{margin-top:.6rem;padding:.6rem;border:1px solid #334155;border-radius:8px;background:#0b1220;}
+    .combat-selected-monster.hidden{display:none;}
+    .combat-cap-list{margin:.45rem 0 0;padding-left:1rem;}
+    .popup-dialog{max-width:520px;width:92%;background:#0f172a;color:#f9fafb;border:1px solid #374151;border-radius:12px;padding:0;}
+    .popup-inner{padding:1rem;}
+    .popup-title{margin:0 0 .45rem;font-size:1.05rem;color:#93c5fd;}
     @keyframes pulseDice { 0%,100%{opacity:1;transform:translateY(0)} 50%{opacity:.45;transform:translateY(-2px)} }
   </style>
 </head>
@@ -136,9 +144,12 @@
       <div class="dice-box" id="diceResult"></div>
     </section>
 
-    <section class="card">
-      <h2>Combat</h2>
-      <div class="grid">
+    <section class="card" id="combatCard">
+      <div class="actions" style="justify-content:space-between;align-items:center;">
+        <h2 style="margin:0;">Combat</h2>
+        <button class="secondary" id="toggleCombatViewBtn" type="button">Déplier</button>
+      </div>
+      <div class="grid" style="margin-top:.6rem;">
         <div>
           <label for="combatEnemyName">Nom de l’ennemi</label>
           <input id="combatEnemyName" type="text" value="Gobelin" />
@@ -152,6 +163,17 @@
           <input id="combatEnemyEndurance" type="number" min="1" value="10" />
         </div>
       </div>
+      <div id="selectedMonsterInfo" class="combat-selected-monster hidden">
+        <div class="actions" style="justify-content:space-between;align-items:center;">
+          <strong id="selectedMonsterName">—</strong>
+          <button class="secondary" id="toggleSelectedMonsterCapsBtn" type="button">Masquer capacités</button>
+        </div>
+        <div id="selectedMonsterCapsWrap">
+          <div class="hint" id="selectedMonsterStats"></div>
+          <ul id="selectedMonsterCaps" class="combat-cap-list"></ul>
+        </div>
+      </div>
+      <div id="combatBody" class="combat-body hidden">
       <div class="actions" style="margin-top:.6rem;">
         <button class="primary" id="startCombatBtn">Démarrer le combat</button>
         <button class="primary" id="assaultBtn" disabled>Assaut suivant</button>
@@ -168,6 +190,7 @@
       <ul id="combatHistory"></ul>
       <div class="actions" style="margin-top:.75rem;">
         <button class="secondary" id="closeCombatBtn" style="display:none;">Fermer le combat</button>
+      </div>
       </div>
     </section>
 
@@ -205,6 +228,16 @@
         <div id="capabilitiesEditor"></div>
         <div class="actions" style="margin-top:.8rem;"><button type="button" class="primary" id="saveMonsterBtn">Enregistrer</button><button type="button" class="secondary" id="cancelMonsterBtn">Annuler</button></div>
       </form>
+    </dialog>
+
+    <dialog id="combatPopupDialog" class="popup-dialog">
+      <div class="popup-inner">
+        <h3 class="popup-title">Événement de combat</h3>
+        <p id="combatPopupMessage"></p>
+        <div class="actions" style="margin-top:.8rem;">
+          <button class="primary" id="combatPopupCloseBtn" type="button">Compris</button>
+        </div>
+      </div>
     </dialog>
 
   </main>
@@ -330,7 +363,9 @@
     }
 
     function showCombatPopup(message) {
-      window.alert(message);
+      const popup = document.getElementById('combatPopupDialog');
+      document.getElementById('combatPopupMessage').textContent = message;
+      if (!popup.open) popup.showModal();
     }
 
     function ensureHiddenField(id) {
@@ -485,6 +520,30 @@
       return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
+
+    let selectedMonsterForCombat = null;
+
+    function renderSelectedMonsterInfo() {
+      const box = document.getElementById('selectedMonsterInfo');
+      if (!selectedMonsterForCombat) { box.classList.add('hidden'); return; }
+      box.classList.remove('hidden');
+      document.getElementById('selectedMonsterName').textContent = selectedMonsterForCombat.nom || 'Monstre';
+      document.getElementById('selectedMonsterStats').textContent = `HAB ${selectedMonsterForCombat.habilete} • END ${selectedMonsterForCombat.endurance}`;
+      const caps = (selectedMonsterForCombat.capacites || []).map(normalizeCapability);
+      document.getElementById('selectedMonsterCaps').innerHTML = caps.length ? caps.map(c => `<li><strong>${c.id}</strong> — ${CAPABILITY_TRIGGER_LABELS[c.trigger] || c.trigger} : ${c.action?.message || 'Sans message'}</li>`).join('') : '<li>Aucune capacité spéciale.</li>';
+    }
+
+    function refreshCombatPanelVisibility() {
+      const body = document.getElementById('combatBody');
+      const toggleBtn = document.getElementById('toggleCombatViewBtn');
+      const startBtn = document.getElementById('startCombatBtn');
+      const inCombat = !!(combatState && combatState.inProgress);
+      const shouldShowBody = inCombat;
+      body.classList.toggle('hidden', !shouldShowBody);
+      toggleBtn.textContent = shouldShowBody ? 'Réduire' : 'Déplier';
+      startBtn.style.display = inCombat ? 'none' : '';
+    }
+
     function refreshCombatUi() {
       const assaultBtn = document.getElementById('assaultBtn');
       const autoBtn = document.getElementById('autoCombatBtn');
@@ -504,6 +563,7 @@
         enemyEndurance.textContent = '—';
         status.textContent = '';
         history.innerHTML = '';
+        refreshCombatPanelVisibility();
         return;
       }
 
@@ -515,6 +575,7 @@
       enemyEndurance.textContent = combatState.enemyEndurance;
       status.textContent = combatState.lastResult;
       history.innerHTML = combatState.history.map((line) => `<li>${line}</li>`).join('');
+      refreshCombatPanelVisibility();
     }
 
     function startCombat() {
@@ -656,7 +717,7 @@ END ennemi : ${Math.max(0, combatState.enemyEndurance)}`;
     function saveLastFight(monsterId){localStorage.setItem(LAST_FIGHT_KEY, monsterId||'');}
     function normalizeCapability(cap){return {editorKey:cap?.editorKey||uid(),id:cap?.id||'capacite_sans_nom',trigger:cap?.trigger||'after_assault',action:cap?.action||{type:'message_only',message:''}};}
     function applyMonsterCaps(trigger, context = {}){ if(!combatState||!combatState.capacites) return; combatState.capacites.map(normalizeCapability).filter(c=>c.trigger===trigger).forEach(c=>{ const actionType=c.action?.type||'message_only'; const message=c.action?.message||`${c.id} déclenchée.`; if(actionType==='end_combat_message'){combatState.inProgress=false;combatState.lastResult=message;combatState.history.push(`🛑 ${message}`); showCombatPopup(message); return;} if(actionType==='message_only'){combatState.history.push(`ℹ ${message}`); showCombatPopup(message); return;} if(trigger==='enemy_consecutive_successes'){combatState.history.push(`ℹ ${c.id} (ennemi: ${context.streak||0} assauts réussis)`);return;} combatState.history.push(`ℹ ${c.id}`); }); }
-    function handleEnemyConsecutiveTrigger(){ if(!combatState||!combatState.capacites||combatState.enemyConsecutiveSuccesses<=0) return; combatState.capacites.map(normalizeCapability).filter(c=>c.trigger==='enemy_consecutive_successes').forEach(c=>{const required=Math.max(1, parseInt(c.action?.requiredConsecutiveAssaults,10)||1); if(combatState.enemyConsecutiveSuccesses>=required){const defaultMessage=`${required} assaut(s) consécutifs réussis de ${combatState.enemyName}.`; const message=c.action?.message||defaultMessage; const actionType=(c.action?.type||'message_only'); combatState.history.push(`ℹ ${message} (ennemi: ${combatState.enemyConsecutiveSuccesses} assauts réussis)`); if(actionType==='message_only'){showCombatPopup(message);} if(actionType==='end_combat_message'){combatState.inProgress=false;combatState.lastResult=message;combatState.history.push(`🛑 ${message}`); showCombatPopup(message);}}});}
+    function handleEnemyConsecutiveTrigger(){ if(!combatState||!combatState.capacites||combatState.enemyConsecutiveSuccesses<=0) return; combatState.capacites.map(normalizeCapability).filter(c=>c.trigger==='enemy_consecutive_successes').forEach(c=>{const required=Math.max(1, parseInt(c.action?.requiredConsecutiveAssaults,10)||1); if(combatState.enemyConsecutiveSuccesses===required){const defaultMessage=`${required} assaut(s) consécutifs réussis de ${combatState.enemyName}.`; const message=c.action?.message||defaultMessage; const actionType=(c.action?.type||'message_only'); combatState.history.push(`ℹ ${message} (ennemi: ${combatState.enemyConsecutiveSuccesses} assauts réussis)`); if(actionType==='message_only'){showCombatPopup(message);} if(actionType==='end_combat_message'){combatState.inProgress=false;combatState.lastResult=message;combatState.history.push(`🛑 ${message}`); showCombatPopup(message);}}});}
     function renderCapabilitiesEditor(){const root=document.getElementById('capabilitiesEditor');root.innerHTML=editingCapabilities.map(c=>{const n=normalizeCapability(c);return `<div class="cap-row"><input data-key="${n.editorKey}" data-k="id" value="${n.id}" placeholder="Nom de la capacité"><select data-key="${n.editorKey}" data-k="trigger">${CAPABILITY_TRIGGERS.map(t=>`<option value="${t}" ${t===n.trigger?'selected':''}>${CAPABILITY_TRIGGER_LABELS[t]||t}</option>`).join('')}</select>${n.trigger==='enemy_consecutive_successes'?`<div><label>Nombre d'assauts consécutifs requis</label><input data-key="${n.editorKey}" data-k="requiredConsecutiveAssaults" type="number" min="1" value="${Math.max(1,parseInt(n.action?.requiredConsecutiveAssaults,10)||1)}"></div>`:''}<select data-key="${n.editorKey}" data-k="actionType">${CAPABILITY_ACTIONS.map(a=>`<option value="${a}" ${a===n.action?.type?'selected':''}>${CAPABILITY_ACTION_LABELS[a]||a}</option>`).join('')}</select><input data-key="${n.editorKey}" data-k="message" value="${n.action?.message||''}" placeholder="Message"><button type="button" class="danger" data-action="delete-cap" data-key="${n.editorKey}">Supprimer capacité</button></div>`;}).join('');}
     function openMonsterDialog(monster=null){const m=monster?structuredClone(monster):{id:uid(),nom:'',habilete:8,endurance:8,description:'',notes:'',tags:[],image:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),capacites:[],favorite:false,stats:{wins:0,losses:0}}; document.getElementById('monsterDialogTitle').textContent=monster?'Modifier un monstre':'Ajouter un monstre'; ['Id','Nom','Habilete','Endurance','Description','Notes','Image'].forEach(()=>{}); document.getElementById('monsterId').value=m.id;document.getElementById('monsterNom').value=m.nom;document.getElementById('monsterHabilete').value=m.habilete;document.getElementById('monsterEndurance').value=m.endurance;document.getElementById('monsterDescription').value=m.description;document.getElementById('monsterNotes').value=m.notes;document.getElementById('monsterTags').value=(m.tags||[]).join(', ');document.getElementById('monsterImage').value=m.image||'';editingCapabilities=(m.capacites||[]).map(normalizeCapability);renderCapabilitiesEditor();document.getElementById('monsterDialog').showModal();}
     function saveMonsterFromDialog(){const id=document.getElementById('monsterId').value;const payload={id,nom:document.getElementById('monsterNom').value.trim(),habilete:parseInt(document.getElementById('monsterHabilete').value,10),endurance:parseInt(document.getElementById('monsterEndurance').value,10),description:document.getElementById('monsterDescription').value.trim(),notes:document.getElementById('monsterNotes').value.trim(),tags:document.getElementById('monsterTags').value.split(',').map(s=>s.trim()).filter(Boolean),image:document.getElementById('monsterImage').value.trim(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),capacites:editingCapabilities,favorite:false,stats:{wins:0,losses:0}};const i=bestiary.findIndex(x=>x.id===id);if(i>=0){payload.createdAt=bestiary[i].createdAt;payload.favorite=bestiary[i].favorite;payload.stats=bestiary[i].stats||payload.stats;bestiary[i]=payload;}else{bestiary.unshift(payload);} saveBestiary(); renderBestiary(); document.getElementById('monsterDialog').close();}
@@ -678,6 +739,19 @@ END ennemi : ${Math.max(0, combatState.enemyEndurance)}`;
     document.getElementById('autoCombatBtn').addEventListener('click', runAutoCombat);
     document.getElementById('endCombatBtn').addEventListener('click', endCombat);
     document.getElementById('closeCombatBtn').addEventListener('click', endCombat);
+    document.getElementById('toggleCombatViewBtn').addEventListener('click', () => {
+      const body = document.getElementById('combatBody');
+      if (combatState && combatState.inProgress) { endCombat(); return; }
+      body.classList.toggle('hidden');
+      document.getElementById('toggleCombatViewBtn').textContent = body.classList.contains('hidden') ? 'Déplier' : 'Réduire';
+    });
+    document.getElementById('toggleSelectedMonsterCapsBtn').addEventListener('click', () => {
+      const wrap = document.getElementById('selectedMonsterCapsWrap');
+      const hidden = wrap.style.display === 'none';
+      wrap.style.display = hidden ? '' : 'none';
+      document.getElementById('toggleSelectedMonsterCapsBtn').textContent = hidden ? 'Masquer capacités' : 'Afficher capacités';
+    });
+    document.getElementById('combatPopupCloseBtn').addEventListener('click', () => document.getElementById('combatPopupDialog').close());
     document.getElementById('addMonsterBtn').addEventListener('click',()=>openMonsterDialog());
     document.getElementById('saveMonsterBtn').addEventListener('click', saveMonsterFromDialog);
     document.getElementById('cancelMonsterBtn').addEventListener('click', ()=>document.getElementById('monsterDialog').close());
@@ -685,18 +759,19 @@ END ennemi : ${Math.max(0, combatState.enemyEndurance)}`;
     document.getElementById('capabilitiesEditor').addEventListener('input',(e)=>{const t=e.target;const cap=editingCapabilities.find(c=>c.editorKey===t.dataset.key);if(!cap)return;const k=t.dataset.k;if(k==='id'){cap.id=t.value;} else {cap.action=cap.action||{type:'message_only',message:''}; if(k==='requiredConsecutiveAssaults') cap.action.requiredConsecutiveAssaults=parseInt(t.value||'1',10); if(k==='message') cap.action.message=t.value;}});
     document.getElementById('capabilitiesEditor').addEventListener('change',(e)=>{const t=e.target;const cap=editingCapabilities.find(c=>c.editorKey===t.dataset.key);if(!cap)return;const k=t.dataset.k;if(k==='trigger'){cap.trigger=t.value;renderCapabilitiesEditor();return;} cap.action=cap.action||{type:'message_only',message:''}; if(k==='actionType'){cap.action.type=t.value;renderCapabilitiesEditor();}});
     document.getElementById('capabilitiesEditor').addEventListener('click',(e)=>{const b=e.target.closest('button[data-action="delete-cap"]');if(!b)return;editingCapabilities=editingCapabilities.filter(c=>c.editorKey!==b.dataset.key);renderCapabilitiesEditor();});
-    document.getElementById('bestiaryList').addEventListener('click',(e)=>{const b=e.target.closest('button[data-a]');if(!b)return;const m=bestiary.find(x=>x.id===b.dataset.id);if(!m)return; if(b.dataset.a==='fight'){document.getElementById('combatEnemyName').value=m.nom;document.getElementById('combatEnemySkill').value=m.habilete;document.getElementById('combatEnemyEndurance').value=m.endurance;startCombat(); if(combatState){combatState.monsterId=m.id;combatState.capacites=m.capacites||[];applyMonsterCaps('start_combat'); refreshCombatUi(); saveLastFight(m.id);} } if(b.dataset.a==='edit') openMonsterDialog(m); if(b.dataset.a==='del' && confirm(`Supprimer ${m.nom} ?`)){bestiary=bestiary.filter(x=>x.id!==m.id);saveBestiary();renderBestiary();} if(b.dataset.a==='dup'){const c=structuredClone(m);c.id=uid();c.nom=`${m.nom} (copie)`;c.createdAt=new Date().toISOString();c.updatedAt=c.createdAt;bestiary.unshift(c);saveBestiary();renderBestiary();} if(b.dataset.a==='fav'){m.favorite=!m.favorite;m.updatedAt=new Date().toISOString();saveBestiary();renderBestiary();}});
+    document.getElementById('bestiaryList').addEventListener('click',(e)=>{const b=e.target.closest('button[data-a]');if(!b)return;const m=bestiary.find(x=>x.id===b.dataset.id);if(!m)return; if(b.dataset.a==='fight'){selectedMonsterForCombat=structuredClone(m);renderSelectedMonsterInfo();document.getElementById('combatEnemyName').value=m.nom;document.getElementById('combatEnemySkill').value=m.habilete;document.getElementById('combatEnemyEndurance').value=m.endurance;startCombat(); if(combatState){combatState.monsterId=m.id;combatState.capacites=m.capacites||[];applyMonsterCaps('start_combat'); refreshCombatUi(); saveLastFight(m.id);} } if(b.dataset.a==='edit') openMonsterDialog(m); if(b.dataset.a==='del' && confirm(`Supprimer ${m.nom} ?`)){bestiary=bestiary.filter(x=>x.id!==m.id);saveBestiary();renderBestiary();} if(b.dataset.a==='dup'){const c=structuredClone(m);c.id=uid();c.nom=`${m.nom} (copie)`;c.createdAt=new Date().toISOString();c.updatedAt=c.createdAt;bestiary.unshift(c);saveBestiary();renderBestiary();} if(b.dataset.a==='fav'){m.favorite=!m.favorite;m.updatedAt=new Date().toISOString();saveBestiary();renderBestiary();}});
     document.getElementById('bestiarySearch').addEventListener('input',renderBestiary);
     document.getElementById('bestiaryTagFilter').addEventListener('change',renderBestiary);
     document.getElementById('bestiarySort').addEventListener('change',renderBestiary);
     document.getElementById('exportBestiaryBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(bestiary,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='bestiary.json';a.click();});
     document.getElementById('importBestiaryInput').addEventListener('change',async(e)=>{const f=e.target.files?.[0];if(!f)return;const arr=JSON.parse(await f.text());if(Array.isArray(arr)){bestiary=arr;saveBestiary();renderBestiary();}});
-    document.getElementById('restartLastMonsterFightBtn').addEventListener('click',()=>{const id=localStorage.getItem(LAST_FIGHT_KEY);const m=bestiary.find(x=>x.id===id);if(!m)return;document.getElementById('combatEnemyName').value=m.nom;document.getElementById('combatEnemySkill').value=m.habilete;document.getElementById('combatEnemyEndurance').value=m.endurance;startCombat();if(combatState){combatState.monsterId=m.id;combatState.capacites=m.capacites||[];applyMonsterCaps('start_combat');refreshCombatUi();}});
+    document.getElementById('restartLastMonsterFightBtn').addEventListener('click',()=>{const id=localStorage.getItem(LAST_FIGHT_KEY);const m=bestiary.find(x=>x.id===id);if(!m)return;selectedMonsterForCombat=structuredClone(m);renderSelectedMonsterInfo();document.getElementById('combatEnemyName').value=m.nom;document.getElementById('combatEnemySkill').value=m.habilete;document.getElementById('combatEnemyEndurance').value=m.endurance;startCombat();if(combatState){combatState.monsterId=m.id;combatState.capacites=m.capacites||[];applyMonsterCaps('start_combat');refreshCombatUi();}});
     document.getElementById('paragraphe').addEventListener('input', () => save());
 
     load();
     loadBestiary();
     renderBestiary();
+    renderSelectedMonsterInfo();
     refreshCombatUi();
   </script>
 </body>
