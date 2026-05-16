@@ -63,6 +63,10 @@
     .danger { background: #ef4444; color: #fff; }
     .status { font-size: .9rem; color: #93c5fd; margin-top: .5rem; min-height: 1.2rem; }
     .hint { font-size: .85rem; color: #9ca3af; }
+    .max-info { color: #93c5fd; font-size: .82rem; }
+    .dice-box { margin-top: .5rem; min-height: 1.4rem; color: #fde68a; font-weight: 700; }
+    .rolling { animation: pulseDice .5s ease-in-out 4; }
+    @keyframes pulseDice { 0%,100%{opacity:1;transform:translateY(0)} 50%{opacity:.45;transform:translateY(-2px)} }
   </style>
 </head>
 <body>
@@ -90,9 +94,9 @@
     <section class="card">
       <h2>Fiche de personnage</h2>
       <div class="grid">
-        <div><label for="habilete">Habileté</label><input id="habilete" type="number" min="0" /></div>
-        <div><label for="endurance">Endurance</label><input id="endurance" type="number" min="0" /></div>
-        <div><label for="chance">Chance</label><input id="chance" type="number" min="0" /></div>
+        <div><label for="habilete">Habileté <span class="max-info" id="habileteMaxDisplay">(max: —)</span></label><input id="habilete" type="number" min="0" /></div>
+        <div><label for="endurance">Endurance <span class="max-info" id="enduranceMaxDisplay">(max: —)</span></label><input id="endurance" type="number" min="0" /></div>
+        <div><label for="chance">Chance <span class="max-info" id="chanceMaxDisplay">(max: —)</span></label><input id="chance" type="number" min="0" /></div>
         <div><label for="metamorphose">Métamorphose</label><input id="metamorphose" type="number" min="0" /></div>
         <div><label for="alarme">Alarme</label><input id="alarme" type="number" min="0" /></div>
         <div><label for="or">Or</label><input id="or" type="number" min="0" /></div>
@@ -110,11 +114,15 @@
 
     <section class="card">
       <div class="actions">
+        <button class="primary" id="newGameBtn">Nouvelle partie</button>
+        <button class="secondary" id="testChanceBtn">Tester la Chance</button>
+        <button class="secondary" id="testSkillBtn">Tester l'Habileté</button>
         <button class="primary" id="saveBtn">Enregistrer</button>
         <button class="secondary" id="reloadBtn">Recharger</button>
         <button class="danger" id="resetBtn">Réinitialiser</button>
       </div>
       <div class="status" id="status"></div>
+      <div class="dice-box" id="diceResult"></div>
     </section>
   </main>
 
@@ -124,6 +132,20 @@
       'paragraphe', 'pv', 'habilete', 'endurance', 'chance',
       'metamorphose', 'alarme', 'or', 'provisions', 'equipement', 'notes'
     ];
+
+    const maxFields = ['habileteMax', 'enduranceMax', 'chanceMax'];
+
+    function rollDie() {
+      return Math.floor(Math.random() * 6) + 1;
+    }
+
+    function rollDice(count) {
+      return Array.from({ length: count }, rollDie);
+    }
+
+    function sum(values) {
+      return values.reduce((total, value) => total + value, 0);
+    }
 
     function setCookie(name, value, days = 365) {
       const date = new Date();
@@ -145,6 +167,9 @@
       for (const id of fields) {
         data[id] = document.getElementById(id).value;
       }
+      for (const id of maxFields) {
+        data[id] = document.getElementById(id)?.value || '';
+      }
       return data;
     }
 
@@ -154,10 +179,127 @@
           document.getElementById(id).value = data[id];
         }
       }
+      for (const id of maxFields) {
+        if (Object.prototype.hasOwnProperty.call(data, id)) {
+          ensureHiddenField(id).value = data[id];
+        }
+      }
+      refreshMaxDisplay();
     }
 
     function setStatus(message) {
       document.getElementById('status').textContent = message;
+    }
+
+    function setDiceMessage(message) {
+      const el = document.getElementById('diceResult');
+      el.textContent = message;
+    }
+
+    function ensureHiddenField(id) {
+      let input = document.getElementById(id);
+      if (!input) {
+        input = document.createElement('input');
+        input.type = 'hidden';
+        input.id = id;
+        document.body.appendChild(input);
+      }
+      return input;
+    }
+
+    function refreshMaxDisplay() {
+      document.getElementById('habileteMaxDisplay').textContent = `(max: ${ensureHiddenField('habileteMax').value || '—'})`;
+      document.getElementById('enduranceMaxDisplay').textContent = `(max: ${ensureHiddenField('enduranceMax').value || '—'})`;
+      document.getElementById('chanceMaxDisplay').textContent = `(max: ${ensureHiddenField('chanceMax').value || '—'})`;
+    }
+
+    function clampToMax(current, max) {
+      if (!max) return current;
+      return Math.min(current, max);
+    }
+
+    function startDiceAnimation(callback) {
+      const box = document.getElementById('diceResult');
+      box.classList.add('rolling');
+      let ticks = 0;
+      const interval = setInterval(() => {
+        ticks += 1;
+        setDiceMessage(`🎲 ${rollDie()} ${rollDie()} ...`);
+        if (ticks >= 8) {
+          clearInterval(interval);
+          box.classList.remove('rolling');
+          callback();
+        }
+      }, 90);
+    }
+
+    function newGame() {
+      startDiceAnimation(() => {
+        const habileteRoll = rollDice(1);
+        const enduranceRoll = rollDice(2);
+        const chanceRoll = rollDice(1);
+        const orRoll = rollDice(2);
+
+        const habilete = sum(habileteRoll) + 6;
+        const endurance = sum(enduranceRoll) + 12;
+        const chance = sum(chanceRoll) + 6;
+        const gold = sum(orRoll) + 6;
+
+        document.getElementById('habilete').value = habilete;
+        document.getElementById('endurance').value = endurance;
+        document.getElementById('chance').value = chance;
+        document.getElementById('or').value = gold;
+        document.getElementById('provisions').value = 10;
+        document.getElementById('equipement').value = [
+          'Armure en cuir',
+          'Bonne épée',
+          'Lanterne',
+          'Nécessaire pour allumer la lanterne',
+          'Sac à dos'
+        ].join('\n');
+
+        document.getElementById('paragraphe').value = '';
+        document.getElementById('pv').value = '';
+        document.getElementById('metamorphose').value = '';
+        document.getElementById('alarme').value = '';
+        document.getElementById('notes').value = '';
+
+        ensureHiddenField('habileteMax').value = habilete;
+        ensureHiddenField('enduranceMax').value = endurance;
+        ensureHiddenField('chanceMax').value = chance;
+        refreshMaxDisplay();
+
+        setDiceMessage(`🎲 Initialisation : HAB ${habileteRoll[0]}+6=${habilete}, END ${enduranceRoll.join('+')}+12=${endurance}, CHANCE ${chanceRoll[0]}+6=${chance}, OR ${orRoll.join('+')}+6=${gold}`);
+        setStatus('Nouvelle partie générée.');
+        save();
+      });
+    }
+
+    function testCharacteristic(fieldId, label) {
+      const field = document.getElementById(fieldId);
+      let value = parseInt(field.value, 10);
+      if (Number.isNaN(value) || value <= 0) {
+        setStatus(`Impossible de tester ${label.toLowerCase()} : valeur invalide.`);
+        return;
+      }
+
+      startDiceAnimation(() => {
+        const rolls = rollDice(2);
+        const total = sum(rolls);
+        const success = total <= value;
+        value = Math.max(0, value - 1);
+        field.value = value;
+
+        const maxId = fieldId + 'Max';
+        const maxValue = parseInt(ensureHiddenField(maxId).value, 10);
+        if (!Number.isNaN(maxValue)) {
+          field.value = clampToMax(parseInt(field.value, 10), maxValue);
+        }
+
+        setDiceMessage(`🎲 Test ${label} : ${rolls[0]} + ${rolls[1]} = ${total} → ${success ? 'SUCCÈS' : 'ÉCHEC'} (nouvelle valeur: ${field.value})`);
+        setStatus(`Test ${label} : ${success ? 'succès' : 'échec'}. 1 point retiré.`);
+        save();
+      });
     }
 
     function save() {
@@ -169,6 +311,7 @@
       const raw = getCookie(COOKIE_KEY);
       if (!raw) {
         setStatus('Aucune sauvegarde trouvée.');
+        refreshMaxDisplay();
         return;
       }
       try {
@@ -185,10 +328,18 @@
       for (const id of fields) {
         document.getElementById(id).value = '';
       }
+      for (const id of maxFields) {
+        ensureHiddenField(id).value = '';
+      }
+      refreshMaxDisplay();
       setCookie(COOKIE_KEY, '', -1);
       setStatus('Données réinitialisées.');
+      setDiceMessage('');
     }
 
+    document.getElementById('newGameBtn').addEventListener('click', newGame);
+    document.getElementById('testChanceBtn').addEventListener('click', () => testCharacteristic('chance', 'Chance'));
+    document.getElementById('testSkillBtn').addEventListener('click', () => testCharacteristic('habilete', 'Habileté'));
     document.getElementById('saveBtn').addEventListener('click', save);
     document.getElementById('reloadBtn').addEventListener('click', load);
     document.getElementById('resetBtn').addEventListener('click', reset);
