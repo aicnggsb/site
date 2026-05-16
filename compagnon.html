@@ -154,18 +154,21 @@
       </div>
       <div class="actions" style="margin-top:.6rem;">
         <button class="primary" id="startCombatBtn">Démarrer le combat</button>
-        <button class="secondary" id="assaultBtn" disabled>Lancer un assaut</button>
-        <button class="danger" id="endCombatBtn">Terminer le combat</button>
+        <button class="primary" id="assaultBtn" disabled>Assaut suivant</button>
+        <button class="secondary" id="autoCombatBtn" disabled>Combat automatique</button>
+        <button class="danger" id="endCombatBtn">Fuir / Terminer</button>
       </div>
       <div class="status" id="combatResultStatus"></div>
       <div class="grid" style="margin-top:.6rem;">
+        <div>Nom de l’ennemi : <strong id="combatEnemyNameCurrent">—</strong></div>
         <div>Endurance actuelle du héros : <strong id="combatHeroEndurance">—</strong></div>
         <div>Endurance actuelle de l’ennemi : <strong id="combatEnemyEnduranceCurrent">—</strong></div>
-        <div>Force d’attaque du héros : <strong id="combatHeroAttackStrength">—</strong></div>
-        <div>Force d’attaque de l’ennemi : <strong id="combatEnemyAttackStrength">—</strong></div>
       </div>
-      <h3 style="margin-bottom:.5rem;">Historique court des assauts</h3>
+      <h3 style="margin-bottom:.5rem;">Journal de combat</h3>
       <ul id="combatHistory"></ul>
+      <div class="actions" style="margin-top:.75rem;">
+        <button class="secondary" id="closeCombatBtn" style="display:none;">Fermer le combat</button>
+      </div>
     </section>
   </main>
 
@@ -179,7 +182,8 @@
 
     const maxFields = ['habileteMax', 'enduranceMax', 'chanceMax'];
     let metamorphoseActive = false;
-    const MAX_ASSAULT_HISTORY = 10;
+    const MAX_ASSAULT_HISTORY = 15;
+    const AUTO_ASSAULT_DELAY_MS = 280;
     let combatState = null;
 
     function rollDie() {
@@ -418,31 +422,38 @@
       endCombat();
     }
 
+    function wait(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
     function refreshCombatUi() {
       const assaultBtn = document.getElementById('assaultBtn');
+      const autoBtn = document.getElementById('autoCombatBtn');
+      const closeBtn = document.getElementById('closeCombatBtn');
+      const enemyName = document.getElementById('combatEnemyNameCurrent');
       const heroEndurance = document.getElementById('combatHeroEndurance');
       const enemyEndurance = document.getElementById('combatEnemyEnduranceCurrent');
-      const heroAttack = document.getElementById('combatHeroAttackStrength');
-      const enemyAttack = document.getElementById('combatEnemyAttackStrength');
       const status = document.getElementById('combatResultStatus');
       const history = document.getElementById('combatHistory');
 
       if (!combatState) {
         assaultBtn.disabled = true;
+        autoBtn.disabled = true;
+        closeBtn.style.display = 'none';
+        enemyName.textContent = '—';
         heroEndurance.textContent = '—';
         enemyEndurance.textContent = '—';
-        heroAttack.textContent = '—';
-        enemyAttack.textContent = '—';
         status.textContent = '';
         history.innerHTML = '';
         return;
       }
 
-      assaultBtn.disabled = !combatState.inProgress;
+      assaultBtn.disabled = !combatState.inProgress || combatState.autoRunning;
+      autoBtn.disabled = !combatState.inProgress || combatState.autoRunning;
+      closeBtn.style.display = combatState.inProgress ? 'none' : '';
+      enemyName.textContent = combatState.enemyName;
       heroEndurance.textContent = combatState.heroEndurance;
       enemyEndurance.textContent = combatState.enemyEndurance;
-      heroAttack.textContent = combatState.heroAttackStrength ?? '—';
-      enemyAttack.textContent = combatState.enemyAttackStrength ?? '—';
       status.textContent = combatState.lastResult;
       history.innerHTML = combatState.history.map((line) => `<li>${line}</li>`).join('');
     }
@@ -465,12 +476,11 @@
         heroEndurance,
         enemySkill,
         enemyEndurance,
-        heroAttackStrength: null,
-        enemyAttackStrength: null,
-        lastResult: 'Combat démarré.',
+        lastResult: `Combat démarré contre ${enemyName}.`,
         history: [],
         assaultCount: 0,
-        inProgress: true
+        inProgress: true,
+        autoRunning: false
       };
       refreshCombatUi();
     }
@@ -479,20 +489,23 @@
       if (!combatState || !combatState.inProgress) return;
       const heroRolls = rollDice(2);
       const enemyRolls = rollDice(2);
-      combatState.heroAttackStrength = sum(heroRolls) + combatState.heroSkill;
-      combatState.enemyAttackStrength = sum(enemyRolls) + combatState.enemySkill;
+      const heroAttackStrength = sum(heroRolls) + combatState.heroSkill;
+      const enemyAttackStrength = sum(enemyRolls) + combatState.enemySkill;
       combatState.assaultCount += 1;
 
-      let resultText = 'Égalité, aucun dégât.';
-      if (combatState.heroAttackStrength > combatState.enemyAttackStrength) {
+      let resultText = 'Égalité';
+      let hitText = '→ Aucun dégât';
+      if (heroAttackStrength > enemyAttackStrength) {
         combatState.enemyEndurance -= 2;
-        resultText = `${combatState.enemyName} blessé (-2 END).`;
-      } else if (combatState.enemyAttackStrength > combatState.heroAttackStrength) {
+        resultText = 'Ennemi touché';
+        hitText = '→ Ennemi blessé (-2 END)';
+      } else if (enemyAttackStrength > heroAttackStrength) {
         combatState.heroEndurance -= 2;
-        resultText = 'Héros blessé (-2 END).';
+        resultText = 'Vous êtes blessé';
+        hitText = '→ Vous perdez 2 END';
       }
 
-      combatState.history.push(`Assaut ${combatState.assaultCount} : Héros ${combatState.heroAttackStrength} / Ennemi ${combatState.enemyAttackStrength} → ${resultText}`);
+      combatState.history.push(`Assaut ${combatState.assaultCount} → ${resultText}`);
       if (combatState.history.length > MAX_ASSAULT_HISTORY) {
         combatState.history = combatState.history.slice(-MAX_ASSAULT_HISTORY);
       }
@@ -501,18 +514,58 @@
 
       if (combatState.enemyEndurance <= 0) {
         combatState.inProgress = false;
-        combatState.lastResult = 'Ennemi vaincu';
+        combatState.lastResult = `Assaut ${combatState.assaultCount}
+Vous : ${heroAttackStrength}
+${combatState.enemyName} : ${enemyAttackStrength}
+${hitText}
+
+END héros : ${Math.max(0, combatState.heroEndurance)}
+END ennemi : ${Math.max(0, combatState.enemyEndurance)}
+
+Le ${combatState.enemyName} est vaincu.`;
       } else if (combatState.heroEndurance <= 0) {
         combatState.inProgress = false;
-        combatState.lastResult = 'Votre personnage est mort';
+        combatState.lastResult = `Assaut ${combatState.assaultCount}
+Vous : ${heroAttackStrength}
+${combatState.enemyName} : ${enemyAttackStrength}
+${hitText}
+
+END héros : ${Math.max(0, combatState.heroEndurance)}
+END ennemi : ${Math.max(0, combatState.enemyEndurance)}
+
+Votre personnage succombe.`;
       } else {
-        combatState.lastResult = resultText;
+        combatState.lastResult = `Assaut ${combatState.assaultCount}
+Vous : ${heroAttackStrength}
+${combatState.enemyName} : ${enemyAttackStrength}
+${hitText}
+
+END héros : ${Math.max(0, combatState.heroEndurance)}
+END ennemi : ${Math.max(0, combatState.enemyEndurance)}`;
       }
       save();
       refreshCombatUi();
     }
 
+    async function runAutoCombat() {
+      if (!combatState || !combatState.inProgress || combatState.autoRunning) return;
+      combatState.autoRunning = true;
+      refreshCombatUi();
+      while (combatState && combatState.inProgress && combatState.autoRunning) {
+        launchAssault();
+        if (!combatState || !combatState.inProgress) break;
+        await wait(AUTO_ASSAULT_DELAY_MS);
+      }
+      if (combatState) {
+        combatState.autoRunning = false;
+      }
+      refreshCombatUi();
+    }
+
     function endCombat() {
+      if (combatState) {
+        combatState.autoRunning = false;
+      }
       combatState = null;
       refreshCombatUi();
     }
@@ -531,7 +584,9 @@
     });
     document.getElementById('startCombatBtn').addEventListener('click', startCombat);
     document.getElementById('assaultBtn').addEventListener('click', launchAssault);
+    document.getElementById('autoCombatBtn').addEventListener('click', runAutoCombat);
     document.getElementById('endCombatBtn').addEventListener('click', endCombat);
+    document.getElementById('closeCombatBtn').addEventListener('click', endCombat);
 
     load();
     refreshCombatUi();
