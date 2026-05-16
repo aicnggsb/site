@@ -91,10 +91,6 @@
           <label for="paragraphe">Paragraphe actuel</label>
           <input id="paragraphe" type="number" min="1" />
         </div>
-        <div>
-          <label for="pv">PV</label>
-          <input id="pv" type="number" min="0" />
-        </div>
       </div>
     </section>
 
@@ -217,7 +213,7 @@
     const COOKIE_KEY = 'compagnon_jdr_nuit_loup_garou';
     const STORAGE_KEY = COOKIE_KEY;
     const fields = [
-      'paragraphe', 'pv', 'habilete', 'endurance', 'chance',
+      'paragraphe', 'habilete', 'endurance', 'chance',
       'metamorphose', 'alarme', 'or', 'provisions', 'equipement', 'notes'
     ];
 
@@ -228,8 +224,8 @@
     let combatState = null;
     const BESTIARY_KEY = "compagnon_jdr_bestiary_v1";
     const LAST_FIGHT_KEY = "compagnon_jdr_lastfight_v1";
-    const CAPABILITY_TYPES = ["text_note","enemy_damage_modifier","hero_damage_modifier","enemy_regeneration","hero_regeneration","metamorphosis_change","luck_change","skill_change","conditional_immunity","start_of_combat_effect","end_of_combat_effect"];
-    const CAPABILITY_TRIGGERS = ["start_combat","before_assault","hero_hits","enemy_hits","after_assault","end_combat"];
+    const CAPABILITY_TRIGGERS = ["start_combat","before_assault","hero_hits","enemy_hits","after_assault","end_combat","enemy_consecutive_successes"];
+    const CAPABILITY_ACTIONS = ["message_only","end_combat_message"];
     let bestiary=[]; let editingCapabilities=[];
 
     function rollDie() {
@@ -383,7 +379,6 @@
         ].join('\n');
 
         document.getElementById('paragraphe').value = '';
-        document.getElementById('pv').value = '';
         metamorphoseActive = false;
         applyMetamorphoseValue(0);
         document.getElementById('alarme').value = '';
@@ -525,6 +520,7 @@
         lastResult: `Combat démarré contre ${enemyName}.`,
         history: [],
         assaultCount: 0,
+        enemyConsecutiveSuccesses: 0,
         inProgress: true,
         autoRunning: false,
         monsterId: null,
@@ -548,15 +544,26 @@
         combatState.enemyEndurance -= 2;
         resultText = 'Ennemi touché';
         hitText = '→ Ennemi blessé (-2 END)';
+        combatState.enemyConsecutiveSuccesses = 0;
         applyMonsterCaps('hero_hits');
       } else if (enemyAttackStrength > heroAttackStrength) {
         combatState.heroEndurance -= 2;
         resultText = 'Vous êtes blessé';
         hitText = '→ Vous perdez 2 END';
+        combatState.enemyConsecutiveSuccesses += 1;
         applyMonsterCaps('enemy_hits');
+      } else {
+        combatState.enemyConsecutiveSuccesses = 0;
       }
 
       applyMonsterCaps('after_assault');
+      handleEnemyConsecutiveTrigger();
+      if (!combatState.inProgress) {
+        document.getElementById('endurance').value = Math.max(0, combatState.heroEndurance);
+        save();
+        refreshCombatUi();
+        return;
+      }
       combatState.history.push(`Assaut ${combatState.assaultCount} → ${resultText}`);
       if (combatState.history.length > MAX_ASSAULT_HISTORY) {
         combatState.history = combatState.history.slice(-MAX_ASSAULT_HISTORY);
@@ -627,8 +634,10 @@ END ennemi : ${Math.max(0, combatState.enemyEndurance)}`;
     function saveBestiary(){localStorage.setItem(BESTIARY_KEY, JSON.stringify(bestiary));}
     function loadBestiary(){bestiary=JSON.parse(localStorage.getItem(BESTIARY_KEY)||'[]');}
     function saveLastFight(monsterId){localStorage.setItem(LAST_FIGHT_KEY, monsterId||'');}
-    function applyMonsterCaps(trigger){ if(!combatState||!combatState.capacites) return; combatState.capacites.filter(c=>c.trigger===trigger).forEach(c=>{ if(!c.automatic){combatState.history.push(`⚠ Rappel: ${c.description||c.type}`);return;} if(c.type==='enemy_regeneration'){combatState.enemyEndurance += Number(c.value||0); combatState.history.push(`→ Régénération ennemi: +${c.value} END`);} else if(c.type==='hero_regeneration'){combatState.heroEndurance += Number(c.value||0); combatState.history.push(`→ Régénération héros: +${c.value} END`);} else {combatState.history.push(`ℹ ${c.type}: ${c.description||'règle spéciale'}`);} }); }
-    function renderCapabilitiesEditor(){const root=document.getElementById('capabilitiesEditor');root.innerHTML=editingCapabilities.map(c=>`<div class="cap-row"><select data-id="${c.id}" data-k="type">${CAPABILITY_TYPES.map(t=>`<option value="${t}" ${t===c.type?'selected':''}>${t}</option>`).join('')}</select><select data-id="${c.id}" data-k="trigger">${CAPABILITY_TRIGGERS.map(t=>`<option value="${t}" ${t===c.trigger?'selected':''}>${t}</option>`).join('')}</select><input data-id="${c.id}" data-k="value" type="number" value="${c.value??0}" placeholder="Valeur"><input data-id="${c.id}" data-k="description" value="${c.description||''}" placeholder="Description"><label><input data-id="${c.id}" data-k="automatic" type="checkbox" ${c.automatic?'checked':''}> Appliquer automatiquement</label><button type="button" class="danger" data-action="delete-cap" data-id="${c.id}">Supprimer capacité</button></div>`).join('');}
+    function normalizeCapability(cap){return {id:cap?.id||'capacite_sans_nom',trigger:cap?.trigger||'after_assault',action:cap?.action||{type:'message_only',message:''}};}
+    function applyMonsterCaps(trigger, context = {}){ if(!combatState||!combatState.capacites) return; combatState.capacites.map(normalizeCapability).filter(c=>c.trigger===trigger).forEach(c=>{ const actionType=c.action?.type||'message_only'; if(actionType==='end_combat_message'){const message=c.action?.message||`${c.id} déclenchée.`;combatState.inProgress=false;combatState.lastResult=message;combatState.history.push(`🛑 ${message}`);return;} if(trigger==='enemy_consecutive_successes'){combatState.history.push(`ℹ ${c.id} (ennemi: ${context.streak||0} assauts réussis)`);return;} combatState.history.push(`ℹ ${c.id}`); }); }
+    function handleEnemyConsecutiveTrigger(){ if(!combatState||!combatState.capacites||combatState.enemyConsecutiveSuccesses<=0) return; combatState.capacites.map(normalizeCapability).filter(c=>c.trigger==='enemy_consecutive_successes').forEach(c=>{const required=Number(c.action?.requiredConsecutiveAssaults||0); if(required>0&&combatState.enemyConsecutiveSuccesses>=required){const defaultMessage=`${required} assaut(s) consécutifs réussis de ${combatState.enemyName}.`; const message=c.action?.message||defaultMessage; c.action={...c.action,type:'end_combat_message',message}; applyMonsterCaps('enemy_consecutive_successes',{streak:combatState.enemyConsecutiveSuccesses});}});}
+    function renderCapabilitiesEditor(){const root=document.getElementById('capabilitiesEditor');root.innerHTML=editingCapabilities.map(c=>{const n=normalizeCapability(c);return `<div class="cap-row"><input data-id="${n.id}" data-k="id" value="${n.id}" placeholder="id (nom capacité)"><select data-id="${n.id}" data-k="trigger">${CAPABILITY_TRIGGERS.map(t=>`<option value="${t}" ${t===n.trigger?'selected':''}>${t}</option>`).join('')}</select><select data-id="${n.id}" data-k="actionType">${CAPABILITY_ACTIONS.map(a=>`<option value="${a}" ${a===n.action?.type?'selected':''}>${a}</option>`).join('')}</select><input data-id="${n.id}" data-k="requiredConsecutiveAssaults" type="number" min="0" value="${n.action?.requiredConsecutiveAssaults??0}" placeholder="X assauts consécutifs"><input data-id="${n.id}" data-k="message" value="${n.action?.message||''}" placeholder="Message action"><button type="button" class="danger" data-action="delete-cap" data-id="${n.id}">Supprimer capacité</button></div>`;}).join('');}
     function openMonsterDialog(monster=null){const m=monster?structuredClone(monster):{id:uid(),nom:'',habilete:8,endurance:8,description:'',notes:'',tags:[],image:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),capacites:[],favorite:false,stats:{wins:0,losses:0}}; document.getElementById('monsterDialogTitle').textContent=monster?'Modifier un monstre':'Ajouter un monstre'; ['Id','Nom','Habilete','Endurance','Description','Notes','Image'].forEach(()=>{}); document.getElementById('monsterId').value=m.id;document.getElementById('monsterNom').value=m.nom;document.getElementById('monsterHabilete').value=m.habilete;document.getElementById('monsterEndurance').value=m.endurance;document.getElementById('monsterDescription').value=m.description;document.getElementById('monsterNotes').value=m.notes;document.getElementById('monsterTags').value=(m.tags||[]).join(', ');document.getElementById('monsterImage').value=m.image||'';editingCapabilities=m.capacites||[];renderCapabilitiesEditor();document.getElementById('monsterDialog').showModal();}
     function saveMonsterFromDialog(){const id=document.getElementById('monsterId').value;const payload={id,nom:document.getElementById('monsterNom').value.trim(),habilete:parseInt(document.getElementById('monsterHabilete').value,10),endurance:parseInt(document.getElementById('monsterEndurance').value,10),description:document.getElementById('monsterDescription').value.trim(),notes:document.getElementById('monsterNotes').value.trim(),tags:document.getElementById('monsterTags').value.split(',').map(s=>s.trim()).filter(Boolean),image:document.getElementById('monsterImage').value.trim(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),capacites:editingCapabilities,favorite:false,stats:{wins:0,losses:0}};const i=bestiary.findIndex(x=>x.id===id);if(i>=0){payload.createdAt=bestiary[i].createdAt;payload.favorite=bestiary[i].favorite;payload.stats=bestiary[i].stats||payload.stats;bestiary[i]=payload;}else{bestiary.unshift(payload);} saveBestiary(); renderBestiary(); document.getElementById('monsterDialog').close();}
     function renderBestiary(){const q=document.getElementById('bestiarySearch').value.toLowerCase().trim(); const tag=document.getElementById('bestiaryTagFilter').value; const sort=document.getElementById('bestiarySort').value; const tags=[...new Set(bestiary.flatMap(m=>m.tags||[]))].sort((a,b)=>a.localeCompare(b,'fr')); document.getElementById('bestiaryTagFilter').innerHTML='<option value="">Tous</option>'+tags.map(t=>`<option value="${t}" ${t===tag?'selected':''}>${t}</option>`).join(''); let items=bestiary.filter(m=>(!q||`${m.nom} ${m.description} ${(m.tags||[]).join(' ')}`.toLowerCase().includes(q))&&(!tag||(m.tags||[]).includes(tag))); if(sort==='alpha') items.sort((a,b)=>a.nom.localeCompare(b.nom,'fr')); if(sort==='alpha_desc') items.sort((a,b)=>b.nom.localeCompare(a.nom,'fr')); if(sort==='recent') items.sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt)); document.getElementById('bestiaryList').innerHTML=items.map(m=>`<div class="monster-card"><strong>${m.nom}</strong><div class="monster-meta">HAB ${m.habilete} • END ${m.endurance} • ${m.capacites?.length||0} capacité(s) • V:${m.stats?.wins||0}/D:${m.stats?.losses||0}</div><div class="monster-meta">${(m.tags||[]).map(t=>`#${t}`).join(' ')}</div><div class="monster-actions"><button type="button" class="primary" data-a="fight" data-id="${m.id}">Combattre</button><button type="button" class="secondary" data-a="edit" data-id="${m.id}">Modifier</button><button type="button" class="danger" data-a="del" data-id="${m.id}">Supprimer</button><button type="button" class="secondary" data-a="dup" data-id="${m.id}">Dupliquer</button><button type="button" class="secondary" data-a="fav" data-id="${m.id}">${m.favorite?'★':'☆'} Favori</button></div></div>`).join('');}
@@ -652,8 +661,8 @@ END ennemi : ${Math.max(0, combatState.enemyEndurance)}`;
     document.getElementById('addMonsterBtn').addEventListener('click',()=>openMonsterDialog());
     document.getElementById('saveMonsterBtn').addEventListener('click', saveMonsterFromDialog);
     document.getElementById('cancelMonsterBtn').addEventListener('click', ()=>document.getElementById('monsterDialog').close());
-    document.getElementById('addCapabilityBtn').addEventListener('click', ()=>{editingCapabilities.push({id:uid(),type:'text_note',trigger:'after_assault',value:0,description:'',automatic:false});renderCapabilitiesEditor();});
-    document.getElementById('capabilitiesEditor').addEventListener('input',(e)=>{const t=e.target;const cap=editingCapabilities.find(c=>c.id===t.dataset.id);if(!cap)return;const k=t.dataset.k;cap[k]=k==='automatic'?t.checked:(k==='value'?parseInt(t.value||'0',10):t.value);});
+    document.getElementById('addCapabilityBtn').addEventListener('click', ()=>{editingCapabilities.push({id:`capacite_${editingCapabilities.length+1}`,trigger:'after_assault',action:{type:'message_only',message:''}});renderCapabilitiesEditor();});
+    document.getElementById('capabilitiesEditor').addEventListener('input',(e)=>{const t=e.target;const cap=editingCapabilities.find(c=>c.id===t.dataset.id);if(!cap)return;const k=t.dataset.k;if(k==='id'){cap.id=t.value.trim()||cap.id;} else if(k==='trigger'){cap.trigger=t.value;} else {cap.action=cap.action||{type:'message_only',message:''}; if(k==='actionType') cap.action.type=t.value; if(k==='requiredConsecutiveAssaults') cap.action.requiredConsecutiveAssaults=parseInt(t.value||'0',10); if(k==='message') cap.action.message=t.value;} renderCapabilitiesEditor();});
     document.getElementById('capabilitiesEditor').addEventListener('click',(e)=>{const b=e.target.closest('button[data-action="delete-cap"]');if(!b)return;editingCapabilities=editingCapabilities.filter(c=>c.id!==b.dataset.id);renderCapabilitiesEditor();});
     document.getElementById('bestiaryList').addEventListener('click',(e)=>{const b=e.target.closest('button[data-a]');if(!b)return;const m=bestiary.find(x=>x.id===b.dataset.id);if(!m)return; if(b.dataset.a==='fight'){document.getElementById('combatEnemyName').value=m.nom;document.getElementById('combatEnemySkill').value=m.habilete;document.getElementById('combatEnemyEndurance').value=m.endurance;startCombat(); if(combatState){combatState.monsterId=m.id;combatState.capacites=m.capacites||[];applyMonsterCaps('start_combat'); refreshCombatUi(); saveLastFight(m.id);} } if(b.dataset.a==='edit') openMonsterDialog(m); if(b.dataset.a==='del' && confirm(`Supprimer ${m.nom} ?`)){bestiary=bestiary.filter(x=>x.id!==m.id);saveBestiary();renderBestiary();} if(b.dataset.a==='dup'){const c=structuredClone(m);c.id=uid();c.nom=`${m.nom} (copie)`;c.createdAt=new Date().toISOString();c.updatedAt=c.createdAt;bestiary.unshift(c);saveBestiary();renderBestiary();} if(b.dataset.a==='fav'){m.favorite=!m.favorite;m.updatedAt=new Date().toISOString();saveBestiary();renderBestiary();}});
     document.getElementById('bestiarySearch').addEventListener('input',renderBestiary);
