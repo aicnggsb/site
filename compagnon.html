@@ -40,7 +40,7 @@
       margin-bottom: .25rem;
       color: #d1d5db;
     }
-    input, textarea {
+    input, textarea, select {
       width: 100%;
       border: 1px solid #4b5563;
       background: #111827;
@@ -69,6 +69,10 @@
     .metamorphose-controls input { text-align: center; }
     .metamorphose-controls button { padding: .55rem .7rem; min-width: 2.2rem; }
     .rolling { animation: pulseDice .5s ease-in-out 4; }
+    .monster-card{background:#0f172a;border:1px solid #334155;border-radius:10px;padding:.7rem;margin-bottom:.6rem;}
+    .monster-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem;margin-top:.5rem;}
+    .monster-meta{color:#93c5fd;font-size:.86rem;}
+    .cap-row{display:grid;gap:.35rem;margin:.45rem 0;padding:.5rem;border:1px solid #374151;border-radius:8px;background:#0b1220;}
     @keyframes pulseDice { 0%,100%{opacity:1;transform:translateY(0)} 50%{opacity:.45;transform:translateY(-2px)} }
   </style>
 </head>
@@ -170,6 +174,43 @@
         <button class="secondary" id="closeCombatBtn" style="display:none;">Fermer le combat</button>
       </div>
     </section>
+
+    <section class="card">
+      <h2>Bestiaire</h2>
+      <div class="actions" style="margin-bottom:.6rem;">
+        <button class="primary" id="addMonsterBtn">+ Ajouter au bestiaire</button>
+        <button class="secondary" id="restartLastMonsterFightBtn">Relancer dernier combat</button>
+        <button class="secondary" id="exportBestiaryBtn">Exporter JSON</button>
+        <label class="secondary" style="padding:.7rem .9rem;border-radius:8px;display:inline-block;cursor:pointer;">Importer JSON<input id="importBestiaryInput" type="file" accept="application/json" style="display:none;"></label>
+      </div>
+      <div class="grid">
+        <div><label for="bestiarySearch">Recherche</label><input id="bestiarySearch" type="search" placeholder="Nom, description, tags"></div>
+        <div><label for="bestiaryTagFilter">Tag</label><select id="bestiaryTagFilter"><option value="">Tous</option></select></div>
+        <div><label for="bestiarySort">Tri</label><select id="bestiarySort"><option value="alpha">A→Z</option><option value="alpha_desc">Z→A</option><option value="recent">Récents</option></select></div>
+      </div>
+      <div id="bestiaryList" style="margin-top:.8rem;"></div>
+    </section>
+
+    <dialog id="monsterDialog" style="max-width:760px;width:95%;background:#111827;color:#f9fafb;border:1px solid #374151;border-radius:12px;">
+      <form method="dialog" style="padding:1rem;">
+        <h3 id="monsterDialogTitle">Ajouter un monstre</h3>
+        <input id="monsterId" type="hidden">
+        <div class="grid">
+          <div><label>Nom du monstre</label><input id="monsterNom" required></div>
+          <div><label>HABILETÉ</label><input id="monsterHabilete" type="number" min="0" required></div>
+          <div><label>ENDURANCE</label><input id="monsterEndurance" type="number" min="1" required></div>
+          <div><label>Tags (virgules)</label><input id="monsterTags"></div>
+        </div>
+        <label>Description courte</label><textarea id="monsterDescription"></textarea>
+        <label>Notes libres</label><textarea id="monsterNotes"></textarea>
+        <label>URL/image optionnelle</label><input id="monsterImage" type="url">
+        <h4>Capacités spéciales</h4>
+        <button type="button" class="secondary" id="addCapabilityBtn">+ Ajouter une capacité</button>
+        <div id="capabilitiesEditor"></div>
+        <div class="actions" style="margin-top:.8rem;"><button type="button" class="primary" id="saveMonsterBtn">Enregistrer</button><button type="button" class="secondary" id="cancelMonsterBtn">Annuler</button></div>
+      </form>
+    </dialog>
+
   </main>
 
   <script>
@@ -185,6 +226,11 @@
     const MAX_ASSAULT_HISTORY = 15;
     const AUTO_ASSAULT_DELAY_MS = 280;
     let combatState = null;
+    const BESTIARY_KEY = "compagnon_jdr_bestiary_v1";
+    const LAST_FIGHT_KEY = "compagnon_jdr_lastfight_v1";
+    const CAPABILITY_TYPES = ["text_note","enemy_damage_modifier","hero_damage_modifier","enemy_regeneration","hero_regeneration","metamorphosis_change","luck_change","skill_change","conditional_immunity","start_of_combat_effect","end_of_combat_effect"];
+    const CAPABILITY_TRIGGERS = ["start_combat","before_assault","hero_hits","enemy_hits","after_assault","end_combat"];
+    let bestiary=[]; let editingCapabilities=[];
 
     function rollDie() {
       return Math.floor(Math.random() * 6) + 1;
@@ -480,13 +526,16 @@
         history: [],
         assaultCount: 0,
         inProgress: true,
-        autoRunning: false
+        autoRunning: false,
+        monsterId: null,
+        capacites: []
       };
       refreshCombatUi();
     }
 
     function launchAssault() {
       if (!combatState || !combatState.inProgress) return;
+      applyMonsterCaps('before_assault');
       const heroRolls = rollDice(2);
       const enemyRolls = rollDice(2);
       const heroAttackStrength = sum(heroRolls) + combatState.heroSkill;
@@ -499,12 +548,15 @@
         combatState.enemyEndurance -= 2;
         resultText = 'Ennemi touché';
         hitText = '→ Ennemi blessé (-2 END)';
+        applyMonsterCaps('hero_hits');
       } else if (enemyAttackStrength > heroAttackStrength) {
         combatState.heroEndurance -= 2;
         resultText = 'Vous êtes blessé';
         hitText = '→ Vous perdez 2 END';
+        applyMonsterCaps('enemy_hits');
       }
 
+      applyMonsterCaps('after_assault');
       combatState.history.push(`Assaut ${combatState.assaultCount} → ${resultText}`);
       if (combatState.history.length > MAX_ASSAULT_HISTORY) {
         combatState.history = combatState.history.slice(-MAX_ASSAULT_HISTORY);
@@ -570,6 +622,16 @@ END ennemi : ${Math.max(0, combatState.enemyEndurance)}`;
       refreshCombatUi();
     }
 
+
+    function uid(){return `${Date.now()}_${Math.random().toString(36).slice(2,8)}`;}
+    function saveBestiary(){localStorage.setItem(BESTIARY_KEY, JSON.stringify(bestiary));}
+    function loadBestiary(){bestiary=JSON.parse(localStorage.getItem(BESTIARY_KEY)||'[]');}
+    function saveLastFight(monsterId){localStorage.setItem(LAST_FIGHT_KEY, monsterId||'');}
+    function applyMonsterCaps(trigger){ if(!combatState||!combatState.capacites) return; combatState.capacites.filter(c=>c.trigger===trigger).forEach(c=>{ if(!c.automatic){combatState.history.push(`⚠ Rappel: ${c.description||c.type}`);return;} if(c.type==='enemy_regeneration'){combatState.enemyEndurance += Number(c.value||0); combatState.history.push(`→ Régénération ennemi: +${c.value} END`);} else if(c.type==='hero_regeneration'){combatState.heroEndurance += Number(c.value||0); combatState.history.push(`→ Régénération héros: +${c.value} END`);} else {combatState.history.push(`ℹ ${c.type}: ${c.description||'règle spéciale'}`);} }); }
+    function renderCapabilitiesEditor(){const root=document.getElementById('capabilitiesEditor');root.innerHTML=editingCapabilities.map(c=>`<div class="cap-row"><select data-id="${c.id}" data-k="type">${CAPABILITY_TYPES.map(t=>`<option value="${t}" ${t===c.type?'selected':''}>${t}</option>`).join('')}</select><select data-id="${c.id}" data-k="trigger">${CAPABILITY_TRIGGERS.map(t=>`<option value="${t}" ${t===c.trigger?'selected':''}>${t}</option>`).join('')}</select><input data-id="${c.id}" data-k="value" type="number" value="${c.value??0}" placeholder="Valeur"><input data-id="${c.id}" data-k="description" value="${c.description||''}" placeholder="Description"><label><input data-id="${c.id}" data-k="automatic" type="checkbox" ${c.automatic?'checked':''}> Appliquer automatiquement</label><button type="button" class="danger" data-action="delete-cap" data-id="${c.id}">Supprimer capacité</button></div>`).join('');}
+    function openMonsterDialog(monster=null){const m=monster?structuredClone(monster):{id:uid(),nom:'',habilete:8,endurance:8,description:'',notes:'',tags:[],image:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),capacites:[],favorite:false,stats:{wins:0,losses:0}}; document.getElementById('monsterDialogTitle').textContent=monster?'Modifier un monstre':'Ajouter un monstre'; ['Id','Nom','Habilete','Endurance','Description','Notes','Image'].forEach(()=>{}); document.getElementById('monsterId').value=m.id;document.getElementById('monsterNom').value=m.nom;document.getElementById('monsterHabilete').value=m.habilete;document.getElementById('monsterEndurance').value=m.endurance;document.getElementById('monsterDescription').value=m.description;document.getElementById('monsterNotes').value=m.notes;document.getElementById('monsterTags').value=(m.tags||[]).join(', ');document.getElementById('monsterImage').value=m.image||'';editingCapabilities=m.capacites||[];renderCapabilitiesEditor();document.getElementById('monsterDialog').showModal();}
+    function saveMonsterFromDialog(){const id=document.getElementById('monsterId').value;const payload={id,nom:document.getElementById('monsterNom').value.trim(),habilete:parseInt(document.getElementById('monsterHabilete').value,10),endurance:parseInt(document.getElementById('monsterEndurance').value,10),description:document.getElementById('monsterDescription').value.trim(),notes:document.getElementById('monsterNotes').value.trim(),tags:document.getElementById('monsterTags').value.split(',').map(s=>s.trim()).filter(Boolean),image:document.getElementById('monsterImage').value.trim(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),capacites:editingCapabilities,favorite:false,stats:{wins:0,losses:0}};const i=bestiary.findIndex(x=>x.id===id);if(i>=0){payload.createdAt=bestiary[i].createdAt;payload.favorite=bestiary[i].favorite;payload.stats=bestiary[i].stats||payload.stats;bestiary[i]=payload;}else{bestiary.unshift(payload);} saveBestiary(); renderBestiary(); document.getElementById('monsterDialog').close();}
+    function renderBestiary(){const q=document.getElementById('bestiarySearch').value.toLowerCase().trim(); const tag=document.getElementById('bestiaryTagFilter').value; const sort=document.getElementById('bestiarySort').value; const tags=[...new Set(bestiary.flatMap(m=>m.tags||[]))].sort((a,b)=>a.localeCompare(b,'fr')); document.getElementById('bestiaryTagFilter').innerHTML='<option value="">Tous</option>'+tags.map(t=>`<option value="${t}" ${t===tag?'selected':''}>${t}</option>`).join(''); let items=bestiary.filter(m=>(!q||`${m.nom} ${m.description} ${(m.tags||[]).join(' ')}`.toLowerCase().includes(q))&&(!tag||(m.tags||[]).includes(tag))); if(sort==='alpha') items.sort((a,b)=>a.nom.localeCompare(b.nom,'fr')); if(sort==='alpha_desc') items.sort((a,b)=>b.nom.localeCompare(a.nom,'fr')); if(sort==='recent') items.sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt)); document.getElementById('bestiaryList').innerHTML=items.map(m=>`<div class="monster-card"><strong>${m.nom}</strong><div class="monster-meta">HAB ${m.habilete} • END ${m.endurance} • ${m.capacites?.length||0} capacité(s) • V:${m.stats?.wins||0}/D:${m.stats?.losses||0}</div><div class="monster-meta">${(m.tags||[]).map(t=>`#${t}`).join(' ')}</div><div class="monster-actions"><button type="button" class="primary" data-a="fight" data-id="${m.id}">Combattre</button><button type="button" class="secondary" data-a="edit" data-id="${m.id}">Modifier</button><button type="button" class="danger" data-a="del" data-id="${m.id}">Supprimer</button><button type="button" class="secondary" data-a="dup" data-id="${m.id}">Dupliquer</button><button type="button" class="secondary" data-a="fav" data-id="${m.id}">${m.favorite?'★':'☆'} Favori</button></div></div>`).join('');}
     document.getElementById('newGameBtn').addEventListener('click', newGame);
     document.getElementById('testChanceBtn').addEventListener('click', () => testCharacteristic('chance', 'Chance'));
     document.getElementById('testSkillBtn').addEventListener('click', () => testCharacteristic('habilete', 'Habileté'));
@@ -587,8 +649,23 @@ END ennemi : ${Math.max(0, combatState.enemyEndurance)}`;
     document.getElementById('autoCombatBtn').addEventListener('click', runAutoCombat);
     document.getElementById('endCombatBtn').addEventListener('click', endCombat);
     document.getElementById('closeCombatBtn').addEventListener('click', endCombat);
+    document.getElementById('addMonsterBtn').addEventListener('click',()=>openMonsterDialog());
+    document.getElementById('saveMonsterBtn').addEventListener('click', saveMonsterFromDialog);
+    document.getElementById('cancelMonsterBtn').addEventListener('click', ()=>document.getElementById('monsterDialog').close());
+    document.getElementById('addCapabilityBtn').addEventListener('click', ()=>{editingCapabilities.push({id:uid(),type:'text_note',trigger:'after_assault',value:0,description:'',automatic:false});renderCapabilitiesEditor();});
+    document.getElementById('capabilitiesEditor').addEventListener('input',(e)=>{const t=e.target;const cap=editingCapabilities.find(c=>c.id===t.dataset.id);if(!cap)return;const k=t.dataset.k;cap[k]=k==='automatic'?t.checked:(k==='value'?parseInt(t.value||'0',10):t.value);});
+    document.getElementById('capabilitiesEditor').addEventListener('click',(e)=>{const b=e.target.closest('button[data-action="delete-cap"]');if(!b)return;editingCapabilities=editingCapabilities.filter(c=>c.id!==b.dataset.id);renderCapabilitiesEditor();});
+    document.getElementById('bestiaryList').addEventListener('click',(e)=>{const b=e.target.closest('button[data-a]');if(!b)return;const m=bestiary.find(x=>x.id===b.dataset.id);if(!m)return; if(b.dataset.a==='fight'){document.getElementById('combatEnemyName').value=m.nom;document.getElementById('combatEnemySkill').value=m.habilete;document.getElementById('combatEnemyEndurance').value=m.endurance;startCombat(); if(combatState){combatState.monsterId=m.id;combatState.capacites=m.capacites||[];applyMonsterCaps('start_combat'); refreshCombatUi(); saveLastFight(m.id);} } if(b.dataset.a==='edit') openMonsterDialog(m); if(b.dataset.a==='del' && confirm(`Supprimer ${m.nom} ?`)){bestiary=bestiary.filter(x=>x.id!==m.id);saveBestiary();renderBestiary();} if(b.dataset.a==='dup'){const c=structuredClone(m);c.id=uid();c.nom=`${m.nom} (copie)`;c.createdAt=new Date().toISOString();c.updatedAt=c.createdAt;bestiary.unshift(c);saveBestiary();renderBestiary();} if(b.dataset.a==='fav'){m.favorite=!m.favorite;m.updatedAt=new Date().toISOString();saveBestiary();renderBestiary();}});
+    document.getElementById('bestiarySearch').addEventListener('input',renderBestiary);
+    document.getElementById('bestiaryTagFilter').addEventListener('change',renderBestiary);
+    document.getElementById('bestiarySort').addEventListener('change',renderBestiary);
+    document.getElementById('exportBestiaryBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(bestiary,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='bestiary.json';a.click();});
+    document.getElementById('importBestiaryInput').addEventListener('change',async(e)=>{const f=e.target.files?.[0];if(!f)return;const arr=JSON.parse(await f.text());if(Array.isArray(arr)){bestiary=arr;saveBestiary();renderBestiary();}});
+    document.getElementById('restartLastMonsterFightBtn').addEventListener('click',()=>{const id=localStorage.getItem(LAST_FIGHT_KEY);const m=bestiary.find(x=>x.id===id);if(!m)return;document.getElementById('combatEnemyName').value=m.nom;document.getElementById('combatEnemySkill').value=m.habilete;document.getElementById('combatEnemyEndurance').value=m.endurance;startCombat();if(combatState){combatState.monsterId=m.id;combatState.capacites=m.capacites||[];applyMonsterCaps('start_combat');refreshCombatUi();}});
 
     load();
+    loadBestiary();
+    renderBestiary();
     refreshCombatUi();
   </script>
 </body>
