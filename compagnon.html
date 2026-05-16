@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compagnon JDR - La Nuit du Loup-Garou</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111827;
+      color: #f9fafb;
+      line-height: 1.4;
+    }
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .card {
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    h1, h2 { margin: 0 0 .75rem; }
+    h1 { font-size: 1.45rem; }
+    h2 { font-size: 1.1rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: .75rem;
+    }
+    label {
+      display: block;
+      font-size: .9rem;
+      margin-bottom: .25rem;
+      color: #d1d5db;
+    }
+    input, textarea {
+      width: 100%;
+      border: 1px solid #4b5563;
+      background: #111827;
+      color: #f9fafb;
+      border-radius: 8px;
+      padding: .6rem;
+      font-size: 1rem;
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    .actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: .7rem .9rem;
+      font-size: .95rem;
+      cursor: pointer;
+    }
+    .primary { background: #10b981; color: #062f21; }
+    .secondary { background: #374151; color: #f9fafb; }
+    .danger { background: #ef4444; color: #fff; }
+    .status { font-size: .9rem; color: #93c5fd; margin-top: .5rem; min-height: 1.2rem; }
+    .hint { font-size: .85rem; color: #9ca3af; }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="card">
+      <h1>Compagnon JDR</h1>
+      <p>Suivi de partie pour <strong>La Nuit du Loup-Garou (Défis Fantastiques)</strong>.</p>
+      <p class="hint">Les données sont enregistrées en cookie sur ce navigateur/téléphone.</p>
+    </section>
+
+    <section class="card">
+      <h2>Progression</h2>
+      <div class="grid">
+        <div>
+          <label for="paragraphe">Paragraphe actuel</label>
+          <input id="paragraphe" type="number" min="1" />
+        </div>
+        <div>
+          <label for="pv">PV</label>
+          <input id="pv" type="number" min="0" />
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Fiche de personnage</h2>
+      <div class="grid">
+        <div><label for="habilete">Habileté</label><input id="habilete" type="number" min="0" /></div>
+        <div><label for="endurance">Endurance</label><input id="endurance" type="number" min="0" /></div>
+        <div><label for="chance">Chance</label><input id="chance" type="number" min="0" /></div>
+        <div><label for="metamorphose">Métamorphose</label><input id="metamorphose" type="number" min="0" /></div>
+        <div><label for="alarme">Alarme</label><input id="alarme" type="number" min="0" /></div>
+        <div><label for="or">Or</label><input id="or" type="number" min="0" /></div>
+        <div><label for="provisions">Provisions</label><input id="provisions" type="number" min="0" /></div>
+      </div>
+      <div style="margin-top:.75rem;">
+        <label for="equipement">Équipement</label>
+        <textarea id="equipement" placeholder="Ex: épée, corde, potion..."></textarea>
+      </div>
+      <div style="margin-top:.75rem;">
+        <label for="notes">Notes / rencontres</label>
+        <textarea id="notes" placeholder="Notes utiles pour la suite..."></textarea>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="actions">
+        <button class="primary" id="saveBtn">Enregistrer</button>
+        <button class="secondary" id="reloadBtn">Recharger</button>
+        <button class="danger" id="resetBtn">Réinitialiser</button>
+      </div>
+      <div class="status" id="status"></div>
+    </section>
+  </main>
+
+  <script>
+    const COOKIE_KEY = 'compagnon_jdr_nuit_loup_garou';
+    const fields = [
+      'paragraphe', 'pv', 'habilete', 'endurance', 'chance',
+      'metamorphose', 'alarme', 'or', 'provisions', 'equipement', 'notes'
+    ];
+
+    function setCookie(name, value, days = 365) {
+      const date = new Date();
+      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+      document.cookie = `${name}=${encodeURIComponent(value)};expires=${date.toUTCString()};path=/;SameSite=Lax`;
+    }
+
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) {
+        return decodeURIComponent(parts.pop().split(';').shift());
+      }
+      return null;
+    }
+
+    function collectData() {
+      const data = {};
+      for (const id of fields) {
+        data[id] = document.getElementById(id).value;
+      }
+      return data;
+    }
+
+    function populateData(data) {
+      for (const id of fields) {
+        if (Object.prototype.hasOwnProperty.call(data, id)) {
+          document.getElementById(id).value = data[id];
+        }
+      }
+    }
+
+    function setStatus(message) {
+      document.getElementById('status').textContent = message;
+    }
+
+    function save() {
+      setCookie(COOKIE_KEY, JSON.stringify(collectData()));
+      setStatus('Sauvegarde effectuée.');
+    }
+
+    function load() {
+      const raw = getCookie(COOKIE_KEY);
+      if (!raw) {
+        setStatus('Aucune sauvegarde trouvée.');
+        return;
+      }
+      try {
+        const data = JSON.parse(raw);
+        populateData(data);
+        setStatus('Sauvegarde rechargée.');
+      } catch (error) {
+        setStatus('Sauvegarde illisible.');
+      }
+    }
+
+    function reset() {
+      if (!confirm('Effacer toutes les données enregistrées ?')) return;
+      for (const id of fields) {
+        document.getElementById(id).value = '';
+      }
+      setCookie(COOKIE_KEY, '', -1);
+      setStatus('Données réinitialisées.');
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', save);
+    document.getElementById('reloadBtn').addEventListener('click', load);
+    document.getElementById('resetBtn').addEventListener('click', reset);
+
+    load();
+  </script>
+</body>
+</html>
