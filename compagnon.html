@@ -80,7 +80,9 @@
     .combat-cap-list{margin:.45rem 0 0;padding-left:1rem;}
     .popup-dialog{max-width:520px;width:92%;background:#0f172a;color:#f9fafb;border:1px solid #374151;border-radius:12px;padding:0;}
     .popup-inner{padding:1rem;}
-    .popup-title{margin:0 0 .45rem;font-size:1.05rem;color:#93c5fd;}
+     .popup-title{margin:0 0 .45rem;font-size:1.05rem;color:#93c5fd;}
+    .equipement-list{list-style:none;padding:0;margin:.6rem 0 0;display:grid;gap:.4rem;}
+    .equipement-item{display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.45rem .55rem;background:#0b1220;border:1px solid #334155;border-radius:8px;}
     @keyframes pulseDice { 0%,100%{opacity:1;transform:translateY(0)} 50%{opacity:.45;transform:translateY(-2px)} }
   </style>
 </head>
@@ -122,8 +124,13 @@
         <div><label for="provisions">Provisions</label><input id="provisions" type="number" min="0" /></div>
       </div>
       <div style="margin-top:.75rem;">
-        <label for="equipement">Équipement</label>
-        <textarea id="equipement" placeholder="Ex: épée, corde, potion..."></textarea>
+        <label for="equipementInput">Équipement</label>
+        <div class="actions">
+          <input id="equipementInput" type="text" placeholder="Ex: épée, corde, potion..." />
+          <button class="primary" id="addEquipementBtn" type="button">Ajouter</button>
+        </div>
+        <ul id="equipementList" class="equipement-list"></ul>
+        <textarea id="equipement" style="display:none;"></textarea>
       </div>
       <div style="margin-top:.75rem;">
         <label for="notes">Notes / rencontres</label>
@@ -273,6 +280,8 @@
       end_combat_message: "Terminer le combat avec message"
     };
     let bestiary=[]; let editingCapabilities=[];
+    let equipementItems = [];
+    let combatExpanded = false;
 
     function rollDie() {
       return Math.floor(Math.random() * 6) + 1;
@@ -423,13 +432,14 @@
         document.getElementById('chance').value = chance;
         document.getElementById('or').value = gold;
         document.getElementById('provisions').value = 10;
-        document.getElementById('equipement').value = [
+        equipementItems = [
           'Armure en cuir',
           'Bonne épée',
           'Lanterne',
           'Nécessaire pour allumer la lanterne',
           'Sac à dos'
-        ].join('\n');
+        ];
+        renderEquipementList();
 
         document.getElementById('paragraphe').value = '';
         metamorphoseActive = false;
@@ -492,6 +502,7 @@
       try {
         const data = JSON.parse(raw);
         populateData(data);
+        loadEquipementFromField();
         setStatus('Sauvegarde rechargée.');
       } catch (error) {
         setStatus('Sauvegarde illisible.');
@@ -503,6 +514,8 @@
       for (const id of fields) {
         document.getElementById(id).value = '';
       }
+      equipementItems = [];
+      renderEquipementList();
       for (const id of maxFields) {
         ensureHiddenField(id).value = '';
       }
@@ -536,9 +549,8 @@
     function refreshCombatPanelVisibility() {
       const body = document.getElementById('combatBody');
       const toggleBtn = document.getElementById('toggleCombatViewBtn');
-      const shouldShowBody = true;
-      body.classList.toggle('hidden', !shouldShowBody);
-      toggleBtn.textContent = shouldShowBody ? 'Réduire' : 'Déplier';
+      body.classList.toggle('hidden', !combatExpanded);
+      toggleBtn.textContent = combatExpanded ? 'Réduire' : 'Déplier';
     }
 
     function refreshCombatUi() {
@@ -594,6 +606,7 @@
         return;
       }
 
+      combatExpanded = true;
       combatState = {
         enemyName,
         heroSkill,
@@ -667,6 +680,7 @@ END ennemi : ${Math.max(0, combatState.enemyEndurance)}
 
 Le ${combatState.enemyName} est vaincu.`;
         showCombatPopup(`Le ${combatState.enemyName} est vaincu. Combat terminé.`);
+        combatExpanded = false;
       } else if (combatState.heroEndurance <= 0) {
         combatState.inProgress = false;
         combatState.lastResult = `Assaut ${combatState.assaultCount}
@@ -679,6 +693,7 @@ END ennemi : ${Math.max(0, combatState.enemyEndurance)}
 
 Votre personnage succombe.`;
         showCombatPopup('Votre héros succombe pendant le combat.');
+        combatExpanded = false;
       } else {
         combatState.lastResult = `Assaut ${combatState.assaultCount}
 Vous : ${heroAttackStrength}
@@ -715,6 +730,32 @@ END ennemi : ${Math.max(0, combatState.enemyEndurance)}`;
       refreshCombatUi();
     }
 
+    function syncEquipementField() {
+      document.getElementById('equipement').value = equipementItems.join('\n');
+    }
+
+    function renderEquipementList() {
+      const root = document.getElementById('equipementList');
+      root.innerHTML = equipementItems.map((item, idx) => `<li class="equipement-item"><span>${item}</span><button type="button" class="danger" data-equip-index="${idx}">Supprimer</button></li>`).join('');
+      syncEquipementField();
+    }
+
+    function loadEquipementFromField() {
+      const raw = document.getElementById('equipement').value || '';
+      equipementItems = raw.split('\n').map((line) => line.trim()).filter(Boolean);
+      renderEquipementList();
+    }
+
+    function addEquipementItem() {
+      const input = document.getElementById('equipementInput');
+      const label = input.value.trim();
+      if (!label) return;
+      equipementItems.push(label);
+      input.value = '';
+      renderEquipementList();
+      save();
+    }
+
 
     function uid(){return `${Date.now()}_${Math.random().toString(36).slice(2,8)}`;}
     function saveBestiary(){localStorage.setItem(BESTIARY_KEY, JSON.stringify(bestiary));}
@@ -747,8 +788,8 @@ END ennemi : ${Math.max(0, combatState.enemyEndurance)}`;
     document.getElementById('toggleCombatViewBtn').addEventListener('click', () => {
       const body = document.getElementById('combatBody');
       if (combatState && combatState.inProgress) { endCombat(); return; }
-      body.classList.toggle('hidden');
-      document.getElementById('toggleCombatViewBtn').textContent = body.classList.contains('hidden') ? 'Déplier' : 'Réduire';
+      combatExpanded = !combatExpanded;
+      refreshCombatPanelVisibility();
     });
     document.getElementById('toggleSelectedMonsterCapsBtn').addEventListener('click', () => {
       const wrap = document.getElementById('selectedMonsterCapsWrap');
@@ -772,8 +813,26 @@ END ennemi : ${Math.max(0, combatState.enemyEndurance)}`;
     document.getElementById('importBestiaryInput').addEventListener('change',async(e)=>{const f=e.target.files?.[0];if(!f)return;const arr=JSON.parse(await f.text());if(Array.isArray(arr)){bestiary=arr;saveBestiary();renderBestiary();}});
     document.getElementById('restartLastMonsterFightBtn').addEventListener('click',()=>{const id=localStorage.getItem(LAST_FIGHT_KEY);const m=bestiary.find(x=>x.id===id);if(!m)return;selectedMonsterForCombat=structuredClone(m);renderSelectedMonsterInfo();document.getElementById('combatEnemyName').value=m.nom;document.getElementById('combatEnemySkill').value=m.habilete;document.getElementById('combatEnemyEndurance').value=m.endurance;startCombat();if(combatState){combatState.monsterId=m.id;combatState.capacites=m.capacites||[];applyMonsterCaps('start_combat');refreshCombatUi();}});
     document.getElementById('paragraphe').addEventListener('input', () => save());
+    document.getElementById('notes').addEventListener('input', () => save());
+    document.getElementById('addEquipementBtn').addEventListener('click', addEquipementItem);
+    document.getElementById('equipementInput').addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        addEquipementItem();
+      }
+    });
+    document.getElementById('equipementList').addEventListener('click', (event) => {
+      const btn = event.target.closest('button[data-equip-index]');
+      if (!btn) return;
+      const index = parseInt(btn.dataset.equipIndex, 10);
+      if (Number.isNaN(index)) return;
+      equipementItems.splice(index, 1);
+      renderEquipementList();
+      save();
+    });
 
     load();
+    loadEquipementFromField();
     loadBestiary();
     renderBestiary();
     renderSelectedMonsterInfo();
