@@ -536,18 +536,16 @@
     function refreshCombatPanelVisibility() {
       const body = document.getElementById('combatBody');
       const toggleBtn = document.getElementById('toggleCombatViewBtn');
-      const startBtn = document.getElementById('startCombatBtn');
-      const inCombat = !!(combatState && combatState.inProgress);
-      const shouldShowBody = inCombat;
+      const shouldShowBody = true;
       body.classList.toggle('hidden', !shouldShowBody);
       toggleBtn.textContent = shouldShowBody ? 'Réduire' : 'Déplier';
-      startBtn.style.display = inCombat ? 'none' : '';
     }
 
     function refreshCombatUi() {
+      const startBtn = document.getElementById('startCombatBtn');
       const assaultBtn = document.getElementById('assaultBtn');
       const autoBtn = document.getElementById('autoCombatBtn');
-      const closeBtn = document.getElementById('closeCombatBtn');
+      const endBtn = document.getElementById('endCombatBtn');
       const enemyName = document.getElementById('combatEnemyNameCurrent');
       const heroEndurance = document.getElementById('combatHeroEndurance');
       const enemyEndurance = document.getElementById('combatEnemyEnduranceCurrent');
@@ -555,9 +553,12 @@
       const history = document.getElementById('combatHistory');
 
       if (!combatState) {
+        startBtn.style.display = '';
         assaultBtn.disabled = true;
+        assaultBtn.style.display = 'none';
         autoBtn.disabled = true;
-        closeBtn.style.display = 'none';
+        autoBtn.style.display = 'none';
+        endBtn.style.display = 'none';
         enemyName.textContent = '—';
         heroEndurance.textContent = '—';
         enemyEndurance.textContent = '—';
@@ -567,9 +568,12 @@
         return;
       }
 
+      startBtn.style.display = combatState.inProgress ? 'none' : '';
       assaultBtn.disabled = !combatState.inProgress || combatState.autoRunning;
+      assaultBtn.style.display = combatState.inProgress ? '' : 'none';
       autoBtn.disabled = !combatState.inProgress || combatState.autoRunning;
-      closeBtn.style.display = combatState.inProgress ? 'none' : '';
+      autoBtn.style.display = combatState.inProgress ? '' : 'none';
+      endBtn.style.display = combatState.inProgress ? '' : 'none';
       enemyName.textContent = combatState.enemyName;
       heroEndurance.textContent = combatState.heroEndurance;
       enemyEndurance.textContent = combatState.enemyEndurance;
@@ -662,6 +666,7 @@ END héros : ${Math.max(0, combatState.heroEndurance)}
 END ennemi : ${Math.max(0, combatState.enemyEndurance)}
 
 Le ${combatState.enemyName} est vaincu.`;
+        showCombatPopup(`Le ${combatState.enemyName} est vaincu. Combat terminé.`);
       } else if (combatState.heroEndurance <= 0) {
         combatState.inProgress = false;
         combatState.lastResult = `Assaut ${combatState.assaultCount}
