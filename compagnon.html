@@ -135,6 +135,38 @@
       <div class="status" id="status"></div>
       <div class="dice-box" id="diceResult"></div>
     </section>
+
+    <section class="card">
+      <h2>Combat</h2>
+      <div class="grid">
+        <div>
+          <label for="combatEnemyName">Nom de l’ennemi</label>
+          <input id="combatEnemyName" type="text" value="Gobelin" />
+        </div>
+        <div>
+          <label for="combatEnemySkill">Habileté de l’ennemi</label>
+          <input id="combatEnemySkill" type="number" min="0" value="8" />
+        </div>
+        <div>
+          <label for="combatEnemyEndurance">Endurance de l’ennemi</label>
+          <input id="combatEnemyEndurance" type="number" min="1" value="10" />
+        </div>
+      </div>
+      <div class="actions" style="margin-top:.6rem;">
+        <button class="primary" id="startCombatBtn">Démarrer le combat</button>
+        <button class="secondary" id="assaultBtn" disabled>Lancer un assaut</button>
+        <button class="danger" id="endCombatBtn">Terminer le combat</button>
+      </div>
+      <div class="status" id="combatResultStatus"></div>
+      <div class="grid" style="margin-top:.6rem;">
+        <div>Endurance actuelle du héros : <strong id="combatHeroEndurance">—</strong></div>
+        <div>Endurance actuelle de l’ennemi : <strong id="combatEnemyEnduranceCurrent">—</strong></div>
+        <div>Force d’attaque du héros : <strong id="combatHeroAttackStrength">—</strong></div>
+        <div>Force d’attaque de l’ennemi : <strong id="combatEnemyAttackStrength">—</strong></div>
+      </div>
+      <h3 style="margin-bottom:.5rem;">Historique court des assauts</h3>
+      <ul id="combatHistory"></ul>
+    </section>
   </main>
 
   <script>
@@ -147,6 +179,8 @@
 
     const maxFields = ['habileteMax', 'enduranceMax', 'chanceMax'];
     let metamorphoseActive = false;
+    const MAX_ASSAULT_HISTORY = 10;
+    let combatState = null;
 
     function rollDie() {
       return Math.floor(Math.random() * 6) + 1;
@@ -381,6 +415,106 @@
       localStorage.removeItem(STORAGE_KEY);
       setStatus('Données réinitialisées.');
       setDiceMessage('');
+      endCombat();
+    }
+
+    function refreshCombatUi() {
+      const assaultBtn = document.getElementById('assaultBtn');
+      const heroEndurance = document.getElementById('combatHeroEndurance');
+      const enemyEndurance = document.getElementById('combatEnemyEnduranceCurrent');
+      const heroAttack = document.getElementById('combatHeroAttackStrength');
+      const enemyAttack = document.getElementById('combatEnemyAttackStrength');
+      const status = document.getElementById('combatResultStatus');
+      const history = document.getElementById('combatHistory');
+
+      if (!combatState) {
+        assaultBtn.disabled = true;
+        heroEndurance.textContent = '—';
+        enemyEndurance.textContent = '—';
+        heroAttack.textContent = '—';
+        enemyAttack.textContent = '—';
+        status.textContent = '';
+        history.innerHTML = '';
+        return;
+      }
+
+      assaultBtn.disabled = !combatState.inProgress;
+      heroEndurance.textContent = combatState.heroEndurance;
+      enemyEndurance.textContent = combatState.enemyEndurance;
+      heroAttack.textContent = combatState.heroAttackStrength ?? '—';
+      enemyAttack.textContent = combatState.enemyAttackStrength ?? '—';
+      status.textContent = combatState.lastResult;
+      history.innerHTML = combatState.history.map((line) => `<li>${line}</li>`).join('');
+    }
+
+    function startCombat() {
+      const heroSkill = parseInt(document.getElementById('habilete').value, 10);
+      const heroEndurance = parseInt(document.getElementById('endurance').value, 10);
+      const enemyName = document.getElementById('combatEnemyName').value.trim() || 'Ennemi';
+      const enemySkill = parseInt(document.getElementById('combatEnemySkill').value, 10);
+      const enemyEndurance = parseInt(document.getElementById('combatEnemyEndurance').value, 10);
+
+      if ([heroSkill, heroEndurance, enemySkill, enemyEndurance].some((v) => Number.isNaN(v))) {
+        setStatus('Combat impossible : renseigne Habileté/Endurance du héros et de l’ennemi.');
+        return;
+      }
+
+      combatState = {
+        enemyName,
+        heroSkill,
+        heroEndurance,
+        enemySkill,
+        enemyEndurance,
+        heroAttackStrength: null,
+        enemyAttackStrength: null,
+        lastResult: 'Combat démarré.',
+        history: [],
+        assaultCount: 0,
+        inProgress: true
+      };
+      refreshCombatUi();
+    }
+
+    function launchAssault() {
+      if (!combatState || !combatState.inProgress) return;
+      const heroRolls = rollDice(2);
+      const enemyRolls = rollDice(2);
+      combatState.heroAttackStrength = sum(heroRolls) + combatState.heroSkill;
+      combatState.enemyAttackStrength = sum(enemyRolls) + combatState.enemySkill;
+      combatState.assaultCount += 1;
+
+      let resultText = 'Égalité, aucun dégât.';
+      if (combatState.heroAttackStrength > combatState.enemyAttackStrength) {
+        combatState.enemyEndurance -= 2;
+        resultText = `${combatState.enemyName} blessé (-2 END).`;
+      } else if (combatState.enemyAttackStrength > combatState.heroAttackStrength) {
+        combatState.heroEndurance -= 2;
+        resultText = 'Héros blessé (-2 END).';
+      }
+
+      combatState.history.push(`Assaut ${combatState.assaultCount} : Héros ${combatState.heroAttackStrength} / Ennemi ${combatState.enemyAttackStrength} → ${resultText}`);
+      if (combatState.history.length > MAX_ASSAULT_HISTORY) {
+        combatState.history = combatState.history.slice(-MAX_ASSAULT_HISTORY);
+      }
+
+      document.getElementById('endurance').value = Math.max(0, combatState.heroEndurance);
+
+      if (combatState.enemyEndurance <= 0) {
+        combatState.inProgress = false;
+        combatState.lastResult = 'Ennemi vaincu';
+      } else if (combatState.heroEndurance <= 0) {
+        combatState.inProgress = false;
+        combatState.lastResult = 'Votre personnage est mort';
+      } else {
+        combatState.lastResult = resultText;
+      }
+      save();
+      refreshCombatUi();
+    }
+
+    function endCombat() {
+      combatState = null;
+      refreshCombatUi();
     }
 
     document.getElementById('newGameBtn').addEventListener('click', newGame);
@@ -395,8 +529,12 @@
       applyMetamorphoseValue(event.target.value);
       save();
     });
+    document.getElementById('startCombatBtn').addEventListener('click', startCombat);
+    document.getElementById('assaultBtn').addEventListener('click', launchAssault);
+    document.getElementById('endCombatBtn').addEventListener('click', endCombat);
 
     load();
+    refreshCombatUi();
   </script>
 </body>
 </html>
