@@ -65,6 +65,9 @@
     .hint { font-size: .85rem; color: #9ca3af; }
     .max-info { color: #93c5fd; font-size: .82rem; }
     .dice-box { margin-top: .5rem; min-height: 1.4rem; color: #fde68a; font-weight: 700; }
+    .metamorphose-controls { display: flex; gap: .5rem; align-items: center; }
+    .metamorphose-controls input { text-align: center; }
+    .metamorphose-controls button { padding: .55rem .7rem; min-width: 2.2rem; }
     .rolling { animation: pulseDice .5s ease-in-out 4; }
     @keyframes pulseDice { 0%,100%{opacity:1;transform:translateY(0)} 50%{opacity:.45;transform:translateY(-2px)} }
   </style>
@@ -97,7 +100,15 @@
         <div><label for="habilete">Habileté <span class="max-info" id="habileteMaxDisplay">(max: —)</span></label><input id="habilete" type="number" min="0" /></div>
         <div><label for="endurance">Endurance <span class="max-info" id="enduranceMaxDisplay">(max: —)</span></label><input id="endurance" type="number" min="0" /></div>
         <div><label for="chance">Chance <span class="max-info" id="chanceMaxDisplay">(max: —)</span></label><input id="chance" type="number" min="0" /></div>
-        <div><label for="metamorphose">Métamorphose</label><input id="metamorphose" type="number" min="0" /></div>
+        <div>
+          <label for="metamorphose">Métamorphose</label>
+          <div class="metamorphose-controls">
+            <button type="button" class="secondary" id="metamorphoseMinusBtn" aria-label="Diminuer la Métamorphose">-</button>
+            <input id="metamorphose" type="number" min="0" />
+            <button type="button" class="secondary" id="metamorphosePlusBtn" aria-label="Augmenter la Métamorphose">+</button>
+          </div>
+          <p class="hint">La Métamorphose commence à 0. Dès qu’elle a commencé, elle ne peut plus redescendre sous 1.</p>
+        </div>
         <div><label for="alarme">Alarme</label><input id="alarme" type="number" min="0" /></div>
         <div><label for="or">Or</label><input id="or" type="number" min="0" /></div>
         <div><label for="provisions">Provisions</label><input id="provisions" type="number" min="0" /></div>
@@ -128,12 +139,14 @@
 
   <script>
     const COOKIE_KEY = 'compagnon_jdr_nuit_loup_garou';
+    const STORAGE_KEY = COOKIE_KEY;
     const fields = [
       'paragraphe', 'pv', 'habilete', 'endurance', 'chance',
       'metamorphose', 'alarme', 'or', 'provisions', 'equipement', 'notes'
     ];
 
     const maxFields = ['habileteMax', 'enduranceMax', 'chanceMax'];
+    let metamorphoseActive = false;
 
     function rollDie() {
       return Math.floor(Math.random() * 6) + 1;
@@ -170,6 +183,7 @@
       for (const id of maxFields) {
         data[id] = document.getElementById(id)?.value || '';
       }
+      data.metamorphoseActive = metamorphoseActive;
       return data;
     }
 
@@ -184,7 +198,33 @@
           ensureHiddenField(id).value = data[id];
         }
       }
+      metamorphoseActive = data.metamorphoseActive === true;
+      applyMetamorphoseValue(document.getElementById('metamorphose').value);
       refreshMaxDisplay();
+    }
+
+    function getMetamorphoseMin() {
+      return metamorphoseActive ? 1 : 0;
+    }
+
+    function applyMetamorphoseValue(nextValue) {
+      const parsed = parseInt(nextValue, 10);
+      const safeValue = Number.isNaN(parsed) ? getMetamorphoseMin() : parsed;
+      if (safeValue > 0) {
+        metamorphoseActive = true;
+      }
+      const minMetamorphose = getMetamorphoseMin();
+      const finalValue = Math.max(minMetamorphose, safeValue);
+      const metamorphoseField = document.getElementById('metamorphose');
+      metamorphoseField.min = String(minMetamorphose);
+      metamorphoseField.value = finalValue;
+    }
+
+    function adjustMetamorphose(delta) {
+      const current = parseInt(document.getElementById('metamorphose').value, 10);
+      const startValue = Number.isNaN(current) ? getMetamorphoseMin() : current;
+      applyMetamorphoseValue(startValue + delta);
+      save();
     }
 
     function setStatus(message) {
@@ -260,7 +300,8 @@
 
         document.getElementById('paragraphe').value = '';
         document.getElementById('pv').value = '';
-        document.getElementById('metamorphose').value = '';
+        metamorphoseActive = false;
+        applyMetamorphoseValue(0);
         document.getElementById('alarme').value = '';
         document.getElementById('notes').value = '';
 
@@ -303,12 +344,14 @@
     }
 
     function save() {
-      setCookie(COOKIE_KEY, JSON.stringify(collectData()));
+      const payload = JSON.stringify(collectData());
+      setCookie(COOKIE_KEY, payload);
+      localStorage.setItem(STORAGE_KEY, payload);
       setStatus('Sauvegarde effectuée.');
     }
 
     function load() {
-      const raw = getCookie(COOKIE_KEY);
+      const raw = localStorage.getItem(STORAGE_KEY) || getCookie(COOKIE_KEY);
       if (!raw) {
         setStatus('Aucune sauvegarde trouvée.');
         refreshMaxDisplay();
@@ -331,8 +374,11 @@
       for (const id of maxFields) {
         ensureHiddenField(id).value = '';
       }
+      metamorphoseActive = false;
+      document.getElementById('metamorphose').min = '0';
       refreshMaxDisplay();
       setCookie(COOKIE_KEY, '', -1);
+      localStorage.removeItem(STORAGE_KEY);
       setStatus('Données réinitialisées.');
       setDiceMessage('');
     }
@@ -343,6 +389,12 @@
     document.getElementById('saveBtn').addEventListener('click', save);
     document.getElementById('reloadBtn').addEventListener('click', load);
     document.getElementById('resetBtn').addEventListener('click', reset);
+    document.getElementById('metamorphosePlusBtn').addEventListener('click', () => adjustMetamorphose(1));
+    document.getElementById('metamorphoseMinusBtn').addEventListener('click', () => adjustMetamorphose(-1));
+    document.getElementById('metamorphose').addEventListener('input', (event) => {
+      applyMetamorphoseValue(event.target.value);
+      save();
+    });
 
     load();
   </script>
