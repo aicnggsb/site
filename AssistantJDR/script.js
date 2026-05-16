@@ -1,4 +1,6 @@
 let monsterCount = 1;
+const MAX_ASSAULT_HISTORY = 10;
+let singleEnemyCombat = null;
 
 function addMonster() {
     monsterCount++;
@@ -141,3 +143,119 @@ function simulateCombat() {
     // Afficher le journal de combat
     document.getElementById('combatLog').innerHTML = combatLog.join('<br>');
 }
+
+function roll2d6() {
+    return rollDice(2);
+}
+
+function updateSingleEnemyDisplay() {
+    const heroEnduranceEl = document.getElementById('heroCurrentEndurance');
+    const enemyEnduranceEl = document.getElementById('enemyCurrentEndurance');
+    const heroAttackStrengthEl = document.getElementById('heroAttackStrength');
+    const enemyAttackStrengthEl = document.getElementById('enemyAttackStrength');
+    const lastAssaultResultEl = document.getElementById('lastAssaultResult');
+    const assaultBtn = document.getElementById('assaultBtn');
+    const historyEl = document.getElementById('assaultHistory');
+
+    if (!singleEnemyCombat) {
+        heroEnduranceEl.textContent = '-';
+        enemyEnduranceEl.textContent = '-';
+        heroAttackStrengthEl.textContent = '-';
+        enemyAttackStrengthEl.textContent = '-';
+        lastAssaultResultEl.textContent = 'Aucun';
+        assaultBtn.disabled = true;
+        historyEl.innerHTML = '';
+        return;
+    }
+
+    heroEnduranceEl.textContent = singleEnemyCombat.heroEndurance;
+    enemyEnduranceEl.textContent = singleEnemyCombat.enemyEndurance;
+    heroAttackStrengthEl.textContent = singleEnemyCombat.heroAttackStrength ?? '-';
+    enemyAttackStrengthEl.textContent = singleEnemyCombat.enemyAttackStrength ?? '-';
+    lastAssaultResultEl.textContent = singleEnemyCombat.lastResult || 'Aucun';
+    assaultBtn.disabled = !singleEnemyCombat.inProgress;
+
+    historyEl.innerHTML = singleEnemyCombat.history
+        .map((entry) => `<li>${entry}</li>`)
+        .join('');
+}
+
+function startSingleEnemyCombat() {
+    const enemyName = document.getElementById('enemyName').value.trim() || 'Ennemi';
+    const enemySkill = parseInt(document.getElementById('enemySkill').value, 10);
+    const enemyEndurance = parseInt(document.getElementById('enemyEndurance').value, 10);
+    const heroSkill = parseInt(document.getElementById('heroAttack').value, 10);
+    const heroEndurance = parseInt(document.getElementById('heroPV').value, 10);
+
+    if ([enemySkill, enemyEndurance, heroSkill, heroEndurance].some((value) => Number.isNaN(value))) {
+        return;
+    }
+
+    singleEnemyCombat = {
+        enemyName,
+        heroSkill,
+        heroEndurance,
+        enemySkill,
+        enemyEndurance,
+        heroAttackStrength: null,
+        enemyAttackStrength: null,
+        lastResult: 'Combat démarré.',
+        history: [],
+        assaultCount: 0,
+        inProgress: true
+    };
+
+    updateSingleEnemyDisplay();
+}
+
+function launchAssault() {
+    if (!singleEnemyCombat || !singleEnemyCombat.inProgress) {
+        return;
+    }
+
+    const enemyRoll = roll2d6();
+    const heroRoll = roll2d6();
+    singleEnemyCombat.enemyAttackStrength = enemyRoll + singleEnemyCombat.enemySkill;
+    singleEnemyCombat.heroAttackStrength = heroRoll + singleEnemyCombat.heroSkill;
+    singleEnemyCombat.assaultCount += 1;
+
+    let resultText = '';
+    if (singleEnemyCombat.heroAttackStrength > singleEnemyCombat.enemyAttackStrength) {
+        singleEnemyCombat.enemyEndurance -= 2;
+        resultText = `${singleEnemyCombat.enemyName} blessé (-2 END).`;
+    } else if (singleEnemyCombat.enemyAttackStrength > singleEnemyCombat.heroAttackStrength) {
+        singleEnemyCombat.heroEndurance -= 2;
+        resultText = `Héros blessé (-2 END).`;
+    } else {
+        resultText = 'Égalité, aucun dégât.';
+    }
+
+    const line = `Assaut ${singleEnemyCombat.assaultCount} : Héros ${singleEnemyCombat.heroAttackStrength} / Ennemi ${singleEnemyCombat.enemyAttackStrength} → ${resultText}`;
+    singleEnemyCombat.history.push(line);
+    if (singleEnemyCombat.history.length > MAX_ASSAULT_HISTORY) {
+        singleEnemyCombat.history = singleEnemyCombat.history.slice(-MAX_ASSAULT_HISTORY);
+    }
+
+    if (singleEnemyCombat.enemyEndurance <= 0) {
+        singleEnemyCombat.inProgress = false;
+        singleEnemyCombat.lastResult = 'Ennemi vaincu';
+    } else if (singleEnemyCombat.heroEndurance <= 0) {
+        singleEnemyCombat.inProgress = false;
+        singleEnemyCombat.lastResult = 'Votre personnage est mort';
+    } else {
+        singleEnemyCombat.lastResult = resultText;
+    }
+
+    updateSingleEnemyDisplay();
+}
+
+function endSingleEnemyCombat() {
+    singleEnemyCombat = null;
+    updateSingleEnemyDisplay();
+}
+
+document.getElementById('startCombatBtn').addEventListener('click', startSingleEnemyCombat);
+document.getElementById('assaultBtn').addEventListener('click', launchAssault);
+document.getElementById('endCombatBtn').addEventListener('click', endSingleEnemyCombat);
+
+updateSingleEnemyDisplay();
