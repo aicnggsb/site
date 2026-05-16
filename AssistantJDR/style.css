@@ -1,78 +1,45 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background-color: #f0f0f0;
+:root {
+  --bg: #121019;
+  --panel: #1d1a27;
+  --text: #f3edf7;
+  --muted: #b2a8c2;
+  --primary: #9b6dff;
+  --secondary: #3a334a;
+  --danger: #d45757;
+  --ok: #65c18c;
 }
-
-h1 {
-    text-align: center;
-}
-
-form {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-fieldset {
-    margin-bottom: 20px;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-input {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007BFF;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-#combatLog {
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-#singleEnemyCombatSection {
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.combat-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-#assaultHistoryContainer ul {
-    padding-left: 20px;
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Inter, Arial, sans-serif; background: radial-gradient(circle at top, #251f33, var(--bg)); color: var(--text); }
+.app-shell { max-width: 860px; margin: 0 auto; padding: 14px; }
+.app-header { text-align: center; margin-bottom: 10px; }
+.app-header p { color: var(--muted); }
+.panel { background: var(--panel); border: 1px solid #2f2940; border-radius: 14px; padding: 12px; margin-bottom: 12px; }
+.panel-title-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.panel-sub { margin-top: 10px; border-top: 1px solid #342d45; padding-top: 10px; }
+label { display: block; font-size: 0.9rem; margin-top: 8px; color: var(--muted); }
+input, textarea, select, button { width: 100%; border-radius: 10px; border: 1px solid #3a334a; padding: 10px; font-size: 1rem; background: #171420; color: var(--text); }
+button, .btn-like { background: var(--primary); border: 0; color: white; font-weight: 700; cursor: pointer; text-align: center; }
+button.secondary, .btn-like.secondary { background: var(--secondary); }
+button.danger { background: var(--danger); }
+fieldset { border: 1px solid #342d45; border-radius: 12px; margin-top: 8px; }
+legend { color: var(--muted); }
+.combat-buttons { display: grid; gap: 8px; margin-top: 10px; }
+.status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+#assaultHistory { padding-left: 20px; max-height: 240px; overflow: auto; }
+.filters-row, .actions-inline, .card-actions { display: grid; gap: 8px; }
+.filters-row { grid-template-columns: 1fr; margin: 10px 0; }
+.cards-grid { display: grid; gap: 8px; }
+.monster-card { background: #171420; border: 1px solid #312943; border-radius: 12px; padding: 10px; display: grid; gap: 8px; }
+.monster-card.favorite { border-color: #c79b2f; box-shadow: 0 0 0 1px #c79b2f inset; }
+.tags { color: #8de0ff; font-size: 0.9rem; }
+.card-actions button { padding: 8px; }
+.cap-row { display: grid; grid-template-columns: 1fr; gap: 6px; margin-bottom: 8px; padding: 8px; background: #14111d; border-radius: 10px; }
+dialog { width: min(96vw, 800px); border: 1px solid #3f3658; border-radius: 14px; background: #201b2e; color: var(--text); }
+.dialog-actions { display: grid; gap: 8px; margin-top: 8px; }
+@media (min-width: 720px) {
+  .filters-row { grid-template-columns: 2fr 1fr 1fr; }
+  .actions-inline { grid-template-columns: repeat(3, minmax(140px, 1fr)); }
+  .card-actions { grid-template-columns: repeat(5, minmax(100px, 1fr)); }
+  .cap-row { grid-template-columns: repeat(6, minmax(80px, 1fr)); align-items: center; }
+  .dialog-actions { grid-template-columns: 1fr 1fr; }
 }
