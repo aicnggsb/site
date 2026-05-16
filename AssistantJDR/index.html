@@ -3,74 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulation de Combat - La Geste de Gurdill</title>
+    <title>Compagnon de lecture - La Nuit du Loup-Garou</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Simulation de Combat - La Geste de Gurdill</h1>
-    <form id="combatForm">
-        <fieldset>
-            <legend>Héros</legend>
-            <label for="heroAttack">Attaque:</label>
-            <input type="number" id="heroAttack" name="heroAttack" value="12" required><br>
-            <label for="heroDefense">Défense:</label>
-            <input type="number" id="heroDefense" name="heroDefense" value="8" required><br>
-            <label for="heroPR">PR:</label>
-            <input type="number" id="heroPR" name="heroPR" value="7" required><br>
-            <label for="heroPV">PV:</label>
-            <input type="number" id="heroPV" name="heroPV" required><br>
-            <label for="heroDamage">Dégâts:</label>
-            <input type="string" id="heroDamage" name="heroDamage" value="1D+7" required><br>
-        </fieldset>
-        <div id="monsters">
-            <fieldset class="monster">
-                <legend>Monstre 1</legend>
-                <label for="monsterAttack1">Attaque:</label>
-                <input type="number" id="monsterAttack1" name="monsterAttack" value="12" required><br>
-                <label for="monsterDefense1">Défense:</label>
-                <input type="number" id="monsterDefense1" name="monsterDefense" value="8" required><br>
-                <label for="monsterPR1">PR:</label>
-                <input type="number" id="monsterPR1" name="monsterPR" value="5" required><br>
-                <label for="monsterPV1">PV:</label>
-                <input type="number" id="monsterPV1" name="monsterPV" value="20" required><br>
-                <label for="monsterDamage1">Dégâts:</label>
-                <input type="string" id="monsterDamage1" name="monsterDamage" value="1D+6" required><br>
-				<label for="monsterCritDamage1">Si critique, dégâts:</label>
-                <input type="string" id="monsterCritDamage1" name="monsterCritDamage" value="2D+6" required><br>
+    <main class="app-shell">
+        <header class="app-header">
+            <h1>Compagnon de lecture</h1>
+            <p>La Nuit du Loup-Garou — Combat automatique &amp; Bestiaire</p>
+        </header>
+
+        <section id="singleEnemyCombatSection" class="panel">
+            <div class="panel-title-row">
+                <h2>Combat rapide</h2>
+                <button type="button" id="restartLastFightBtn" class="secondary">Relancer dernier combat</button>
+            </div>
+            <fieldset>
+                <legend>Héros</legend>
+                <label for="heroSkill">HABILETÉ</label>
+                <input type="number" id="heroSkill" value="10" min="0" required>
+                <label for="heroEndurance">ENDURANCE</label>
+                <input type="number" id="heroEndurance" value="18" min="1" required>
             </fieldset>
-        </div>
-        <button type="button" onclick="addMonster()">Ajouter un Monstre</button>
-        <button type="button" onclick="simulateCombat()">Simuler le Combat</button>
-    </form>
-    <section id="singleEnemyCombatSection">
-        <h2>Combat</h2>
-        <fieldset>
-            <legend>Adversaire unique</legend>
-            <label for="enemyName">Nom de l’ennemi :</label>
-            <input type="text" id="enemyName" name="enemyName" value="Gobelin" required><br>
-            <label for="enemySkill">Habileté de l’ennemi :</label>
-            <input type="number" id="enemySkill" name="enemySkill" value="8" min="0" required><br>
-            <label for="enemyEndurance">Endurance de l’ennemi :</label>
-            <input type="number" id="enemyEndurance" name="enemyEndurance" value="10" min="1" required><br>
-        </fieldset>
-        <div class="combat-buttons">
-            <button type="button" id="startCombatBtn">Démarrer le combat</button>
-            <button type="button" id="assaultBtn" disabled>Lancer un assaut</button>
-            <button type="button" id="endCombatBtn">Terminer le combat</button>
-        </div>
-        <div id="combatStatus">
-            <p>Endurance actuelle du héros : <strong id="heroCurrentEndurance">-</strong></p>
-            <p>Endurance actuelle de l’ennemi : <strong id="enemyCurrentEndurance">-</strong></p>
-            <p>Force d’attaque du héros : <strong id="heroAttackStrength">-</strong></p>
-            <p>Force d’attaque de l’ennemi : <strong id="enemyAttackStrength">-</strong></p>
-            <p>Résultat du dernier assaut : <strong id="lastAssaultResult">Aucun</strong></p>
-        </div>
-        <div id="assaultHistoryContainer">
-            <h3>Historique court des assauts</h3>
-            <ul id="assaultHistory"></ul>
-        </div>
-    </section>
-    <div id="combatLog"></div>
+            <fieldset>
+                <legend>Adversaire</legend>
+                <label for="enemyName">Nom</label>
+                <input type="text" id="enemyName" value="Gobelin" required>
+                <label for="enemySkill">HABILETÉ</label>
+                <input type="number" id="enemySkill" value="8" min="0" required>
+                <label for="enemyEndurance">ENDURANCE</label>
+                <input type="number" id="enemyEndurance" value="10" min="1" required>
+            </fieldset>
+            <div class="combat-buttons">
+                <button type="button" id="startCombatBtn">Démarrer le combat</button>
+                <button type="button" id="assaultBtn" disabled>Lancer un assaut</button>
+                <button type="button" id="endCombatBtn" class="danger">Terminer le combat</button>
+            </div>
+            <div id="combatStatus" class="status-grid"></div>
+            <div id="assaultHistoryContainer">
+                <h3>Journal de combat</h3>
+                <ul id="assaultHistory"></ul>
+            </div>
+        </section>
+
+        <section id="bestiarySection" class="panel">
+            <div class="panel-title-row">
+                <h2>Bestiaire</h2>
+                <div class="actions-inline">
+                    <button type="button" id="exportBestiaryBtn" class="secondary">Exporter JSON</button>
+                    <label for="importBestiaryInput" class="btn-like secondary">Importer JSON</label>
+                    <input type="file" id="importBestiaryInput" accept="application/json" hidden>
+                    <button type="button" id="addBestiaryBtn">+ Ajouter au bestiaire</button>
+                </div>
+            </div>
+
+            <div class="filters-row">
+                <input type="search" id="searchMonsterInput" placeholder="Rechercher un monstre...">
+                <select id="tagFilterSelect">
+                    <option value="">Tous les tags</option>
+                </select>
+                <select id="sortSelect">
+                    <option value="alpha_asc">A → Z</option>
+                    <option value="alpha_desc">Z → A</option>
+                    <option value="recent">Plus récents</option>
+                </select>
+            </div>
+
+            <div id="bestiaryList" class="cards-grid"></div>
+        </section>
+    </main>
+
+    <dialog id="monsterDialog">
+        <form method="dialog" id="monsterForm" class="dialog-body">
+            <h3 id="dialogTitle">Ajouter un monstre</h3>
+            <input type="hidden" id="monsterId">
+
+            <label for="monsterNom">Nom du monstre</label>
+            <input id="monsterNom" type="text" required>
+
+            <label for="monsterHabilete">HABILETÉ</label>
+            <input id="monsterHabilete" type="number" min="0" required>
+
+            <label for="monsterEndurance">ENDURANCE</label>
+            <input id="monsterEndurance" type="number" min="1" required>
+
+            <label for="monsterDescription">Description courte</label>
+            <textarea id="monsterDescription" rows="2"></textarea>
+
+            <label for="monsterNotes">Notes libres</label>
+            <textarea id="monsterNotes" rows="3"></textarea>
+
+            <label for="monsterTags">Tags (séparés par des virgules)</label>
+            <input id="monsterTags" type="text" placeholder="undead, boss, nocturne">
+
+            <label for="monsterImage">URL/image optionnelle</label>
+            <input id="monsterImage" type="url" placeholder="https://...">
+
+            <div class="panel-sub">
+                <div class="panel-title-row">
+                    <h4>Capacités spéciales</h4>
+                    <button type="button" id="addCapabilityBtn" class="secondary">+ Ajouter une capacité</button>
+                </div>
+                <div id="capabilitiesList"></div>
+            </div>
+
+            <div class="dialog-actions">
+                <button type="button" id="saveMonsterBtn">Enregistrer</button>
+                <button type="button" id="cancelMonsterBtn" class="secondary">Annuler</button>
+            </div>
+        </form>
+    </dialog>
 
     <script src="script.js"></script>
 </body>
