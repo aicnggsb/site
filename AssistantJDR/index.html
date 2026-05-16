@@ -42,6 +42,34 @@
         <button type="button" onclick="addMonster()">Ajouter un Monstre</button>
         <button type="button" onclick="simulateCombat()">Simuler le Combat</button>
     </form>
+    <section id="singleEnemyCombatSection">
+        <h2>Combat</h2>
+        <fieldset>
+            <legend>Adversaire unique</legend>
+            <label for="enemyName">Nom de l’ennemi :</label>
+            <input type="text" id="enemyName" name="enemyName" value="Gobelin" required><br>
+            <label for="enemySkill">Habileté de l’ennemi :</label>
+            <input type="number" id="enemySkill" name="enemySkill" value="8" min="0" required><br>
+            <label for="enemyEndurance">Endurance de l’ennemi :</label>
+            <input type="number" id="enemyEndurance" name="enemyEndurance" value="10" min="1" required><br>
+        </fieldset>
+        <div class="combat-buttons">
+            <button type="button" id="startCombatBtn">Démarrer le combat</button>
+            <button type="button" id="assaultBtn" disabled>Lancer un assaut</button>
+            <button type="button" id="endCombatBtn">Terminer le combat</button>
+        </div>
+        <div id="combatStatus">
+            <p>Endurance actuelle du héros : <strong id="heroCurrentEndurance">-</strong></p>
+            <p>Endurance actuelle de l’ennemi : <strong id="enemyCurrentEndurance">-</strong></p>
+            <p>Force d’attaque du héros : <strong id="heroAttackStrength">-</strong></p>
+            <p>Force d’attaque de l’ennemi : <strong id="enemyAttackStrength">-</strong></p>
+            <p>Résultat du dernier assaut : <strong id="lastAssaultResult">Aucun</strong></p>
+        </div>
+        <div id="assaultHistoryContainer">
+            <h3>Historique court des assauts</h3>
+            <ul id="assaultHistory"></ul>
+        </div>
+    </section>
     <div id="combatLog"></div>
 
     <script src="script.js"></script>
