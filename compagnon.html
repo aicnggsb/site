@@ -320,7 +320,7 @@
     const BESTIARY_KEY = "compagnon_jdr_bestiary_v1";
     const LAST_FIGHT_KEY = "compagnon_jdr_lastfight_v1";
     const CAPABILITY_TRIGGERS = ["start_combat","before_assault","hero_hits","enemy_hits","after_assault","end_combat","enemy_consecutive_successes","enemy_success_count"];
-    const CAPABILITY_ACTIONS = ["message_only","end_combat_message","increase_metamorphose"];
+    const CAPABILITY_ACTIONS = ["message_only","end_combat_message","increase_metamorphose","roll_endurance_plus_five"];
     const CAPABILITY_TRIGGER_LABELS = {
       start_combat: "Au début du combat",
       before_assault: "Avant un assaut",
@@ -334,7 +334,8 @@
     const CAPABILITY_ACTION_LABELS = {
       message_only: "Afficher un message",
       end_combat_message: "Terminer le combat avec message",
-      increase_metamorphose: "Augmenter la métamorphose de X"
+      increase_metamorphose: "Augmenter la métamorphose de X",
+      roll_endurance_plus_five: "END = 1d6 + 5 (+1 HAB si 6)"
     };
     let bestiary=[]; let editingCapabilities=[];
     let equipementItems = [];
@@ -649,6 +650,7 @@
       if (c.trigger === 'end_combat') triggerText = 'si le combat se termine';
       let actionText = 'alors un effet est appliqué';
       if (actionType === 'increase_metamorphose') actionText = `alors augmente la métamorphose de ${metamorphoseAmount}`;
+      if (actionType === 'roll_endurance_plus_five') actionText = 'alors son ENDURANCE devient 1d6+5 (et sa HABILETÉ gagne +1 si le dé fait 6)';
       if (actionType === 'end_combat_message') actionText = `alors le combat prend fin${c.action?.message ? ` : ${c.action.message}` : ''}`;
       if (actionType === 'message_only') actionText = c.action?.message ? `alors ${c.action.message}` : 'alors affiche un message';
       return `${triggerText}, ${actionText}.`;
@@ -922,6 +924,7 @@ END ennemi : ${Math.max(0, combatState.enemyEndurance)}`;
       const c = normalizeCapability(capability);
       const actionType=c.action?.type||'message_only';
       const message=c.action?.message||`${c.id} déclenchée.`;
+      if(actionType==='roll_endurance_plus_five'){const roll=rollDice(1)[0];const newEndurance=roll+5;combatState.enemyEndurance=newEndurance;combatState.details.push(`  🎲 ${c.id} : END ennemi = ${roll} + 5 = ${newEndurance}.`);combatState.pendingHistoryLines.push(`🎲 ${combatState.enemyName} voit son endurance recalculée (${roll}+5=${newEndurance}).`);if(roll===6){combatState.enemySkill+=1;combatState.details.push(`  ✨ ${c.id} : dé = 6, HAB ennemi +1 (nouvelle HAB: ${combatState.enemySkill}).`);combatState.pendingHistoryLines.push(`✨ ${combatState.enemyName} obtient +1 en HABILETÉ (dé de 6).`);}save();return;}
       if(actionType==='increase_metamorphose'){const amount=Math.max(1, parseInt(c.action?.metamorphoseAmount,10)||1);const current=parseInt(document.getElementById('metamorphose').value,10);const base=Number.isNaN(current)?0:current;applyMetamorphoseValue(base+amount);const now=parseInt(document.getElementById('metamorphose').value,10);combatState.details.push(`  🧬 ${c.id} : Métamorphose +${amount} (nouvelle valeur: ${now}).`);combatState.pendingHistoryLines.push(`🌕 ${combatState.enemyName} réveille la bête en vous : votre métamorphose grimpe de ${amount}.`);save();return;}
       if(actionType==='end_combat_message'){combatState.inProgress=false;combatState.lastResult=message;combatState.pendingHistoryLines.push(`🛑 ${message}`); showCombatPopup(`⚔️ ${message}`); return;}
       combatState.pendingHistoryLines.push(`📜 ${message}`); showCombatPopup(`⚔️ ${message}`);
