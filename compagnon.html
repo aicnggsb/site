@@ -84,6 +84,14 @@
     .combat-stats-table th{background:#111827;color:#93c5fd;font-size:.9rem;}
     .combat-stats-table td{font-weight:700;font-size:1.05rem;}
     .combat-stats-table tr:last-child td{border-bottom:none;}
+    .combat-details-wrap{margin-top:.8rem;border:1px solid #1d4ed8;border-radius:10px;background:#0b1220;}
+    .combat-details-head{display:flex;justify-content:space-between;align-items:center;padding:.55rem .7rem;border-bottom:1px solid #1e3a8a;}
+    .combat-details-title{margin:0;color:#93c5fd;font-size:.95rem;font-weight:700;}
+    .combat-details{list-style:none;margin:0;padding:.65rem .9rem;max-height:210px;overflow:auto;color:#60a5fa;font-family:monospace;font-size:.9rem;}
+    .combat-details.hidden{display:none;}
+    .combat-details li{margin-bottom:.35rem;}
+    .bottom-panel{position:sticky;bottom:0;z-index:9;background:#111827cc;backdrop-filter:blur(4px);border-top:1px solid #374151;margin-top:1rem;}
+    .bottom-panel .card{margin-bottom:0;border-radius:12px 12px 0 0;}
 
     .popup-dialog{max-width:520px;width:92%;background:#0f172a;color:#f9fafb;border:1px solid #374151;border-radius:12px;padding:0;}
     .popup-inner{padding:1rem;}
@@ -145,19 +153,27 @@
       </div>
     </section>
 
-    <section class="card">
-      <div class="actions">
-        <button class="primary" id="newGameBtn">Nouvelle partie</button>
-        <button class="primary" id="saveBtn">Enregistrer</button>
-        <button class="danger" id="resetBtn">Réinitialiser</button>
+    <section class="bottom-panel">
+      <div class="card">
+        <div class="actions" style="justify-content:space-between;align-items:center;">
+          <h2 style="margin:0;">Contrôles de partie</h2>
+          <button class="secondary" id="toggleGameControlsBtn" type="button">Déplier</button>
+        </div>
+        <div id="gameControlsBody" class="combat-body hidden">
+          <div class="actions">
+            <button class="primary" id="newGameBtn">Nouvelle partie</button>
+            <button class="primary" id="saveBtn">Enregistrer</button>
+            <button class="danger" id="resetBtn">Réinitialiser</button>
+          </div>
+          <div class="actions" style="margin-top:.5rem;">
+            <button class="secondary" id="testChanceBtn">Tester la Chance</button>
+            <button class="secondary" id="testSkillBtn">Tester l'Habileté</button>
+            <button class="secondary" id="reloadBtn">Recharger</button>
+          </div>
+          <div class="status" id="status"></div>
+          <div class="dice-box" id="diceResult"></div>
+        </div>
       </div>
-      <div class="actions" style="margin-top:.5rem;">
-        <button class="secondary" id="testChanceBtn">Tester la Chance</button>
-        <button class="secondary" id="testSkillBtn">Tester l'Habileté</button>
-        <button class="secondary" id="reloadBtn">Recharger</button>
-      </div>
-      <div class="status" id="status"></div>
-      <div class="dice-box" id="diceResult"></div>
     </section>
 
     <section class="card" id="combatCard">
@@ -203,6 +219,13 @@
       </table>
       <h3 style="margin-bottom:.5rem;">Journal de combat</h3>
       <ul id="combatHistory"></ul>
+      <div class="combat-details-wrap">
+        <div class="combat-details-head">
+          <p class="combat-details-title">🎲 Détail du combat</p>
+          <button class="secondary" id="toggleCombatDetailsBtn" type="button">Voir détails du combat</button>
+        </div>
+        <ul id="combatDetails" class="combat-details hidden"></ul>
+      </div>
       <div class="actions" style="margin-top:.75rem;">
         <button class="secondary" id="closeCombatBtn" style="display:none;">Fermer le combat</button>
       </div>
@@ -301,6 +324,8 @@
     let bestiary=[]; let editingCapabilities=[];
     let equipementItems = [];
     let combatExpanded = false;
+    let gameControlsExpanded = false;
+    let combatDetailsExpanded = false;
 
     function rollDie() {
       return Math.floor(Math.random() * 6) + 1;
@@ -581,6 +606,7 @@
       const enemyEndurance = document.getElementById('combatEnemyEnduranceCurrent');
       const status = document.getElementById('combatResultStatus');
       const history = document.getElementById('combatHistory');
+      const details = document.getElementById('combatDetails');
 
       if (!combatState) {
         startBtn.style.display = '';
@@ -594,6 +620,7 @@
         enemyEndurance.textContent = '—';
         status.textContent = '';
         history.innerHTML = '';
+        details.innerHTML = '';
         refreshCombatPanelVisibility();
         return;
       }
@@ -609,6 +636,8 @@
       enemyEndurance.textContent = combatState.enemyEndurance;
       status.textContent = combatState.lastResult;
       history.innerHTML = combatState.history.map((line) => `<li>${line}</li>`).join('');
+      details.innerHTML = combatState.details.map((line) => `<li>${line}</li>`).join('');
+      details.classList.toggle('hidden', !combatDetailsExpanded);
       refreshCombatPanelVisibility();
     }
 
@@ -633,6 +662,7 @@
         enemyEndurance,
         lastResult: `Combat démarré contre ${enemyName}.`,
         history: [],
+        details: [],
         assaultCount: 0,
         enemyConsecutiveSuccesses: 0,
         inProgress: true,
@@ -679,9 +709,13 @@
         return;
       }
       combatState.history.push(`Assaut ${combatState.assaultCount} → ${resultText}`);
+      combatState.details.push(`Assaut ${combatState.assaultCount} · 🎲 Vous ${heroRolls.join('+')} + HAB ${combatState.heroSkill} = ${heroAttackStrength} | 🎲 ${combatState.enemyName} ${enemyRolls.join('+')} + HAB ${combatState.enemySkill} = ${enemyAttackStrength} ${hitText}`);
       combatState.history.push(`Série ennemie en cours : ${combatState.enemyConsecutiveSuccesses} assaut(s) réussi(s)`);
       if (combatState.history.length > MAX_ASSAULT_HISTORY) {
         combatState.history = combatState.history.slice(-MAX_ASSAULT_HISTORY);
+      }
+      if (combatState.details.length > MAX_ASSAULT_HISTORY) {
+        combatState.details = combatState.details.slice(-MAX_ASSAULT_HISTORY);
       }
 
       document.getElementById('endurance').value = Math.max(0, combatState.heroEndurance);
@@ -810,6 +844,16 @@ END ennemi : ${Math.max(0, combatState.enemyEndurance)}`;
       if (combatState && combatState.inProgress) { endCombat(); return; }
       combatExpanded = !combatExpanded;
       refreshCombatPanelVisibility();
+    });
+    document.getElementById('toggleCombatDetailsBtn').addEventListener('click', () => {
+      combatDetailsExpanded = !combatDetailsExpanded;
+      document.getElementById('toggleCombatDetailsBtn').textContent = combatDetailsExpanded ? 'Masquer détails du combat' : 'Voir détails du combat';
+      document.getElementById('combatDetails').classList.toggle('hidden', !combatDetailsExpanded);
+    });
+    document.getElementById('toggleGameControlsBtn').addEventListener('click', () => {
+      gameControlsExpanded = !gameControlsExpanded;
+      document.getElementById('gameControlsBody').classList.toggle('hidden', !gameControlsExpanded);
+      document.getElementById('toggleGameControlsBtn').textContent = gameControlsExpanded ? 'Réduire' : 'Déplier';
     });
     document.getElementById('toggleSelectedMonsterCapsBtn').addEventListener('click', () => {
       const wrap = document.getElementById('selectedMonsterCapsWrap');
