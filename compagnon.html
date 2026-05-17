@@ -460,6 +460,19 @@
       document.getElementById('enduranceMaxDisplay').textContent = `(max: ${ensureHiddenField('enduranceMax').value || '—'})`;
       document.getElementById('chanceMaxDisplay').textContent = `(max: ${ensureHiddenField('chanceMax').value || '—'})`;
     }
+    function refreshCharacterMode() {
+      const minimal = !characterDetailed;
+      ['chance','alarme','or','provisions'].forEach((id) => {
+        const field = document.getElementById(id);
+        const wrapper = field?.closest('div');
+        if (wrapper) wrapper.classList.toggle('hidden', minimal);
+      });
+      document.getElementById('equipementBlock').classList.toggle('hidden', minimal || !equipementExpanded);
+      document.getElementById('toggleEquipementBtn').classList.toggle('hidden', minimal);
+      document.getElementById('characterDetailsBlock').classList.toggle('hidden', minimal);
+      const metamorphHint = document.querySelector('#metamorphose')?.closest('div')?.querySelector('.hint');
+      if (metamorphHint) metamorphHint.classList.toggle('hidden', minimal);
+    }
 
     function clampToMax(current, max) {
       if (!max) return current;
@@ -603,6 +616,28 @@
 
     let selectedMonsterForCombat = null;
 
+    function formatCapabilityNarrative(capability) {
+      const c = normalizeCapability(capability);
+      const actionType = c.action?.type || 'message_only';
+      const requiredConsecutive = Math.max(1, parseInt(c.action?.requiredConsecutiveAssaults, 10) || 1);
+      const requiredSuccessCount = Math.max(1, parseInt(c.action?.requiredSuccessCount, 10) || 1);
+      const metamorphoseAmount = Math.max(1, parseInt(c.action?.metamorphoseAmount, 10) || 1);
+      let triggerText = 'si cette capacité se déclenche';
+      if (c.trigger === 'enemy_consecutive_successes') triggerText = `si l’ennemi réussit ${requiredConsecutive} assaut(s) consécutif(s)`;
+      if (c.trigger === 'enemy_success_count') triggerText = `si l’ennemi réussit au moins ${requiredSuccessCount} assaut(s)`;
+      if (c.trigger === 'enemy_hits') triggerText = 'si l’ennemi touche';
+      if (c.trigger === 'hero_hits') triggerText = 'si le héros touche';
+      if (c.trigger === 'before_assault') triggerText = 'si un assaut commence';
+      if (c.trigger === 'after_assault') triggerText = 'si un assaut se termine';
+      if (c.trigger === 'start_combat') triggerText = 'si le combat commence';
+      if (c.trigger === 'end_combat') triggerText = 'si le combat se termine';
+      let actionText = 'alors un effet est appliqué';
+      if (actionType === 'increase_metamorphose') actionText = `alors augmente la métamorphose de ${metamorphoseAmount}`;
+      if (actionType === 'end_combat_message') actionText = `alors le combat prend fin${c.action?.message ? ` : ${c.action.message}` : ''}`;
+      if (actionType === 'message_only') actionText = c.action?.message ? `alors ${c.action.message}` : 'alors affiche un message';
+      return `${triggerText}, ${actionText}.`;
+    }
+
     function renderSelectedMonsterInfo() {
       const box = document.getElementById('selectedMonsterInfo');
       if (!selectedMonsterForCombat) { box.classList.add('hidden'); return; }
@@ -611,8 +646,7 @@
             const caps = (selectedMonsterForCombat.capacites || []).map(normalizeCapability);
       document.getElementById('selectedMonsterCaps').innerHTML = caps.length ? caps.map((c) => {
         const triggerLabel = CAPABILITY_TRIGGER_LABELS[c.trigger] || c.trigger;
-        const message = (c.action?.message || '').trim();
-        const narrative = message || `Effet en attente : précise ce qu'il se passe quand « ${c.id} » se déclenche.`;
+        const narrative = formatCapabilityNarrative(c);
         return `<li><strong>${c.id}</strong> — ${triggerLabel}<br><em>${narrative}</em></li>`;
       }).join('') : '<li>Aucune capacité spéciale.</li>';
     }
@@ -698,13 +732,15 @@
         inProgress: true,
         autoRunning: false,
         monsterId: null,
-        capacites: []
+        capacites: [],
+        pendingHistoryLines: []
       };
       refreshCombatUi();
     }
 
     function launchAssault() {
       if (!combatState || !combatState.inProgress) return;
+      combatState.pendingHistoryLines = [];
       applyMonsterCaps('before_assault');
       const heroRolls = rollDice(2);
       const enemyRolls = rollDice(2);
@@ -762,8 +798,9 @@
         return;
       }
       const detailsLine = `🎲 Vous ${heroRolls.join('+')} + HAB ${combatState.heroSkill} = ${heroAttackStrength} | 🎲 ${combatState.enemyName} ${enemyRolls.join('+')} + HAB ${combatState.enemySkill} = ${enemyAttackStrength} ${hitText} · Série ennemie: ${combatState.enemyConsecutiveSuccesses} · Réussites ennemies totales: ${combatState.enemySuccessfulAssaults}`;
-      const eventsText = assaultEvents.length ? `\n${assaultEvents.join('\n')}` : '';
-      combatState.history.push(`⚔️ [Assaut ${combatState.assaultCount}] ${resultText}.${eventsText}`);
+      combatState.history.push(`⚔️ [Assaut ${combatState.assaultCount}] ${resultText}.`);
+      assaultEvents.forEach((eventLine) => combatState.history.push(eventLine));
+      combatState.pendingHistoryLines.forEach((line) => combatState.history.push(line));
       combatState.details.push(`──────── Assaut ${combatState.assaultCount} ────────`);
       combatState.details.push(detailsLine);
       if (assaultEvents.length) {
@@ -869,9 +906,9 @@ END ennemi : ${Math.max(0, combatState.enemyEndurance)}`;
       const c = normalizeCapability(capability);
       const actionType=c.action?.type||'message_only';
       const message=c.action?.message||`${c.id} déclenchée.`;
-      if(actionType==='increase_metamorphose'){const amount=Math.max(1, parseInt(c.action?.metamorphoseAmount,10)||1);const current=parseInt(document.getElementById('metamorphose').value,10);const base=Number.isNaN(current)?0:current;applyMetamorphoseValue(base+amount);const now=parseInt(document.getElementById('metamorphose').value,10);combatState.details.push(`🧬 ${c.id} : Métamorphose +${amount} (nouvelle valeur: ${now}).`);combatState.history.push(`🌕 ${combatState.enemyName} réveille la bête en vous : votre métamorphose grimpe de ${amount}.`);save();return;}
-      if(actionType==='end_combat_message'){combatState.inProgress=false;combatState.lastResult=message;combatState.history.push(`🛑 ${message}`); showCombatPopup(`⚔️ ${message}`); return;}
-      combatState.history.push(`📜 ${message}`); showCombatPopup(`⚔️ ${message}`);
+      if(actionType==='increase_metamorphose'){const amount=Math.max(1, parseInt(c.action?.metamorphoseAmount,10)||1);const current=parseInt(document.getElementById('metamorphose').value,10);const base=Number.isNaN(current)?0:current;applyMetamorphoseValue(base+amount);const now=parseInt(document.getElementById('metamorphose').value,10);combatState.details.push(`🧬 ${c.id} : Métamorphose +${amount} (nouvelle valeur: ${now}).`);combatState.pendingHistoryLines.push(`🌕 ${combatState.enemyName} réveille la bête en vous : votre métamorphose grimpe de ${amount}.`);save();return;}
+      if(actionType==='end_combat_message'){combatState.inProgress=false;combatState.lastResult=message;combatState.pendingHistoryLines.push(`🛑 ${message}`); showCombatPopup(`⚔️ ${message}`); return;}
+      combatState.pendingHistoryLines.push(`📜 ${message}`); showCombatPopup(`⚔️ ${message}`);
     }
     function applyMonsterCaps(trigger){ if(!combatState||!combatState.capacites) return; combatState.capacites.map(normalizeCapability).filter(c=>c.trigger===trigger).forEach(executeCapability); }
     function handleEnemyConsecutiveTrigger(){ if(!combatState||!combatState.capacites||combatState.enemyConsecutiveSuccesses<=0) return; combatState.capacites.map(normalizeCapability).filter(c=>c.trigger==='enemy_consecutive_successes').forEach(c=>{const required=Math.max(1, parseInt(c.action?.requiredConsecutiveAssaults,10)||1); if(combatState.enemyConsecutiveSuccesses===required){combatState.details.push(`🎯 Trigger ${c.id} : série ennemie ${combatState.enemyConsecutiveSuccesses}/${required}.`); executeCapability(c);}});}
@@ -915,8 +952,8 @@ END ennemi : ${Math.max(0, combatState.enemyEndurance)}`;
     });
     document.getElementById('toggleCharacterDetailsBtn').addEventListener('click', () => {
       characterDetailed = !characterDetailed;
-      document.getElementById('characterDetailsBlock').classList.toggle('hidden', !characterDetailed);
       document.getElementById('toggleCharacterDetailsBtn').textContent = characterDetailed ? 'Mode minimal' : 'Mode détaillé';
+      refreshCharacterMode();
     });
     document.getElementById('toggleEquipementBtn').addEventListener('click', () => {
       equipementExpanded = !equipementExpanded;
@@ -976,6 +1013,7 @@ END ennemi : ${Math.max(0, combatState.enemyEndurance)}`;
     renderBestiary();
     renderSelectedMonsterInfo();
     refreshCombatUi();
+    refreshCharacterMode();
     document.getElementById('bestiaryBody').classList.toggle('hidden', !bestiaryExpanded);
   </script>
 </body>
