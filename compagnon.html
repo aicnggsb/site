@@ -188,7 +188,7 @@
         <button class="secondary" id="autoCombatBtn" disabled>Combat automatique</button>
         <button class="danger" id="endCombatBtn">Fuir / Terminer</button>
       </div>
-      <div class="status" id="combatResultStatus"></div>
+      <div class="status" id="combatResultStatus" style="display:none;"></div>
       <div class="combat-enemy-name">Adversaire : <strong id="combatEnemyNameCurrent">—</strong></div>
       <table class="combat-stats-table" aria-label="Endurance du combat">
         <thead><tr><th>Endurance du héros</th><th>Endurance de l’ennemi</th></tr></thead>
@@ -588,7 +588,12 @@
       box.classList.remove('hidden');
       document.getElementById('selectedMonsterName').textContent = selectedMonsterForCombat.nom || 'Monstre';
             const caps = (selectedMonsterForCombat.capacites || []).map(normalizeCapability);
-      document.getElementById('selectedMonsterCaps').innerHTML = caps.length ? caps.map(c => `<li><strong>${c.id}</strong> — ${CAPABILITY_TRIGGER_LABELS[c.trigger] || c.trigger} : ${c.action?.message || 'Sans message'}</li>`).join('') : '<li>Aucune capacité spéciale.</li>';
+      document.getElementById('selectedMonsterCaps').innerHTML = caps.length ? caps.map((c) => {
+        const triggerLabel = CAPABILITY_TRIGGER_LABELS[c.trigger] || c.trigger;
+        const message = (c.action?.message || '').trim();
+        const narrative = message || `Effet en attente : précise ce qu'il se passe quand « ${c.id} » se déclenche.`;
+        return `<li><strong>${c.id}</strong> — ${triggerLabel}<br><em>${narrative}</em></li>`;
+      }).join('') : '<li>Aucune capacité spéciale.</li>';
     }
 
     function refreshCombatPanelVisibility() {
@@ -636,7 +641,7 @@
       enemyName.textContent = combatState.enemyName;
       heroEndurance.textContent = combatState.heroEndurance;
       enemyEndurance.textContent = combatState.enemyEndurance;
-      status.textContent = combatState.lastResult;
+      status.textContent = "";
       history.innerHTML = combatState.history.map((line) => `<li>${line}</li>`).join('');
       details.innerHTML = combatState.details.map((line) => `<li>${line}</li>`).join('');
       details.classList.toggle('hidden', !combatDetailsExpanded);
@@ -715,7 +720,6 @@
       }
       combatState.history.push(`⚔️ Assaut ${combatState.assaultCount} : ${resultText}.`);
       combatState.details.push(`Assaut ${combatState.assaultCount} · 🎲 Vous ${heroRolls.join('+')} + HAB ${combatState.heroSkill} = ${heroAttackStrength} | 🎲 ${combatState.enemyName} ${enemyRolls.join('+')} + HAB ${combatState.enemySkill} = ${enemyAttackStrength} ${hitText} · Série ennemie: ${combatState.enemyConsecutiveSuccesses} · Réussites ennemies totales: ${combatState.enemySuccessfulAssaults}`);
-      combatState.history.push(`🩸 ${combatState.enemyName} aligne ${combatState.enemyConsecutiveSuccesses} réussite(s) consécutive(s), ${combatState.enemySuccessfulAssaults} au total.`);
       if (combatState.history.length > MAX_ASSAULT_HISTORY) {
         combatState.history = combatState.history.slice(-MAX_ASSAULT_HISTORY);
       }
