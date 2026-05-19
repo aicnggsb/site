@@ -1671,3 +1671,23 @@ svg.axe { display: block; margin: 0.5em 0; }
             rgb(calc(5 + (250 * var(--timer-progress))), 20, calc(70 - (55 * var(--timer-progress)))) 100%);
     transition: background 0.35s linear;
 }
+
+.class-indicators {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0 6px;
+}
+
+.indicator-light {
+    --indicator-color: #6b7280;
+    --indicator-glow: rgba(107, 114, 128, 0.45);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ffffff 0%, var(--indicator-color) 45%, color-mix(in srgb, var(--indicator-color) 72%, #000000 28%) 100%);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.35) inset,
+        0 0 10px var(--indicator-glow),
+        0 0 20px color-mix(in srgb, var(--indicator-glow) 75%, transparent 25%);
+}
