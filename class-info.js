@@ -191,12 +191,12 @@
             const detailsButton = document.createElement('button');
             detailsButton.type = 'button';
             detailsButton.className = 'team-details-button';
-            detailsButton.textContent = 'Détails';
-            detailsButton.setAttribute('aria-expanded', 'false');
+            detailsButton.textContent = 'Afficher voyants';
+            detailsButton.setAttribute('aria-pressed', 'false');
 
             const detailsPanel = document.createElement('div');
             detailsPanel.className = 'team-details-panel';
-            detailsPanel.hidden = true;
+            detailsPanel.classList.add('indicators-hidden');
 
             const detailsList = document.createElement('ul');
             detailsList.className = 'team-students-list';
@@ -218,10 +218,9 @@
             detailsPanel.appendChild(detailsList);
 
             detailsButton.addEventListener('click', () => {
-                const nextState = detailsPanel.hidden;
-                detailsPanel.hidden = !nextState;
-                detailsButton.setAttribute('aria-expanded', String(nextState));
-                detailsButton.textContent = nextState ? 'Masquer détails' : 'Détails';
+                const showIndicators = detailsPanel.classList.toggle('indicators-hidden') === false;
+                detailsButton.setAttribute('aria-pressed', String(showIndicators));
+                detailsButton.textContent = showIndicators ? 'Masquer voyants' : 'Afficher voyants';
             });
 
             card.appendChild(title);
