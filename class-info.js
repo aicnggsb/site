@@ -124,47 +124,85 @@
     }
 
     function buildTeams(students) {
-        const teams = Array.from({ length: 6 }, () => []);
+        const TEAM_COUNT = 6;
+        const METRICS = ['b', 't', 'a', 't1', 't2', 't3'];
+        const teams = Array.from({ length: TEAM_COUNT }, () => []);
         const remaining = students.slice();
 
-        const pickTopPerTeam = (key, scoreFn = (student) => student[key] ?? -1) => {
-            const sorted = remaining
-                .filter((student) => scoreFn(student) !== -1)
-                .sort((lhs, rhs) => scoreFn(rhs) - scoreFn(lhs));
+        const totalStudents = students.length;
+        const teamTargetSizes = Array.from({ length: TEAM_COUNT }, (_, index) => {
+            const minBase = Math.floor(totalStudents / TEAM_COUNT);
+            return minBase + (index < totalStudents % TEAM_COUNT ? 1 : 0);
+        });
 
-            for (let i = 0; i < teams.length && i < sorted.length; i++) {
-                const selected = sorted[i];
-                const index = remaining.indexOf(selected);
-                if (index !== -1) {
-                    teams[i].push(selected);
-                    remaining.splice(index, 1);
-                }
+        const globalAverages = METRICS.reduce((acc, key) => {
+            acc[key] = computeAverage(
+                students
+                    .map((student) => student[key])
+                    .filter((value) => value !== null),
+            );
+            return acc;
+        }, {});
+
+        const metricGapAfterAssign = (team, key, candidateValue) => {
+            const currentValues = team
+                .map((student) => student[key])
+                .filter((value) => value !== null);
+            const baseline = currentValues.length > 0 ? computeAverage(currentValues) : globalAverages[key];
+            if (baseline === null || candidateValue === null || globalAverages[key] === null) {
+                return 0;
             }
+
+            const nextAverage = ((baseline * currentValues.length) + candidateValue) / (currentValues.length + 1);
+            return Math.abs(nextAverage - globalAverages[key]);
         };
 
-        pickTopPerTeam('b', (student) => (student.b === null ? -1 : 100 - student.b));
-        pickTopPerTeam('t');
-        pickTopPerTeam('a');
-        pickTopPerTeam('t1');
-        pickTopPerTeam('t2');
-        pickTopPerTeam('t3');
+        const scoreCandidateForTeam = (student, teamIndex) => {
+            const team = teams[teamIndex];
+            const sizePenalty = team.length / Math.max(teamTargetSizes[teamIndex], 1);
+            const metricsPenalty = METRICS.reduce((sum, key) => sum + metricGapAfterAssign(team, key, student[key]), 0);
+            return (sizePenalty * 5) + metricsPenalty;
+        };
 
-        const sortByLowestTeamSize = () => teams.map((team, index) => ({ team, index })).sort((lhs, rhs) => lhs.team.length - rhs.team.length);
-        for (const student of remaining) {
-            const teamEntry = sortByLowestTeamSize()[0];
-            teamEntry.team.push(student);
-        }
+        const bavards = remaining
+            .filter((student) => student.b !== null)
+            .sort((lhs, rhs) => rhs.b - lhs.b)
+            .slice(0, TEAM_COUNT);
 
-        let changed = true;
-        while (changed) {
-            changed = false;
-            const maxTeam = teams.reduce((prev, curr) => (curr.length > prev.length ? curr : prev), teams[0]);
-            const minTeam = teams.reduce((prev, curr) => (curr.length < prev.length ? curr : prev), teams[0]);
-            if (maxTeam.length > 6 && minTeam.length < 4) {
-                minTeam.push(maxTeam.pop());
-                changed = true;
+        bavards.forEach((student, index) => {
+            teams[index].push(student);
+            const remainingIndex = remaining.indexOf(student);
+            if (remainingIndex !== -1) {
+                remaining.splice(remainingIndex, 1);
             }
-        }
+        });
+
+        const assignmentOrder = remaining
+            .slice()
+            .sort((lhs, rhs) => {
+                const lhsKnown = METRICS.filter((key) => lhs[key] !== null).length;
+                const rhsKnown = METRICS.filter((key) => rhs[key] !== null).length;
+                return rhsKnown - lhsKnown;
+            });
+
+        assignmentOrder.forEach((student) => {
+            let bestTeamIndex = 0;
+            let bestScore = Number.POSITIVE_INFINITY;
+
+            for (let i = 0; i < TEAM_COUNT; i++) {
+                if (teams[i].length >= teamTargetSizes[i]) {
+                    continue;
+                }
+
+                const score = scoreCandidateForTeam(student, i);
+                if (score < bestScore) {
+                    bestScore = score;
+                    bestTeamIndex = i;
+                }
+            }
+
+            teams[bestTeamIndex].push(student);
+        });
 
         return teams;
     }
