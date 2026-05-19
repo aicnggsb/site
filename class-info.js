@@ -91,11 +91,31 @@
         return values.reduce((sum, value) => sum + value, 0) / values.length;
     }
 
-    function formatPercentage(value) {
-        if (value === null) {
-            return '-';
+
+    function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+    }
+
+    function setIndicatorLight(indicatorElement, value) {
+        if (!indicatorElement) {
+            return;
         }
-        return `${value.toFixed(1)} %`;
+
+        if (value === null) {
+            indicatorElement.style.setProperty('--indicator-color', '#6b7280');
+            indicatorElement.style.setProperty('--indicator-glow', 'rgba(107, 114, 128, 0.45)');
+            indicatorElement.title = 'Donnée indisponible';
+            return;
+        }
+
+        const percent = clamp(value, 0, 100);
+        const hue = (percent / 100) * 120;
+        const color = `hsl(${hue} 88% 48%)`;
+        const glow = `hsl(${hue} 92% 55% / 0.6)`;
+
+        indicatorElement.style.setProperty('--indicator-color', color);
+        indicatorElement.style.setProperty('--indicator-glow', glow);
+        indicatorElement.title = `${percent.toFixed(1)} %`;
     }
 
     async function fetch3EClassData(selectedClass) {
@@ -149,40 +169,40 @@
 
         if (!className) {
             studentsCountElement.textContent = 'Effectif (3E) : -';
-            indicatorBElement.textContent = 'Sérieux (B) : -';
-            indicatorTElement.textContent = 'Travail (T) : -';
-            indicatorAElement.textContent = 'Autonomie (A) : -';
+            setIndicatorLight(indicatorBElement, null);
+            setIndicatorLight(indicatorTElement, null);
+            setIndicatorLight(indicatorAElement, null);
             statusElement.textContent = 'Sélectionnez une classe pour afficher ses informations.';
             return;
         }
 
         if (!TROISIEME_CLASSES.has(className.toUpperCase())) {
             studentsCountElement.textContent = 'Effectif (3E) : -';
-            indicatorBElement.textContent = 'Sérieux (B) : -';
-            indicatorTElement.textContent = 'Travail (T) : -';
-            indicatorAElement.textContent = 'Autonomie (A) : -';
+            setIndicatorLight(indicatorBElement, null);
+            setIndicatorLight(indicatorTElement, null);
+            setIndicatorLight(indicatorAElement, null);
             statusElement.textContent = 'Cette classe ne fait pas partie des classes de 3e.';
             return;
         }
 
         studentsCountElement.textContent = 'Effectif (3E) : Chargement...';
-        indicatorBElement.textContent = 'Sérieux (B) : Chargement...';
-        indicatorTElement.textContent = 'Travail (T) : Chargement...';
-        indicatorAElement.textContent = 'Autonomie (A) : Chargement...';
+        setIndicatorLight(indicatorBElement, null);
+        setIndicatorLight(indicatorTElement, null);
+        setIndicatorLight(indicatorAElement, null);
         statusElement.textContent = 'Lecture des données de l\'onglet "Suivi Eleve 3E"...';
 
         try {
             const classData = await fetch3EClassData(className);
             studentsCountElement.textContent = `Effectif (3E) : ${classData.studentsCount} élèves`;
-            indicatorBElement.textContent = `Sérieux (B) : ${formatPercentage(classData.averageB)}`;
-            indicatorTElement.textContent = `Travail (T) : ${formatPercentage(classData.averageT)}`;
-            indicatorAElement.textContent = `Autonomie (A) : ${formatPercentage(classData.averageA)}`;
+            setIndicatorLight(indicatorBElement, classData.averageB);
+            setIndicatorLight(indicatorTElement, classData.averageT);
+            setIndicatorLight(indicatorAElement, classData.averageA);
             statusElement.textContent = 'Données chargées avec succès.';
         } catch (error) {
             studentsCountElement.textContent = 'Effectif (3E) : -';
-            indicatorBElement.textContent = 'Sérieux (B) : -';
-            indicatorTElement.textContent = 'Travail (T) : -';
-            indicatorAElement.textContent = 'Autonomie (A) : -';
+            setIndicatorLight(indicatorBElement, null);
+            setIndicatorLight(indicatorTElement, null);
+            setIndicatorLight(indicatorAElement, null);
             statusElement.textContent = error instanceof Error ? error.message : 'Erreur lors du chargement des données.';
         }
     }
