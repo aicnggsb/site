@@ -3,7 +3,7 @@
 
     // Remplacer l'URL par le lien CSV publié du fichier "3E - Techno", onglet "Suivi Eleve 3E".
     // Format attendu : https://docs.google.com/spreadsheets/d/e/<ID>/pub?gid=<GID_ONGLET>&single=true&output=csv
-    const SHEET_3E_CSV_URL = '';
+    const SHEET_3E_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRgz3Y15bbDovMG-vtfT0rBMeR-BDMfSRZsj_m3vlzsbGybW6xe5qWEfzB7fFCQyHmf9qJ7lMsDIUY6/pub?gid=640829844&single=true&output=csv';
 
     const classNameElement = document.getElementById('selected-class-name');
     const studentsCountElement = document.getElementById('selected-class-students');
@@ -72,7 +72,7 @@
         return fromFilter || fromStorage;
     }
 
-    async function fetch3EStudentsCount() {
+    async function fetch3EStudentsCount(selectedClass) {
         if (!SHEET_3E_CSV_URL) {
             throw new Error('URL CSV du fichier "3E - Techno" non configurée.');
         }
@@ -89,16 +89,18 @@
         }
 
         const header = rows[0].map((cell) => normalize(cell));
+        const classIdx = header.findIndex((col) => col === 'classe');
         const nameIdx = header.findIndex((col) => col === 'nom');
-        const statusIdx = header.findIndex((col) => col === 'statut eleve');
 
-        if (nameIdx === -1 || statusIdx === -1) {
-            throw new Error('Colonnes attendues introuvables (nom / statut eleve).');
+        if (classIdx === -1 || nameIdx === -1) {
+            throw new Error('Colonnes attendues introuvables (classe / nom).');
         }
+
+        const normalizedSelectedClass = normalize(selectedClass);
 
         return rows
             .slice(1)
-            .filter((row) => (row[nameIdx] || '').trim() || (row[statusIdx] || '').trim())
+            .filter((row) => normalize(row[classIdx]) === normalizedSelectedClass && (row[nameIdx] || '').trim())
             .length;
     }
 
@@ -123,7 +125,7 @@
         statusElement.textContent = 'Lecture des données de l\'onglet "Suivi Eleve 3E"...';
 
         try {
-            const studentsCount = await fetch3EStudentsCount();
+            const studentsCount = await fetch3EStudentsCount(className);
             studentsCountElement.textContent = `Effectif (3E) : ${studentsCount} élèves`;
             statusElement.textContent = 'Données chargées avec succès.';
         } catch (error) {
