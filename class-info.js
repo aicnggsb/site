@@ -12,6 +12,13 @@
     const indicatorAElement = document.getElementById('selected-class-indicator-a');
     const statusElement = document.getElementById('class-info-status');
     const classFilterElement = document.getElementById('progression-class-filter');
+    const generateTeamsButton = document.getElementById('generate-teams-button');
+    const teamsPopupElement = document.getElementById('teams-popup');
+    const closeTeamsPopupButton = document.getElementById('close-teams-popup');
+    const teamsPopupListElement = document.getElementById('teams-popup-list');
+    const teamsPopupStatusElement = document.getElementById('teams-popup-status');
+
+    let lastClassStudents = [];
 
     if (!classNameElement || !studentsCountElement || !indicatorBElement || !indicatorTElement || !indicatorAElement || !statusElement) {
         return;
@@ -91,6 +98,82 @@
         return values.reduce((sum, value) => sum + value, 0) / values.length;
     }
 
+    function parseStudentData(row, idxMap) {
+        const name = (row[idxMap.nameIdx] || '').trim();
+        return {
+            name,
+            b: parsePercentage(row[idxMap.indicatorBIdx]),
+            t: parsePercentage(row[idxMap.indicatorTIdx]),
+            a: parsePercentage(row[idxMap.indicatorAIdx]),
+        };
+    }
+
+    function buildTeams(students) {
+        const teams = Array.from({ length: 6 }, () => []);
+        const remaining = students.slice();
+
+        const pickTopPerTeam = (key, scoreFn = (student) => student[key] ?? -1) => {
+            const sorted = remaining
+                .filter((student) => scoreFn(student) !== -1)
+                .sort((lhs, rhs) => scoreFn(rhs) - scoreFn(lhs));
+
+            for (let i = 0; i < teams.length && i < sorted.length; i++) {
+                const selected = sorted[i];
+                const index = remaining.indexOf(selected);
+                if (index !== -1) {
+                    teams[i].push(selected);
+                    remaining.splice(index, 1);
+                }
+            }
+        };
+
+        pickTopPerTeam('b', (student) => (student.b === null ? -1 : 100 - student.b));
+        pickTopPerTeam('t');
+        pickTopPerTeam('a');
+
+        const sortByLowestTeamSize = () => teams.map((team, index) => ({ team, index })).sort((lhs, rhs) => lhs.team.length - rhs.team.length);
+        for (const student of remaining) {
+            const teamEntry = sortByLowestTeamSize()[0];
+            teamEntry.team.push(student);
+        }
+
+        let changed = true;
+        while (changed) {
+            changed = false;
+            const maxTeam = teams.reduce((prev, curr) => (curr.length > prev.length ? curr : prev), teams[0]);
+            const minTeam = teams.reduce((prev, curr) => (curr.length < prev.length ? curr : prev), teams[0]);
+            if (maxTeam.length > 6 && minTeam.length < 4) {
+                minTeam.push(maxTeam.pop());
+                changed = true;
+            }
+        }
+
+        return teams;
+    }
+
+    function renderTeams(teams) {
+        if (!teamsPopupListElement) {
+            return;
+        }
+
+        teamsPopupListElement.innerHTML = '';
+        teams.forEach((team, index) => {
+            const card = document.createElement('article');
+            card.className = 'team-card';
+            const title = document.createElement('h4');
+            title.textContent = `Équipe ${index + 1} (${team.length} élèves)`;
+            const list = document.createElement('ul');
+            team.forEach((student) => {
+                const item = document.createElement('li');
+                item.textContent = student.name;
+                list.appendChild(item);
+            });
+            card.appendChild(title);
+            card.appendChild(list);
+            teamsPopupListElement.appendChild(card);
+        });
+    }
+
 
     function clamp(value, min, max) {
         return Math.min(max, Math.max(min, value));
@@ -131,7 +214,7 @@
         const csvText = await response.text();
         const rows = parseCSV(csvText).filter((row) => row.some((cell) => (cell || '').trim()));
         if (!rows.length) {
-            return { studentsCount: 0, averageB: null, averageT: null, averageA: null };
+            return { studentsCount: 0, averageB: null, averageT: null, averageA: null, students: [] };
         }
 
         const header = rows[0].map((cell) => normalize(cell));
@@ -154,11 +237,19 @@
         const tValues = classRows.map((row) => parsePercentage(row[indicatorTIdx])).filter((value) => value !== null);
         const aValues = classRows.map((row) => parsePercentage(row[indicatorAIdx])).filter((value) => value !== null);
 
+        const students = classRows.map((row) => parseStudentData(row, {
+            nameIdx,
+            indicatorBIdx,
+            indicatorTIdx,
+            indicatorAIdx,
+        }));
+
         return {
             studentsCount: classRows.length,
             averageB: computeAverage(bValues),
             averageT: computeAverage(tValues),
             averageA: computeAverage(aValues),
+            students,
         };
     }
 
@@ -197,14 +288,45 @@
             setIndicatorLight(indicatorBElement, classData.averageB);
             setIndicatorLight(indicatorTElement, classData.averageT);
             setIndicatorLight(indicatorAElement, classData.averageA);
+            lastClassStudents = classData.students;
             statusElement.textContent = 'Données chargées avec succès.';
         } catch (error) {
             studentsCountElement.textContent = 'Effectif (3E) : -';
             setIndicatorLight(indicatorBElement, null);
             setIndicatorLight(indicatorTElement, null);
             setIndicatorLight(indicatorAElement, null);
+            lastClassStudents = [];
             statusElement.textContent = error instanceof Error ? error.message : 'Erreur lors du chargement des données.';
         }
+    }
+
+    if (generateTeamsButton && teamsPopupElement && closeTeamsPopupButton) {
+        generateTeamsButton.addEventListener('click', () => {
+            if (lastClassStudents.length < 24) {
+                teamsPopupStatusElement.textContent = 'Impossible de générer 6 équipes de 4 à 6 élèves avec cet effectif.';
+                teamsPopupListElement.innerHTML = '';
+                teamsPopupElement.hidden = false;
+                return;
+            }
+
+            const teams = buildTeams(lastClassStudents);
+            const allSizesValid = teams.every((team) => team.length >= 4 && team.length <= 6);
+            teamsPopupStatusElement.textContent = allSizesValid
+                ? 'Équipes générées avec répartition B / T / A.'
+                : 'Équipes générées mais certaines tailles sortent de la plage 4-6.';
+            renderTeams(teams);
+            teamsPopupElement.hidden = false;
+        });
+
+        closeTeamsPopupButton.addEventListener('click', () => {
+            teamsPopupElement.hidden = true;
+        });
+
+        teamsPopupElement.addEventListener('click', (event) => {
+            if (event.target === teamsPopupElement) {
+                teamsPopupElement.hidden = true;
+            }
+        });
     }
 
     if (classFilterElement) {
