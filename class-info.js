@@ -203,7 +203,7 @@
             const detailsButton = document.createElement('button');
             detailsButton.type = 'button';
             detailsButton.className = 'team-details-button';
-            detailsButton.textContent = 'Afficher voyants';
+            detailsButton.textContent = '+';
             detailsButton.setAttribute('aria-pressed', 'false');
 
             const detailsPanel = document.createElement('div');
@@ -239,7 +239,7 @@
             detailsButton.addEventListener('click', () => {
                 const showIndicators = detailsPanel.classList.toggle('indicators-hidden') === false;
                 detailsButton.setAttribute('aria-pressed', String(showIndicators));
-                detailsButton.textContent = showIndicators ? 'Masquer voyants' : 'Afficher voyants';
+                detailsButton.textContent = showIndicators ? '−' : '+';
             });
 
             card.appendChild(title);
@@ -429,8 +429,8 @@
             const teams = buildTeams(lastClassStudents);
             const allSizesValid = teams.every((team) => team.length >= 4 && team.length <= 6);
             teamsPopupStatusElement.textContent = allSizesValid
-                ? 'Équipes générées avec répartition B / T / A / T1 / T2 / T3.'
-                : 'Équipes générées mais certaines tailles sortent de la plage 4-6.';
+                ? ''
+                : 'Certaines équipes sortent de la plage 4-6 élèves.';
             renderTeams(teams);
             teamsPopupElement.hidden = false;
         });
