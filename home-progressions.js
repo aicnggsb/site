@@ -11,6 +11,10 @@
     const planningToggleCountButton = document.getElementById('progression-toggle-count');
     const importantMessagesPanelElement = document.getElementById('important-messages-panel');
     const importantMessageTextElement = document.getElementById('important-message-text');
+    const noiseAlertButtonElement = document.getElementById('noise-alert-button');
+    const noiseAlertPopupElement = document.getElementById('noise-alert-popup');
+    const closeNoiseAlertPopupButton = document.getElementById('close-noise-alert-popup');
+    const noiseAlertPopupMessageElement = document.getElementById('noise-alert-popup-message');
 
     if (!statusElement || !listElement || !classFilterElement || !showPastElement) {
         return;
@@ -27,6 +31,8 @@
     let importantMessagesIntervalId = null;
     let importantMessageTransitionTimeoutId = null;
     let currentImportantMessageIndex = 0;
+    let currentNoiseAlertMessages = [];
+    let currentNoiseMessageIndex = 0;
 
     function normalize(value) {
         return (value || '')
@@ -189,6 +195,38 @@
         window.setTimeout(() => {
             audioContext.close();
         }, Math.ceil((notes.length * 220) + 250));
+    }
+
+    function playLoudDing(options = {}) {
+        const { duration = 1.2, baseFrequency = 950, gainLevel = 0.95 } = options;
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) {
+            return;
+        }
+
+        const audioContext = new AudioContextClass();
+        const now = audioContext.currentTime;
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.type = 'triangle';
+        oscillator.frequency.setValueAtTime(baseFrequency, now);
+        oscillator.frequency.exponentialRampToValueAtTime(baseFrequency * 1.45, now + 0.14);
+        oscillator.frequency.exponentialRampToValueAtTime(baseFrequency * 0.8, now + duration);
+
+        gainNode.gain.setValueAtTime(0.0001, now);
+        gainNode.gain.exponentialRampToValueAtTime(gainLevel, now + 0.03);
+        gainNode.gain.exponentialRampToValueAtTime(0.55, now + 0.18);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        oscillator.start(now);
+        oscillator.stop(now + duration + 0.05);
+
+        window.setTimeout(() => {
+            audioContext.close();
+        }, Math.ceil((duration * 1000) + 200));
     }
 
     function createSubtaskTimerCard(subtask, options = {}) {
@@ -419,10 +457,18 @@
     function parseSessionDetails(detailsText) {
         const sourceText = detailsText || '';
         const importantMessages = [];
-        const textWithoutMessages = sourceText.replace(/\$([^$]+)\$/g, (_, message) => {
+        const noiseMessages = [];
+        const textWithoutImportantMessages = sourceText.replace(/\$([^$]+)\$/g, (_, message) => {
             const cleanedMessage = cleanText(message);
             if (cleanedMessage) {
                 importantMessages.push(cleanedMessage);
+            }
+            return ' ';
+        });
+        const textWithoutMessages = textWithoutImportantMessages.replace(/%([^%]+)%/g, (_, message) => {
+            const cleanedMessage = cleanText(message);
+            if (cleanedMessage) {
+                noiseMessages.push(cleanedMessage);
             }
             return ' ';
         });
@@ -442,8 +488,34 @@
         return {
             content,
             tasks: normalizeTasks(parsed.tasks || []),
-            importantMessages
+            importantMessages,
+            noiseMessages
         };
+    }
+
+    function closeNoiseAlertPopup() {
+        if (noiseAlertPopupElement) {
+            noiseAlertPopupElement.hidden = true;
+        }
+    }
+
+    function handleNoiseAlertButtonClick() {
+        if (!currentNoiseAlertMessages.length) {
+            return;
+        }
+        const message = currentNoiseAlertMessages[currentNoiseMessageIndex] || '';
+        if (noiseAlertPopupMessageElement) {
+            noiseAlertPopupMessageElement.textContent = message;
+        }
+        if (noiseAlertPopupElement) {
+            noiseAlertPopupElement.hidden = false;
+        }
+        playLoudDing({ duration: 1.4, baseFrequency: 1050, gainLevel: 1 });
+
+        currentNoiseMessageIndex += 1;
+        if (currentNoiseMessageIndex >= currentNoiseAlertMessages.length) {
+            currentNoiseMessageIndex = 0;
+        }
     }
 
     function stopImportantMessagesRotation() {
@@ -535,27 +607,6 @@
                     subtaskGrid.appendChild(timerCard.element);
                 });
                 item.appendChild(subtaskGrid);
-                if (noiseData.messages.length) {
-                    const noiseButton = document.createElement('button');
-                    noiseButton.type = 'button';
-                    noiseButton.className = 'task-noise-button';
-                    noiseButton.textContent = 'Trop de bruit';
-
-                    let noiseMessageIndex = 0;
-                    noiseButton.addEventListener('click', () => {
-                        timerCards.forEach((timerCard) => timerCard.stop());
-                        const message = noiseData.messages[noiseMessageIndex] || '';
-                        if (message) {
-                            window.alert(message);
-                        }
-                        noiseMessageIndex += 1;
-                        if (noiseMessageIndex >= noiseData.messages.length) {
-                            noiseButton.remove();
-                        }
-                    });
-
-                    item.appendChild(noiseButton);
-                }
             } else {
                 label.textContent = noiseData.cleanedText || 'Tâche sans titre';
                 item.appendChild(label);
@@ -585,6 +636,12 @@
         }
 
         const details = parseSessionDetails(entry.detailsText || '');
+        currentNoiseAlertMessages = Array.from(new Set(details.noiseMessages || []));
+        currentNoiseMessageIndex = 0;
+        if (noiseAlertButtonElement) {
+            noiseAlertButtonElement.hidden = currentNoiseAlertMessages.length === 0;
+        }
+        closeNoiseAlertPopup();
 
         taskContentElement.className = 'task-detail-description';
         taskContentElement.innerHTML = sanitizeSessionHtml(details.content) || 'Contenu non renseigné.';
@@ -790,6 +847,14 @@
     planningToggleCountButton?.addEventListener('click', () => {
         showAllPlanningDates = !showAllPlanningDates;
         renderSteps();
+    });
+
+    noiseAlertButtonElement?.addEventListener('click', handleNoiseAlertButtonClick);
+    closeNoiseAlertPopupButton?.addEventListener('click', closeNoiseAlertPopup);
+    noiseAlertPopupElement?.addEventListener('click', (event) => {
+        if (event.target === noiseAlertPopupElement) {
+            closeNoiseAlertPopup();
+        }
     });
 
     setupTaskSectionToggles();

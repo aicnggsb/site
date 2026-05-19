@@ -1656,6 +1656,21 @@ svg.axe { display: block; margin: 0.5em 0; }
     background: rgba(255, 255, 255, 0.24);
 }
 
+.task-noise-button-global {
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    padding: 6px 12px;
+    font-size: 0.88rem;
+    cursor: pointer;
+    margin: 8px 0 10px;
+}
+
+.task-noise-button-global:hover {
+    background: rgba(255, 255, 255, 0.24);
+}
+
 .task-detail-section.is-collapsed > #progression-task-content,
 .task-detail-section.is-collapsed > #progression-task-list {
     display: none;
@@ -1751,6 +1766,55 @@ svg.axe { display: block; margin: 0.5em 0; }
     grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
     gap: 10px;
     margin-top: 12px;
+}
+
+.noise-alert-popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(120, 0, 0, 0.82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5200;
+}
+
+.noise-alert-popup[hidden] {
+    display: none;
+}
+
+.noise-alert-popup-panel {
+    width: min(700px, 92vw);
+    background: #7a0000;
+    border: 1px solid rgba(255, 210, 210, 0.85);
+    border-radius: 14px;
+    padding: 20px;
+    color: #fff;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+    position: relative;
+    text-align: center;
+}
+
+.noise-alert-popup-panel h3 {
+    margin: 4px 0 12px;
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+}
+
+#noise-alert-popup-message {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.noise-alert-popup-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 8px;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    cursor: pointer;
 }
 
 .team-card {
