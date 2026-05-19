@@ -1675,6 +1675,7 @@ svg.axe { display: block; margin: 0.5em 0; }
 .class-indicators {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 12px;
     margin: 10px 0 6px;
 }
