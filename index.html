@@ -32,6 +32,7 @@
                         <span id="selected-class-indicator-t" class="indicator-light" role="img" aria-label="Indicateur T"></span>
                         <span id="selected-class-indicator-a" class="indicator-light" role="img" aria-label="Indicateur A"></span>
                     </div>
+                    <button id="generate-teams-button" type="button" class="generate-teams-button">Générer les équipes</button>
                     <p id="class-info-status">Sélectionnez une classe pour afficher ses informations.</p>
                 </div>
             </article>
@@ -107,6 +108,15 @@
     <div id="datetime-popup" class="datetime-popup" hidden>
         <div class="datetime-popup-panel">
             <button id="close-datetime-popup" type="button" class="datetime-popup-close">Fermer</button>
+        </div>
+    </div>
+
+    <div id="teams-popup" class="teams-popup" hidden>
+        <div class="teams-popup-panel">
+            <button id="close-teams-popup" type="button" class="teams-popup-close">Fermer</button>
+            <h3>Équipes générées</h3>
+            <p id="teams-popup-status">Aucune équipe générée.</p>
+            <div id="teams-popup-list" class="teams-popup-list"></div>
         </div>
     </div>
 

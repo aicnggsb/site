@@ -1691,3 +1691,79 @@ svg.axe { display: block; margin: 0.5em 0; }
         0 0 10px var(--indicator-glow),
         0 0 20px color-mix(in srgb, var(--indicator-glow) 75%, transparent 25%);
 }
+
+.generate-teams-button {
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    padding: 8px 14px;
+    font-size: 0.88rem;
+    cursor: pointer;
+    margin: 6px 0;
+}
+
+.generate-teams-button:hover {
+    background: rgba(255, 255, 255, 0.24);
+}
+
+.teams-popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5000;
+}
+
+.teams-popup[hidden] {
+    display: none;
+}
+
+.teams-popup-panel {
+    width: min(920px, 95vw);
+    max-height: 88vh;
+    overflow-y: auto;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
+    padding: 18px;
+    color: #fff;
+    position: relative;
+}
+
+.teams-popup-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 8px;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    cursor: pointer;
+}
+
+.teams-popup-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.team-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.team-card h4 {
+    margin: 0 0 8px;
+}
+
+.team-card ul {
+    margin: 0;
+    padding-left: 18px;
+}
