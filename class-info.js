@@ -1,9 +1,11 @@
 (function () {
     const TROISIEME_CLASSES = new Set(['3E1', '3E2', '3E3', '3E4', '3E5']);
+    const CINQUIEME_CLASSES = new Set(['5E1', '5E2', '5E3', '5E4', '5E5']);
 
     // Remplacer l'URL par le lien CSV publié du fichier "3E - Techno", onglet "Suivi Eleve 3E".
     // Format attendu : https://docs.google.com/spreadsheets/d/e/<ID>/pub?gid=<GID_ONGLET>&single=true&output=csv
     const SHEET_3E_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRgz3Y15bbDovMG-vtfT0rBMeR-BDMfSRZsj_m3vlzsbGybW6xe5qWEfzB7fFCQyHmf9qJ7lMsDIUY6/pub?gid=640829844&single=true&output=csv';
+    const SHEET_5E_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQz6hxElwi5l0-KHdWwVo98h8_UHKmPS3_07l7GbaqSAeof2I9U8sUBxm8VkQRbYcAoGQJgDqdpmGXO/pub?gid=1527557223&single=true&output=csv';
 
     const classNameElement = document.getElementById('selected-class-name');
     const studentsCountElement = document.getElementById('selected-class-students');
@@ -257,12 +259,25 @@
         indicatorElement.title = `${percent.toFixed(1)} %`;
     }
 
-    async function fetch3EClassData(selectedClass) {
-        if (!SHEET_3E_CSV_URL) {
-            throw new Error('URL CSV du fichier "3E - Techno" non configurée.');
+    function getClassConfig(selectedClass) {
+        const normalizedClass = (selectedClass || '').toUpperCase().trim();
+
+        if (TROISIEME_CLASSES.has(normalizedClass)) {
+            return { level: '3E', csvUrl: SHEET_3E_CSV_URL, sheetLabel: 'Suivi Eleve 3E' };
+        }
+        if (CINQUIEME_CLASSES.has(normalizedClass)) {
+            return { level: '5E', csvUrl: SHEET_5E_CSV_URL, sheetLabel: 'Suivi Eleve 5E' };
         }
 
-        const response = await fetch(`${SHEET_3E_CSV_URL}${SHEET_3E_CSV_URL.includes('?') ? '&' : '?'}ts=${Date.now()}`);
+        return null;
+    }
+
+    async function fetchClassData(selectedClass, classConfig) {
+        if (!classConfig || !classConfig.csvUrl) {
+            throw new Error('URL CSV non configurée pour cette classe.');
+        }
+
+        const response = await fetch(`${classConfig.csvUrl}${classConfig.csvUrl.includes('?') ? '&' : '?'}ts=${Date.now()}`);
         if (!response.ok) {
             throw new Error('Impossible de charger les données élèves.');
         }
@@ -311,11 +326,12 @@
 
     async function refreshClassInfo() {
         const className = getSelectedClass();
+        const classConfig = getClassConfig(className);
 
         classNameElement.textContent = `Classe sélectionnée : ${className || 'Aucune'}`;
 
         if (!className) {
-            studentsCountElement.textContent = 'Effectif (3E) : -';
+            studentsCountElement.textContent = 'Effectif : -';
             setIndicatorLight(indicatorBElement, null);
             setIndicatorLight(indicatorTElement, null);
             setIndicatorLight(indicatorAElement, null);
@@ -323,31 +339,31 @@
             return;
         }
 
-        if (!TROISIEME_CLASSES.has(className.toUpperCase())) {
-            studentsCountElement.textContent = 'Effectif (3E) : -';
+        if (!classConfig) {
+            studentsCountElement.textContent = 'Effectif : -';
             setIndicatorLight(indicatorBElement, null);
             setIndicatorLight(indicatorTElement, null);
             setIndicatorLight(indicatorAElement, null);
-            statusElement.textContent = 'Cette classe ne fait pas partie des classes de 3e.';
+            statusElement.textContent = 'Cette classe ne fait pas partie des classes prises en charge (3E ou 5E).';
             return;
         }
 
-        studentsCountElement.textContent = 'Effectif (3E) : Chargement...';
+        studentsCountElement.textContent = `Effectif (${classConfig.level}) : Chargement...`;
         setIndicatorLight(indicatorBElement, null);
         setIndicatorLight(indicatorTElement, null);
         setIndicatorLight(indicatorAElement, null);
-        statusElement.textContent = 'Lecture des données de l\'onglet "Suivi Eleve 3E"...';
+        statusElement.textContent = `Lecture des données de l'onglet "${classConfig.sheetLabel}"...`;
 
         try {
-            const classData = await fetch3EClassData(className);
-            studentsCountElement.textContent = `Effectif (3E) : ${classData.studentsCount} élèves`;
+            const classData = await fetchClassData(className, classConfig);
+            studentsCountElement.textContent = `Effectif (${classConfig.level}) : ${classData.studentsCount} élèves`;
             setIndicatorLight(indicatorBElement, classData.averageB);
             setIndicatorLight(indicatorTElement, classData.averageT);
             setIndicatorLight(indicatorAElement, classData.averageA);
             lastClassStudents = classData.students;
             statusElement.textContent = 'Données chargées avec succès.';
         } catch (error) {
-            studentsCountElement.textContent = 'Effectif (3E) : -';
+            studentsCountElement.textContent = classConfig ? `Effectif (${classConfig.level}) : -` : 'Effectif : -';
             setIndicatorLight(indicatorBElement, null);
             setIndicatorLight(indicatorTElement, null);
             setIndicatorLight(indicatorAElement, null);
