@@ -116,6 +116,13 @@
         };
     }
 
+    function getIndicatorDisplayConfig(key) {
+        if (['t1', 't2', 't3'].includes(key)) {
+            return { maxValue: 20, suffix: '/20' };
+        }
+        return { maxValue: 100, suffix: '%' };
+    }
+
     function buildTeams(students) {
         const teams = Array.from({ length: 6 }, () => []);
         const remaining = students.slice();
@@ -171,7 +178,7 @@
             light.className = 'indicator-light';
             light.setAttribute('role', 'img');
             light.setAttribute('aria-label', `Indicateur ${key.toUpperCase()}`);
-            setIndicatorLight(light, valuesByKey[key] ?? null);
+            setIndicatorLight(light, valuesByKey[key] ?? null, getIndicatorDisplayConfig(key));
             row.appendChild(light);
         });
 
@@ -255,10 +262,12 @@
         return Math.min(max, Math.max(min, value));
     }
 
-    function setIndicatorLight(indicatorElement, value) {
+    function setIndicatorLight(indicatorElement, value, options = {}) {
         if (!indicatorElement) {
             return;
         }
+        const maxValue = Number.isFinite(options.maxValue) && options.maxValue > 0 ? options.maxValue : 100;
+        const suffix = options.suffix || '%';
 
         if (value === null) {
             indicatorElement.style.setProperty('--indicator-color', '#6b7280');
@@ -267,14 +276,14 @@
             return;
         }
 
-        const percent = clamp(value, 0, 100);
-        const hue = (percent / 100) * 120;
+        const boundedValue = clamp(value, 0, maxValue);
+        const hue = (boundedValue / maxValue) * 120;
         const color = `hsl(${hue} 88% 48%)`;
         const glow = `hsl(${hue} 92% 55% / 0.6)`;
 
         indicatorElement.style.setProperty('--indicator-color', color);
         indicatorElement.style.setProperty('--indicator-glow', glow);
-        indicatorElement.title = `${percent.toFixed(1)} %`;
+        indicatorElement.title = suffix === '%' ? `${boundedValue.toFixed(1)} %` : `${boundedValue.toFixed(1)} ${suffix}`;
     }
 
     function getClassConfig(selectedClass) {
@@ -396,12 +405,12 @@
         try {
             const classData = await fetchClassData(className, classConfig);
             studentsCountElement.textContent = `Effectif (${classConfig.level}) : ${classData.studentsCount} élèves`;
-            setIndicatorLight(indicatorBElement, classData.averageB);
-            setIndicatorLight(indicatorTElement, classData.averageT);
-            setIndicatorLight(indicatorAElement, classData.averageA);
-            setIndicatorLight(indicatorT1Element, classData.averageT1);
-            setIndicatorLight(indicatorT2Element, classData.averageT2);
-            setIndicatorLight(indicatorT3Element, classData.averageT3);
+            setIndicatorLight(indicatorBElement, classData.averageB, getIndicatorDisplayConfig('b'));
+            setIndicatorLight(indicatorTElement, classData.averageT, getIndicatorDisplayConfig('t'));
+            setIndicatorLight(indicatorAElement, classData.averageA, getIndicatorDisplayConfig('a'));
+            setIndicatorLight(indicatorT1Element, classData.averageT1, getIndicatorDisplayConfig('t1'));
+            setIndicatorLight(indicatorT2Element, classData.averageT2, getIndicatorDisplayConfig('t2'));
+            setIndicatorLight(indicatorT3Element, classData.averageT3, getIndicatorDisplayConfig('t3'));
             lastClassStudents = classData.students;
             statusElement.textContent = 'Données chargées avec succès.';
         } catch (error) {
