@@ -23,39 +23,11 @@
             <article class="atelier sonometre-card home-card-sonometre">
                 <div class="atelier-content">
                     <div class="card-header-with-toggle">
-                        <h2>Régulation du bruit</h2>
-                        <button id="toggle-sonometre-compact" type="button" class="panel-toggle-button" aria-expanded="true">Masquer</button>
+                        <h2>Informations classe</h2>
                     </div>
-
-                    <div class="sonometre-controls">
-                        <label for="seuil">Seuil de bruit (%) :</label>
-                        <input id="seuil" type="range" min="10" max="90" value="55">
-                        <span id="seuil-valeur">55%</span>
-                    </div>
-
-                    <div class="sonometre-controls sonometre-bruit-mode" role="group" aria-label="Niveau de bruit ambiant">
-                        <span>Ambiance actuelle :</span>
-                        <button id="mode-calme" type="button" class="sonometre-mode-btn is-active" data-sensibilite="115">Calme</button>
-                        <button id="mode-bruyant" type="button" class="sonometre-mode-btn" data-sensibilite="80">Bruyant</button>
-                    </div>
-
-                    <div class="barre-wrapper" aria-label="Niveau sonore en direct">
-                        <div id="barre-niveau" class="barre-niveau"></div>
-                        <div id="seuil-marker" class="seuil-marker" aria-hidden="true">
-                            <span id="seuil-marker-label" class="seuil-marker-label">55%</span>
-                        </div>
-                    </div>
-
-                    <p id="niveau-live">Niveau actuel : 0%</p>
-                    <p id="depassements">Dépassements : 0</p>
-
-                    <div class="sonometre-actions">
-                        <button id="start-sonometre" type="button">Démarrer le sonomètre</button>
-                        <button id="pause-sonometre" type="button">Mettre en pause</button>
-                        <button id="decrement-compteur" type="button">-1 dépassement</button>
-                        <button id="increment-compteur" type="button">+1 dépassement</button>
-                        <button id="reset-compteur" type="button">Réinitialiser le compteur</button>
-                    </div>
+                    <p id="selected-class-name">Classe sélectionnée : Aucune</p>
+                    <p id="selected-class-students">Effectif (3E) : -</p>
+                    <p id="class-info-status">Sélectionnez une classe pour afficher ses informations.</p>
                 </div>
             </article>
             <article class="atelier datetime-card home-card-datetime">
@@ -133,7 +105,7 @@
         </div>
     </div>
 
-    <script src="sonometre.js"></script>
+    <script src="class-info.js"></script>
     <script src="home-progressions.js"></script>
     <script src="home-datetime.js"></script>
 </body>
