@@ -133,6 +133,23 @@
         return parsed.length ? parsed : null;
     }
 
+
+    function extractNoiseMessages(text) {
+        const messages = [];
+        const cleanedText = (text || '').replace(/%([^%]+)%/g, (_, message) => {
+            const cleanedMessage = cleanText(message);
+            if (cleanedMessage) {
+                messages.push(cleanedMessage);
+            }
+            return ' ';
+        });
+
+        return {
+            cleanedText: cleanText(cleanedText),
+            messages
+        };
+    }
+
     function formatRemaining(seconds) {
         const safeSeconds = Math.max(0, Math.floor(seconds));
         const minutes = String(Math.floor(safeSeconds / 60)).padStart(2, '0');
@@ -331,7 +348,8 @@
         return {
             element: card,
             start: startTimer,
-            isComplete: () => remainingSeconds <= 0
+            isComplete: () => remainingSeconds <= 0,
+            stop: stopTimer
         };
     }
 
@@ -498,7 +516,8 @@
         tasks.forEach((task) => {
             const item = document.createElement('li');
             const label = document.createElement('strong');
-            const inlineSubtasks = parseInlineSubtasks(task.label);
+            const noiseData = extractNoiseMessages(task.label);
+            const inlineSubtasks = parseInlineSubtasks(noiseData.cleanedText);
 
             if (inlineSubtasks) {
                 const subtaskGrid = document.createElement('div');
@@ -516,8 +535,29 @@
                     subtaskGrid.appendChild(timerCard.element);
                 });
                 item.appendChild(subtaskGrid);
+                if (noiseData.messages.length) {
+                    const noiseButton = document.createElement('button');
+                    noiseButton.type = 'button';
+                    noiseButton.className = 'task-noise-button';
+                    noiseButton.textContent = 'Trop de bruit';
+
+                    let noiseMessageIndex = 0;
+                    noiseButton.addEventListener('click', () => {
+                        timerCards.forEach((timerCard) => timerCard.stop());
+                        const message = noiseData.messages[noiseMessageIndex] || '';
+                        if (message) {
+                            window.alert(message);
+                        }
+                        noiseMessageIndex += 1;
+                        if (noiseMessageIndex >= noiseData.messages.length) {
+                            noiseButton.remove();
+                        }
+                    });
+
+                    item.appendChild(noiseButton);
+                }
             } else {
-                label.textContent = task.label || 'Tâche sans titre';
+                label.textContent = noiseData.cleanedText || 'Tâche sans titre';
                 item.appendChild(label);
             }
 
