@@ -46,6 +46,7 @@
                     <div class="datetime-header-actions">
                         <button id="open-datetime-popup" type="button" class="datetime-icon-button" aria-label="Ouvrir l'écran blanc">🗖</button>
                         <button id="roll-dice-button" type="button" class="datetime-icon-button" aria-label="Simuler un lancer de dés">🎲</button>
+                        <button id="ding-button" type="button" class="datetime-icon-button" aria-label="Faire sonner la cloche pour le calme">🔔 DING</button>
                     </div>
                     <p id="dice-result" class="dice-result" aria-live="polite"></p>
                 </div>
@@ -67,6 +68,7 @@
                             <h3>Tâches</h3>
                             <button type="button" class="task-toggle-button" data-toggle-target="progression-task-list" aria-expanded="true">Masquer</button>
                         </div>
+                        <button id="noise-alert-button" type="button" class="task-noise-button-global" hidden>Trop de bruit</button>
                         <div id="progression-task-list" class="task-detail-empty">
                             Aucune tâche à afficher.
                         </div>
@@ -120,6 +122,14 @@
             <h3>Équipes générées</h3>
             <p id="teams-popup-status"></p>
             <div id="teams-popup-list" class="teams-popup-list"></div>
+        </div>
+    </div>
+
+    <div id="noise-alert-popup" class="noise-alert-popup" hidden>
+        <div class="noise-alert-popup-panel">
+            <button id="close-noise-alert-popup" type="button" class="noise-alert-popup-close">Fermer</button>
+            <h3>Trop de bruit.....</h3>
+            <p id="noise-alert-popup-message"></p>
         </div>
     </div>
 

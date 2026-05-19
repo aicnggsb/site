@@ -3,6 +3,7 @@
     const dateElement = document.getElementById('live-date');
     const openPopupButton = document.getElementById('open-datetime-popup');
     const rollDiceButton = document.getElementById('roll-dice-button');
+    const dingButton = document.getElementById('ding-button');
     const closePopupButton = document.getElementById('close-datetime-popup');
     const datetimePopup = document.getElementById('datetime-popup');
     const diceResultElement = document.getElementById('dice-result');
@@ -73,5 +74,33 @@
         if (diceResultElement) {
             diceResultElement.textContent = `Résultat (${numberOfDice}d${facesPerDie}) : [${rolls.join(', ')}] → Total ${total}`;
         }
+    });
+
+    dingButton?.addEventListener('click', () => {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        const audioContext = new AudioContextClass();
+        const now = audioContext.currentTime;
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.type = 'triangle';
+        oscillator.frequency.setValueAtTime(1120, now);
+        oscillator.frequency.exponentialRampToValueAtTime(1680, now + 0.08);
+        oscillator.frequency.exponentialRampToValueAtTime(900, now + 1.1);
+
+        gainNode.gain.setValueAtTime(0.0001, now);
+        gainNode.gain.exponentialRampToValueAtTime(1, now + 0.02);
+        gainNode.gain.exponentialRampToValueAtTime(0.5, now + 0.2);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 1.1);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        oscillator.start(now);
+        oscillator.stop(now + 1.15);
+
+        setTimeout(() => {
+            audioContext.close();
+        }, 1400);
     });
 })();
