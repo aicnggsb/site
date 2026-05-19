@@ -151,6 +151,22 @@
         return teams;
     }
 
+    function createIndicatorsRow(valuesByKey) {
+        const row = document.createElement('div');
+        row.className = 'class-indicators';
+
+        ['b', 't', 'a'].forEach((key) => {
+            const light = document.createElement('span');
+            light.className = 'indicator-light';
+            light.setAttribute('role', 'img');
+            light.setAttribute('aria-label', `Indicateur ${key.toUpperCase()}`);
+            setIndicatorLight(light, valuesByKey[key] ?? null);
+            row.appendChild(light);
+        });
+
+        return row;
+    }
+
     function renderTeams(teams) {
         if (!teamsPopupListElement) {
             return;
@@ -162,14 +178,54 @@
             card.className = 'team-card';
             const title = document.createElement('h4');
             title.textContent = `Équipe ${index + 1} (${team.length} élèves)`;
-            const list = document.createElement('ul');
+
+            const teamIndicators = createIndicatorsRow({
+                b: computeAverage(team.map((student) => student.b).filter((value) => value !== null)),
+                t: computeAverage(team.map((student) => student.t).filter((value) => value !== null)),
+                a: computeAverage(team.map((student) => student.a).filter((value) => value !== null)),
+            });
+            teamIndicators.classList.add('team-indicators');
+
+            const detailsButton = document.createElement('button');
+            detailsButton.type = 'button';
+            detailsButton.className = 'team-details-button';
+            detailsButton.textContent = 'Détails';
+            detailsButton.setAttribute('aria-expanded', 'false');
+
+            const detailsPanel = document.createElement('div');
+            detailsPanel.className = 'team-details-panel';
+            detailsPanel.hidden = true;
+
+            const detailsList = document.createElement('ul');
+            detailsList.className = 'team-students-list';
             team.forEach((student) => {
                 const item = document.createElement('li');
-                item.textContent = student.name;
-                list.appendChild(item);
+                item.className = 'team-student-item';
+
+                const name = document.createElement('span');
+                name.textContent = student.name;
+
+                const studentIndicators = createIndicatorsRow({ b: student.b, t: student.t, a: student.a });
+                studentIndicators.classList.add('team-student-indicators');
+
+                item.appendChild(name);
+                item.appendChild(studentIndicators);
+                detailsList.appendChild(item);
             });
+
+            detailsPanel.appendChild(detailsList);
+
+            detailsButton.addEventListener('click', () => {
+                const nextState = detailsPanel.hidden;
+                detailsPanel.hidden = !nextState;
+                detailsButton.setAttribute('aria-expanded', String(nextState));
+                detailsButton.textContent = nextState ? 'Masquer détails' : 'Détails';
+            });
+
             card.appendChild(title);
-            card.appendChild(list);
+            card.appendChild(teamIndicators);
+            card.appendChild(detailsButton);
+            card.appendChild(detailsPanel);
             teamsPopupListElement.appendChild(card);
         });
     }
