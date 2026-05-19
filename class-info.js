@@ -7,10 +7,13 @@
 
     const classNameElement = document.getElementById('selected-class-name');
     const studentsCountElement = document.getElementById('selected-class-students');
+    const indicatorBElement = document.getElementById('selected-class-indicator-b');
+    const indicatorTElement = document.getElementById('selected-class-indicator-t');
+    const indicatorAElement = document.getElementById('selected-class-indicator-a');
     const statusElement = document.getElementById('class-info-status');
     const classFilterElement = document.getElementById('progression-class-filter');
 
-    if (!classNameElement || !studentsCountElement || !statusElement) {
+    if (!classNameElement || !studentsCountElement || !indicatorBElement || !indicatorTElement || !indicatorAElement || !statusElement) {
         return;
     }
 
@@ -72,7 +75,30 @@
         return fromFilter || fromStorage;
     }
 
-    async function fetch3EStudentsCount(selectedClass) {
+    function parsePercentage(rawValue) {
+        const value = (rawValue || '').trim().replace(/\s/g, '').replace(',', '.').replace('%', '');
+        if (!value) {
+            return null;
+        }
+        const parsedValue = Number.parseFloat(value);
+        return Number.isFinite(parsedValue) ? parsedValue : null;
+    }
+
+    function computeAverage(values) {
+        if (!values.length) {
+            return null;
+        }
+        return values.reduce((sum, value) => sum + value, 0) / values.length;
+    }
+
+    function formatPercentage(value) {
+        if (value === null) {
+            return '-';
+        }
+        return `${value.toFixed(1)} %`;
+    }
+
+    async function fetch3EClassData(selectedClass) {
         if (!SHEET_3E_CSV_URL) {
             throw new Error('URL CSV du fichier "3E - Techno" non configurée.');
         }
@@ -85,23 +111,35 @@
         const csvText = await response.text();
         const rows = parseCSV(csvText).filter((row) => row.some((cell) => (cell || '').trim()));
         if (!rows.length) {
-            return 0;
+            return { studentsCount: 0, averageB: null, averageT: null, averageA: null };
         }
 
         const header = rows[0].map((cell) => normalize(cell));
         const classIdx = header.findIndex((col) => col === 'classe');
         const nameIdx = header.findIndex((col) => col === 'nom');
+        const indicatorBIdx = header.findIndex((col) => col === 'b');
+        const indicatorTIdx = header.findIndex((col) => col === 't');
+        const indicatorAIdx = header.findIndex((col) => col === 'a');
 
-        if (classIdx === -1 || nameIdx === -1) {
-            throw new Error('Colonnes attendues introuvables (classe / nom).');
+        if (classIdx === -1 || nameIdx === -1 || indicatorBIdx === -1 || indicatorTIdx === -1 || indicatorAIdx === -1) {
+            throw new Error('Colonnes attendues introuvables (classe / nom / B / T / A).');
         }
 
         const normalizedSelectedClass = normalize(selectedClass);
-
-        return rows
+        const classRows = rows
             .slice(1)
-            .filter((row) => normalize(row[classIdx]) === normalizedSelectedClass && (row[nameIdx] || '').trim())
-            .length;
+            .filter((row) => normalize(row[classIdx]) === normalizedSelectedClass && (row[nameIdx] || '').trim());
+
+        const bValues = classRows.map((row) => parsePercentage(row[indicatorBIdx])).filter((value) => value !== null);
+        const tValues = classRows.map((row) => parsePercentage(row[indicatorTIdx])).filter((value) => value !== null);
+        const aValues = classRows.map((row) => parsePercentage(row[indicatorAIdx])).filter((value) => value !== null);
+
+        return {
+            studentsCount: classRows.length,
+            averageB: computeAverage(bValues),
+            averageT: computeAverage(tValues),
+            averageA: computeAverage(aValues),
+        };
     }
 
     async function refreshClassInfo() {
@@ -111,25 +149,40 @@
 
         if (!className) {
             studentsCountElement.textContent = 'Effectif (3E) : -';
+            indicatorBElement.textContent = 'Sérieux (B) : -';
+            indicatorTElement.textContent = 'Travail (T) : -';
+            indicatorAElement.textContent = 'Autonomie (A) : -';
             statusElement.textContent = 'Sélectionnez une classe pour afficher ses informations.';
             return;
         }
 
         if (!TROISIEME_CLASSES.has(className.toUpperCase())) {
             studentsCountElement.textContent = 'Effectif (3E) : -';
+            indicatorBElement.textContent = 'Sérieux (B) : -';
+            indicatorTElement.textContent = 'Travail (T) : -';
+            indicatorAElement.textContent = 'Autonomie (A) : -';
             statusElement.textContent = 'Cette classe ne fait pas partie des classes de 3e.';
             return;
         }
 
         studentsCountElement.textContent = 'Effectif (3E) : Chargement...';
+        indicatorBElement.textContent = 'Sérieux (B) : Chargement...';
+        indicatorTElement.textContent = 'Travail (T) : Chargement...';
+        indicatorAElement.textContent = 'Autonomie (A) : Chargement...';
         statusElement.textContent = 'Lecture des données de l\'onglet "Suivi Eleve 3E"...';
 
         try {
-            const studentsCount = await fetch3EStudentsCount(className);
-            studentsCountElement.textContent = `Effectif (3E) : ${studentsCount} élèves`;
+            const classData = await fetch3EClassData(className);
+            studentsCountElement.textContent = `Effectif (3E) : ${classData.studentsCount} élèves`;
+            indicatorBElement.textContent = `Sérieux (B) : ${formatPercentage(classData.averageB)}`;
+            indicatorTElement.textContent = `Travail (T) : ${formatPercentage(classData.averageT)}`;
+            indicatorAElement.textContent = `Autonomie (A) : ${formatPercentage(classData.averageA)}`;
             statusElement.textContent = 'Données chargées avec succès.';
         } catch (error) {
             studentsCountElement.textContent = 'Effectif (3E) : -';
+            indicatorBElement.textContent = 'Sérieux (B) : -';
+            indicatorTElement.textContent = 'Travail (T) : -';
+            indicatorAElement.textContent = 'Autonomie (A) : -';
             statusElement.textContent = error instanceof Error ? error.message : 'Erreur lors du chargement des données.';
         }
     }
