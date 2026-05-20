@@ -84,23 +84,23 @@
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
 
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(1046, now);
-        oscillator.frequency.exponentialRampToValueAtTime(1319, now + 0.05);
-        oscillator.frequency.exponentialRampToValueAtTime(988, now + 0.42);
+        oscillator.type = 'triangle';
+        oscillator.frequency.setValueAtTime(1050, now);
+        oscillator.frequency.exponentialRampToValueAtTime(1520, now + 0.14);
+        oscillator.frequency.exponentialRampToValueAtTime(860, now + 1.35);
 
         gainNode.gain.setValueAtTime(0.0001, now);
-        gainNode.gain.exponentialRampToValueAtTime(0.35, now + 0.015);
-        gainNode.gain.exponentialRampToValueAtTime(0.09, now + 0.16);
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+        gainNode.gain.exponentialRampToValueAtTime(1, now + 0.03);
+        gainNode.gain.exponentialRampToValueAtTime(0.55, now + 0.2);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 1.35);
 
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
         oscillator.start(now);
-        oscillator.stop(now + 0.5);
+        oscillator.stop(now + 1.4);
 
         setTimeout(() => {
             audioContext.close();
-        }, 700);
+        }, 1600);
     });
 })();
