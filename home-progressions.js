@@ -382,6 +382,7 @@
         card.appendChild(timer);
         card.appendChild(actions);
 
+        setCompactMode(true);
         updateDisplay();
         return {
             element: card,
