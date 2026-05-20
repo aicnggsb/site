@@ -24,9 +24,11 @@
     const teamsPopupStatusElement = document.getElementById('teams-popup-status');
     const saveTeamsButton = document.getElementById('save-teams-button');
     const loadTeamsButton = document.getElementById('load-teams-button');
+    const classBMinusButton = document.getElementById('class-bminus-button');
+    const classTMinusButton = document.getElementById('class-tminus-button');
     const exportBminusCsvButton = document.getElementById('export-bminus-csv-button');
     const TEAMS_COOKIE_PREFIX = 'savedTeams_';
-    const BMINUS_COOKIE_PREFIX = 'bminusSession_';
+    const SESSION_SCORES_COOKIE_PREFIX = 'sessionScores_';
 
     let lastClassStudents = [];
     let currentTeams = [];
@@ -247,13 +249,28 @@
             const teamBMinusButton = document.createElement('button');
             teamBMinusButton.type = 'button';
             teamBMinusButton.className = 'team-details-button';
-            teamBMinusButton.textContent = 'B';
+            teamBMinusButton.textContent = 'B-';
             teamBMinusButton.title = 'Enregistrer B- pour toute l’équipe (séance en cours)';
             teamBMinusButton.addEventListener('click', () => {
-                team.forEach((student) => recordBMinusForStudent(student.name));
-                teamsPopupStatusElement.textContent = `B- enregistré pour l'équipe ${index + 1} (${team.length} élèves).`;
+                team.forEach((student) => updateSessionScore(student.name, 'b', -1));
             });
             teamHeader.appendChild(teamBMinusButton);
+            const teamTPlusButton = document.createElement('button');
+            teamTPlusButton.type = 'button';
+            teamTPlusButton.className = 'team-details-button';
+            teamTPlusButton.textContent = 'T+';
+            teamTPlusButton.addEventListener('click', () => {
+                team.forEach((student) => updateSessionScore(student.name, 't', 1));
+            });
+            teamHeader.appendChild(teamTPlusButton);
+            const teamTMinusButton = document.createElement('button');
+            teamTMinusButton.type = 'button';
+            teamTMinusButton.className = 'team-details-button';
+            teamTMinusButton.textContent = 'T-';
+            teamTMinusButton.addEventListener('click', () => {
+                team.forEach((student) => updateSessionScore(student.name, 't', -1));
+            });
+            teamHeader.appendChild(teamTMinusButton);
 
             const teamIndicators = createIndicatorsRow({
                 b: computeAverage(team.map((student) => student.b).filter((value) => value !== null)),
@@ -279,6 +296,7 @@
 
             const detailsList = document.createElement('ul');
             detailsList.className = 'team-students-list';
+            detailsList.classList.add('hide-action-buttons');
             detailsList.dataset.teamIndex = String(index);
             detailsList.addEventListener('dragover', (event) => {
                 event.preventDefault();
@@ -311,12 +329,21 @@
                 const studentBMinusButton = document.createElement('button');
                 studentBMinusButton.type = 'button';
                 studentBMinusButton.className = 'team-details-button';
-                studentBMinusButton.textContent = 'B';
+                studentBMinusButton.textContent = 'B-';
                 studentBMinusButton.title = `Enregistrer B- pour ${student.name} (séance en cours)`;
                 studentBMinusButton.addEventListener('click', () => {
-                    recordBMinusForStudent(student.name);
-                    teamsPopupStatusElement.textContent = `B- enregistré pour ${student.name}.`;
+                    updateSessionScore(student.name, 'b', -1);
                 });
+                const studentTPlusButton = document.createElement('button');
+                studentTPlusButton.type = 'button';
+                studentTPlusButton.className = 'team-details-button';
+                studentTPlusButton.textContent = 'T+';
+                studentTPlusButton.addEventListener('click', () => updateSessionScore(student.name, 't', 1));
+                const studentTMinusButton = document.createElement('button');
+                studentTMinusButton.type = 'button';
+                studentTMinusButton.className = 'team-details-button';
+                studentTMinusButton.textContent = 'T-';
+                studentTMinusButton.addEventListener('click', () => updateSessionScore(student.name, 't', -1));
 
                 const studentIndicators = createIndicatorsRow({
                     b: student.b,
@@ -330,6 +357,8 @@
 
                 item.appendChild(name);
                 item.appendChild(studentBMinusButton);
+                item.appendChild(studentTPlusButton);
+                item.appendChild(studentTMinusButton);
                 item.appendChild(studentIndicators);
                 detailsList.appendChild(item);
             });
@@ -340,6 +369,7 @@
                 const showIndicators = detailsPanel.classList.toggle('indicators-hidden') === false;
                 detailsButton.setAttribute('aria-pressed', String(showIndicators));
                 detailsButton.textContent = showIndicators ? '−' : '+';
+                detailsList.classList.toggle('hide-action-buttons', showIndicators);
             });
 
             card.appendChild(teamHeader);
@@ -358,13 +388,13 @@
         return `${yyyy}-${mm}-${dd}`;
     }
 
-    function getBMinusCookieName() {
+    function getSessionScoresCookieName() {
         const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
-        return `${BMINUS_COOKIE_PREFIX}${selectedClass}_${getSessionDateKey()}`;
+        return `${SESSION_SCORES_COOKIE_PREFIX}${selectedClass}_${getSessionDateKey()}`;
     }
 
-    function getBMinusSessionMap() {
-        const raw = getCookie(getBMinusCookieName());
+    function getSessionScoresMap() {
+        const raw = getCookie(getSessionScoresCookieName());
         if (!raw) {
             return {};
         }
@@ -376,35 +406,41 @@
         }
     }
 
-    function saveBMinusSessionMap(sessionMap) {
-        setCookie(getBMinusCookieName(), JSON.stringify(sessionMap), 30);
+    function saveSessionScoresMap(sessionMap) {
+        setCookie(getSessionScoresCookieName(), JSON.stringify(sessionMap), 30);
     }
 
-    function recordBMinusForStudent(studentName) {
-        if (!studentName) {
+    function updateSessionScore(studentName, indicator, delta) {
+        if (!studentName || !['b', 't'].includes(indicator)) {
             return;
         }
-        const sessionMap = getBMinusSessionMap();
-        sessionMap[studentName] = (Number(sessionMap[studentName]) || 0) + 1;
-        saveBMinusSessionMap(sessionMap);
+        const sessionMap = getSessionScoresMap();
+        if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
+            sessionMap[studentName] = { b: 0, t: 0 };
+        }
+        sessionMap[studentName][indicator] = (Number(sessionMap[studentName][indicator]) || 0) + delta;
+        saveSessionScoresMap(sessionMap);
     }
 
-    function renderBMinusCsv() {
-        const sessionMap = getBMinusSessionMap();
-        const rows = Object.entries(sessionMap)
-            .sort((lhs, rhs) => lhs[0].localeCompare(rhs[0], 'fr'))
-            .map(([studentName, count]) => `${studentName},${count}`);
-        const csvContent = ['Nom,B-', ...rows].join('\n');
+    function renderSessionTable() {
+        const sessionMap = getSessionScoresMap();
+        const rows = Object.entries(sessionMap).sort((lhs, rhs) => lhs[0].localeCompare(rhs[0], 'fr'));
         const sessionDate = getSessionDateKey();
         const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
-        const csvWindow = window.open('', '_blank');
-        if (!csvWindow) {
-            teamsPopupStatusElement.textContent = 'Impossible d’ouvrir la fenêtre CSV (popup bloquée).';
+        const viewWindow = window.open('', '_blank');
+        if (!viewWindow) {
+            teamsPopupStatusElement.textContent = 'Impossible d’ouvrir la fenêtre du tableau (popup bloquée).';
             return;
         }
-        csvWindow.document.write(`<pre>${csvContent}</pre>`);
-        csvWindow.document.title = `CSV B- ${selectedClass} ${sessionDate}`;
-        teamsPopupStatusElement.textContent = `CSV B- affiché pour ${selectedClass} (${sessionDate}).`;
+        const tableRows = rows.length ? rows.map(([name, scores]) => {
+            const b = Number(scores.b) || 0;
+            const t = Number(scores.t) || 0;
+            const bHue = ((clamp(b, -5, 5) + 5) / 10) * 120;
+            const tHue = ((clamp(t, -5, 5) + 5) / 10) * 120;
+            return `<tr><td>${name}</td><td style="background:hsl(${bHue} 90% 50% / .2);color:hsl(${bHue} 90% 38%)">${b}</td><td style="background:hsl(${tHue} 90% 50% / .2);color:hsl(${tHue} 90% 38%)">${t}</td></tr>`;
+        }).join('') : '<tr><td colspan="3">Aucune donnée de séance.</td></tr>';
+        viewWindow.document.write(`<html><head><title>Tableau séance ${selectedClass}</title><style>body{font-family:Arial,sans-serif;padding:20px}table{border-collapse:collapse;width:100%;max-width:680px}th,td{border:1px solid #ccc;padding:8px 10px}th{background:#111827;color:#fff;text-align:left}</style></head><body><h3>Tableau séance ${selectedClass} (${sessionDate})</h3><p>Copiez-collez ce tableau dans Excel ou Google Sheets.</p><table><thead><tr><th>Nom</th><th>B</th><th>T</th></tr></thead><tbody>${tableRows}</tbody></table></body></html>`);
+        viewWindow.document.close();
     }
 
     function updateTeamStatusMessage() {
@@ -636,6 +672,16 @@
                 teamsPopupStatusElement.textContent = 'Équipes sauvegardées.';
             });
         }
+        if (classBMinusButton) {
+            classBMinusButton.addEventListener('click', () => {
+                currentTeams.flat().forEach((student) => updateSessionScore(student.name, 'b', -1));
+            });
+        }
+        if (classTMinusButton) {
+            classTMinusButton.addEventListener('click', () => {
+                currentTeams.flat().forEach((student) => updateSessionScore(student.name, 't', -1));
+            });
+        }
     if (loadTeamsButton) {
             loadTeamsButton.addEventListener('click', () => {
                 const className = getSelectedClass();
@@ -674,7 +720,7 @@
 
     if (exportBminusCsvButton) {
         exportBminusCsvButton.addEventListener('click', () => {
-            renderBMinusCsv();
+            renderSessionTable();
         });
     }
 
