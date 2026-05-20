@@ -1773,6 +1773,18 @@ svg.axe { display: block; margin: 0.5em 0; }
     margin-top: 12px;
 }
 
+.teams-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-right: 50px;
+}
+
+.teams-popup-header h3 {
+    margin: 0;
+}
+
 .teams-popup-actions {
     display: flex;
     gap: 10px;
@@ -1911,4 +1923,15 @@ svg.axe { display: block; margin: 0.5em 0; }
 
 .team-details-panel:not(.indicators-hidden) .team-details-button {
     display: none;
+}
+
+.team-student-name {
+    margin-right: auto;
+}
+
+.team-student-actions {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }

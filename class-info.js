@@ -249,7 +249,7 @@
             const teamBMinusButton = document.createElement('button');
             teamBMinusButton.type = 'button';
             teamBMinusButton.className = 'team-details-button';
-            teamBMinusButton.textContent = 'B-';
+            teamBMinusButton.textContent = '🔵➖';
             teamBMinusButton.title = 'Enregistrer B- pour toute l’équipe (séance en cours)';
             teamBMinusButton.addEventListener('click', () => {
                 team.forEach((student) => updateSessionScore(student.name, 'b', -1));
@@ -258,7 +258,7 @@
             const teamTPlusButton = document.createElement('button');
             teamTPlusButton.type = 'button';
             teamTPlusButton.className = 'team-details-button';
-            teamTPlusButton.textContent = 'T+';
+            teamTPlusButton.textContent = '🟠➕';
             teamTPlusButton.addEventListener('click', () => {
                 team.forEach((student) => updateSessionScore(student.name, 't', 1));
             });
@@ -266,7 +266,7 @@
             const teamTMinusButton = document.createElement('button');
             teamTMinusButton.type = 'button';
             teamTMinusButton.className = 'team-details-button';
-            teamTMinusButton.textContent = 'T-';
+            teamTMinusButton.textContent = '🟠➖';
             teamTMinusButton.addEventListener('click', () => {
                 team.forEach((student) => updateSessionScore(student.name, 't', -1));
             });
@@ -325,11 +325,12 @@
                 });
 
                 const name = document.createElement('span');
+                name.className = 'team-student-name';
                 name.textContent = student.name;
                 const studentBMinusButton = document.createElement('button');
                 studentBMinusButton.type = 'button';
                 studentBMinusButton.className = 'team-details-button';
-                studentBMinusButton.textContent = 'B-';
+                studentBMinusButton.textContent = '🔵➖';
                 studentBMinusButton.title = `Enregistrer B- pour ${student.name} (séance en cours)`;
                 studentBMinusButton.addEventListener('click', () => {
                     updateSessionScore(student.name, 'b', -1);
@@ -337,12 +338,12 @@
                 const studentTPlusButton = document.createElement('button');
                 studentTPlusButton.type = 'button';
                 studentTPlusButton.className = 'team-details-button';
-                studentTPlusButton.textContent = 'T+';
+                studentTPlusButton.textContent = '🟠➕';
                 studentTPlusButton.addEventListener('click', () => updateSessionScore(student.name, 't', 1));
                 const studentTMinusButton = document.createElement('button');
                 studentTMinusButton.type = 'button';
                 studentTMinusButton.className = 'team-details-button';
-                studentTMinusButton.textContent = 'T-';
+                studentTMinusButton.textContent = '🟠➖';
                 studentTMinusButton.addEventListener('click', () => updateSessionScore(student.name, 't', -1));
 
                 const studentIndicators = createIndicatorsRow({
@@ -355,10 +356,14 @@
                 });
                 studentIndicators.classList.add('team-student-indicators');
 
+                const studentActions = document.createElement('div');
+                studentActions.className = 'team-student-actions';
+                studentActions.appendChild(studentBMinusButton);
+                studentActions.appendChild(studentTPlusButton);
+                studentActions.appendChild(studentTMinusButton);
+
                 item.appendChild(name);
-                item.appendChild(studentBMinusButton);
-                item.appendChild(studentTPlusButton);
-                item.appendChild(studentTMinusButton);
+                item.appendChild(studentActions);
                 item.appendChild(studentIndicators);
                 detailsList.appendChild(item);
             });
@@ -424,7 +429,15 @@
 
     function renderSessionTable() {
         const sessionMap = getSessionScoresMap();
-        const rows = Object.entries(sessionMap).sort((lhs, rhs) => lhs[0].localeCompare(rhs[0], 'fr'));
+        const originalOrder = new Map(lastClassStudents.map((student, idx) => [student.name, idx]));
+        const rows = Object.entries(sessionMap).sort((lhs, rhs) => {
+            const lIdx = originalOrder.has(lhs[0]) ? originalOrder.get(lhs[0]) : Number.POSITIVE_INFINITY;
+            const rIdx = originalOrder.has(rhs[0]) ? originalOrder.get(rhs[0]) : Number.POSITIVE_INFINITY;
+            if (lIdx !== rIdx) {
+                return lIdx - rIdx;
+            }
+            return lhs[0].localeCompare(rhs[0], 'fr');
+        });
         const sessionDate = getSessionDateKey();
         const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
         const viewWindow = window.open('', '_blank');
