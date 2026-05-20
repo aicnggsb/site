@@ -24,7 +24,9 @@
     const teamsPopupStatusElement = document.getElementById('teams-popup-status');
     const saveTeamsButton = document.getElementById('save-teams-button');
     const loadTeamsButton = document.getElementById('load-teams-button');
+    const exportBminusCsvButton = document.getElementById('export-bminus-csv-button');
     const TEAMS_COOKIE_PREFIX = 'savedTeams_';
+    const BMINUS_COOKIE_PREFIX = 'bminusSession_';
 
     let lastClassStudents = [];
     let currentTeams = [];
@@ -236,8 +238,22 @@
         teams.forEach((team, index) => {
             const card = document.createElement('article');
             card.className = 'team-card';
+            const teamHeader = document.createElement('div');
+            teamHeader.className = 'card-header-with-toggle';
             const title = document.createElement('h4');
             title.textContent = `Équipe ${index + 1} (${team.length} élèves)`;
+            teamHeader.appendChild(title);
+
+            const teamBMinusButton = document.createElement('button');
+            teamBMinusButton.type = 'button';
+            teamBMinusButton.className = 'team-details-button';
+            teamBMinusButton.textContent = 'B';
+            teamBMinusButton.title = 'Enregistrer B- pour toute l’équipe (séance en cours)';
+            teamBMinusButton.addEventListener('click', () => {
+                team.forEach((student) => recordBMinusForStudent(student.name));
+                teamsPopupStatusElement.textContent = `B- enregistré pour l'équipe ${index + 1} (${team.length} élèves).`;
+            });
+            teamHeader.appendChild(teamBMinusButton);
 
             const teamIndicators = createIndicatorsRow({
                 b: computeAverage(team.map((student) => student.b).filter((value) => value !== null)),
@@ -292,6 +308,15 @@
 
                 const name = document.createElement('span');
                 name.textContent = student.name;
+                const studentBMinusButton = document.createElement('button');
+                studentBMinusButton.type = 'button';
+                studentBMinusButton.className = 'team-details-button';
+                studentBMinusButton.textContent = 'B';
+                studentBMinusButton.title = `Enregistrer B- pour ${student.name} (séance en cours)`;
+                studentBMinusButton.addEventListener('click', () => {
+                    recordBMinusForStudent(student.name);
+                    teamsPopupStatusElement.textContent = `B- enregistré pour ${student.name}.`;
+                });
 
                 const studentIndicators = createIndicatorsRow({
                     b: student.b,
@@ -304,6 +329,7 @@
                 studentIndicators.classList.add('team-student-indicators');
 
                 item.appendChild(name);
+                item.appendChild(studentBMinusButton);
                 item.appendChild(studentIndicators);
                 detailsList.appendChild(item);
             });
@@ -316,12 +342,69 @@
                 detailsButton.textContent = showIndicators ? '−' : '+';
             });
 
-            card.appendChild(title);
+            card.appendChild(teamHeader);
             card.appendChild(teamIndicators);
             card.appendChild(detailsButton);
             card.appendChild(detailsPanel);
             teamsPopupListElement.appendChild(card);
         });
+    }
+
+    function getSessionDateKey() {
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function getBMinusCookieName() {
+        const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
+        return `${BMINUS_COOKIE_PREFIX}${selectedClass}_${getSessionDateKey()}`;
+    }
+
+    function getBMinusSessionMap() {
+        const raw = getCookie(getBMinusCookieName());
+        if (!raw) {
+            return {};
+        }
+        try {
+            const parsed = JSON.parse(raw);
+            return parsed && typeof parsed === 'object' ? parsed : {};
+        } catch (error) {
+            return {};
+        }
+    }
+
+    function saveBMinusSessionMap(sessionMap) {
+        setCookie(getBMinusCookieName(), JSON.stringify(sessionMap), 30);
+    }
+
+    function recordBMinusForStudent(studentName) {
+        if (!studentName) {
+            return;
+        }
+        const sessionMap = getBMinusSessionMap();
+        sessionMap[studentName] = (Number(sessionMap[studentName]) || 0) + 1;
+        saveBMinusSessionMap(sessionMap);
+    }
+
+    function renderBMinusCsv() {
+        const sessionMap = getBMinusSessionMap();
+        const rows = Object.entries(sessionMap)
+            .sort((lhs, rhs) => lhs[0].localeCompare(rhs[0], 'fr'))
+            .map(([studentName, count]) => `${studentName},${count}`);
+        const csvContent = ['Nom,B-', ...rows].join('\n');
+        const sessionDate = getSessionDateKey();
+        const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
+        const csvWindow = window.open('', '_blank');
+        if (!csvWindow) {
+            teamsPopupStatusElement.textContent = 'Impossible d’ouvrir la fenêtre CSV (popup bloquée).';
+            return;
+        }
+        csvWindow.document.write(`<pre>${csvContent}</pre>`);
+        csvWindow.document.title = `CSV B- ${selectedClass} ${sessionDate}`;
+        teamsPopupStatusElement.textContent = `CSV B- affiché pour ${selectedClass} (${sessionDate}).`;
     }
 
     function updateTeamStatusMessage() {
@@ -553,7 +636,7 @@
                 teamsPopupStatusElement.textContent = 'Équipes sauvegardées.';
             });
         }
-        if (loadTeamsButton) {
+    if (loadTeamsButton) {
             loadTeamsButton.addEventListener('click', () => {
                 const className = getSelectedClass();
                 if (!className) {
@@ -586,6 +669,12 @@
             if (event.target === teamsPopupElement) {
                 teamsPopupElement.hidden = true;
             }
+        });
+    }
+
+    if (exportBminusCsvButton) {
+        exportBminusCsvButton.addEventListener('click', () => {
+            renderBMinusCsv();
         });
     }
 
