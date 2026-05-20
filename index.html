@@ -108,14 +108,16 @@
 
     <div id="teams-popup" class="teams-popup" hidden>
         <div class="teams-popup-panel">
-            <button id="close-teams-popup" type="button" class="teams-popup-close">Fermer</button>
-            <h3>Gestion des équipes</h3>
-            <div class="teams-popup-actions">
-                <button id="save-teams-button" type="button" class="generate-teams-button">Sauvegarder les équipes</button>
-                <button id="load-teams-button" type="button" class="generate-teams-button">Recharger les équipes</button>
-                <button id="class-bminus-button" type="button" class="generate-teams-button">Classe B-</button>
-                <button id="class-tminus-button" type="button" class="generate-teams-button">Classe T-</button>
-                <button id="export-bminus-csv-button" type="button" class="generate-teams-button">Afficher tableau B/T (séance)</button>
+            <button id="close-teams-popup" type="button" class="teams-popup-close" aria-label="Fermer">✖️</button>
+            <div class="teams-popup-header">
+                <h3>Gestion de classe</h3>
+                <div class="teams-popup-actions">
+                <button id="save-teams-button" type="button" class="generate-teams-button" aria-label="Sauvegarder les équipes" title="Sauvegarder les équipes">💾</button>
+                <button id="load-teams-button" type="button" class="generate-teams-button" aria-label="Recharger les équipes" title="Recharger les équipes">📥</button>
+                <button id="class-bminus-button" type="button" class="generate-teams-button" aria-label="Classe B-" title="Classe B-">🔵➖</button>
+                <button id="class-tminus-button" type="button" class="generate-teams-button" aria-label="Classe T-" title="Classe T-">🟠➖</button>
+                <button id="export-bminus-csv-button" type="button" class="generate-teams-button" aria-label="Afficher tableau B/T (séance)" title="Afficher tableau B/T (séance)">📊</button>
+                </div>
             </div>
             <p id="teams-popup-status"></p>
             <div id="teams-popup-list" class="teams-popup-list"></div>
