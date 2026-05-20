@@ -115,7 +115,7 @@
                 <button id="save-teams-button" type="button" class="generate-teams-button" aria-label="Sauvegarder les équipes" title="Sauvegarder les équipes">💾</button>
                 <button id="load-teams-button" type="button" class="generate-teams-button" aria-label="Recharger les équipes" title="Recharger les équipes">📥</button>
                 <button id="class-eval-button" type="button" class="generate-teams-button" aria-label="Évaluer la classe" title="Évaluer la classe">📝</button>
-                <button id="export-bminus-csv-button" type="button" class="generate-teams-button" aria-label="Afficher tableau B/T (séance)" title="Afficher tableau B/T (séance)">📊</button>
+                <button id="export-bminus-csv-button" type="button" class="generate-teams-button" aria-label="Afficher tableau B/T/A (séance)" title="Afficher tableau B/T/A (séance)">📊</button>
                 </div>
             </div>
             <p id="teams-popup-status"></p>
@@ -126,10 +126,16 @@
         <div class="eval-popup-panel">
             <button id="close-eval-popup" type="button" class="eval-popup-close">Fermer</button>
             <h3 id="eval-popup-title">Évaluer</h3>
+            <div class="eval-popup-session-leds">
+                <span>B séance: <span id="eval-session-led-b" class="indicator-light" aria-label="Voyant B séance"></span></span>
+                <span>T séance: <span id="eval-session-led-t" class="indicator-light" aria-label="Voyant T séance"></span></span>
+            </div>
             <div class="eval-popup-actions">
                 <button id="eval-bminus" type="button" class="eval-action-button">B-</button>
                 <button id="eval-tplus" type="button" class="eval-action-button">T+</button>
                 <button id="eval-tminus" type="button" class="eval-action-button">T-</button>
+                <button id="eval-aplus" type="button" class="eval-action-button">A+</button>
+                <button id="eval-aminus" type="button" class="eval-action-button">A-</button>
             </div>
             <label for="eval-comment">Commentaire</label>
             <textarea id="eval-comment" rows="3" placeholder="Ajouter un commentaire..."></textarea>
