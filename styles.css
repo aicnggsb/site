@@ -1935,3 +1935,53 @@ svg.axe { display: block; margin: 0.5em 0; }
     align-items: center;
     gap: 6px;
 }
+
+.eval-popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5300;
+}
+
+.eval-popup[hidden] {
+    display: none;
+}
+
+.eval-popup-panel {
+    width: min(460px, 92vw);
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
+    padding: 18px;
+    position: relative;
+    display: grid;
+    gap: 10px;
+}
+
+.eval-popup-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.eval-popup-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.eval-action-button {
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.eval-action-button.selected {
+    background: rgba(220, 38, 38, 0.92);
+    border-color: #fecaca;
+}

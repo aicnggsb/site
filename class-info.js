@@ -24,14 +24,22 @@
     const teamsPopupStatusElement = document.getElementById('teams-popup-status');
     const saveTeamsButton = document.getElementById('save-teams-button');
     const loadTeamsButton = document.getElementById('load-teams-button');
-    const classBMinusButton = document.getElementById('class-bminus-button');
-    const classTMinusButton = document.getElementById('class-tminus-button');
+    const classEvalButton = document.getElementById('class-eval-button');
     const exportBminusCsvButton = document.getElementById('export-bminus-csv-button');
+    const evalPopupElement = document.getElementById('eval-popup');
+    const closeEvalPopupButton = document.getElementById('close-eval-popup');
+    const evalPopupTitle = document.getElementById('eval-popup-title');
+    const evalBMinusButton = document.getElementById('eval-bminus');
+    const evalTPlusButton = document.getElementById('eval-tplus');
+    const evalTMinusButton = document.getElementById('eval-tminus');
+    const evalCommentElement = document.getElementById('eval-comment');
+    const evalValidateButton = document.getElementById('eval-validate');
     const TEAMS_COOKIE_PREFIX = 'savedTeams_';
     const SESSION_SCORES_COOKIE_PREFIX = 'sessionScores_';
 
     let lastClassStudents = [];
     let currentTeams = [];
+    let pendingEvaluation = null;
 
     if (!classNameElement || !studentsCountElement || !indicatorBElement || !indicatorTElement || !indicatorAElement || !indicatorT1Element || !indicatorT2Element || !indicatorT3Element) {
         return;
@@ -246,31 +254,13 @@
             title.textContent = `Équipe ${index + 1} (${team.length} élèves)`;
             teamHeader.appendChild(title);
 
-            const teamBMinusButton = document.createElement('button');
-            teamBMinusButton.type = 'button';
-            teamBMinusButton.className = 'team-details-button';
-            teamBMinusButton.textContent = '🔵➖';
-            teamBMinusButton.title = 'Enregistrer B- pour toute l’équipe (séance en cours)';
-            teamBMinusButton.addEventListener('click', () => {
-                team.forEach((student) => updateSessionScore(student.name, 'b', -1));
-            });
-            teamHeader.appendChild(teamBMinusButton);
-            const teamTPlusButton = document.createElement('button');
-            teamTPlusButton.type = 'button';
-            teamTPlusButton.className = 'team-details-button';
-            teamTPlusButton.textContent = '🟠➕';
-            teamTPlusButton.addEventListener('click', () => {
-                team.forEach((student) => updateSessionScore(student.name, 't', 1));
-            });
-            teamHeader.appendChild(teamTPlusButton);
-            const teamTMinusButton = document.createElement('button');
-            teamTMinusButton.type = 'button';
-            teamTMinusButton.className = 'team-details-button';
-            teamTMinusButton.textContent = '🟠➖';
-            teamTMinusButton.addEventListener('click', () => {
-                team.forEach((student) => updateSessionScore(student.name, 't', -1));
-            });
-            teamHeader.appendChild(teamTMinusButton);
+            const teamEvalButton = document.createElement('button');
+            teamEvalButton.type = 'button';
+            teamEvalButton.className = 'team-details-button';
+            teamEvalButton.textContent = '📝';
+            teamEvalButton.title = 'Évaluer toute l’équipe';
+            teamEvalButton.addEventListener('click', () => openEvaluationPopup(`Équipe ${index + 1}`, team.map((student) => student.name)));
+            teamHeader.appendChild(teamEvalButton);
 
             const teamIndicators = createIndicatorsRow({
                 b: computeAverage(team.map((student) => student.b).filter((value) => value !== null)),
@@ -327,24 +317,12 @@
                 const name = document.createElement('span');
                 name.className = 'team-student-name';
                 name.textContent = student.name;
-                const studentBMinusButton = document.createElement('button');
-                studentBMinusButton.type = 'button';
-                studentBMinusButton.className = 'team-details-button';
-                studentBMinusButton.textContent = '🔵➖';
-                studentBMinusButton.title = `Enregistrer B- pour ${student.name} (séance en cours)`;
-                studentBMinusButton.addEventListener('click', () => {
-                    updateSessionScore(student.name, 'b', -1);
-                });
-                const studentTPlusButton = document.createElement('button');
-                studentTPlusButton.type = 'button';
-                studentTPlusButton.className = 'team-details-button';
-                studentTPlusButton.textContent = '🟠➕';
-                studentTPlusButton.addEventListener('click', () => updateSessionScore(student.name, 't', 1));
-                const studentTMinusButton = document.createElement('button');
-                studentTMinusButton.type = 'button';
-                studentTMinusButton.className = 'team-details-button';
-                studentTMinusButton.textContent = '🟠➖';
-                studentTMinusButton.addEventListener('click', () => updateSessionScore(student.name, 't', -1));
+                const studentEvalButton = document.createElement('button');
+                studentEvalButton.type = 'button';
+                studentEvalButton.className = 'team-details-button';
+                studentEvalButton.textContent = '📝';
+                studentEvalButton.title = `Évaluer ${student.name}`;
+                studentEvalButton.addEventListener('click', () => openEvaluationPopup(student.name, [student.name]));
 
                 const studentIndicators = createIndicatorsRow({
                     b: student.b,
@@ -358,9 +336,7 @@
 
                 const studentActions = document.createElement('div');
                 studentActions.className = 'team-student-actions';
-                studentActions.appendChild(studentBMinusButton);
-                studentActions.appendChild(studentTPlusButton);
-                studentActions.appendChild(studentTMinusButton);
+                studentActions.appendChild(studentEvalButton);
 
                 item.appendChild(name);
                 item.appendChild(studentActions);
@@ -383,6 +359,43 @@
             card.appendChild(detailsPanel);
             teamsPopupListElement.appendChild(card);
         });
+    }
+    function ensureSessionScoresInitialized(studentNames) {
+        const sessionMap = getSessionScoresMap();
+        let changed = false;
+        studentNames.forEach((studentName) => {
+            if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
+                sessionMap[studentName] = { b: 0, t: 0, comments: [] };
+                changed = true;
+            } else {
+                if (!Array.isArray(sessionMap[studentName].comments)) {
+                    sessionMap[studentName].comments = [];
+                    changed = true;
+                }
+                if (!Number.isFinite(Number(sessionMap[studentName].b))) {
+                    sessionMap[studentName].b = 0;
+                    changed = true;
+                }
+                if (!Number.isFinite(Number(sessionMap[studentName].t))) {
+                    sessionMap[studentName].t = 0;
+                    changed = true;
+                }
+            }
+        });
+        if (changed) {
+            saveSessionScoresMap(sessionMap);
+        }
+    }
+
+    function openEvaluationPopup(label, studentNames) {
+        if (!evalPopupElement || !studentNames.length) {
+            return;
+        }
+        pendingEvaluation = { studentNames, bDelta: 0, tDelta: 0 };
+        evalPopupTitle.textContent = `Évaluer : ${label}`;
+        evalCommentElement.value = '';
+        [evalBMinusButton, evalTPlusButton, evalTMinusButton].forEach((button) => button.classList.remove('selected'));
+        evalPopupElement.hidden = false;
     }
 
     function getSessionDateKey() {
@@ -421,7 +434,7 @@
         }
         const sessionMap = getSessionScoresMap();
         if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
-            sessionMap[studentName] = { b: 0, t: 0 };
+            sessionMap[studentName] = { b: 0, t: 0, comments: [] };
         }
         sessionMap[studentName][indicator] = (Number(sessionMap[studentName][indicator]) || 0) + delta;
         saveSessionScoresMap(sessionMap);
@@ -429,15 +442,7 @@
 
     function renderSessionTable() {
         const sessionMap = getSessionScoresMap();
-        const originalOrder = new Map(lastClassStudents.map((student, idx) => [student.name, idx]));
-        const rows = Object.entries(sessionMap).sort((lhs, rhs) => {
-            const lIdx = originalOrder.has(lhs[0]) ? originalOrder.get(lhs[0]) : Number.POSITIVE_INFINITY;
-            const rIdx = originalOrder.has(rhs[0]) ? originalOrder.get(rhs[0]) : Number.POSITIVE_INFINITY;
-            if (lIdx !== rIdx) {
-                return lIdx - rIdx;
-            }
-            return lhs[0].localeCompare(rhs[0], 'fr');
-        });
+        const rows = lastClassStudents.map((student) => [student.name, sessionMap[student.name] || { b: 0, t: 0 }]);
         const sessionDate = getSessionDateKey();
         const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
         const viewWindow = window.open('', '_blank');
@@ -651,6 +656,7 @@
             setIndicatorLight(indicatorT2Element, classData.averageT2, getIndicatorDisplayConfig('t2'));
             setIndicatorLight(indicatorT3Element, classData.averageT3, getIndicatorDisplayConfig('t3'));
             lastClassStudents = classData.students;
+            ensureSessionScoresInitialized(lastClassStudents.map((student) => student.name));
             if (statusElement) {
                 statusElement.textContent = 'Données chargées avec succès.';
             }
@@ -695,14 +701,9 @@
                 teamsPopupStatusElement.textContent = 'Équipes sauvegardées.';
             });
         }
-        if (classBMinusButton) {
-            classBMinusButton.addEventListener('click', () => {
-                currentTeams.flat().forEach((student) => updateSessionScore(student.name, 'b', -1));
-            });
-        }
-        if (classTMinusButton) {
-            classTMinusButton.addEventListener('click', () => {
-                currentTeams.flat().forEach((student) => updateSessionScore(student.name, 't', -1));
+        if (classEvalButton) {
+            classEvalButton.addEventListener('click', () => {
+                openEvaluationPopup('Classe', currentTeams.flat().map((student) => student.name));
             });
         }
     if (loadTeamsButton) {
@@ -744,6 +745,60 @@
     if (exportBminusCsvButton) {
         exportBminusCsvButton.addEventListener('click', () => {
             renderSessionTable();
+        });
+    }
+    if (evalPopupElement && closeEvalPopupButton) {
+        closeEvalPopupButton.addEventListener('click', () => {
+            evalPopupElement.hidden = true;
+        });
+        evalPopupElement.addEventListener('click', (event) => {
+            if (event.target === evalPopupElement) {
+                evalPopupElement.hidden = true;
+            }
+        });
+    }
+    if (evalBMinusButton) {
+        evalBMinusButton.addEventListener('click', () => {
+            if (!pendingEvaluation) return;
+            pendingEvaluation.bDelta -= 1;
+            evalBMinusButton.classList.add('selected');
+        });
+    }
+    if (evalTPlusButton) {
+        evalTPlusButton.addEventListener('click', () => {
+            if (!pendingEvaluation) return;
+            pendingEvaluation.tDelta += 1;
+            evalTPlusButton.classList.add('selected');
+        });
+    }
+    if (evalTMinusButton) {
+        evalTMinusButton.addEventListener('click', () => {
+            if (!pendingEvaluation) return;
+            pendingEvaluation.tDelta -= 1;
+            evalTMinusButton.classList.add('selected');
+        });
+    }
+    if (evalValidateButton) {
+        evalValidateButton.addEventListener('click', () => {
+            if (!pendingEvaluation) return;
+            const comment = (evalCommentElement.value || '').trim();
+            const sessionMap = getSessionScoresMap();
+            pendingEvaluation.studentNames.forEach((studentName) => {
+                if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
+                    sessionMap[studentName] = { b: 0, t: 0, comments: [] };
+                }
+                sessionMap[studentName].b = (Number(sessionMap[studentName].b) || 0) + pendingEvaluation.bDelta;
+                sessionMap[studentName].t = (Number(sessionMap[studentName].t) || 0) + pendingEvaluation.tDelta;
+                if (!Array.isArray(sessionMap[studentName].comments)) {
+                    sessionMap[studentName].comments = [];
+                }
+                if (comment) {
+                    sessionMap[studentName].comments.push(comment);
+                }
+            });
+            saveSessionScoresMap(sessionMap);
+            evalPopupElement.hidden = true;
+            pendingEvaluation = null;
         });
     }
 
