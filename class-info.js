@@ -33,7 +33,7 @@
     let lastClassStudents = [];
     let currentTeams = [];
 
-    if (!classNameElement || !studentsCountElement || !indicatorBElement || !indicatorTElement || !indicatorAElement || !indicatorT1Element || !indicatorT2Element || !indicatorT3Element || !statusElement) {
+    if (!classNameElement || !studentsCountElement || !indicatorBElement || !indicatorTElement || !indicatorAElement || !indicatorT1Element || !indicatorT2Element || !indicatorT3Element) {
         return;
     }
 
