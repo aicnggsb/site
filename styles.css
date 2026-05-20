@@ -1738,8 +1738,8 @@ svg.axe { display: block; margin: 0.5em 0; }
 }
 
 .teams-popup-panel {
-    width: min(920px, 95vw);
-    max-height: 88vh;
+    width: min(1120px, 96vw);
+    max-height: 92vh;
     overflow-y: auto;
     background: #0f172a;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1763,8 +1763,8 @@ svg.axe { display: block; margin: 0.5em 0; }
 
 .teams-popup-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
     margin-top: 12px;
 }
 
@@ -1827,7 +1827,7 @@ svg.axe { display: block; margin: 0.5em 0; }
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 10px;
-    padding: 10px;
+    padding: 8px;
 }
 
 .team-card h4 {
@@ -1847,8 +1847,9 @@ svg.axe { display: block; margin: 0.5em 0; }
 .team-details-button {
     border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: 999px;
-    width: 22px;
-    height: 22px;
+    min-width: 28px;
+    height: 24px;
+    padding: 0 6px;
     padding: 0;
     background: rgba(255, 255, 255, 0.06);
     color: rgba(255, 255, 255, 0.85);
@@ -1882,7 +1883,7 @@ svg.axe { display: block; margin: 0.5em 0; }
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 6px;
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 8px;
@@ -1896,5 +1897,13 @@ svg.axe { display: block; margin: 0.5em 0; }
 }
 
 .team-details-panel.indicators-hidden .team-student-indicators {
+    display: none;
+}
+
+.team-students-list.hide-action-buttons .team-details-button {
+    display: inline-flex;
+}
+
+.team-details-panel:not(.indicators-hidden) .team-details-button {
     display: none;
 }
