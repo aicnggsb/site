@@ -1967,9 +1967,22 @@ svg.axe { display: block; margin: 0.5em 0; }
     right: 10px;
 }
 
+.eval-popup-session-leds {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+}
+
+.eval-popup-session-leds span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .eval-popup-actions {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .eval-action-button {
@@ -1984,4 +1997,9 @@ svg.axe { display: block; margin: 0.5em 0; }
 .eval-action-button.selected {
     background: rgba(220, 38, 38, 0.92);
     border-color: #fecaca;
+}
+
+#eval-tplus.selected {
+    background: rgba(22, 163, 74, 0.95);
+    border-color: #bbf7d0;
 }

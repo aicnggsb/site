@@ -32,6 +32,10 @@
     const evalBMinusButton = document.getElementById('eval-bminus');
     const evalTPlusButton = document.getElementById('eval-tplus');
     const evalTMinusButton = document.getElementById('eval-tminus');
+    const evalAPlusButton = document.getElementById('eval-aplus');
+    const evalAMinusButton = document.getElementById('eval-aminus');
+    const evalSessionLedB = document.getElementById('eval-session-led-b');
+    const evalSessionLedT = document.getElementById('eval-session-led-t');
     const evalCommentElement = document.getElementById('eval-comment');
     const evalValidateButton = document.getElementById('eval-validate');
     const TEAMS_COOKIE_PREFIX = 'savedTeams_';
@@ -365,7 +369,7 @@
         let changed = false;
         studentNames.forEach((studentName) => {
             if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
-                sessionMap[studentName] = { b: 0, t: 0, comments: [] };
+                sessionMap[studentName] = { b: 3, t: 3, a: 0, comments: [] };
                 changed = true;
             } else {
                 if (!Array.isArray(sessionMap[studentName].comments)) {
@@ -391,10 +395,11 @@
         if (!evalPopupElement || !studentNames.length) {
             return;
         }
-        pendingEvaluation = { studentNames, bDelta: 0, tDelta: 0 };
+        pendingEvaluation = { studentNames, bDelta: 0, tDelta: 0, aDelta: 0 };
         evalPopupTitle.textContent = `Évaluer : ${label}`;
         evalCommentElement.value = '';
-        [evalBMinusButton, evalTPlusButton, evalTMinusButton].forEach((button) => button.classList.remove('selected'));
+        [evalBMinusButton, evalTPlusButton, evalTMinusButton, evalAPlusButton, evalAMinusButton].forEach((button) => button.classList.remove('selected'));
+        updateSessionLeds(studentNames);
         evalPopupElement.hidden = false;
     }
 
@@ -434,7 +439,7 @@
         }
         const sessionMap = getSessionScoresMap();
         if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
-            sessionMap[studentName] = { b: 0, t: 0, comments: [] };
+            sessionMap[studentName] = { b: 3, t: 3, a: 0, comments: [] };
         }
         sessionMap[studentName][indicator] = (Number(sessionMap[studentName][indicator]) || 0) + delta;
         saveSessionScoresMap(sessionMap);
@@ -442,7 +447,7 @@
 
     function renderSessionTable() {
         const sessionMap = getSessionScoresMap();
-        const rows = lastClassStudents.map((student) => [student.name, sessionMap[student.name] || { b: 0, t: 0 }]);
+        const rows = lastClassStudents.map((student) => [student.name, sessionMap[student.name] || { b: 3, t: 3, a: 0, comments: [] }]);
         const sessionDate = getSessionDateKey();
         const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
         const viewWindow = window.open('', '_blank');
@@ -451,14 +456,40 @@
             return;
         }
         const tableRows = rows.length ? rows.map(([name, scores]) => {
-            const b = Number(scores.b) || 0;
-            const t = Number(scores.t) || 0;
-            const bHue = ((clamp(b, -5, 5) + 5) / 10) * 120;
-            const tHue = ((clamp(t, -5, 5) + 5) / 10) * 120;
-            return `<tr><td>${name}</td><td style="background:hsl(${bHue} 90% 50% / .2);color:hsl(${bHue} 90% 38%)">${b}</td><td style="background:hsl(${tHue} 90% 50% / .2);color:hsl(${tHue} 90% 38%)">${t}</td></tr>`;
-        }).join('') : '<tr><td colspan="3">Aucune donnée de séance.</td></tr>';
-        viewWindow.document.write(`<html><head><title>Tableau séance ${selectedClass}</title><style>body{font-family:Arial,sans-serif;padding:20px}table{border-collapse:collapse;width:100%;max-width:680px}th,td{border:1px solid #ccc;padding:8px 10px}th{background:#111827;color:#fff;text-align:left}</style></head><body><h3>Tableau séance ${selectedClass} (${sessionDate})</h3><p>Copiez-collez ce tableau dans Excel ou Google Sheets.</p><table><thead><tr><th>Nom</th><th>B</th><th>T</th></tr></thead><tbody>${tableRows}</tbody></table></body></html>`);
+            const b = Number(scores.b) || 3;
+            const t = Number(scores.t) || 3;
+            const a = Number(scores.a) || 0;
+            const bHue = ((clamp(b, -3, 3) + 3) / 6) * 120;
+            const tHue = ((clamp(t, -3, 3) + 3) / 6) * 120;
+            const aHue = ((clamp(a, -3, 3) + 3) / 6) * 120;
+            const comments = Array.isArray(scores.comments) ? scores.comments.join(' | ') : '';
+            return `<tr><td>${selectedClass}</td><td>${getTeamLabelForStudent(name)}</td><td>${name}</td><td style="background:hsl(${bHue} 90% 50% / .2);color:hsl(${bHue} 90% 38%)">${b}</td><td style="background:hsl(${tHue} 90% 50% / .2);color:hsl(${tHue} 90% 38%)">${t}</td><td style="background:hsl(${aHue} 90% 50% / .2);color:hsl(${aHue} 90% 38%)">${a}</td><td>${comments}</td></tr>`;
+        }).join('') : '<tr><td colspan="7">Aucune donnée de séance.</td></tr>';
+        viewWindow.document.write(`<html><head><title>Tableau séance ${selectedClass}</title><style>body{font-family:Arial,sans-serif;padding:20px}table{border-collapse:collapse;width:100%;max-width:680px}th,td{border:1px solid #ccc;padding:8px 10px}th{background:#111827;color:#fff;text-align:left}</style></head><body><h3>Tableau séance ${selectedClass} (${sessionDate})</h3><p>Ordre export: Classe, Équipe, Élève, B, T, A et commentaire.</p><table><thead><tr><th>Classe</th><th>Équipe</th><th>Élève</th><th>B</th><th>T</th><th>A</th><th>Commentaire</th></tr></thead><tbody>${tableRows}</tbody></table></body></html>`);
         viewWindow.document.close();
+    }
+
+    
+
+    function getTeamLabelForStudent(studentName) {
+        const idx = currentTeams.findIndex((team) => team.some((student) => student.name === studentName));
+        return idx >= 0 ? `Équipe ${idx + 1}` : 'Sans équipe';
+    }
+
+    function setSessionIndicatorLight(indicatorElement, value) {
+        if (!indicatorElement) return;
+        const boundedValue = clamp(Number(value) || 0, -3, 3);
+        const hue = ((boundedValue + 3) / 6) * 120;
+        indicatorElement.style.setProperty('--indicator-color', `hsl(${hue} 88% 48%)`);
+        indicatorElement.style.setProperty('--indicator-glow', `hsl(${hue} 92% 55% / 0.6)`);
+        indicatorElement.title = `${boundedValue}`;
+    }
+
+    function updateSessionLeds(studentNames) {
+        const sessionMap = getSessionScoresMap();
+        const first = studentNames.length ? (sessionMap[studentNames[0]] || { b: 3, t: 3 }) : { b: 3, t: 3 };
+        setSessionIndicatorLight(evalSessionLedB, Number(first.b) || 3);
+        setSessionIndicatorLight(evalSessionLedT, Number(first.t) || 3);
     }
 
     function updateTeamStatusMessage() {
@@ -778,6 +809,20 @@
             evalTMinusButton.classList.add('selected');
         });
     }
+    if (evalAPlusButton) {
+        evalAPlusButton.addEventListener('click', () => {
+            if (!pendingEvaluation) return;
+            pendingEvaluation.aDelta += 1;
+            evalAPlusButton.classList.add('selected');
+        });
+    }
+    if (evalAMinusButton) {
+        evalAMinusButton.addEventListener('click', () => {
+            if (!pendingEvaluation) return;
+            pendingEvaluation.aDelta -= 1;
+            evalAMinusButton.classList.add('selected');
+        });
+    }
     if (evalValidateButton) {
         evalValidateButton.addEventListener('click', () => {
             if (!pendingEvaluation) return;
@@ -785,10 +830,11 @@
             const sessionMap = getSessionScoresMap();
             pendingEvaluation.studentNames.forEach((studentName) => {
                 if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
-                    sessionMap[studentName] = { b: 0, t: 0, comments: [] };
+                    sessionMap[studentName] = { b: 3, t: 3, a: 0, comments: [] };
                 }
                 sessionMap[studentName].b = (Number(sessionMap[studentName].b) || 0) + pendingEvaluation.bDelta;
                 sessionMap[studentName].t = (Number(sessionMap[studentName].t) || 0) + pendingEvaluation.tDelta;
+                sessionMap[studentName].a = (Number(sessionMap[studentName].a) || 0) + pendingEvaluation.aDelta;
                 if (!Array.isArray(sessionMap[studentName].comments)) {
                     sessionMap[studentName].comments = [];
                 }
