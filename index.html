@@ -9,21 +9,13 @@
 </head>
 
 <body>
-    <header class="home-header">
-        <h1>Accueil</h1>
-        <nav>
-            <ul>
-                <li><a href="techno.html">Technologie</a></li>
-            </ul>
-        </nav>
-    </header>
-
     <main>
         <section class="description-ateliers home-dashboard-grid">
             <article class="atelier sonometre-card home-card-sonometre">
                 <div class="atelier-content">
-                    <div class="card-header-with-toggle">
+                    <div class="card-header-with-toggle class-info-header">
                         <h2>Informations classe</h2>
+                        <button id="generate-teams-button" type="button" class="generate-teams-button">Gestion des équipes</button>
                     </div>
                     <p id="selected-class-name">Classe sélectionnée : Aucune</p>
                     <p id="selected-class-students">Effectif (3E) : -</p>
@@ -35,8 +27,6 @@
                         <span id="selected-class-indicator-t2" class="indicator-light" role="img" aria-label="Indicateur T2"></span>
                         <span id="selected-class-indicator-t3" class="indicator-light" role="img" aria-label="Indicateur T3"></span>
                     </div>
-                    <button id="generate-teams-button" type="button" class="generate-teams-button">Gestion des équipes</button>
-                    <p id="class-info-status">Sélectionnez une classe pour afficher ses informations.</p>
                 </div>
             </article>
             <article class="atelier datetime-card home-card-datetime">
@@ -119,7 +109,7 @@
     <div id="teams-popup" class="teams-popup" hidden>
         <div class="teams-popup-panel">
             <button id="close-teams-popup" type="button" class="teams-popup-close">Fermer</button>
-            <h3>Équipes générées</h3>
+            <h3>Gestion des équipes</h3>
             <div class="teams-popup-actions">
                 <button id="save-teams-button" type="button" class="generate-teams-button">Sauvegarder les équipes</button>
                 <button id="load-teams-button" type="button" class="generate-teams-button">Recharger les équipes</button>

@@ -1487,6 +1487,11 @@ svg.axe { display: block; margin: 0.5em 0; }
     gap: 10px;
 }
 
+
+.class-info-header .generate-teams-button {
+    margin: 0;
+    margin-left: auto;
+}
 .agenda-card .card-header-with-toggle {
     margin-bottom: 8px;
 }

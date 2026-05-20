@@ -597,7 +597,9 @@
             setIndicatorLight(indicatorT1Element, null);
             setIndicatorLight(indicatorT2Element, null);
             setIndicatorLight(indicatorT3Element, null);
-            statusElement.textContent = 'Sélectionnez une classe pour afficher ses informations.';
+            if (statusElement) {
+                statusElement.textContent = 'Sélectionnez une classe pour afficher ses informations.';
+            }
             return;
         }
 
@@ -609,7 +611,9 @@
             setIndicatorLight(indicatorT1Element, null);
             setIndicatorLight(indicatorT2Element, null);
             setIndicatorLight(indicatorT3Element, null);
-            statusElement.textContent = 'Cette classe ne fait pas partie des classes prises en charge (3E ou 5E).';
+            if (statusElement) {
+                statusElement.textContent = 'Cette classe ne fait pas partie des classes prises en charge (3E ou 5E).';
+            }
             return;
         }
 
@@ -620,7 +624,9 @@
         setIndicatorLight(indicatorT1Element, null);
         setIndicatorLight(indicatorT2Element, null);
         setIndicatorLight(indicatorT3Element, null);
-        statusElement.textContent = `Lecture des données de l'onglet "${classConfig.sheetLabel}"...`;
+        if (statusElement) {
+            statusElement.textContent = `Lecture des données de l'onglet "${classConfig.sheetLabel}"...`;
+        }
 
         try {
             const classData = await fetchClassData(className, classConfig);
@@ -632,7 +638,9 @@
             setIndicatorLight(indicatorT2Element, classData.averageT2, getIndicatorDisplayConfig('t2'));
             setIndicatorLight(indicatorT3Element, classData.averageT3, getIndicatorDisplayConfig('t3'));
             lastClassStudents = classData.students;
-            statusElement.textContent = 'Données chargées avec succès.';
+            if (statusElement) {
+                statusElement.textContent = 'Données chargées avec succès.';
+            }
         } catch (error) {
             studentsCountElement.textContent = classConfig ? `Effectif (${classConfig.level}) : -` : 'Effectif : -';
             setIndicatorLight(indicatorBElement, null);
@@ -642,7 +650,9 @@
             setIndicatorLight(indicatorT2Element, null);
             setIndicatorLight(indicatorT3Element, null);
             lastClassStudents = [];
-            statusElement.textContent = error instanceof Error ? error.message : 'Erreur lors du chargement des données.';
+            if (statusElement) {
+                statusElement.textContent = error instanceof Error ? error.message : 'Erreur lors du chargement des données.';
+            }
         }
     }
 
