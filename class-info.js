@@ -22,8 +22,12 @@
     const closeTeamsPopupButton = document.getElementById('close-teams-popup');
     const teamsPopupListElement = document.getElementById('teams-popup-list');
     const teamsPopupStatusElement = document.getElementById('teams-popup-status');
+    const saveTeamsButton = document.getElementById('save-teams-button');
+    const loadTeamsButton = document.getElementById('load-teams-button');
+    const TEAMS_COOKIE_PREFIX = 'savedTeams_';
 
     let lastClassStudents = [];
+    let currentTeams = [];
 
     if (!classNameElement || !studentsCountElement || !indicatorBElement || !indicatorTElement || !indicatorAElement || !indicatorT1Element || !indicatorT2Element || !indicatorT3Element || !statusElement) {
         return;
@@ -244,6 +248,8 @@
                 t3: computeAverage(team.map((student) => student.t3).filter((value) => value !== null)),
             });
             teamIndicators.classList.add('team-indicators');
+            title.dataset.teamIndex = String(index);
+            card.dataset.teamIndex = String(index);
 
             const detailsButton = document.createElement('button');
             detailsButton.type = 'button';
@@ -257,9 +263,32 @@
 
             const detailsList = document.createElement('ul');
             detailsList.className = 'team-students-list';
+            detailsList.dataset.teamIndex = String(index);
+            detailsList.addEventListener('dragover', (event) => {
+                event.preventDefault();
+                detailsList.classList.add('drag-target-active');
+            });
+            detailsList.addEventListener('dragleave', () => {
+                detailsList.classList.remove('drag-target-active');
+            });
+            detailsList.addEventListener('drop', (event) => {
+                event.preventDefault();
+                detailsList.classList.remove('drag-target-active');
+                const sourceTeamIndex = Number.parseInt(event.dataTransfer?.getData('text/sourceTeam') || '', 10);
+                const studentName = event.dataTransfer?.getData('text/studentName') || '';
+                if (!studentName || !Number.isInteger(sourceTeamIndex) || sourceTeamIndex === index) {
+                    return;
+                }
+                moveStudentBetweenTeams(sourceTeamIndex, index, studentName);
+            });
             team.forEach((student) => {
                 const item = document.createElement('li');
                 item.className = 'team-student-item';
+                item.draggable = true;
+                item.addEventListener('dragstart', (event) => {
+                    event.dataTransfer?.setData('text/sourceTeam', String(index));
+                    event.dataTransfer?.setData('text/studentName', student.name);
+                });
 
                 const name = document.createElement('span');
                 name.textContent = student.name;
@@ -293,6 +322,40 @@
             card.appendChild(detailsPanel);
             teamsPopupListElement.appendChild(card);
         });
+    }
+
+    function updateTeamStatusMessage() {
+        const allSizesValid = currentTeams.every((team) => team.length >= 4 && team.length <= 6);
+        teamsPopupStatusElement.textContent = allSizesValid
+            ? ''
+            : 'Certaines équipes sortent de la plage 4-6 élèves.';
+    }
+
+    function moveStudentBetweenTeams(sourceTeamIndex, targetTeamIndex, studentName) {
+        const sourceTeam = currentTeams[sourceTeamIndex];
+        const targetTeam = currentTeams[targetTeamIndex];
+        if (!sourceTeam || !targetTeam) {
+            return;
+        }
+        const studentIndex = sourceTeam.findIndex((student) => student.name === studentName);
+        if (studentIndex === -1) {
+            return;
+        }
+        const [student] = sourceTeam.splice(studentIndex, 1);
+        targetTeam.push(student);
+        renderTeams(currentTeams);
+        updateTeamStatusMessage();
+    }
+
+    function setCookie(name, value, days = 30) {
+        const expires = new Date(Date.now() + (days * 24 * 60 * 60 * 1000)).toUTCString();
+        document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+    }
+
+    function getCookie(name) {
+        const prefix = `${name}=`;
+        const cookie = document.cookie.split('; ').find((entry) => entry.startsWith(prefix));
+        return cookie ? decodeURIComponent(cookie.slice(prefix.length)) : null;
     }
 
 
@@ -473,14 +536,47 @@
                 return;
             }
 
-            const teams = buildTeams(lastClassStudents);
-            const allSizesValid = teams.every((team) => team.length >= 4 && team.length <= 6);
-            teamsPopupStatusElement.textContent = allSizesValid
-                ? ''
-                : 'Certaines équipes sortent de la plage 4-6 élèves.';
-            renderTeams(teams);
+            currentTeams = buildTeams(lastClassStudents);
+            updateTeamStatusMessage();
+            renderTeams(currentTeams);
             teamsPopupElement.hidden = false;
         });
+        if (saveTeamsButton) {
+            saveTeamsButton.addEventListener('click', () => {
+                const className = getSelectedClass();
+                if (!className || !currentTeams.length) {
+                    teamsPopupStatusElement.textContent = 'Aucune équipe à sauvegarder.';
+                    return;
+                }
+                const payload = currentTeams.map((team) => team.map((student) => student.name));
+                setCookie(`${TEAMS_COOKIE_PREFIX}${className.toUpperCase()}`, JSON.stringify(payload));
+                teamsPopupStatusElement.textContent = 'Équipes sauvegardées.';
+            });
+        }
+        if (loadTeamsButton) {
+            loadTeamsButton.addEventListener('click', () => {
+                const className = getSelectedClass();
+                if (!className) {
+                    teamsPopupStatusElement.textContent = 'Aucune classe sélectionnée.';
+                    return;
+                }
+                const raw = getCookie(`${TEAMS_COOKIE_PREFIX}${className.toUpperCase()}`);
+                if (!raw) {
+                    teamsPopupStatusElement.textContent = 'Aucune sauvegarde trouvée pour cette classe.';
+                    return;
+                }
+                try {
+                    const savedTeams = JSON.parse(raw);
+                    const byName = new Map(lastClassStudents.map((student) => [student.name, student]));
+                    currentTeams = savedTeams.map((team) => team.map((name) => byName.get(name)).filter(Boolean));
+                    renderTeams(currentTeams);
+                    updateTeamStatusMessage();
+                    teamsPopupStatusElement.textContent = 'Équipes rechargées depuis la sauvegarde.';
+                } catch (error) {
+                    teamsPopupStatusElement.textContent = 'Sauvegarde invalide.';
+                }
+            });
+        }
 
         closeTeamsPopupButton.addEventListener('click', () => {
             teamsPopupElement.hidden = true;

@@ -1768,6 +1768,12 @@ svg.axe { display: block; margin: 0.5em 0; }
     margin-top: 12px;
 }
 
+.teams-popup-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
 .noise-alert-popup {
     position: fixed;
     inset: 0;
@@ -1864,6 +1870,12 @@ svg.axe { display: block; margin: 0.5em 0; }
     padding: 0;
     display: grid;
     gap: 8px;
+    min-height: 24px;
+}
+
+.team-students-list.drag-target-active {
+    outline: 2px dashed rgba(255, 255, 255, 0.6);
+    outline-offset: 3px;
 }
 
 .team-student-item {
