@@ -1961,16 +1961,18 @@ svg.axe { display: block; margin: 0.5em 0; }
     gap: 10px;
 }
 
-.eval-popup-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+.eval-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
 }
 
 .eval-popup-session-leds {
     display: flex;
-    gap: 18px;
+    gap: 10px;
     align-items: center;
+    justify-content: flex-end;
 }
 
 .eval-popup-session-leds span {
