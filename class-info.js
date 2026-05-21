@@ -1,10 +1,12 @@
 (function () {
     const TROISIEME_CLASSES = new Set(['3E1', '3E2', '3E3', '3E4', '3E5']);
+    const QUATRIEME_CLASSES = new Set(['4E1', '4E2', '4E3', '4E4', '4E5']);
     const CINQUIEME_CLASSES = new Set(['5E1', '5E2', '5E3', '5E4', '5E5']);
 
     // Remplacer l'URL par le lien CSV publié du fichier "3E - Techno", onglet "Suivi Eleve 3E".
     // Format attendu : https://docs.google.com/spreadsheets/d/e/<ID>/pub?gid=<GID_ONGLET>&single=true&output=csv
     const SHEET_3E_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRgz3Y15bbDovMG-vtfT0rBMeR-BDMfSRZsj_m3vlzsbGybW6xe5qWEfzB7fFCQyHmf9qJ7lMsDIUY6/pub?gid=640829844&single=true&output=csv';
+    const SHEET_4E_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTm93EOw24n1lgpSXfhmyjIQznJuYfBVuA0lD3QUP1dm6rRCMOQxhKgcTtaQI-dkSPl49szSFur0Uvd/pub?gid=823965694&single=true&output=csv';
     const SHEET_5E_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQz6hxElwi5l0-KHdWwVo98h8_UHKmPS3_07l7GbaqSAeof2I9U8sUBxm8VkQRbYcAoGQJgDqdpmGXO/pub?gid=1527557223&single=true&output=csv';
 
     const classNameElement = document.getElementById('selected-class-name');
@@ -43,6 +45,7 @@
     let lastClassStudents = [];
     let currentTeams = [];
     let pendingEvaluation = null;
+    let hasSelectedSession = false;
 
     if (!classNameElement || !studentsCountElement || !indicatorBElement || !indicatorTElement || !indicatorAElement || !indicatorT1Element || !indicatorT2Element || !indicatorT3Element) {
         return;
@@ -444,6 +447,16 @@
         saveSessionScoresMap(sessionMap);
     }
 
+    function updateSessionDependentButtonsState() {
+        const shouldDisable = !hasSelectedSession;
+        if (classEvalButton) {
+            classEvalButton.disabled = shouldDisable;
+        }
+        if (exportBminusCsvButton) {
+            exportBminusCsvButton.disabled = shouldDisable;
+        }
+    }
+
     function renderSessionTable() {
         const sessionMap = getSessionScoresMap();
         const classComments = Array.isArray(sessionMap.__classComments) ? sessionMap.__classComments : [];
@@ -564,6 +577,9 @@
         if (TROISIEME_CLASSES.has(normalizedClass)) {
             return { level: '3E', csvUrl: SHEET_3E_CSV_URL, sheetLabel: 'Suivi Eleve 3E' };
         }
+        if (QUATRIEME_CLASSES.has(normalizedClass)) {
+            return { level: '4E', csvUrl: SHEET_4E_CSV_URL, sheetLabel: 'Suivi Eleve 4E' };
+        }
         if (CINQUIEME_CLASSES.has(normalizedClass)) {
             return { level: '5E', csvUrl: SHEET_5E_CSV_URL, sheetLabel: 'Suivi Eleve 5E' };
         }
@@ -664,7 +680,7 @@
             setIndicatorLight(indicatorT2Element, null);
             setIndicatorLight(indicatorT3Element, null);
             if (statusElement) {
-                statusElement.textContent = 'Cette classe ne fait pas partie des classes prises en charge (3E ou 5E).';
+                statusElement.textContent = 'Cette classe ne fait pas partie des classes prises en charge (3E, 4E ou 5E).';
             }
             return;
         }
@@ -826,9 +842,14 @@
                 if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
                     sessionMap[studentName] = { b: 3, t: 3, a: 3, comments: [] };
                 }
-                sessionMap[studentName].b = (Number(sessionMap[studentName].b) || 0) + pendingEvaluation.bDelta;
-                sessionMap[studentName].t = (Number(sessionMap[studentName].t) || 0) + pendingEvaluation.tDelta;
-                sessionMap[studentName].a = (Number(sessionMap[studentName].a) || 3) + pendingEvaluation.aDelta;
+                const currentB = Number(sessionMap[studentName].b) || 3;
+                const currentT = Number(sessionMap[studentName].t) || 3;
+                const currentA = Number(sessionMap[studentName].a) || 3;
+                const tentativeB = currentB + pendingEvaluation.bDelta;
+                const bonusTDeltaFromB = tentativeB < 3 ? -1 : 0;
+                sessionMap[studentName].b = Math.max(3, tentativeB);
+                sessionMap[studentName].t = Math.max(3, currentT + pendingEvaluation.tDelta + bonusTDeltaFromB);
+                sessionMap[studentName].a = Math.max(3, currentA + pendingEvaluation.aDelta);
                 if (!Array.isArray(sessionMap[studentName].comments)) {
                     sessionMap[studentName].comments = [];
                 }
@@ -852,11 +873,17 @@
         classFilterElement.addEventListener('change', refreshClassInfo);
     }
 
+    window.addEventListener('session-selection-change', (event) => {
+        hasSelectedSession = Boolean(event.detail && event.detail.hasSelection);
+        updateSessionDependentButtonsState();
+    });
+
     window.addEventListener('storage', (event) => {
         if (event.key === 'userClasse') {
             refreshClassInfo();
         }
     });
 
+    updateSessionDependentButtonsState();
     refreshClassInfo();
 })();
