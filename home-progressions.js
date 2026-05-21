@@ -764,6 +764,13 @@
             taskButton.appendChild(details);
             taskButton.addEventListener('click', () => {
                 selectedEntryKey = entryKey;
+                if (classFilterElement.value !== entry.classText) {
+                    classFilterElement.value = entry.classText;
+                }
+                localStorage.setItem('userClasse', entry.classText);
+                window.dispatchEvent(new CustomEvent('session-selection-change', {
+                    detail: { hasSelection: true, selectedClass: entry.classText }
+                }));
                 renderSteps();
                 renderTaskDetail(entry);
             });
@@ -775,6 +782,9 @@
         if (!displayedEntries.some((entry) => getEntryKey(entry) === selectedEntryKey)) {
             selectedEntryKey = '';
             renderTaskDetail(null);
+            window.dispatchEvent(new CustomEvent('session-selection-change', {
+                detail: { hasSelection: false, selectedClass: classFilterElement.value || '' }
+            }));
         }
 
         setStatus('');

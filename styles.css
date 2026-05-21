@@ -2005,3 +2005,8 @@ svg.axe { display: block; margin: 0.5em 0; }
     background: rgba(22, 163, 74, 0.95);
     border-color: #bbf7d0;
 }
+
+#eval-aplus.selected {
+    background: rgba(22, 163, 74, 0.95);
+    border-color: #bbf7d0;
+}
