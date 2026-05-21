@@ -796,8 +796,37 @@
         }
     }
 
+    function loadSavedTeamsForSelectedClass() {
+        const className = getSelectedClass();
+        if (!className) {
+            teamsPopupStatusElement.textContent = 'Aucune classe sélectionnée.';
+            return false;
+        }
+        const raw = getCookie(`${TEAMS_COOKIE_PREFIX}${className.toUpperCase()}`);
+        if (!raw) {
+            return false;
+        }
+        try {
+            const savedTeams = JSON.parse(raw);
+            const byName = new Map(lastClassStudents.map((student) => [student.name, student]));
+            currentTeams = savedTeams.map((team) => team.map((name) => byName.get(name)).filter(Boolean));
+            renderTeams(currentTeams);
+            updateTeamStatusMessage();
+            teamsPopupStatusElement.textContent = 'Équipes rechargées depuis la sauvegarde.';
+            return true;
+        } catch (error) {
+            teamsPopupStatusElement.textContent = 'Sauvegarde invalide.';
+            return false;
+        }
+    }
+
     if (generateTeamsButton && teamsPopupElement && closeTeamsPopupButton) {
         generateTeamsButton.addEventListener('click', () => {
+            if (loadSavedTeamsForSelectedClass()) {
+                teamsPopupElement.hidden = false;
+                return;
+            }
+
             if (lastClassStudents.length < 24) {
                 teamsPopupStatusElement.textContent = 'Impossible de générer 6 équipes de 4 à 6 élèves avec cet effectif.';
                 teamsPopupListElement.innerHTML = '';
@@ -834,20 +863,8 @@
                     teamsPopupStatusElement.textContent = 'Aucune classe sélectionnée.';
                     return;
                 }
-                const raw = getCookie(`${TEAMS_COOKIE_PREFIX}${className.toUpperCase()}`);
-                if (!raw) {
+                if (!loadSavedTeamsForSelectedClass()) {
                     teamsPopupStatusElement.textContent = 'Aucune sauvegarde trouvée pour cette classe.';
-                    return;
-                }
-                try {
-                    const savedTeams = JSON.parse(raw);
-                    const byName = new Map(lastClassStudents.map((student) => [student.name, student]));
-                    currentTeams = savedTeams.map((team) => team.map((name) => byName.get(name)).filter(Boolean));
-                    renderTeams(currentTeams);
-                    updateTeamStatusMessage();
-                    teamsPopupStatusElement.textContent = 'Équipes rechargées depuis la sauvegarde.';
-                } catch (error) {
-                    teamsPopupStatusElement.textContent = 'Sauvegarde invalide.';
                 }
             });
         }
