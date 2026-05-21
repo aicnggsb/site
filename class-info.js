@@ -402,11 +402,20 @@
             return;
         }
         pendingEvaluation = { studentNames, bDelta: 0, tDelta: 0, aDelta: 0, isClassEvaluation: label === 'Classe' };
-        evalPopupTitle.textContent = `Évaluer : ${label}`;
+        const evaluatedSessionLabel = getEvaluatedSessionLabel();
+        evalPopupTitle.textContent = `Évaluer : ${label} (${evaluatedSessionLabel})`;
         evalCommentElement.value = '';
         [evalBMinusButton, evalTPlusButton, evalTMinusButton, evalAPlusButton, evalAMinusButton].forEach((button) => button.classList.remove('selected'));
         updateSessionLeds(studentNames);
         evalPopupElement.hidden = false;
+    }
+
+    function getEvaluatedSessionLabel() {
+        if (hasSelectedSession && selectedSessionLabel) {
+            return selectedSessionLabel;
+        }
+        const today = new Date();
+        return today.toLocaleDateString('fr-FR', { year: 'numeric', month: '2-digit', day: '2-digit' });
     }
 
     function getActiveSessionKey() {
@@ -884,7 +893,7 @@
         classInfoExportButton.addEventListener('click', () => {
             const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
             const rows = lastClassStudents.map((student) => {
-                const cells = ['b', 't', 'a', 't1', 't2', 't3'].map((key) => {
+                const cells = ['b', 't', 'a'].map((key) => {
                     const config = getIndicatorDisplayConfig(key);
                     const rawValue = student[key];
                     if (rawValue === null || rawValue === undefined) {
@@ -900,7 +909,7 @@
             }).join('');
             const viewWindow = window.open('', '_blank');
             if (!viewWindow) return;
-            viewWindow.document.write(`<html><head><title>Export voyants ${selectedClass}</title><style>body{font-family:Arial,sans-serif;padding:20px;background:#f8fafc;color:#111827}table{border-collapse:collapse;width:100%;max-width:980px;background:#fff}th,td{border:1px solid #d1d5db;padding:8px 10px}th{background:#111827;color:#fff;text-align:left}td{white-space:nowrap}.led{display:inline-block;width:13px;height:13px;border-radius:999px;background:var(--led-color,#6b7280);box-shadow:0 0 10px var(--led-glow,rgba(107,114,128,.45));margin-right:8px;vertical-align:-1px}.led.na{background:#6b7280;box-shadow:0 0 10px rgba(107,114,128,.45)}</style></head><body><h3>Voyants globaux ${selectedClass}</h3><p>Indicateurs de base indépendants de la séance en cours.</p><table><thead><tr><th>Élève</th><th>B</th><th>T</th><th>A</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody>${rows || '<tr><td colspan="7">Aucun élève chargé.</td></tr>'}</tbody></table></body></html>`);
+            viewWindow.document.write(`<html><head><title>Export voyants ${selectedClass}</title><style>:root{--bg:#f3f4f6;--panel:#ffffff;--text:#111827;--muted:#6b7280;--border:#d1d5db;--header:#111827;--headerText:#f9fafb}*{box-sizing:border-box}body{font-family:Arial,sans-serif;padding:24px;background:var(--bg);color:var(--text)}.panel{max-width:980px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 8px 24px rgba(17,24,39,.08)}h3{margin:0 0 8px 0}p{margin:0 0 16px 0;color:var(--muted)}table{border-collapse:collapse;width:100%}th,td{border:1px solid var(--border);padding:8px 10px}th{background:var(--header);color:var(--headerText);text-align:left}td{white-space:nowrap}.led{display:inline-block;width:13px;height:13px;border-radius:999px;background:var(--led-color,#6b7280);box-shadow:0 0 10px var(--led-glow,rgba(107,114,128,.45));margin-right:8px;vertical-align:-1px}.led.na{background:#6b7280;box-shadow:0 0 10px rgba(107,114,128,.45)}</style></head><body><div class="panel"><h3>Voyants globaux ${selectedClass}</h3><p>Indicateurs de base indépendants de la séance en cours (sans notes).</p><table><thead><tr><th>Élève</th><th>B</th><th>T</th><th>A</th></tr></thead><tbody>${rows || '<tr><td colspan="4">Aucun élève chargé.</td></tr>'}</tbody></table></div></body></html>`);
             viewWindow.document.close();
         });
     }
