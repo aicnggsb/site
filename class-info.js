@@ -27,7 +27,6 @@
     const classEvalButton = document.getElementById('class-eval-button');
     const exportBminusCsvButton = document.getElementById('export-bminus-csv-button');
     const evalPopupElement = document.getElementById('eval-popup');
-    const closeEvalPopupButton = document.getElementById('close-eval-popup');
     const evalPopupTitle = document.getElementById('eval-popup-title');
     const evalBMinusButton = document.getElementById('eval-bminus');
     const evalTPlusButton = document.getElementById('eval-tplus');
@@ -369,7 +368,7 @@
         let changed = false;
         studentNames.forEach((studentName) => {
             if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
-                sessionMap[studentName] = { b: 3, t: 3, a: 0, comments: [] };
+                sessionMap[studentName] = { b: 3, t: 3, a: 3, comments: [] };
                 changed = true;
             } else {
                 if (!Array.isArray(sessionMap[studentName].comments)) {
@@ -395,7 +394,7 @@
         if (!evalPopupElement || !studentNames.length) {
             return;
         }
-        pendingEvaluation = { studentNames, bDelta: 0, tDelta: 0, aDelta: 0 };
+        pendingEvaluation = { studentNames, bDelta: 0, tDelta: 0, aDelta: 0, isClassEvaluation: label === 'Classe' };
         evalPopupTitle.textContent = `Évaluer : ${label}`;
         evalCommentElement.value = '';
         [evalBMinusButton, evalTPlusButton, evalTMinusButton, evalAPlusButton, evalAMinusButton].forEach((button) => button.classList.remove('selected'));
@@ -439,7 +438,7 @@
         }
         const sessionMap = getSessionScoresMap();
         if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
-            sessionMap[studentName] = { b: 3, t: 3, a: 0, comments: [] };
+            sessionMap[studentName] = { b: 3, t: 3, a: 3, comments: [] };
         }
         sessionMap[studentName][indicator] = (Number(sessionMap[studentName][indicator]) || 0) + delta;
         saveSessionScoresMap(sessionMap);
@@ -447,7 +446,8 @@
 
     function renderSessionTable() {
         const sessionMap = getSessionScoresMap();
-        const rows = lastClassStudents.map((student) => [student.name, sessionMap[student.name] || { b: 3, t: 3, a: 0, comments: [] }]);
+        const classComments = Array.isArray(sessionMap.__classComments) ? sessionMap.__classComments : [];
+        const rows = lastClassStudents.map((student) => [student.name, sessionMap[student.name] || { b: 3, t: 3, a: 3, comments: [] }]);
         const sessionDate = getSessionDateKey();
         const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
         const viewWindow = window.open('', '_blank');
@@ -458,14 +458,17 @@
         const tableRows = rows.length ? rows.map(([name, scores]) => {
             const b = Number(scores.b) || 3;
             const t = Number(scores.t) || 3;
-            const a = Number(scores.a) || 0;
+            const a = Number(scores.a) || 3;
             const bHue = ((clamp(b, -3, 3) + 3) / 6) * 120;
             const tHue = ((clamp(t, -3, 3) + 3) / 6) * 120;
             const aHue = ((clamp(a, -3, 3) + 3) / 6) * 120;
             const comments = Array.isArray(scores.comments) ? scores.comments.join(' | ') : '';
             return `<tr><td>${selectedClass}</td><td>${getTeamLabelForStudent(name)}</td><td>${name}</td><td style="background:hsl(${bHue} 90% 50% / .2);color:hsl(${bHue} 90% 38%)">${b}</td><td style="background:hsl(${tHue} 90% 50% / .2);color:hsl(${tHue} 90% 38%)">${t}</td><td style="background:hsl(${aHue} 90% 50% / .2);color:hsl(${aHue} 90% 38%)">${a}</td><td>${comments}</td></tr>`;
         }).join('') : '<tr><td colspan="7">Aucune donnée de séance.</td></tr>';
-        viewWindow.document.write(`<html><head><title>Tableau séance ${selectedClass}</title><style>body{font-family:Arial,sans-serif;padding:20px}table{border-collapse:collapse;width:100%;max-width:680px}th,td{border:1px solid #ccc;padding:8px 10px}th{background:#111827;color:#fff;text-align:left}</style></head><body><h3>Tableau séance ${selectedClass} (${sessionDate})</h3><p>Ordre export: Classe, Équipe, Élève, B, T, A et commentaire.</p><table><thead><tr><th>Classe</th><th>Équipe</th><th>Élève</th><th>B</th><th>T</th><th>A</th><th>Commentaire</th></tr></thead><tbody>${tableRows}</tbody></table></body></html>`);
+        const classCommentsHtml = classComments.length
+            ? `<div style="border:1px solid #ccc;padding:10px;margin:12px 0 16px 0;background:#f8fafc"><strong>Commentaire classe</strong><br>${classComments.join('<br>')}</div>`
+            : `<div style="border:1px solid #ccc;padding:10px;margin:12px 0 16px 0;background:#f8fafc"><strong>Commentaire classe</strong><br>Aucun commentaire classe.</div>`;
+        viewWindow.document.write(`<html><head><title>Tableau séance ${selectedClass}</title><style>body{font-family:Arial,sans-serif;padding:20px}table{border-collapse:collapse;width:100%;max-width:680px}th,td{border:1px solid #ccc;padding:8px 10px}th{background:#111827;color:#fff;text-align:left}</style></head><body><h3>Tableau séance ${selectedClass} (${sessionDate})</h3>${classCommentsHtml}<p>Ordre export: Classe, Équipe, Élève, B, T, A et commentaire.</p><table><thead><tr><th>Classe</th><th>Équipe</th><th>Élève</th><th>B</th><th>T</th><th>A</th><th>Commentaire</th></tr></thead><tbody>${tableRows}</tbody></table></body></html>`);
         viewWindow.document.close();
     }
 
@@ -778,16 +781,7 @@
             renderSessionTable();
         });
     }
-    if (evalPopupElement && closeEvalPopupButton) {
-        closeEvalPopupButton.addEventListener('click', () => {
-            evalPopupElement.hidden = true;
-        });
-        evalPopupElement.addEventListener('click', (event) => {
-            if (event.target === evalPopupElement) {
-                evalPopupElement.hidden = true;
-            }
-        });
-    }
+    // Fermeture volontaire retirée : validation obligatoire pour fermer la fenêtre.
     if (evalBMinusButton) {
         evalBMinusButton.addEventListener('click', () => {
             if (!pendingEvaluation) return;
@@ -830,18 +824,24 @@
             const sessionMap = getSessionScoresMap();
             pendingEvaluation.studentNames.forEach((studentName) => {
                 if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
-                    sessionMap[studentName] = { b: 3, t: 3, a: 0, comments: [] };
+                    sessionMap[studentName] = { b: 3, t: 3, a: 3, comments: [] };
                 }
                 sessionMap[studentName].b = (Number(sessionMap[studentName].b) || 0) + pendingEvaluation.bDelta;
                 sessionMap[studentName].t = (Number(sessionMap[studentName].t) || 0) + pendingEvaluation.tDelta;
-                sessionMap[studentName].a = (Number(sessionMap[studentName].a) || 0) + pendingEvaluation.aDelta;
+                sessionMap[studentName].a = (Number(sessionMap[studentName].a) || 3) + pendingEvaluation.aDelta;
                 if (!Array.isArray(sessionMap[studentName].comments)) {
                     sessionMap[studentName].comments = [];
                 }
-                if (comment) {
+                if (comment && !pendingEvaluation.isClassEvaluation) {
                     sessionMap[studentName].comments.push(comment);
                 }
             });
+            if (comment && pendingEvaluation.isClassEvaluation) {
+                if (!Array.isArray(sessionMap.__classComments)) {
+                    sessionMap.__classComments = [];
+                }
+                sessionMap.__classComments.push(comment);
+            }
             saveSessionScoresMap(sessionMap);
             evalPopupElement.hidden = true;
             pendingEvaluation = null;
