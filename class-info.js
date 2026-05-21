@@ -14,6 +14,9 @@
     const indicatorBElement = document.getElementById('selected-class-indicator-b');
     const indicatorTElement = document.getElementById('selected-class-indicator-t');
     const indicatorAElement = document.getElementById('selected-class-indicator-a');
+    const indicatorCpcElement = document.getElementById('selected-class-indicator-cpc');
+    const indicatorC3dElement = document.getElementById('selected-class-indicator-c3d');
+    const indicatorCmqElement = document.getElementById('selected-class-indicator-cmq');
     const indicatorT1Element = document.getElementById('selected-class-indicator-t1');
     const indicatorT2Element = document.getElementById('selected-class-indicator-t2');
     const indicatorT3Element = document.getElementById('selected-class-indicator-t3');
@@ -51,7 +54,7 @@
     let selectedSessionKey = '';
     let selectedSessionLabel = '';
 
-    if (!classNameElement || !studentsCountElement || !indicatorBElement || !indicatorTElement || !indicatorAElement || !indicatorT1Element || !indicatorT2Element || !indicatorT3Element) {
+    if (!classNameElement || !studentsCountElement || !indicatorBElement || !indicatorTElement || !indicatorAElement || !indicatorCpcElement || !indicatorC3dElement || !indicatorCmqElement || !indicatorT1Element || !indicatorT2Element || !indicatorT3Element) {
         return;
     }
 
@@ -136,6 +139,9 @@
             b: parsePercentage(row[idxMap.indicatorBIdx]),
             t: parsePercentage(row[idxMap.indicatorTIdx]),
             a: parsePercentage(row[idxMap.indicatorAIdx]),
+            cpc: parsePercentage(row[idxMap.indicatorCpcIdx]),
+            c3d: parsePercentage(row[idxMap.indicatorC3dIdx]),
+            cmq: parsePercentage(row[idxMap.indicatorCmqIdx]),
             t1: parsePercentage(row[idxMap.indicatorT1Idx]),
             t2: parsePercentage(row[idxMap.indicatorT2Idx]),
             t3: parsePercentage(row[idxMap.indicatorT3Idx]),
@@ -146,12 +152,15 @@
         if (['t1', 't2', 't3'].includes(key)) {
             return { maxValue: 20, suffix: '/20' };
         }
+        if (['cpc', 'c3d', 'cmq'].includes(key)) {
+            return { minValue: -3, maxValue: 3, suffix: '' };
+        }
         return { maxValue: 100, suffix: '%' };
     }
 
     function buildTeams(students) {
         const TEAM_COUNT = 6;
-        const METRICS = ['b', 't', 'a', 't1', 't2', 't3'];
+        const METRICS = ['b', 't', 'a', 'cpc', 'c3d', 'cmq', 't1', 't2', 't3'];
         const teams = Array.from({ length: TEAM_COUNT }, () => []);
         const remaining = students.slice();
 
@@ -237,7 +246,7 @@
         const row = document.createElement('div');
         row.className = 'class-indicators';
 
-        ['b', 't', 'a', 't1', 't2', 't3'].forEach((key) => {
+        ['b', 't', 'a', 'cpc', 'c3d', 'cmq', 't1', 't2', 't3'].forEach((key) => {
             const light = document.createElement('span');
             light.className = 'indicator-light';
             light.setAttribute('role', 'img');
@@ -276,6 +285,9 @@
                 b: computeAverage(team.map((student) => student.b).filter((value) => value !== null)),
                 t: computeAverage(team.map((student) => student.t).filter((value) => value !== null)),
                 a: computeAverage(team.map((student) => student.a).filter((value) => value !== null)),
+                cpc: computeAverage(team.map((student) => student.cpc).filter((value) => value !== null)),
+                c3d: computeAverage(team.map((student) => student.c3d).filter((value) => value !== null)),
+                cmq: computeAverage(team.map((student) => student.cmq).filter((value) => value !== null)),
                 t1: computeAverage(team.map((student) => student.t1).filter((value) => value !== null)),
                 t2: computeAverage(team.map((student) => student.t2).filter((value) => value !== null)),
                 t3: computeAverage(team.map((student) => student.t3).filter((value) => value !== null)),
@@ -338,6 +350,9 @@
                     b: student.b,
                     t: student.t,
                     a: student.a,
+                    cpc: student.cpc,
+                    c3d: student.c3d,
+                    cmq: student.cmq,
                     t1: student.t1,
                     t2: student.t2,
                     t3: student.t3
@@ -578,7 +593,8 @@
         if (!indicatorElement) {
             return;
         }
-        const maxValue = Number.isFinite(options.maxValue) && options.maxValue > 0 ? options.maxValue : 100;
+        const minValue = Number.isFinite(options.minValue) ? options.minValue : 0;
+        const maxValue = Number.isFinite(options.maxValue) && options.maxValue > minValue ? options.maxValue : 100;
         const suffix = options.suffix || '%';
 
         if (value === null) {
@@ -588,14 +604,15 @@
             return;
         }
 
-        const boundedValue = clamp(value, 0, maxValue);
-        const hue = (boundedValue / maxValue) * 120;
+        const boundedValue = clamp(value, minValue, maxValue);
+        const range = maxValue - minValue;
+        const hue = ((boundedValue - minValue) / range) * 120;
         const color = `hsl(${hue} 88% 48%)`;
         const glow = `hsl(${hue} 92% 55% / 0.6)`;
 
         indicatorElement.style.setProperty('--indicator-color', color);
         indicatorElement.style.setProperty('--indicator-glow', glow);
-        indicatorElement.title = suffix === '%' ? `${boundedValue.toFixed(1)} %` : `${boundedValue.toFixed(1)} ${suffix}`;
+        indicatorElement.title = suffix === '%' ? `${boundedValue.toFixed(1)} %` : `${boundedValue.toFixed(1)}${suffix ? ` ${suffix}` : ''}`;
     }
 
     function getClassConfig(selectedClass) {
@@ -627,7 +644,7 @@
         const csvText = await response.text();
         const rows = parseCSV(csvText).filter((row) => row.some((cell) => (cell || '').trim()));
         if (!rows.length) {
-            return { studentsCount: 0, averageB: null, averageT: null, averageA: null, averageT1: null, averageT2: null, averageT3: null, students: [] };
+            return { studentsCount: 0, averageB: null, averageT: null, averageA: null, averageCpc: null, averageC3d: null, averageCmq: null, averageT1: null, averageT2: null, averageT3: null, students: [] };
         }
 
         const header = rows[0].map((cell) => normalize(cell));
@@ -636,12 +653,15 @@
         const indicatorBIdx = header.findIndex((col) => col === 'b');
         const indicatorTIdx = header.findIndex((col) => col === 't');
         const indicatorAIdx = header.findIndex((col) => col === 'a');
+        const indicatorCpcIdx = header.findIndex((col) => col === 'cpc');
+        const indicatorC3dIdx = header.findIndex((col) => col === 'c3d');
+        const indicatorCmqIdx = header.findIndex((col) => col === 'cmq');
         const indicatorT1Idx = header.findIndex((col) => col === 't1');
         const indicatorT2Idx = header.findIndex((col) => col === 't2');
         const indicatorT3Idx = header.findIndex((col) => col === 't3');
 
-        if (classIdx === -1 || nameIdx === -1 || indicatorBIdx === -1 || indicatorTIdx === -1 || indicatorAIdx === -1 || indicatorT1Idx === -1 || indicatorT2Idx === -1 || indicatorT3Idx === -1) {
-            throw new Error('Colonnes attendues introuvables (classe / nom / B / T / A / T1 / T2 / T3).');
+        if (classIdx === -1 || nameIdx === -1 || indicatorBIdx === -1 || indicatorTIdx === -1 || indicatorAIdx === -1 || indicatorCpcIdx === -1 || indicatorC3dIdx === -1 || indicatorCmqIdx === -1 || indicatorT1Idx === -1 || indicatorT2Idx === -1 || indicatorT3Idx === -1) {
+            throw new Error('Colonnes attendues introuvables (classe / nom / B / T / A / CPC / C3D / CMQ / T1 / T2 / T3).');
         }
 
         const normalizedSelectedClass = normalize(selectedClass);
@@ -652,6 +672,9 @@
         const bValues = classRows.map((row) => parsePercentage(row[indicatorBIdx])).filter((value) => value !== null);
         const tValues = classRows.map((row) => parsePercentage(row[indicatorTIdx])).filter((value) => value !== null);
         const aValues = classRows.map((row) => parsePercentage(row[indicatorAIdx])).filter((value) => value !== null);
+        const cpcValues = classRows.map((row) => parsePercentage(row[indicatorCpcIdx])).filter((value) => value !== null);
+        const c3dValues = classRows.map((row) => parsePercentage(row[indicatorC3dIdx])).filter((value) => value !== null);
+        const cmqValues = classRows.map((row) => parsePercentage(row[indicatorCmqIdx])).filter((value) => value !== null);
         const t1Values = classRows.map((row) => parsePercentage(row[indicatorT1Idx])).filter((value) => value !== null);
         const t2Values = classRows.map((row) => parsePercentage(row[indicatorT2Idx])).filter((value) => value !== null);
         const t3Values = classRows.map((row) => parsePercentage(row[indicatorT3Idx])).filter((value) => value !== null);
@@ -661,6 +684,9 @@
             indicatorBIdx,
             indicatorTIdx,
             indicatorAIdx,
+            indicatorCpcIdx,
+            indicatorC3dIdx,
+            indicatorCmqIdx,
             indicatorT1Idx,
             indicatorT2Idx,
             indicatorT3Idx,
@@ -671,6 +697,9 @@
             averageB: computeAverage(bValues),
             averageT: computeAverage(tValues),
             averageA: computeAverage(aValues),
+            averageCpc: computeAverage(cpcValues),
+            averageC3d: computeAverage(c3dValues),
+            averageCmq: computeAverage(cmqValues),
             averageT1: computeAverage(t1Values),
             averageT2: computeAverage(t2Values),
             averageT3: computeAverage(t3Values),
@@ -689,6 +718,9 @@
             setIndicatorLight(indicatorBElement, null);
             setIndicatorLight(indicatorTElement, null);
             setIndicatorLight(indicatorAElement, null);
+            setIndicatorLight(indicatorCpcElement, null);
+            setIndicatorLight(indicatorC3dElement, null);
+            setIndicatorLight(indicatorCmqElement, null);
             setIndicatorLight(indicatorT1Element, null);
             setIndicatorLight(indicatorT2Element, null);
             setIndicatorLight(indicatorT3Element, null);
@@ -703,6 +735,9 @@
             setIndicatorLight(indicatorBElement, null);
             setIndicatorLight(indicatorTElement, null);
             setIndicatorLight(indicatorAElement, null);
+            setIndicatorLight(indicatorCpcElement, null);
+            setIndicatorLight(indicatorC3dElement, null);
+            setIndicatorLight(indicatorCmqElement, null);
             setIndicatorLight(indicatorT1Element, null);
             setIndicatorLight(indicatorT2Element, null);
             setIndicatorLight(indicatorT3Element, null);
@@ -716,6 +751,9 @@
         setIndicatorLight(indicatorBElement, null);
         setIndicatorLight(indicatorTElement, null);
         setIndicatorLight(indicatorAElement, null);
+        setIndicatorLight(indicatorCpcElement, null);
+        setIndicatorLight(indicatorC3dElement, null);
+        setIndicatorLight(indicatorCmqElement, null);
         setIndicatorLight(indicatorT1Element, null);
         setIndicatorLight(indicatorT2Element, null);
         setIndicatorLight(indicatorT3Element, null);
@@ -729,6 +767,9 @@
             setIndicatorLight(indicatorBElement, classData.averageB, getIndicatorDisplayConfig('b'));
             setIndicatorLight(indicatorTElement, classData.averageT, getIndicatorDisplayConfig('t'));
             setIndicatorLight(indicatorAElement, classData.averageA, getIndicatorDisplayConfig('a'));
+            setIndicatorLight(indicatorCpcElement, classData.averageCpc, getIndicatorDisplayConfig('cpc'));
+            setIndicatorLight(indicatorC3dElement, classData.averageC3d, getIndicatorDisplayConfig('c3d'));
+            setIndicatorLight(indicatorCmqElement, classData.averageCmq, getIndicatorDisplayConfig('cmq'));
             setIndicatorLight(indicatorT1Element, classData.averageT1, getIndicatorDisplayConfig('t1'));
             setIndicatorLight(indicatorT2Element, classData.averageT2, getIndicatorDisplayConfig('t2'));
             setIndicatorLight(indicatorT3Element, classData.averageT3, getIndicatorDisplayConfig('t3'));
@@ -742,6 +783,9 @@
             setIndicatorLight(indicatorBElement, null);
             setIndicatorLight(indicatorTElement, null);
             setIndicatorLight(indicatorAElement, null);
+            setIndicatorLight(indicatorCpcElement, null);
+            setIndicatorLight(indicatorC3dElement, null);
+            setIndicatorLight(indicatorCmqElement, null);
             setIndicatorLight(indicatorT1Element, null);
             setIndicatorLight(indicatorT2Element, null);
             setIndicatorLight(indicatorT3Element, null);
@@ -908,14 +952,15 @@
         classInfoExportButton.addEventListener('click', () => {
             const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
             const rows = lastClassStudents.map((student) => {
-                const cells = ['b', 't', 'a', 't1', 't2', 't3'].map((key) => {
+                const cells = ['b', 't', 'a', 'cpc', 'c3d', 'cmq', 't1', 't2', 't3'].map((key) => {
                     const config = getIndicatorDisplayConfig(key);
                     const rawValue = student[key];
                     if (rawValue === null || rawValue === undefined) {
                         return '<td><span class="led na"></span></td>';
                     }
-                    const boundedValue = clamp(rawValue, 0, config.maxValue);
-                    const hue = (boundedValue / config.maxValue) * 120;
+                    const minValue = Number.isFinite(config.minValue) ? config.minValue : 0;
+                    const boundedValue = clamp(rawValue, minValue, config.maxValue);
+                    const hue = ((boundedValue - minValue) / (config.maxValue - minValue)) * 120;
                     const color = `hsl(${hue} 88% 48%)`;
                     return `<td><span class="led" style="--led-color:${color};--led-glow:hsl(${hue} 92% 55% / 0.6)"></span></td>`;
                 }).join('');
@@ -923,7 +968,7 @@
             }).join('');
             const viewWindow = window.open('', '_blank');
             if (!viewWindow) return;
-            viewWindow.document.write(`<html><head><title>Export voyants ${selectedClass}</title><style>:root{--bg:#f3f4f6;--panel:#ffffff;--text:#111827;--muted:#6b7280;--border:#d1d5db;--header:#111827;--headerText:#f9fafb}*{box-sizing:border-box}body{font-family:Arial,sans-serif;padding:24px;background:var(--bg);color:var(--text)}.panel{max-width:980px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 8px 24px rgba(17,24,39,.08)}h3{margin:0 0 8px 0}p{margin:0 0 16px 0;color:var(--muted)}table{border-collapse:collapse;width:100%}th,td{border:1px solid var(--border);padding:8px 10px}th{background:var(--header);color:var(--headerText);text-align:left}td{white-space:nowrap}.led{display:inline-block;width:13px;height:13px;border-radius:999px;background:var(--led-color,#6b7280);box-shadow:0 0 10px var(--led-glow,rgba(107,114,128,.45));margin-right:8px;vertical-align:-1px}.led.na{background:#6b7280;box-shadow:0 0 10px rgba(107,114,128,.45)}</style></head><body><div class="panel"><h3>Voyants globaux ${selectedClass}</h3><p>Indicateurs de base indépendants de la séance en cours (sans notes).</p><table><thead><tr><th>Élève</th><th>B</th><th>T</th><th>A</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody>${rows || '<tr><td colspan="7">Aucun élève chargé.</td></tr>'}</tbody></table></div></body></html>`);
+            viewWindow.document.write(`<html><head><title>Export voyants ${selectedClass}</title><style>:root{--bg:#f3f4f6;--panel:#ffffff;--text:#111827;--muted:#6b7280;--border:#d1d5db;--header:#111827;--headerText:#f9fafb}*{box-sizing:border-box}body{font-family:Arial,sans-serif;padding:24px;background:var(--bg);color:var(--text)}.panel{max-width:980px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 8px 24px rgba(17,24,39,.08)}h3{margin:0 0 8px 0}p{margin:0 0 16px 0;color:var(--muted)}table{border-collapse:collapse;width:100%}th,td{border:1px solid var(--border);padding:8px 10px}th{background:var(--header);color:var(--headerText);text-align:left}td{white-space:nowrap}.led{display:inline-block;width:13px;height:13px;border-radius:999px;background:var(--led-color,#6b7280);box-shadow:0 0 10px var(--led-glow,rgba(107,114,128,.45));margin-right:8px;vertical-align:-1px}.led.na{background:#6b7280;box-shadow:0 0 10px rgba(107,114,128,.45)}</style></head><body><div class="panel"><h3>Bilan de la classe ${selectedClass}</h3><table><thead><tr><th>Élève</th><th>B</th><th>T</th><th>A</th><th>CPC</th><th>C3D</th><th>CMQ</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody>${rows || '<tr><td colspan="10">Aucun élève chargé.</td></tr>'}</tbody></table></div></body></html>`);
             viewWindow.document.close();
         });
     }
