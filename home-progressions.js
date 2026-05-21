@@ -769,7 +769,7 @@
                 }
                 localStorage.setItem('userClasse', entry.classText);
                 window.dispatchEvent(new CustomEvent('session-selection-change', {
-                    detail: { hasSelection: true, selectedClass: entry.classText }
+                    detail: { hasSelection: true, selectedClass: entry.classText, sessionKey: entry.dateText || '', sessionLabel: entry.dateText || '' }
                 }));
                 renderSteps();
                 renderTaskDetail(entry);
@@ -783,7 +783,7 @@
             selectedEntryKey = '';
             renderTaskDetail(null);
             window.dispatchEvent(new CustomEvent('session-selection-change', {
-                detail: { hasSelection: false, selectedClass: classFilterElement.value || '' }
+                detail: { hasSelection: false, selectedClass: classFilterElement.value || '', sessionKey: '', sessionLabel: '' }
             }));
         }
 
