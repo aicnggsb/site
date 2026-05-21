@@ -375,7 +375,7 @@
         let changed = false;
         studentNames.forEach((studentName) => {
             if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
-                sessionMap[studentName] = { b: 3, t: 3, a: 3, comments: [] };
+                sessionMap[studentName] = { b: 0, t: 0, a: 0, comments: [] };
                 changed = true;
             } else {
                 if (!Array.isArray(sessionMap[studentName].comments)) {
@@ -455,7 +455,7 @@
         }
         const sessionMap = getSessionScoresMap();
         if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
-            sessionMap[studentName] = { b: 3, t: 3, a: 3, comments: [] };
+            sessionMap[studentName] = { b: 0, t: 0, a: 0, comments: [] };
         }
         sessionMap[studentName][indicator] = (Number(sessionMap[studentName][indicator]) || 0) + delta;
         saveSessionScoresMap(sessionMap);
@@ -476,7 +476,7 @@
     function renderSessionTable() {
         const sessionMap = getSessionScoresMap();
         const classComments = Array.isArray(sessionMap.__classComments) ? sessionMap.__classComments : [];
-        const rows = lastClassStudents.map((student) => [student.name, sessionMap[student.name] || { b: 3, t: 3, a: 3, comments: [] }]);
+        const rows = lastClassStudents.map((student) => [student.name, sessionMap[student.name] || { b: 0, t: 0, a: 0, comments: [] }]);
         const sessionDate = selectedSessionLabel || getActiveSessionKey();
         const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
         const viewWindow = window.open('', '_blank');
@@ -485,9 +485,9 @@
             return;
         }
         const tableRows = rows.length ? rows.map(([name, scores]) => {
-            const b = Number(scores.b) || 3;
-            const t = Number(scores.t) || 3;
-            const a = Number(scores.a) || 3;
+            const b = Number(scores.b) || 0;
+            const t = Number(scores.t) || 0;
+            const a = Number(scores.a) || 0;
             const bHue = ((clamp(b, -3, 3) + 3) / 6) * 120;
             const tHue = ((clamp(t, -3, 3) + 3) / 6) * 120;
             const aHue = ((clamp(a, -3, 3) + 3) / 6) * 120;
@@ -519,10 +519,20 @@
 
     function updateSessionLeds(studentNames) {
         const sessionMap = getSessionScoresMap();
-        const first = studentNames.length ? (sessionMap[studentNames[0]] || { b: 3, t: 3 }) : { b: 3, t: 3 };
-        setSessionIndicatorLight(evalSessionLedB, Number(first.b) || 3);
-        setSessionIndicatorLight(evalSessionLedT, Number(first.t) || 3);
-        setSessionIndicatorLight(evalSessionLedA, Number(first.a) || 3);
+        const first = studentNames.length ? (sessionMap[studentNames[0]] || { b: 0, t: 0, a: 0 }) : { b: 0, t: 0, a: 0 };
+        const baseB = Number(first.b) || 0;
+        const baseT = Number(first.t) || 0;
+        const baseA = Number(first.a) || 0;
+        const bDelta = pendingEvaluation ? pendingEvaluation.bDelta : 0;
+        const tDelta = pendingEvaluation ? pendingEvaluation.tDelta : 0;
+        const aDelta = pendingEvaluation ? pendingEvaluation.aDelta : 0;
+        const tentativeB = clamp(baseB + bDelta, -3, 3);
+        const bonusTDeltaFromB = tentativeB < 0 ? -1 : 0;
+        const tentativeT = clamp(baseT + tDelta + bonusTDeltaFromB, -3, 3);
+        const tentativeA = clamp(baseA + aDelta, -3, 3);
+        setSessionIndicatorLight(evalSessionLedB, tentativeB);
+        setSessionIndicatorLight(evalSessionLedT, tentativeT);
+        setSessionIndicatorLight(evalSessionLedA, tentativeA);
     }
 
     function updateTeamStatusMessage() {
@@ -820,6 +830,7 @@
             if (!pendingEvaluation) return;
             pendingEvaluation.bDelta -= 1;
             evalBMinusButton.classList.add('selected');
+            updateSessionLeds(pendingEvaluation.studentNames);
         });
     }
     if (evalTPlusButton) {
@@ -827,6 +838,7 @@
             if (!pendingEvaluation) return;
             pendingEvaluation.tDelta += 1;
             evalTPlusButton.classList.add('selected');
+            updateSessionLeds(pendingEvaluation.studentNames);
         });
     }
     if (evalTMinusButton) {
@@ -834,6 +846,7 @@
             if (!pendingEvaluation) return;
             pendingEvaluation.tDelta -= 1;
             evalTMinusButton.classList.add('selected');
+            updateSessionLeds(pendingEvaluation.studentNames);
         });
     }
     if (evalAPlusButton) {
@@ -841,6 +854,7 @@
             if (!pendingEvaluation) return;
             pendingEvaluation.aDelta += 1;
             evalAPlusButton.classList.add('selected');
+            updateSessionLeds(pendingEvaluation.studentNames);
         });
     }
     if (evalAMinusButton) {
@@ -848,6 +862,7 @@
             if (!pendingEvaluation) return;
             pendingEvaluation.aDelta -= 1;
             evalAMinusButton.classList.add('selected');
+            updateSessionLeds(pendingEvaluation.studentNames);
         });
     }
     if (evalValidateButton) {
@@ -857,16 +872,16 @@
             const sessionMap = getSessionScoresMap();
             pendingEvaluation.studentNames.forEach((studentName) => {
                 if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
-                    sessionMap[studentName] = { b: 3, t: 3, a: 3, comments: [] };
+                    sessionMap[studentName] = { b: 0, t: 0, a: 0, comments: [] };
                 }
-                const currentB = Number(sessionMap[studentName].b) || 3;
-                const currentT = Number(sessionMap[studentName].t) || 3;
-                const currentA = Number(sessionMap[studentName].a) || 3;
+                const currentB = Number(sessionMap[studentName].b) || 0;
+                const currentT = Number(sessionMap[studentName].t) || 0;
+                const currentA = Number(sessionMap[studentName].a) || 0;
                 const tentativeB = currentB + pendingEvaluation.bDelta;
-                const bonusTDeltaFromB = tentativeB < 3 ? -1 : 0;
-                sessionMap[studentName].b = Math.max(3, tentativeB);
-                sessionMap[studentName].t = Math.max(3, currentT + pendingEvaluation.tDelta + bonusTDeltaFromB);
-                sessionMap[studentName].a = Math.max(3, currentA + pendingEvaluation.aDelta);
+                const bonusTDeltaFromB = tentativeB < 0 ? -1 : 0;
+                sessionMap[studentName].b = clamp(tentativeB, -3, 3);
+                sessionMap[studentName].t = clamp(currentT + pendingEvaluation.tDelta + bonusTDeltaFromB, -3, 3);
+                sessionMap[studentName].a = clamp(currentA + pendingEvaluation.aDelta, -3, 3);
                 if (!Array.isArray(sessionMap[studentName].comments)) {
                     sessionMap[studentName].comments = [];
                 }
@@ -897,13 +912,12 @@
                     const config = getIndicatorDisplayConfig(key);
                     const rawValue = student[key];
                     if (rawValue === null || rawValue === undefined) {
-                        return '<td><span class="led na"></span><span>—</span></td>';
+                        return '<td><span class="led na"></span></td>';
                     }
                     const boundedValue = clamp(rawValue, 0, config.maxValue);
                     const hue = (boundedValue / config.maxValue) * 120;
                     const color = `hsl(${hue} 88% 48%)`;
-                    const textValue = config.suffix === '%' ? `${boundedValue.toFixed(1)} %` : `${boundedValue.toFixed(1)} ${config.suffix}`;
-                    return `<td><span class="led" style="--led-color:${color};--led-glow:hsl(${hue} 92% 55% / 0.6)"></span><span>${textValue}</span></td>`;
+                    return `<td><span class="led" style="--led-color:${color};--led-glow:hsl(${hue} 92% 55% / 0.6)"></span></td>`;
                 }).join('');
                 return `<tr><td>${student.name}</td>${cells}</tr>`;
             }).join('');
@@ -930,7 +944,7 @@
         const sessionMap = getSessionScoresMap();
         Object.keys(sessionMap).forEach((key) => {
             if (key === '__classComments') return;
-            sessionMap[key] = { b: 3, t: 3, a: 3, comments: [] };
+            sessionMap[key] = { b: 0, t: 0, a: 0, comments: [] };
         });
         sessionMap.__classComments = [];
         saveSessionScoresMap(sessionMap);
