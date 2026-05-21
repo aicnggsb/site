@@ -419,7 +419,8 @@
 
     function getSessionScoresCookieName() {
         const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
-        return `${SESSION_SCORES_COOKIE_PREFIX}${selectedClass}_${getActiveSessionKey()}`;
+        const sessionKey = hasSelectedSession && selectedSessionKey ? selectedSessionKey : getActiveSessionKey();
+        return `${SESSION_SCORES_COOKIE_PREFIX}${selectedClass}_${sessionKey}`;
     }
 
     function getSessionScoresMap() {
@@ -882,14 +883,24 @@
     if (classInfoExportButton) {
         classInfoExportButton.addEventListener('click', () => {
             const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
-            const sessionMap = getSessionScoresMap();
             const rows = lastClassStudents.map((student) => {
-                const score = sessionMap[student.name] || {};
-                return `<tr><td>${student.name}</td><td>${Number(score.b) || 3}</td><td>${Number(score.t) || 3}</td><td>${Number(score.a) || 3}</td></tr>`;
+                const cells = ['b', 't', 'a', 't1', 't2', 't3'].map((key) => {
+                    const config = getIndicatorDisplayConfig(key);
+                    const rawValue = student[key];
+                    if (rawValue === null || rawValue === undefined) {
+                        return '<td><span class="led na"></span><span>—</span></td>';
+                    }
+                    const boundedValue = clamp(rawValue, 0, config.maxValue);
+                    const hue = (boundedValue / config.maxValue) * 120;
+                    const color = `hsl(${hue} 88% 48%)`;
+                    const textValue = config.suffix === '%' ? `${boundedValue.toFixed(1)} %` : `${boundedValue.toFixed(1)} ${config.suffix}`;
+                    return `<td><span class="led" style="--led-color:${color};--led-glow:hsl(${hue} 92% 55% / 0.6)"></span><span>${textValue}</span></td>`;
+                }).join('');
+                return `<tr><td>${student.name}</td>${cells}</tr>`;
             }).join('');
             const viewWindow = window.open('', '_blank');
             if (!viewWindow) return;
-            viewWindow.document.write(`<html><head><title>Export voyants ${selectedClass}</title><style>body{font-family:Arial,sans-serif;padding:20px}table{border-collapse:collapse;width:100%;max-width:520px}th,td{border:1px solid #ccc;padding:8px}</style></head><body><h3>Voyants ${selectedClass} (${selectedSessionLabel || getActiveSessionKey()})</h3><table><thead><tr><th>Élève</th><th>B</th><th>T</th><th>A</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);
+            viewWindow.document.write(`<html><head><title>Export voyants ${selectedClass}</title><style>body{font-family:Arial,sans-serif;padding:20px;background:#f8fafc;color:#111827}table{border-collapse:collapse;width:100%;max-width:980px;background:#fff}th,td{border:1px solid #d1d5db;padding:8px 10px}th{background:#111827;color:#fff;text-align:left}td{white-space:nowrap}.led{display:inline-block;width:13px;height:13px;border-radius:999px;background:var(--led-color,#6b7280);box-shadow:0 0 10px var(--led-glow,rgba(107,114,128,.45));margin-right:8px;vertical-align:-1px}.led.na{background:#6b7280;box-shadow:0 0 10px rgba(107,114,128,.45)}</style></head><body><h3>Voyants globaux ${selectedClass}</h3><p>Indicateurs de base indépendants de la séance en cours.</p><table><thead><tr><th>Élève</th><th>B</th><th>T</th><th>A</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody>${rows || '<tr><td colspan="7">Aucun élève chargé.</td></tr>'}</tbody></table></body></html>`);
             viewWindow.document.close();
         });
     }
