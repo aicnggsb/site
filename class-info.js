@@ -378,9 +378,9 @@
                 detailsList.classList.toggle('hide-action-buttons', showIndicators);
             });
 
+            teamHeader.appendChild(detailsButton);
             card.appendChild(teamHeader);
             card.appendChild(teamIndicators);
-            card.appendChild(detailsButton);
             card.appendChild(detailsPanel);
             teamsPopupListElement.appendChild(card);
         });
