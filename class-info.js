@@ -497,7 +497,7 @@
         const classCommentsHtml = classComments.length
             ? `<div style="border:1px solid #ccc;padding:10px;margin:12px 0 16px 0;background:#f8fafc"><strong>Commentaire classe</strong><br>${classComments.join('<br>')}</div>`
             : `<div style="border:1px solid #ccc;padding:10px;margin:12px 0 16px 0;background:#f8fafc"><strong>Commentaire classe</strong><br>Aucun commentaire classe.</div>`;
-        viewWindow.document.write(`<html><head><title>Tableau séance ${selectedClass}</title><style>body{font-family:Arial,sans-serif;padding:20px}table{border-collapse:collapse;width:100%;max-width:680px}th,td{border:1px solid #ccc;padding:8px 10px}th{background:#111827;color:#fff;text-align:left}</style></head><body><h3>Tableau séance ${selectedClass} (${sessionDate})</h3><p><button id="reset-session">Réinitialiser</button></p>${classCommentsHtml}<p>Ordre export: Classe, Équipe, Élève, B, T, A et commentaire.</p><table><thead><tr><th>Classe</th><th>Équipe</th><th>Élève</th><th>B</th><th>T</th><th>A</th><th>Commentaire</th></tr></thead><tbody>${tableRows}</tbody></table><script>document.getElementById('reset-session').addEventListener('click',()=>{if(window.opener){window.opener.postMessage({type:'reset-session-scores'}, '*');}window.close();});</script></body></html>`);
+        viewWindow.document.write(`<html><head><title>Tableau séance ${selectedClass}</title><style>body{font-family:Arial,sans-serif;padding:20px}table{border-collapse:collapse;width:100%;max-width:680px}th,td{border:1px solid #ccc;padding:8px 10px}th{background:#111827;color:#fff;text-align:left}</style></head><body><h3>Tableau séance ${selectedClass} (${sessionDate})</h3><p><button id="reset-session">Réinitialiser</button> <button id="copy-session">Copier</button></p>${classCommentsHtml}<p>Ordre export: Classe, Équipe, Élève, B, T, A et commentaire.</p><table><thead><tr><th>Classe</th><th>Équipe</th><th>Élève</th><th>B</th><th>T</th><th>A</th><th>Commentaire</th></tr></thead><tbody>${tableRows}</tbody></table><script>const copyBtn=document.getElementById('copy-session');copyBtn.addEventListener('click',async()=>{const rows=[...document.querySelectorAll('tbody tr')].filter(r=>r.querySelectorAll('td').length>=7).map(r=>{const cells=r.querySelectorAll('td');return [cells[3].textContent.trim(),cells[4].textContent.trim(),cells[5].textContent.trim(),cells[6].textContent.trim()].join('\t');}).join('\n');try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(rows);}else{const ta=document.createElement('textarea');ta.value=rows;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}copyBtn.textContent='Copié ✓';setTimeout(()=>{copyBtn.textContent='Copier';},1400);}catch(e){copyBtn.textContent='Échec copie';setTimeout(()=>{copyBtn.textContent='Copier';},1700);}});document.getElementById('reset-session').addEventListener('click',()=>{if(window.opener){window.opener.postMessage({type:'reset-session-scores'}, '*');}window.close();});</script></body></html>`);
         viewWindow.document.close();
     }
 
@@ -908,7 +908,7 @@
         classInfoExportButton.addEventListener('click', () => {
             const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
             const rows = lastClassStudents.map((student) => {
-                const cells = ['b', 't', 'a'].map((key) => {
+                const cells = ['b', 't', 'a', 't1', 't2', 't3'].map((key) => {
                     const config = getIndicatorDisplayConfig(key);
                     const rawValue = student[key];
                     if (rawValue === null || rawValue === undefined) {
@@ -923,7 +923,7 @@
             }).join('');
             const viewWindow = window.open('', '_blank');
             if (!viewWindow) return;
-            viewWindow.document.write(`<html><head><title>Export voyants ${selectedClass}</title><style>:root{--bg:#f3f4f6;--panel:#ffffff;--text:#111827;--muted:#6b7280;--border:#d1d5db;--header:#111827;--headerText:#f9fafb}*{box-sizing:border-box}body{font-family:Arial,sans-serif;padding:24px;background:var(--bg);color:var(--text)}.panel{max-width:980px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 8px 24px rgba(17,24,39,.08)}h3{margin:0 0 8px 0}p{margin:0 0 16px 0;color:var(--muted)}table{border-collapse:collapse;width:100%}th,td{border:1px solid var(--border);padding:8px 10px}th{background:var(--header);color:var(--headerText);text-align:left}td{white-space:nowrap}.led{display:inline-block;width:13px;height:13px;border-radius:999px;background:var(--led-color,#6b7280);box-shadow:0 0 10px var(--led-glow,rgba(107,114,128,.45));margin-right:8px;vertical-align:-1px}.led.na{background:#6b7280;box-shadow:0 0 10px rgba(107,114,128,.45)}</style></head><body><div class="panel"><h3>Voyants globaux ${selectedClass}</h3><p>Indicateurs de base indépendants de la séance en cours (sans notes).</p><table><thead><tr><th>Élève</th><th>B</th><th>T</th><th>A</th></tr></thead><tbody>${rows || '<tr><td colspan="4">Aucun élève chargé.</td></tr>'}</tbody></table></div></body></html>`);
+            viewWindow.document.write(`<html><head><title>Export voyants ${selectedClass}</title><style>:root{--bg:#f3f4f6;--panel:#ffffff;--text:#111827;--muted:#6b7280;--border:#d1d5db;--header:#111827;--headerText:#f9fafb}*{box-sizing:border-box}body{font-family:Arial,sans-serif;padding:24px;background:var(--bg);color:var(--text)}.panel{max-width:980px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 8px 24px rgba(17,24,39,.08)}h3{margin:0 0 8px 0}p{margin:0 0 16px 0;color:var(--muted)}table{border-collapse:collapse;width:100%}th,td{border:1px solid var(--border);padding:8px 10px}th{background:var(--header);color:var(--headerText);text-align:left}td{white-space:nowrap}.led{display:inline-block;width:13px;height:13px;border-radius:999px;background:var(--led-color,#6b7280);box-shadow:0 0 10px var(--led-glow,rgba(107,114,128,.45));margin-right:8px;vertical-align:-1px}.led.na{background:#6b7280;box-shadow:0 0 10px rgba(107,114,128,.45)}</style></head><body><div class="panel"><h3>Voyants globaux ${selectedClass}</h3><p>Indicateurs de base indépendants de la séance en cours (sans notes).</p><table><thead><tr><th>Élève</th><th>B</th><th>T</th><th>A</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody>${rows || '<tr><td colspan="7">Aucun élève chargé.</td></tr>'}</tbody></table></div></body></html>`);
             viewWindow.document.close();
         });
     }
@@ -944,7 +944,7 @@
         const sessionMap = getSessionScoresMap();
         Object.keys(sessionMap).forEach((key) => {
             if (key === '__classComments') return;
-            sessionMap[key] = { b: 0, t: 0, a: 0, comments: [] };
+            sessionMap[key] = { b: 3, t: 3, a: 3, comments: [] };
         });
         sessionMap.__classComments = [];
         saveSessionScoresMap(sessionMap);
