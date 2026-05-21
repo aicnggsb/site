@@ -15,7 +15,7 @@
                 <div class="atelier-content">
                     <div class="card-header-with-toggle class-info-header">
                         <h2>Informations classe</h2>
-                        <button id="generate-teams-button" type="button" class="generate-teams-button">Gestion des équipes</button>
+                        <div class="class-info-actions"><button id="class-info-export-button" type="button" class="generate-teams-button" aria-label="Exporter les voyants de la classe" title="Exporter les voyants de la classe">Export</button><button id="generate-teams-button" type="button" class="generate-teams-button">Gestion des équipes</button></div>
                     </div>
                     <p id="selected-class-name">Classe sélectionnée : Aucune</p>
                     <p id="selected-class-students">Effectif (3E) : -</p>
@@ -129,6 +129,7 @@
                 <div class="eval-popup-session-leds">
                 <span><span id="eval-session-led-b" class="indicator-light" aria-label="Voyant B séance"></span></span>
                 <span><span id="eval-session-led-t" class="indicator-light" aria-label="Voyant T séance"></span></span>
+                <span><span id="eval-session-led-a" class="indicator-light" aria-label="Voyant A séance"></span></span>
                 </div>
             </div>
             <div class="eval-popup-actions">

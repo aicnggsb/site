@@ -37,8 +37,10 @@
     const evalAMinusButton = document.getElementById('eval-aminus');
     const evalSessionLedB = document.getElementById('eval-session-led-b');
     const evalSessionLedT = document.getElementById('eval-session-led-t');
+    const evalSessionLedA = document.getElementById('eval-session-led-a');
     const evalCommentElement = document.getElementById('eval-comment');
     const evalValidateButton = document.getElementById('eval-validate');
+    const classInfoExportButton = document.getElementById('class-info-export-button');
     const TEAMS_COOKIE_PREFIX = 'savedTeams_';
     const SESSION_SCORES_COOKIE_PREFIX = 'sessionScores_';
 
@@ -46,6 +48,8 @@
     let currentTeams = [];
     let pendingEvaluation = null;
     let hasSelectedSession = false;
+    let selectedSessionKey = '';
+    let selectedSessionLabel = '';
 
     if (!classNameElement || !studentsCountElement || !indicatorBElement || !indicatorTElement || !indicatorAElement || !indicatorT1Element || !indicatorT2Element || !indicatorT3Element) {
         return;
@@ -405,7 +409,7 @@
         evalPopupElement.hidden = false;
     }
 
-    function getSessionDateKey() {
+    function getActiveSessionKey() {
         const now = new Date();
         const yyyy = now.getFullYear();
         const mm = String(now.getMonth() + 1).padStart(2, '0');
@@ -415,7 +419,7 @@
 
     function getSessionScoresCookieName() {
         const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
-        return `${SESSION_SCORES_COOKIE_PREFIX}${selectedClass}_${getSessionDateKey()}`;
+        return `${SESSION_SCORES_COOKIE_PREFIX}${selectedClass}_${getActiveSessionKey()}`;
     }
 
     function getSessionScoresMap() {
@@ -451,9 +455,11 @@
         const shouldDisable = !hasSelectedSession;
         if (classEvalButton) {
             classEvalButton.disabled = shouldDisable;
+            classEvalButton.hidden = shouldDisable;
         }
         if (exportBminusCsvButton) {
             exportBminusCsvButton.disabled = shouldDisable;
+            exportBminusCsvButton.hidden = shouldDisable;
         }
     }
 
@@ -461,7 +467,7 @@
         const sessionMap = getSessionScoresMap();
         const classComments = Array.isArray(sessionMap.__classComments) ? sessionMap.__classComments : [];
         const rows = lastClassStudents.map((student) => [student.name, sessionMap[student.name] || { b: 3, t: 3, a: 3, comments: [] }]);
-        const sessionDate = getSessionDateKey();
+        const sessionDate = selectedSessionLabel || getActiveSessionKey();
         const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
         const viewWindow = window.open('', '_blank');
         if (!viewWindow) {
@@ -481,7 +487,7 @@
         const classCommentsHtml = classComments.length
             ? `<div style="border:1px solid #ccc;padding:10px;margin:12px 0 16px 0;background:#f8fafc"><strong>Commentaire classe</strong><br>${classComments.join('<br>')}</div>`
             : `<div style="border:1px solid #ccc;padding:10px;margin:12px 0 16px 0;background:#f8fafc"><strong>Commentaire classe</strong><br>Aucun commentaire classe.</div>`;
-        viewWindow.document.write(`<html><head><title>Tableau séance ${selectedClass}</title><style>body{font-family:Arial,sans-serif;padding:20px}table{border-collapse:collapse;width:100%;max-width:680px}th,td{border:1px solid #ccc;padding:8px 10px}th{background:#111827;color:#fff;text-align:left}</style></head><body><h3>Tableau séance ${selectedClass} (${sessionDate})</h3>${classCommentsHtml}<p>Ordre export: Classe, Équipe, Élève, B, T, A et commentaire.</p><table><thead><tr><th>Classe</th><th>Équipe</th><th>Élève</th><th>B</th><th>T</th><th>A</th><th>Commentaire</th></tr></thead><tbody>${tableRows}</tbody></table></body></html>`);
+        viewWindow.document.write(`<html><head><title>Tableau séance ${selectedClass}</title><style>body{font-family:Arial,sans-serif;padding:20px}table{border-collapse:collapse;width:100%;max-width:680px}th,td{border:1px solid #ccc;padding:8px 10px}th{background:#111827;color:#fff;text-align:left}</style></head><body><h3>Tableau séance ${selectedClass} (${sessionDate})</h3><p><button id="reset-session">Réinitialiser</button></p>${classCommentsHtml}<p>Ordre export: Classe, Équipe, Élève, B, T, A et commentaire.</p><table><thead><tr><th>Classe</th><th>Équipe</th><th>Élève</th><th>B</th><th>T</th><th>A</th><th>Commentaire</th></tr></thead><tbody>${tableRows}</tbody></table><script>document.getElementById('reset-session').addEventListener('click',()=>{if(window.opener){window.opener.postMessage({type:'reset-session-scores'}, '*');}window.close();});</script></body></html>`);
         viewWindow.document.close();
     }
 
@@ -506,6 +512,7 @@
         const first = studentNames.length ? (sessionMap[studentNames[0]] || { b: 3, t: 3 }) : { b: 3, t: 3 };
         setSessionIndicatorLight(evalSessionLedB, Number(first.b) || 3);
         setSessionIndicatorLight(evalSessionLedT, Number(first.t) || 3);
+        setSessionIndicatorLight(evalSessionLedA, Number(first.a) || 3);
     }
 
     function updateTeamStatusMessage() {
@@ -872,10 +879,41 @@
     if (classFilterElement) {
         classFilterElement.addEventListener('change', refreshClassInfo);
     }
+    if (classInfoExportButton) {
+        classInfoExportButton.addEventListener('click', () => {
+            const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
+            const sessionMap = getSessionScoresMap();
+            const rows = lastClassStudents.map((student) => {
+                const score = sessionMap[student.name] || {};
+                return `<tr><td>${student.name}</td><td>${Number(score.b) || 3}</td><td>${Number(score.t) || 3}</td><td>${Number(score.a) || 3}</td></tr>`;
+            }).join('');
+            const viewWindow = window.open('', '_blank');
+            if (!viewWindow) return;
+            viewWindow.document.write(`<html><head><title>Export voyants ${selectedClass}</title><style>body{font-family:Arial,sans-serif;padding:20px}table{border-collapse:collapse;width:100%;max-width:520px}th,td{border:1px solid #ccc;padding:8px}</style></head><body><h3>Voyants ${selectedClass} (${selectedSessionLabel || getActiveSessionKey()})</h3><table><thead><tr><th>Élève</th><th>B</th><th>T</th><th>A</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);
+            viewWindow.document.close();
+        });
+    }
 
     window.addEventListener('session-selection-change', (event) => {
         hasSelectedSession = Boolean(event.detail && event.detail.hasSelection);
+        selectedSessionKey = event.detail && event.detail.sessionKey ? event.detail.sessionKey : '';
+        selectedSessionLabel = event.detail && event.detail.sessionLabel ? event.detail.sessionLabel : '';
         updateSessionDependentButtonsState();
+        refreshClassInfo();
+    });
+
+    
+    window.addEventListener('message', (event) => {
+        if (!event.data || event.data.type !== 'reset-session-scores') {
+            return;
+        }
+        const sessionMap = getSessionScoresMap();
+        Object.keys(sessionMap).forEach((key) => {
+            if (key === '__classComments') return;
+            sessionMap[key] = { b: 3, t: 3, a: 3, comments: [] };
+        });
+        sessionMap.__classComments = [];
+        saveSessionScoresMap(sessionMap);
     });
 
     window.addEventListener('storage', (event) => {
