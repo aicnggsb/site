@@ -108,6 +108,45 @@
         return `${entry.classText}|${entry.projectText}|${entry.dateText}|${entry.stepText}`;
     }
 
+
+    const COPIED_SESSIONS_STORAGE_KEY = 'copiedSessionsByClass';
+
+    function getCopiedSessionsMap() {
+        try {
+            const raw = localStorage.getItem(COPIED_SESSIONS_STORAGE_KEY);
+            const parsed = raw ? JSON.parse(raw) : {};
+            return parsed && typeof parsed === 'object' ? parsed : {};
+        } catch (error) {
+            return {};
+        }
+    }
+
+    function markSessionAsCopied(className, sessionKey) {
+        const normalizedClass = (className || '').toUpperCase().trim();
+        const normalizedSessionKey = (sessionKey || '').trim();
+        if (!normalizedClass || !normalizedSessionKey) {
+            return;
+        }
+        const copiedMap = getCopiedSessionsMap();
+        if (!Array.isArray(copiedMap[normalizedClass])) {
+            copiedMap[normalizedClass] = [];
+        }
+        if (!copiedMap[normalizedClass].includes(normalizedSessionKey)) {
+            copiedMap[normalizedClass].push(normalizedSessionKey);
+            localStorage.setItem(COPIED_SESSIONS_STORAGE_KEY, JSON.stringify(copiedMap));
+        }
+    }
+
+    function isSessionCopied(className, sessionKey) {
+        const normalizedClass = (className || '').toUpperCase().trim();
+        const normalizedSessionKey = (sessionKey || '').trim();
+        if (!normalizedClass || !normalizedSessionKey) {
+            return false;
+        }
+        const copiedMap = getCopiedSessionsMap();
+        return Array.isArray(copiedMap[normalizedClass]) && copiedMap[normalizedClass].includes(normalizedSessionKey);
+    }
+
     function cleanText(value) {
         return (value || '').replace(/\s+/g, ' ').trim();
     }
@@ -755,7 +794,7 @@
             }
 
             const strong = document.createElement('strong');
-            strong.textContent = entry.dateText || 'Date non renseignée';
+            strong.textContent = `${entry.dateText || 'Date non renseignée'}${isSessionCopied(entry.classText, entry.dateText || '') ? ' ✅' : ''}`;
 
             const details = document.createElement('div');
             details.textContent = formatDetails(entry);
@@ -866,6 +905,16 @@
         if (event.target === noiseAlertPopupElement) {
             closeNoiseAlertPopup();
         }
+    });
+
+
+    window.addEventListener('message', (event) => {
+        const data = event.data;
+        if (!data || data.type !== 'session-export-copied') {
+            return;
+        }
+        markSessionAsCopied(data.sessionClass, data.sessionKey);
+        renderSteps();
     });
 
     setupTaskSectionToggles();
