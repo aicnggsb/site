@@ -162,6 +162,18 @@
         };
     }
 
+
+    function resolveCsvColumnIndex(header, expectedName, fallbackIndex) {
+        const byName = header.findIndex((col) => col === expectedName);
+        if (byName !== -1) {
+            return byName;
+        }
+        if (Number.isInteger(fallbackIndex) && fallbackIndex >= 0 && fallbackIndex < header.length) {
+            return fallbackIndex;
+        }
+        return -1;
+    }
+
     function getIndicatorDisplayConfig(key) {
         if (['t1', 't2', 't3'].includes(key)) {
             return { maxValue: 20, suffix: '/20' };
@@ -404,7 +416,7 @@
         let changed = false;
         studentNames.forEach((studentName) => {
             if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
-                sessionMap[studentName] = { b: 0, t: 0, a: 0, comments: [] };
+                sessionMap[studentName] = { b: 3, t: 3, a: 3, comments: [] };
                 changed = true;
             } else {
                 if (!Array.isArray(sessionMap[studentName].comments)) {
@@ -412,11 +424,15 @@
                     changed = true;
                 }
                 if (!Number.isFinite(Number(sessionMap[studentName].b))) {
-                    sessionMap[studentName].b = 0;
+                    sessionMap[studentName].b = 3;
                     changed = true;
                 }
                 if (!Number.isFinite(Number(sessionMap[studentName].t))) {
-                    sessionMap[studentName].t = 0;
+                    sessionMap[studentName].t = 3;
+                    changed = true;
+                }
+                if (!Number.isFinite(Number(sessionMap[studentName].a))) {
+                    sessionMap[studentName].a = 3;
                     changed = true;
                 }
             }
@@ -484,7 +500,7 @@
         }
         const sessionMap = getSessionScoresMap();
         if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
-            sessionMap[studentName] = { b: 0, t: 0, a: 0, comments: [] };
+            sessionMap[studentName] = { b: 3, t: 3, a: 3, comments: [] };
         }
         sessionMap[studentName][indicator] = (Number(sessionMap[studentName][indicator]) || 0) + delta;
         saveSessionScoresMap(sessionMap);
@@ -505,7 +521,7 @@
     function renderSessionTable() {
         const sessionMap = getSessionScoresMap();
         const classComments = Array.isArray(sessionMap.__classComments) ? sessionMap.__classComments : [];
-        const rows = lastClassStudents.map((student) => [student.name, sessionMap[student.name] || { b: 0, t: 0, a: 0, comments: [] }]);
+        const rows = lastClassStudents.map((student) => [student.name, sessionMap[student.name] || { b: 3, t: 3, a: 3, comments: [] }]);
         const sessionDate = selectedSessionLabel || getActiveSessionKey();
         const selectedClass = (getSelectedClass() || 'inconnue').toUpperCase().trim();
         const viewWindow = window.open('', '_blank');
@@ -514,9 +530,9 @@
             return;
         }
         const tableRows = rows.length ? rows.map(([name, scores]) => {
-            const b = Number(scores.b) || 0;
-            const t = Number(scores.t) || 0;
-            const a = Number(scores.a) || 0;
+            const b = Number(scores.b) || 3;
+            const t = Number(scores.t) || 3;
+            const a = Number(scores.a) || 3;
             const bHue = ((clamp(b, -3, 3) + 3) / 6) * 120;
             const tHue = ((clamp(t, -3, 3) + 3) / 6) * 120;
             const aHue = ((clamp(a, -3, 3) + 3) / 6) * 120;
@@ -548,10 +564,10 @@
 
     function updateSessionLeds(studentNames) {
         const sessionMap = getSessionScoresMap();
-        const first = studentNames.length ? (sessionMap[studentNames[0]] || { b: 0, t: 0, a: 0 }) : { b: 0, t: 0, a: 0 };
-        const baseB = Number(first.b) || 0;
-        const baseT = Number(first.t) || 0;
-        const baseA = Number(first.a) || 0;
+        const first = studentNames.length ? (sessionMap[studentNames[0]] || { b: 3, t: 3, a: 3 }) : { b: 3, t: 3, a: 3 };
+        const baseB = Number(first.b) || 3;
+        const baseT = Number(first.t) || 3;
+        const baseA = Number(first.a) || 3;
         const bDelta = pendingEvaluation ? pendingEvaluation.bDelta : 0;
         const tDelta = pendingEvaluation ? pendingEvaluation.tDelta : 0;
         const aDelta = pendingEvaluation ? pendingEvaluation.aDelta : 0;
@@ -664,21 +680,21 @@
         const header = rows[0].map((cell) => normalize(cell));
         const classIdx = header.findIndex((col) => col === 'classe');
         const nameIdx = header.findIndex((col) => col === 'nom');
-        const indicatorT1BIdx = header.findIndex((col) => col === 't1b');
-        const indicatorT1TIdx = header.findIndex((col) => col === 't1t');
-        const indicatorT1AIdx = header.findIndex((col) => col === 't1a');
-        const indicatorT2BIdx = header.findIndex((col) => col === 't2b');
-        const indicatorT2TIdx = header.findIndex((col) => col === 't2t');
-        const indicatorT2AIdx = header.findIndex((col) => col === 't2a');
-        const indicatorT3BIdx = header.findIndex((col) => col === 't3b');
-        const indicatorT3TIdx = header.findIndex((col) => col === 't3t');
-        const indicatorT3AIdx = header.findIndex((col) => col === 't3a');
-        const indicatorCpcIdx = header.findIndex((col) => col === 'cpc');
-        const indicatorC3dIdx = header.findIndex((col) => col === 'c3d');
-        const indicatorCmqIdx = header.findIndex((col) => col === 'cmq');
-        const indicatorT1Idx = header.findIndex((col) => col === 't1');
-        const indicatorT2Idx = header.findIndex((col) => col === 't2');
-        const indicatorT3Idx = header.findIndex((col) => col === 't3');
+        const indicatorT1BIdx = resolveCsvColumnIndex(header, 't1b', 2);
+        const indicatorT1TIdx = resolveCsvColumnIndex(header, 't1t', 3);
+        const indicatorT1AIdx = resolveCsvColumnIndex(header, 't1a', 4);
+        const indicatorT2BIdx = resolveCsvColumnIndex(header, 't2b', 5);
+        const indicatorT2TIdx = resolveCsvColumnIndex(header, 't2t', 6);
+        const indicatorT2AIdx = resolveCsvColumnIndex(header, 't2a', 7);
+        const indicatorT3BIdx = resolveCsvColumnIndex(header, 't3b', 8);
+        const indicatorT3TIdx = resolveCsvColumnIndex(header, 't3t', 9);
+        const indicatorT3AIdx = resolveCsvColumnIndex(header, 't3a', 10);
+        const indicatorCpcIdx = resolveCsvColumnIndex(header, 'cpc', 11);
+        const indicatorC3dIdx = resolveCsvColumnIndex(header, 'c3d', 12);
+        const indicatorCmqIdx = resolveCsvColumnIndex(header, 'cmq', 13);
+        const indicatorT1Idx = resolveCsvColumnIndex(header, 't1', 14);
+        const indicatorT2Idx = resolveCsvColumnIndex(header, 't2', 15);
+        const indicatorT3Idx = resolveCsvColumnIndex(header, 't3', 16);
 
         if (classIdx === -1 || nameIdx === -1 || indicatorT1BIdx === -1 || indicatorT1TIdx === -1 || indicatorT1AIdx === -1 || indicatorT2BIdx === -1 || indicatorT2TIdx === -1 || indicatorT2AIdx === -1 || indicatorT3BIdx === -1 || indicatorT3TIdx === -1 || indicatorT3AIdx === -1 || indicatorCpcIdx === -1 || indicatorC3dIdx === -1 || indicatorCmqIdx === -1 || indicatorT1Idx === -1 || indicatorT2Idx === -1 || indicatorT3Idx === -1) {
             throw new Error('Colonnes attendues introuvables (classe / nom / T1B/T1T/T1A / T2B/T2T/T2A / T3B/T3T/T3A / CPC / C3D / CMQ / T1 / T2 / T3).');
@@ -959,11 +975,11 @@
             const sessionMap = getSessionScoresMap();
             pendingEvaluation.studentNames.forEach((studentName) => {
                 if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
-                    sessionMap[studentName] = { b: 0, t: 0, a: 0, comments: [] };
+                    sessionMap[studentName] = { b: 3, t: 3, a: 3, comments: [] };
                 }
-                const currentB = Number(sessionMap[studentName].b) || 0;
-                const currentT = Number(sessionMap[studentName].t) || 0;
-                const currentA = Number(sessionMap[studentName].a) || 0;
+                const currentB = Number(sessionMap[studentName].b) || 3;
+                const currentT = Number(sessionMap[studentName].t) || 3;
+                const currentA = Number(sessionMap[studentName].a) || 3;
                 const tentativeB = currentB + pendingEvaluation.bDelta;
                 const bonusTDeltaFromB = tentativeB < 0 ? -1 : 0;
                 sessionMap[studentName].b = clamp(tentativeB, -3, 3);
