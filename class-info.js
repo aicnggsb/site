@@ -39,9 +39,12 @@
     const evalPopupTitle = document.getElementById('eval-popup-title');
     const evalBMinusButton = document.getElementById('eval-bminus');
     const evalTPlusButton = document.getElementById('eval-tplus');
+    const evalTPlus3Button = document.getElementById('eval-tplus3');
     const evalTMinusButton = document.getElementById('eval-tminus');
+    const evalTMinus3Button = document.getElementById('eval-tminus3');
     const evalAPlusButton = document.getElementById('eval-aplus');
     const evalAMinusButton = document.getElementById('eval-aminus');
+    const evalAbsentButton = document.getElementById('eval-absent');
     const evalSessionLedB = document.getElementById('eval-session-led-b');
     const evalSessionLedT = document.getElementById('eval-session-led-t');
     const evalSessionLedA = document.getElementById('eval-session-led-a');
@@ -513,11 +516,11 @@
         if (!evalPopupElement || !studentNames.length) {
             return;
         }
-        pendingEvaluation = { studentNames, bDelta: 0, tDelta: 0, aDelta: 0, isClassEvaluation: label === 'Classe' };
+        pendingEvaluation = { studentNames, bDelta: 0, tDelta: 0, aDelta: 0, markAbsent: false, isClassEvaluation: label === 'Classe' };
         const evaluatedSessionLabel = getEvaluatedSessionLabel();
         evalPopupTitle.textContent = `Évaluer : ${label} (${evaluatedSessionLabel})`;
         evalCommentElement.value = '';
-        [evalBMinusButton, evalTPlusButton, evalTMinusButton, evalAPlusButton, evalAMinusButton].forEach((button) => button.classList.remove('selected'));
+        [evalBMinusButton, evalTPlusButton, evalTPlus3Button, evalTMinusButton, evalTMinus3Button, evalAPlusButton, evalAMinusButton, evalAbsentButton].forEach((button) => button && button.classList.remove('selected'));
         updateSessionLeds(studentNames);
         evalPopupElement.hidden = false;
     }
@@ -646,6 +649,14 @@
         }
         if (tentativeT < 0) {
             tentativeB = clamp(tentativeB - 1, -3, 3);
+        }
+        if (pendingEvaluation && pendingEvaluation.markAbsent) {
+            [evalSessionLedB, evalSessionLedT, evalSessionLedA].forEach((indicatorElement) => {
+                indicatorElement.style.setProperty('--indicator-color', '#6b7280');
+                indicatorElement.style.setProperty('--indicator-glow', 'rgba(107, 114, 128, 0.45)');
+                indicatorElement.title = 'Absent';
+            });
+            return;
         }
         setSessionIndicatorLight(evalSessionLedB, tentativeB);
         setSessionIndicatorLight(evalSessionLedT, tentativeT);
@@ -1001,6 +1012,16 @@
             updateSessionLeds(pendingEvaluation.studentNames);
         });
     }
+
+    if (evalTPlus3Button) {
+        evalTPlus3Button.addEventListener('click', () => {
+            if (!pendingEvaluation) return;
+            pendingEvaluation.tDelta += 3;
+            evalTPlus3Button.classList.add('selected');
+            updateSessionLeds(pendingEvaluation.studentNames);
+        });
+    }
+
     if (evalTMinusButton) {
         evalTMinusButton.addEventListener('click', () => {
             if (!pendingEvaluation) return;
@@ -1009,6 +1030,16 @@
             updateSessionLeds(pendingEvaluation.studentNames);
         });
     }
+
+    if (evalTMinus3Button) {
+        evalTMinus3Button.addEventListener('click', () => {
+            if (!pendingEvaluation) return;
+            pendingEvaluation.tDelta -= 3;
+            evalTMinus3Button.classList.add('selected');
+            updateSessionLeds(pendingEvaluation.studentNames);
+        });
+    }
+
     if (evalAPlusButton) {
         evalAPlusButton.addEventListener('click', () => {
             if (!pendingEvaluation) return;
@@ -1025,6 +1056,16 @@
             updateSessionLeds(pendingEvaluation.studentNames);
         });
     }
+
+    if (evalAbsentButton) {
+        evalAbsentButton.addEventListener('click', () => {
+            if (!pendingEvaluation) return;
+            pendingEvaluation.markAbsent = !pendingEvaluation.markAbsent;
+            evalAbsentButton.classList.toggle('selected', pendingEvaluation.markAbsent);
+            updateSessionLeds(pendingEvaluation.studentNames);
+        });
+    }
+
     if (evalValidateButton) {
         evalValidateButton.addEventListener('click', () => {
             if (!pendingEvaluation) return;
@@ -1034,6 +1075,15 @@
                 if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
                     sessionMap[studentName] = { b: 3, t: 3, a: 3, comments: [] };
                 }
+                if (pendingEvaluation.markAbsent) {
+                    sessionMap[studentName].absent = true;
+                    if (!Array.isArray(sessionMap[studentName].comments)) {
+                        sessionMap[studentName].comments = [];
+                    }
+                    sessionMap[studentName].comments.push('Absent à la séance');
+                    return;
+                }
+                sessionMap[studentName].absent = false;
                 const currentB = numberOrDefault(sessionMap[studentName].b, 3);
                 const currentT = numberOrDefault(sessionMap[studentName].t, 3);
                 const currentA = numberOrDefault(sessionMap[studentName].a, 3);
@@ -1085,39 +1135,39 @@
                 if (!hasT3) return 'T3 non évalué, appréciation indisponible.';
                 const safeTaux = Number.isFinite(tauxComportement) ? clamp(tauxComportement, 0, 1) : 0.7;
                 const pick = (items) => items[Math.floor(Math.random() * items.length)];
-                const alea = Math.random();
-                const bloc1 = moyT3 >= 17
-                    ? 'Un troisième trimestre excellent'
-                    : moyT3 >= 15
-                        ? 'Un troisième trimestre très solide'
-                        : moyT3 >= 13
-                            ? 'Un troisième trimestre globalement satisfaisant'
-                            : (safeTaux >= 0.70 && alea < 0.30
-                                ? 'Un troisième trimestre globalement réussi'
-                                : 'Un troisième trimestre avec des résultats satisfaisants');
-                let bloc2 = ' et ';
-                if (hasT2 && (moyT2 - moyT3) > 4 && moyT3 < 12) {
-                    bloc2 = safeTaux >= 0.60 ? ' malgré ' : " ce qui s'explique en partie par ";
-                } else if (hasT2 && (moyT3 - moyT2) > 4) {
-                    bloc2 = safeTaux < 0.60 ? ' malgré ' : (Math.random() < 0.5 ? ' grâce à ' : ' soutenu par ');
+                let blocConstat = '';
+                if (hasT2 && (moyT3 - moyT2) > 4) {
+                    blocConstat = pick(['Un troisième trimestre en net progrès par rapport au second', 'Un dernier trimestre en progrès par rapport au précédent', 'Un troisième trimestre en forte progression par rapport au premier']);
+                } else if (hasT2 && (moyT2 - moyT3) > 4 && moyT3 < 12) {
+                    blocConstat = pick(['Un dernier trimestre en baisse par rapport au second', 'Un troisième trimestre en baisse par rapport au précédent']);
                 } else if (moyT3 < 13) {
-                    bloc2 = safeTaux >= 0.60 ? ' malgré ' : " en raison d'";
+                    blocConstat = pick(['Un troisième trimestre mettant en avant des fragilités', 'Un troisième trimestre mitigé', 'Un dernier trimestre avec des résultats fragiles', 'Un troisième trimestre avec des résultats fragiles']);
+                } else if (moyT3 < 15) {
+                    blocConstat = 'Un troisième trimestre avec des résultats corrects';
+                } else if (moyT3 < 17) {
+                    blocConstat = safeTaux >= 0.70 && Math.random() < 0.3 ? 'Un troisième trimestre globalement réussi' : 'Un troisième trimestre avec des résultats satisfaisants';
+                } else if (moyT3 < 19) {
+                    blocConstat = pick(['Un très bon dernier trimestre', 'Un troisième trimestre très satisfaisant']);
                 } else {
-                    bloc2 = safeTaux < 0.60 ? ' mais avec ' : (Math.random() < 0.5 ? ' et ' : ' avec ');
+                    blocConstat = pick(['Un dernier trimestre réussi', 'Un troisième trimestre réussi', "Un troisième trimestre avec d'excellents résultats"]);
                 }
-                let bloc3 = 'un comportement sérieux et appliqué';
-                if (moyT3 >= 13 && moyT3 < 15 && safeTaux <= 0.50) {
-                    bloc3 = 'une mise au travail trop limitée en Technologie';
-                } else if (safeTaux < 0.40) {
-                    bloc3 = pick(['un manque de mise au travail', 'une attitude trop passive en classe', 'des bavardages trop fréquents qui perturbent le travail']);
-                } else if (safeTaux < 0.60) {
-                    bloc3 = pick(['une concentration trop irrégulière', 'un manque de constance dans la mise au travail', 'des bavardages qui parasitent encore le travail']);
-                } else if (safeTaux < 0.80) {
-                    bloc3 = pick(['une bonne mise au travail', 'une attitude constructive face aux activités', 'un comportement sérieux et appliqué']);
+                let blocLiaison = ' et ';
+                if (hasT2 && (moyT2 - moyT3) > 4 && moyT3 < 12) {
+                    blocLiaison = safeTaux >= 0.60 ? ' malgré ' : " ce qui s'explique en partie par ";
+                } else if (hasT2 && (moyT3 - moyT2) > 4) {
+                    blocLiaison = safeTaux < 0.60 ? ' malgré ' : pick([' grâce à ', ' soutenu par ']);
+                } else if (moyT3 < 13) {
+                    blocLiaison = safeTaux >= 0.60 ? ' malgré ' : " en raison d'";
                 } else {
-                    bloc3 = pick(['une excellente attitude face au travail', 'une mise au travail rapide et toujours sérieuse']);
+                    blocLiaison = safeTaux < 0.60 ? ' mais avec ' : pick([' et ', ' avec ']);
                 }
-                return `${bloc1}${bloc2}${bloc3}.`;
+                let blocTechno = 'un comportement sérieux et appliqué';
+                if ((moyT3 >= 13 && moyT3 < 15) && safeTaux <= 0.50) blocTechno = 'une mise au travail trop limitée en Technologie';
+                else if (safeTaux < 0.40) blocTechno = pick(['un manque de mise au travail', 'une attitude trop passive en classe', 'des bavardages trop fréquents qui perturbent le travail']);
+                else if (safeTaux < 0.60) blocTechno = pick(['une concentration trop irrégulière', 'un manque de constance dans la mise au travail', 'des bavardages qui parasitent encore le travail']);
+                else if (safeTaux < 0.80) blocTechno = pick(['une bonne mise au travail', 'une attitude constructive face aux activités', 'un comportement sérieux et appliqué']);
+                else blocTechno = pick(['une excellente attitude face au travail', 'une mise au travail rapide et toujours sérieuse']);
+                return `${blocConstat}${blocLiaison}${blocTechno}.`;
             };
             const exportRows = lastClassStudents.map((student) => {
                 const cells = ['t1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 'cpc', 'c3d', 'cmq', 't1', 't2', 't3'].map((key) => {
