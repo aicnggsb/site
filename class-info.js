@@ -39,13 +39,12 @@
     const evalPopupTitle = document.getElementById('eval-popup-title');
     const evalBMinusButton = document.getElementById('eval-bminus');
     const evalTPlusButton = document.getElementById('eval-tplus');
-    const evalTPlus3Button = document.getElementById('eval-tplus3');
     const evalBMinus1Button = document.getElementById('eval-bminus1');
     const evalBPlusButton = document.getElementById('eval-bplus');
-    const evalTMinus2Button = document.getElementById('eval-tminus2');
     const evalTMinus1Button = document.getElementById('eval-tminus1');
     const evalTPlus2Button = document.getElementById('eval-tplus2');
     const evalAPlusButton = document.getElementById('eval-aplus');
+    const evalAPlus2Button = document.getElementById('eval-aplus2');
     const evalAMinusButton = document.getElementById('eval-aminus');
     const evalAbsentButton = document.getElementById('eval-absent');
     const evalSessionLedB = document.getElementById('eval-session-led-b');
@@ -525,11 +524,14 @@
         if (!evalPopupElement || !studentNames.length) {
             return;
         }
-        pendingEvaluation = { studentNames, bDelta: 0, tDelta: 0, aDelta: 0, markAbsent: false, isClassEvaluation: label === 'Classe' };
+        const sessionMap = getSessionScoresMap();
+        const shouldMarkAbsentByDefault = studentNames.length > 0 && studentNames.every((studentName) => Boolean(sessionMap[studentName] && sessionMap[studentName].absent));
+        pendingEvaluation = { studentNames, bDelta: 0, tDelta: 0, aDelta: 0, markAbsent: shouldMarkAbsentByDefault, isClassEvaluation: label === 'Classe' };
         const evaluatedSessionLabel = getEvaluatedSessionLabel();
         evalPopupTitle.textContent = `Évaluer : ${label} (${evaluatedSessionLabel})`;
         evalCommentElement.value = '';
-        [evalBMinusButton, evalBMinus1Button, evalBPlusButton, evalTMinus2Button, evalTMinus1Button, evalTPlusButton, evalTPlus2Button, evalTPlus3Button, evalAPlusButton, evalAMinusButton, evalAbsentButton].forEach((button) => button && button.classList.remove('selected'));
+        [evalBMinusButton, evalBMinus1Button, evalBPlusButton, evalTMinus1Button, evalTPlusButton, evalTPlus2Button, evalAPlusButton, evalAPlus2Button, evalAMinusButton, evalAbsentButton].forEach((button) => button && button.classList.remove('selected'));
+        evalAbsentButton.classList.toggle('selected', pendingEvaluation.markAbsent);
         updateSessionLeds(studentNames);
         evalPopupElement.hidden = false;
     }
@@ -1020,93 +1022,25 @@
         });
     }
     // Fermeture volontaire retirée : validation obligatoire pour fermer la fenêtre.
-    if (evalBMinusButton) {
-        evalBMinusButton.addEventListener('click', () => {
+    function toggleEvalDelta(button, key, deltaValue) {
+        if (!button) return;
+        button.addEventListener('click', () => {
             if (!pendingEvaluation) return;
-            pendingEvaluation.bDelta -= 2;
-            evalBMinusButton.classList.add('selected');
-            updateSessionLeds(pendingEvaluation.studentNames);
-        });
-    }
-    if (evalTPlusButton) {
-        evalTPlusButton.addEventListener('click', () => {
-            if (!pendingEvaluation) return;
-            pendingEvaluation.tDelta += 1;
-            evalTPlusButton.classList.add('selected');
+            const isSelected = button.classList.toggle('selected');
+            pendingEvaluation[key] += isSelected ? deltaValue : -deltaValue;
             updateSessionLeds(pendingEvaluation.studentNames);
         });
     }
 
-    if (evalTPlus3Button) {
-        evalTPlus3Button.addEventListener('click', () => {
-            if (!pendingEvaluation) return;
-            pendingEvaluation.tDelta += 3;
-            evalTPlus3Button.classList.add('selected');
-            updateSessionLeds(pendingEvaluation.studentNames);
-        });
-    }
-
-    if (evalBMinus1Button) {
-        evalBMinus1Button.addEventListener('click', () => {
-            if (!pendingEvaluation) return;
-            pendingEvaluation.bDelta -= 1;
-            evalBMinus1Button.classList.add('selected');
-            updateSessionLeds(pendingEvaluation.studentNames);
-        });
-    }
-
-    if (evalBPlusButton) {
-        evalBPlusButton.addEventListener('click', () => {
-            if (!pendingEvaluation) return;
-            pendingEvaluation.bDelta += 1;
-            evalBPlusButton.classList.add('selected');
-            updateSessionLeds(pendingEvaluation.studentNames);
-        });
-    }
-
-    if (evalTMinus2Button) {
-        evalTMinus2Button.addEventListener('click', () => {
-            if (!pendingEvaluation) return;
-            pendingEvaluation.tDelta -= 2;
-            evalTMinus2Button.classList.add('selected');
-            updateSessionLeds(pendingEvaluation.studentNames);
-        });
-    }
-
-    if (evalTMinus1Button) {
-        evalTMinus1Button.addEventListener('click', () => {
-            if (!pendingEvaluation) return;
-            pendingEvaluation.tDelta -= 1;
-            evalTMinus1Button.classList.add('selected');
-            updateSessionLeds(pendingEvaluation.studentNames);
-        });
-    }
-
-    if (evalTPlus2Button) {
-        evalTPlus2Button.addEventListener('click', () => {
-            if (!pendingEvaluation) return;
-            pendingEvaluation.tDelta += 2;
-            evalTPlus2Button.classList.add('selected');
-            updateSessionLeds(pendingEvaluation.studentNames);
-        });
-    }
-
-    if (evalAPlusButton) {
-        evalAPlusButton.addEventListener('click', () => {
-            if (!pendingEvaluation) return;
-            pendingEvaluation.aDelta += 1;
-            evalAPlusButton.classList.add('selected');
-            updateSessionLeds(pendingEvaluation.studentNames);
-        });
-    }
-    if (evalAMinusButton) {
-        evalAMinusButton.addEventListener('click', () => {
-            if (!pendingEvaluation) return;
-            pendingEvaluation.aDelta -= 1;
-            evalAMinusButton.classList.add('selected');
-            updateSessionLeds(pendingEvaluation.studentNames);
-        });
-    }
+    toggleEvalDelta(evalBMinusButton, 'bDelta', -2);
+    toggleEvalDelta(evalBMinus1Button, 'bDelta', -1);
+    toggleEvalDelta(evalBPlusButton, 'bDelta', 1);
+    toggleEvalDelta(evalTMinus1Button, 'tDelta', -1);
+    toggleEvalDelta(evalTPlusButton, 'tDelta', 1);
+    toggleEvalDelta(evalTPlus2Button, 'tDelta', 2);
+    toggleEvalDelta(evalAMinusButton, 'aDelta', -1);
+    toggleEvalDelta(evalAPlusButton, 'aDelta', 1);
+    toggleEvalDelta(evalAPlus2Button, 'aDelta', 2);
 
     if (evalAbsentButton) {
         evalAbsentButton.addEventListener('click', () => {
