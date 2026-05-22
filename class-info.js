@@ -1045,7 +1045,7 @@
             const viewWindow = window.open('', '_blank');
             if (!viewWindow) return;
             const exportRows = lastClassStudents.map((student) => {
-                const cells = ['b', 't', 'a', 'cpc', 'c3d', 'cmq', 't1', 't2', 't3'].map((key) => {
+                const cells = ['t1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 'cpc', 'c3d', 'cmq', 't1', 't2', 't3'].map((key) => {
                     const config = getIndicatorDisplayConfig(key);
                     const rawValue = student[key];
                     if (rawValue === null || rawValue === undefined) {
