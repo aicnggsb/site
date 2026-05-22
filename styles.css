@@ -1995,9 +1995,9 @@ svg.axe { display: block; margin: 0.5em 0; }
 }
 
 .eval-popup-actions {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
-    flex-wrap: wrap;
 }
 
 .eval-action-button {
@@ -2009,7 +2009,8 @@ svg.axe { display: block; margin: 0.5em 0; }
     cursor: pointer;
     font-weight: 700;
     letter-spacing: 0.01em;
-    min-width: 64px;
+    min-width: 0;
+    width: 100%;
     transition: transform .12s ease, filter .12s ease, background .12s ease;
 }
 .eval-action-button:hover {
@@ -2017,17 +2018,19 @@ svg.axe { display: block; margin: 0.5em 0; }
     transform: translateY(-1px);
 }
 
-.eval-action-button.selected {
+#eval-bminus.selected,
+#eval-bminus1.selected,
+#eval-tminus1.selected,
+#eval-aminus.selected {
     background: rgba(220, 38, 38, 0.92);
     border-color: #fecaca;
 }
 
-#eval-tplus.selected {
-    background: rgba(22, 163, 74, 0.95);
-    border-color: #bbf7d0;
-}
-
-#eval-aplus.selected {
+#eval-bplus.selected,
+#eval-tplus.selected,
+#eval-tplus2.selected,
+#eval-aplus.selected,
+#eval-aplus2.selected {
     background: rgba(22, 163, 74, 0.95);
     border-color: #bbf7d0;
 }
