@@ -1695,16 +1695,16 @@ svg.axe { display: block; margin: 0.5em 0; }
 .class-indicators {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
+    flex-wrap: nowrap;
+    gap: 8px;
     margin: 10px 0 6px;
 }
 
 .indicator-light {
     --indicator-color: #6b7280;
     --indicator-glow: rgba(107, 114, 128, 0.45);
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, #ffffff 0%, var(--indicator-color) 45%, color-mix(in srgb, var(--indicator-color) 72%, #000000 28%) 100%);
     box-shadow:
