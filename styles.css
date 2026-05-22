@@ -1859,6 +1859,8 @@ svg.axe { display: block; margin: 0.5em 0; }
 
 .team-indicators {
     margin: 6px 0 10px;
+    flex-wrap: wrap;
+    max-width: 190px;
 }
 
 .team-details-button {
@@ -1910,6 +1912,8 @@ svg.axe { display: block; margin: 0.5em 0; }
 .team-student-indicators {
     margin: 0;
     gap: 8px;
+    flex-wrap: wrap;
+    max-width: 190px;
     flex-shrink: 0;
 }
 

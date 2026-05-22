@@ -175,18 +175,39 @@
     }
 
     function getIndicatorDisplayConfig(key) {
+        const labels = {
+            b: 'B',
+            t: 'T',
+            a: 'A',
+            t1b: 'T1B',
+            t1t: 'T1T',
+            t1a: 'T1A',
+            t2b: 'T2B',
+            t2t: 'T2T',
+            t2a: 'T2A',
+            t3b: 'T3B',
+            t3t: 'T3T',
+            t3a: 'T3A',
+            cpc: 'CPC',
+            c3d: 'C3D',
+            cmq: 'CMQ',
+            t1: 'T1',
+            t2: 'T2',
+            t3: 'T3',
+        };
+
         if (['t1', 't2', 't3'].includes(key)) {
-            return { maxValue: 20, suffix: '/20' };
+            return { maxValue: 20, suffix: '/20', label: labels[key] || key.toUpperCase() };
         }
         if (['cpc', 'c3d', 'cmq'].includes(key)) {
-            return { minValue: -3, maxValue: 3, suffix: '' };
+            return { minValue: -3, maxValue: 3, suffix: '', label: labels[key] || key.toUpperCase() };
         }
-        return { maxValue: 100, suffix: '%' };
+        return { maxValue: 100, suffix: '%', label: labels[key] || key.toUpperCase() };
     }
 
     function buildTeams(students) {
         const TEAM_COUNT = 6;
-        const METRICS = ['t1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 'cpc', 'c3d', 'cmq', 't1', 't2', 't3'];
+        const METRICS = ['b', 't', 'a', 't1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 'cpc', 'c3d', 'cmq', 't1', 't2', 't3'];
         const teams = Array.from({ length: TEAM_COUNT }, () => []);
         const remaining = students.slice();
 
@@ -272,7 +293,7 @@
         const row = document.createElement('div');
         row.className = 'class-indicators';
 
-        ['t1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 'cpc', 'c3d', 'cmq', 't1', 't2', 't3'].forEach((key) => {
+        ['b', 't', 'a', 't1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 'cpc', 'c3d', 'cmq', 't1', 't2', 't3'].forEach((key) => {
             const light = document.createElement('span');
             light.className = 'indicator-light';
             light.setAttribute('role', 'img');
@@ -626,11 +647,12 @@
         const minValue = Number.isFinite(options.minValue) ? options.minValue : 0;
         const maxValue = Number.isFinite(options.maxValue) && options.maxValue > minValue ? options.maxValue : 100;
         const suffix = options.suffix || '%';
+        const label = options.label || 'Indicateur';
 
         if (value === null) {
             indicatorElement.style.setProperty('--indicator-color', '#6b7280');
             indicatorElement.style.setProperty('--indicator-glow', 'rgba(107, 114, 128, 0.45)');
-            indicatorElement.title = 'Donnée indisponible';
+            indicatorElement.title = `${label}: donnée indisponible`;
             return;
         }
 
@@ -642,7 +664,8 @@
 
         indicatorElement.style.setProperty('--indicator-color', color);
         indicatorElement.style.setProperty('--indicator-glow', glow);
-        indicatorElement.title = suffix === '%' ? `${boundedValue.toFixed(1)} %` : `${boundedValue.toFixed(1)}${suffix ? ` ${suffix}` : ''}`;
+        const formattedValue = suffix === '%' ? `${boundedValue.toFixed(1)} %` : `${boundedValue.toFixed(1)}${suffix ? ` ${suffix}` : ''}`;
+        indicatorElement.title = `${label}: ${formattedValue}`;
     }
 
     function getClassConfig(selectedClass) {
