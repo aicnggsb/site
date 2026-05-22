@@ -143,8 +143,16 @@
     }
 
     function computeMergedIndicator(row, indexes) {
-        const values = indexes.map((idx) => parsePercentage(row[idx])).filter((value) => value !== null);
+        const values = indexes
+            .filter((idx) => Number.isInteger(idx) && idx >= 0)
+            .map((idx) => parsePercentage(row[idx]))
+            .filter((value) => value !== null);
         return computeAverage(values);
+    }
+
+    function numberOrDefault(value, defaultValue) {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : defaultValue;
     }
 
     function parseStudentData(row, idxMap) {
@@ -177,6 +185,18 @@
         const byName = header.findIndex((col) => col === expectedName);
         if (byName !== -1) {
             return byName;
+        }
+        if (Number.isInteger(fallbackIndex) && fallbackIndex >= 0 && fallbackIndex < header.length) {
+            return fallbackIndex;
+        }
+        return -1;
+    }
+
+
+    function resolveFirstExistingColumn(header, expectedNames, fallbackIndex) {
+        for (const name of expectedNames) {
+            const idx = header.findIndex((col) => col === name);
+            if (idx !== -1) return idx;
         }
         if (Number.isInteger(fallbackIndex) && fallbackIndex >= 0 && fallbackIndex < header.length) {
             return fallbackIndex;
@@ -577,9 +597,9 @@
             return;
         }
         const tableRows = rows.length ? rows.map(([name, scores]) => {
-            const b = Number(scores.b) || 3;
-            const t = Number(scores.t) || 3;
-            const a = Number(scores.a) || 3;
+            const b = numberOrDefault(scores.b, 3);
+            const t = numberOrDefault(scores.t, 3);
+            const a = numberOrDefault(scores.a, 3);
             const bHue = ((clamp(b, -3, 3) + 3) / 6) * 120;
             const tHue = ((clamp(t, -3, 3) + 3) / 6) * 120;
             const aHue = ((clamp(a, -3, 3) + 3) / 6) * 120;
@@ -612,16 +632,21 @@
     function updateSessionLeds(studentNames) {
         const sessionMap = getSessionScoresMap();
         const first = studentNames.length ? (sessionMap[studentNames[0]] || { b: 3, t: 3, a: 3 }) : { b: 3, t: 3, a: 3 };
-        const baseB = Number(first.b) || 3;
-        const baseT = Number(first.t) || 3;
-        const baseA = Number(first.a) || 3;
+        const baseB = numberOrDefault(first.b, 3);
+        const baseT = numberOrDefault(first.t, 3);
+        const baseA = numberOrDefault(first.a, 3);
         const bDelta = pendingEvaluation ? pendingEvaluation.bDelta : 0;
         const tDelta = pendingEvaluation ? pendingEvaluation.tDelta : 0;
         const aDelta = pendingEvaluation ? pendingEvaluation.aDelta : 0;
-        const tentativeB = clamp(baseB + bDelta, -3, 3);
-        const bonusTDeltaFromB = tentativeB < 0 ? -1 : 0;
-        const tentativeT = clamp(baseT + tDelta + bonusTDeltaFromB, -3, 3);
+        let tentativeB = clamp(baseB + bDelta, -3, 3);
+        let tentativeT = clamp(baseT + tDelta, -3, 3);
         const tentativeA = clamp(baseA + aDelta, -3, 3);
+        if (tentativeB < 0) {
+            tentativeT = clamp(tentativeT - 1, -3, 3);
+        }
+        if (tentativeT < 0) {
+            tentativeB = clamp(tentativeB - 1, -3, 3);
+        }
         setSessionIndicatorLight(evalSessionLedB, tentativeB);
         setSessionIndicatorLight(evalSessionLedT, tentativeT);
         setSessionIndicatorLight(evalSessionLedA, tentativeA);
@@ -727,8 +752,8 @@
         }
 
         const header = rows[0].map((cell) => normalize(cell));
-        const classIdx = header.findIndex((col) => col === 'classe');
-        const nameIdx = header.findIndex((col) => col === 'nom');
+        const classIdx = resolveFirstExistingColumn(header, ['classe', 'class', 'classegroupe'], 0);
+        const nameIdx = resolveFirstExistingColumn(header, ['nom', 'eleve', 'nomprenom', 'nom prenom'], 1);
         const indicatorT1BIdx = resolveCsvColumnIndex(header, 't1b', 2);
         const indicatorT1TIdx = resolveCsvColumnIndex(header, 't1t', 3);
         const indicatorT1AIdx = resolveCsvColumnIndex(header, 't1a', 4);
@@ -1009,14 +1034,24 @@
                 if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
                     sessionMap[studentName] = { b: 3, t: 3, a: 3, comments: [] };
                 }
-                const currentB = Number(sessionMap[studentName].b) || 3;
-                const currentT = Number(sessionMap[studentName].t) || 3;
-                const currentA = Number(sessionMap[studentName].a) || 3;
-                const tentativeB = currentB + pendingEvaluation.bDelta;
-                const bonusTDeltaFromB = tentativeB < 0 ? -1 : 0;
-                sessionMap[studentName].b = clamp(tentativeB, -3, 3);
-                sessionMap[studentName].t = clamp(currentT + pendingEvaluation.tDelta + bonusTDeltaFromB, -3, 3);
-                sessionMap[studentName].a = clamp(currentA + pendingEvaluation.aDelta, -3, 3);
+                const currentB = numberOrDefault(sessionMap[studentName].b, 3);
+                const currentT = numberOrDefault(sessionMap[studentName].t, 3);
+                const currentA = numberOrDefault(sessionMap[studentName].a, 3);
+
+                let nextB = clamp(currentB + pendingEvaluation.bDelta, -3, 3);
+                let nextT = clamp(currentT + pendingEvaluation.tDelta, -3, 3);
+                const nextA = clamp(currentA + pendingEvaluation.aDelta, -3, 3);
+
+                if (nextB < 0) {
+                    nextT = clamp(nextT - 1, -3, 3);
+                }
+                if (nextT < 0) {
+                    nextB = clamp(nextB - 1, -3, 3);
+                }
+
+                sessionMap[studentName].b = nextB;
+                sessionMap[studentName].t = nextT;
+                sessionMap[studentName].a = nextA;
                 if (!Array.isArray(sessionMap[studentName].comments)) {
                     sessionMap[studentName].comments = [];
                 }
@@ -1089,7 +1124,7 @@
                 const hasT3 = t3Value !== '';
                 const hasT2 = t2Value !== '';
                 const globalNote = engagement >= 75 ? 'Très bonne implication et attitude sérieuse.' : engagement >= 60 ? 'Implication satisfaisante, à maintenir.' : engagement >= 45 ? 'Implication irrégulière, efforts à poursuivre.' : 'Implication fragile, régularité attendue.';
-                let t3Note = hasT3 ? (Number(t3Value) >= 15 ? 'Trimestre 3 très solide : niveau de maîtrise élevé, travail sérieux et implication efficace dans les activités techniques comme dans les phases de restitution.' : Number(t3Value) >= 12 ? 'Trimestre 3 satisfaisant : les attendus principaux sont globalement atteints, avec une participation constructive ; une meilleure précision à l'oral et dans la justification des choix renforcerait encore le niveau.' : Number(t3Value) >= 10 ? 'Trimestre 3 correct mais perfectible : les acquis sont présents mais restent parfois inégaux ; davantage d'anticipation, de méthode et de régularité permettraient d'obtenir des résultats plus homogènes.' : 'Trimestre 3 fragile, à renforcer : des difficultés persistent dans la mise en œuvre autonome et la consolidation des acquis ; un investissement plus constant est indispensable pour progresser.') : 'T3 non évalué, analyse spécifique indisponible.';
+                let t3Note = hasT3 ? (Number(t3Value) >= 15 ? `Trimestre 3 très solide : niveau de maîtrise élevé, travail sérieux et implication efficace dans les activités techniques comme dans les phases de restitution.` : Number(t3Value) >= 12 ? `Trimestre 3 satisfaisant : les attendus principaux sont globalement atteints, avec une participation constructive ; une meilleure précision à l'oral et dans la justification des choix renforcerait encore le niveau.` : Number(t3Value) >= 10 ? `Trimestre 3 correct mais perfectible : les acquis sont présents mais restent parfois inégaux ; davantage d'anticipation, de méthode et de régularité permettraient d'obtenir des résultats plus homogènes.` : `Trimestre 3 fragile, à renforcer : des difficultés persistent dans la mise en œuvre autonome et la consolidation des acquis ; un investissement plus constant est indispensable pour progresser.`) : 'T3 non évalué, analyse spécifique indisponible.';
                 if (hasT2 && hasT3) {
                     const delta = Number(t3Value) - Number(t2Value);
                     if (delta >= 1) t3Note += ' En progression par rapport au T2.';
