@@ -429,6 +429,9 @@
                 const name = document.createElement('span');
                 name.className = 'team-student-name';
                 name.textContent = student.name;
+                const isAbsent = isStudentAbsentInSession(student.name);
+                item.classList.toggle('team-student-item-absent', isAbsent);
+                name.classList.toggle('team-student-name-absent', isAbsent);
                 const studentEvalButton = document.createElement('button');
                 studentEvalButton.type = 'button';
                 studentEvalButton.className = 'team-details-button';
@@ -600,6 +603,7 @@
             return;
         }
         const tableRows = rows.length ? rows.map(([name, scores]) => {
+            const isAbsent = Boolean(scores && scores.absent);
             const b = numberOrDefault(scores.b, 3);
             const t = numberOrDefault(scores.t, 3);
             const a = numberOrDefault(scores.a, 3);
@@ -607,6 +611,9 @@
             const tHue = ((clamp(t, -3, 3) + 3) / 6) * 120;
             const aHue = ((clamp(a, -3, 3) + 3) / 6) * 120;
             const comments = Array.isArray(scores.comments) ? scores.comments.join(' | ') : '';
+            if (isAbsent) {
+                return `<tr style="background:#f3f4f6;color:#6b7280"><td>${selectedClass}</td><td>${getTeamLabelForStudent(name)}</td><td>${name}</td><td>-</td><td>-</td><td>-</td><td>${comments}</td></tr>`;
+            }
             return `<tr><td>${selectedClass}</td><td>${getTeamLabelForStudent(name)}</td><td>${name}</td><td style="background:hsl(${bHue} 90% 50% / .2);color:hsl(${bHue} 90% 38%)">${b}</td><td style="background:hsl(${tHue} 90% 50% / .2);color:hsl(${tHue} 90% 38%)">${t}</td><td style="background:hsl(${aHue} 90% 50% / .2);color:hsl(${aHue} 90% 38%)">${a}</td><td>${comments}</td></tr>`;
         }).join('') : '<tr><td colspan="7">Aucune donnée de séance.</td></tr>';
         const classCommentsHtml = classComments.length
@@ -621,6 +628,11 @@
     function getTeamLabelForStudent(studentName) {
         const idx = currentTeams.findIndex((team) => team.some((student) => student.name === studentName));
         return idx >= 0 ? `Équipe ${idx + 1}` : 'Sans équipe';
+    }
+
+    function isStudentAbsentInSession(studentName) {
+        const sessionMap = getSessionScoresMap();
+        return Boolean(sessionMap && sessionMap[studentName] && sessionMap[studentName].absent);
     }
 
     function setSessionIndicatorLight(indicatorElement, value) {
@@ -999,7 +1011,7 @@
     if (evalBMinusButton) {
         evalBMinusButton.addEventListener('click', () => {
             if (!pendingEvaluation) return;
-            pendingEvaluation.bDelta -= 1;
+            pendingEvaluation.bDelta -= 2;
             evalBMinusButton.classList.add('selected');
             updateSessionLeds(pendingEvaluation.studentNames);
         });
@@ -1025,7 +1037,7 @@
     if (evalTMinusButton) {
         evalTMinusButton.addEventListener('click', () => {
             if (!pendingEvaluation) return;
-            pendingEvaluation.tDelta -= 1;
+            pendingEvaluation.tDelta -= 2;
             evalTMinusButton.classList.add('selected');
             updateSessionLeds(pendingEvaluation.studentNames);
         });
@@ -1034,7 +1046,7 @@
     if (evalTMinus3Button) {
         evalTMinus3Button.addEventListener('click', () => {
             if (!pendingEvaluation) return;
-            pendingEvaluation.tDelta -= 3;
+            pendingEvaluation.tDelta += 2;
             evalTMinus3Button.classList.add('selected');
             updateSessionLeds(pendingEvaluation.studentNames);
         });
