@@ -11,12 +11,15 @@
 
     const classNameElement = document.getElementById('selected-class-name');
     const studentsCountElement = document.getElementById('selected-class-students');
-    const indicatorBElement = document.getElementById('selected-class-indicator-b');
-    const indicatorTElement = document.getElementById('selected-class-indicator-t');
-    const indicatorAElement = document.getElementById('selected-class-indicator-a');
-    const indicatorCpcElement = document.getElementById('selected-class-indicator-cpc');
-    const indicatorC3dElement = document.getElementById('selected-class-indicator-c3d');
-    const indicatorCmqElement = document.getElementById('selected-class-indicator-cmq');
+    const indicatorT1BElement = document.getElementById('selected-class-indicator-t1b');
+    const indicatorT1TElement = document.getElementById('selected-class-indicator-t1t');
+    const indicatorT1AElement = document.getElementById('selected-class-indicator-t1a');
+    const indicatorT2BElement = document.getElementById('selected-class-indicator-t2b');
+    const indicatorT2TElement = document.getElementById('selected-class-indicator-t2t');
+    const indicatorT2AElement = document.getElementById('selected-class-indicator-t2a');
+    const indicatorT3BElement = document.getElementById('selected-class-indicator-t3b');
+    const indicatorT3TElement = document.getElementById('selected-class-indicator-t3t');
+    const indicatorT3AElement = document.getElementById('selected-class-indicator-t3a');
     const indicatorT1Element = document.getElementById('selected-class-indicator-t1');
     const indicatorT2Element = document.getElementById('selected-class-indicator-t2');
     const indicatorT3Element = document.getElementById('selected-class-indicator-t3');
@@ -29,6 +32,7 @@
     const teamsPopupStatusElement = document.getElementById('teams-popup-status');
     const saveTeamsButton = document.getElementById('save-teams-button');
     const loadTeamsButton = document.getElementById('load-teams-button');
+    const regenerateTeamsButton = document.getElementById('regenerate-teams-button');
     const classEvalButton = document.getElementById('class-eval-button');
     const exportBminusCsvButton = document.getElementById('export-bminus-csv-button');
     const evalPopupElement = document.getElementById('eval-popup');
@@ -54,9 +58,15 @@
     let selectedSessionKey = '';
     let selectedSessionLabel = '';
 
-    if (!classNameElement || !studentsCountElement || !indicatorBElement || !indicatorTElement || !indicatorAElement || !indicatorCpcElement || !indicatorC3dElement || !indicatorCmqElement || !indicatorT1Element || !indicatorT2Element || !indicatorT3Element) {
+    if (!classNameElement || !studentsCountElement || !indicatorT1BElement || !indicatorT1TElement || !indicatorT1AElement || !indicatorT2BElement || !indicatorT2TElement || !indicatorT2AElement || !indicatorT3BElement || !indicatorT3TElement || !indicatorT3AElement || !indicatorT1Element || !indicatorT2Element || !indicatorT3Element) {
         return;
     }
+    const classIndicatorElements = {
+        t1b: indicatorT1BElement, t1t: indicatorT1TElement, t1a: indicatorT1AElement,
+        t2b: indicatorT2BElement, t2t: indicatorT2TElement, t2a: indicatorT2AElement,
+        t3b: indicatorT3BElement, t3t: indicatorT3TElement, t3a: indicatorT3AElement,
+        t1: indicatorT1Element, t2: indicatorT2Element, t3: indicatorT3Element
+    };
 
     function parseCSV(text) {
         const rows = [];
@@ -246,12 +256,16 @@
             return (sizePenalty * 5) + metricsPenalty;
         };
 
-        const bavards = remaining
-            .filter((student) => student.b !== null)
-            .sort((lhs, rhs) => rhs.b - lhs.b)
+        const weakestBStudents = remaining
+            .filter((student) => [student.t1b, student.t2b, student.t3b].some((value) => value !== null))
+            .sort((lhs, rhs) => {
+                const lhsScore = computeAverage([lhs.t1b, lhs.t2b, lhs.t3b].filter((value) => value !== null)) ?? 100;
+                const rhsScore = computeAverage([rhs.t1b, rhs.t2b, rhs.t3b].filter((value) => value !== null)) ?? 100;
+                return lhsScore - rhsScore;
+            })
             .slice(0, TEAM_COUNT);
 
-        bavards.forEach((student, index) => {
+        weakestBStudents.forEach((student, index) => {
             teams[index].push(student);
             const remainingIndex = remaining.indexOf(student);
             if (remainingIndex !== -1) {
@@ -289,11 +303,11 @@
         return teams;
     }
 
-    function createIndicatorsRow(valuesByKey) {
+    function createIndicatorsRow(valuesByKey, keys) {
         const row = document.createElement('div');
         row.className = 'class-indicators';
 
-        ['b', 't', 'a', 't1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 'cpc', 'c3d', 'cmq', 't1', 't2', 't3'].forEach((key) => {
+        keys.forEach((key) => {
             const light = document.createElement('span');
             light.className = 'indicator-light';
             light.setAttribute('role', 'img');
@@ -329,16 +343,22 @@
             teamHeader.appendChild(teamEvalButton);
 
             const teamIndicators = createIndicatorsRow({
-                b: computeAverage(team.map((student) => student.b).filter((value) => value !== null)),
-                t: computeAverage(team.map((student) => student.t).filter((value) => value !== null)),
-                a: computeAverage(team.map((student) => student.a).filter((value) => value !== null)),
+                t1b: computeAverage(team.map((student) => student.t1b).filter((value) => value !== null)),
+                t1t: computeAverage(team.map((student) => student.t1t).filter((value) => value !== null)),
+                t1a: computeAverage(team.map((student) => student.t1a).filter((value) => value !== null)),
+                t2b: computeAverage(team.map((student) => student.t2b).filter((value) => value !== null)),
+                t2t: computeAverage(team.map((student) => student.t2t).filter((value) => value !== null)),
+                t2a: computeAverage(team.map((student) => student.t2a).filter((value) => value !== null)),
+                t3b: computeAverage(team.map((student) => student.t3b).filter((value) => value !== null)),
+                t3t: computeAverage(team.map((student) => student.t3t).filter((value) => value !== null)),
+                t3a: computeAverage(team.map((student) => student.t3a).filter((value) => value !== null)),
                 cpc: computeAverage(team.map((student) => student.cpc).filter((value) => value !== null)),
                 c3d: computeAverage(team.map((student) => student.c3d).filter((value) => value !== null)),
                 cmq: computeAverage(team.map((student) => student.cmq).filter((value) => value !== null)),
                 t1: computeAverage(team.map((student) => student.t1).filter((value) => value !== null)),
                 t2: computeAverage(team.map((student) => student.t2).filter((value) => value !== null)),
                 t3: computeAverage(team.map((student) => student.t3).filter((value) => value !== null)),
-            });
+            }, ['t1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 't1', 't2', 't3']);
             teamIndicators.classList.add('team-indicators');
             title.dataset.teamIndex = String(index);
             card.dataset.teamIndex = String(index);
@@ -394,16 +414,22 @@
                 studentEvalButton.addEventListener('click', () => openEvaluationPopup(student.name, [student.name]));
 
                 const studentIndicators = createIndicatorsRow({
-                    b: student.b,
-                    t: student.t,
-                    a: student.a,
+                    t1b: student.t1b,
+                    t1t: student.t1t,
+                    t1a: student.t1a,
+                    t2b: student.t2b,
+                    t2t: student.t2t,
+                    t2a: student.t2a,
+                    t3b: student.t3b,
+                    t3t: student.t3t,
+                    t3a: student.t3a,
                     cpc: student.cpc,
                     c3d: student.c3d,
                     cmq: student.cmq,
                     t1: student.t1,
                     t2: student.t2,
                     t3: student.t3
-                });
+                }, ['t1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 't1', 't2', 't3', 'cpc', 'c3d', 'cmq']);
                 studentIndicators.classList.add('team-student-indicators');
 
                 const studentActions = document.createElement('div');
@@ -780,15 +806,7 @@
 
         if (!className) {
             studentsCountElement.textContent = 'Effectif : -';
-            setIndicatorLight(indicatorBElement, null);
-            setIndicatorLight(indicatorTElement, null);
-            setIndicatorLight(indicatorAElement, null);
-            setIndicatorLight(indicatorCpcElement, null);
-            setIndicatorLight(indicatorC3dElement, null);
-            setIndicatorLight(indicatorCmqElement, null);
-            setIndicatorLight(indicatorT1Element, null);
-            setIndicatorLight(indicatorT2Element, null);
-            setIndicatorLight(indicatorT3Element, null);
+            Object.entries(classIndicatorElements).forEach(([key, element]) => setIndicatorLight(element, null, getIndicatorDisplayConfig(key)));
             if (statusElement) {
                 statusElement.textContent = 'Sélectionnez une classe pour afficher ses informations.';
             }
@@ -797,15 +815,7 @@
 
         if (!classConfig) {
             studentsCountElement.textContent = 'Effectif : -';
-            setIndicatorLight(indicatorBElement, null);
-            setIndicatorLight(indicatorTElement, null);
-            setIndicatorLight(indicatorAElement, null);
-            setIndicatorLight(indicatorCpcElement, null);
-            setIndicatorLight(indicatorC3dElement, null);
-            setIndicatorLight(indicatorCmqElement, null);
-            setIndicatorLight(indicatorT1Element, null);
-            setIndicatorLight(indicatorT2Element, null);
-            setIndicatorLight(indicatorT3Element, null);
+            Object.entries(classIndicatorElements).forEach(([key, element]) => setIndicatorLight(element, null, getIndicatorDisplayConfig(key)));
             if (statusElement) {
                 statusElement.textContent = 'Cette classe ne fait pas partie des classes prises en charge (3E, 4E ou 5E).';
             }
@@ -813,15 +823,7 @@
         }
 
         studentsCountElement.textContent = `Effectif (${classConfig.level}) : Chargement...`;
-        setIndicatorLight(indicatorBElement, null);
-        setIndicatorLight(indicatorTElement, null);
-        setIndicatorLight(indicatorAElement, null);
-        setIndicatorLight(indicatorCpcElement, null);
-        setIndicatorLight(indicatorC3dElement, null);
-        setIndicatorLight(indicatorCmqElement, null);
-        setIndicatorLight(indicatorT1Element, null);
-        setIndicatorLight(indicatorT2Element, null);
-        setIndicatorLight(indicatorT3Element, null);
+        Object.entries(classIndicatorElements).forEach(([key, element]) => setIndicatorLight(element, null, getIndicatorDisplayConfig(key)));
         if (statusElement) {
             statusElement.textContent = `Lecture des données de l'onglet "${classConfig.sheetLabel}"...`;
         }
@@ -829,12 +831,15 @@
         try {
             const classData = await fetchClassData(className, classConfig);
             studentsCountElement.textContent = `Effectif (${classConfig.level}) : ${classData.studentsCount} élèves`;
-            setIndicatorLight(indicatorBElement, classData.averageB, getIndicatorDisplayConfig('b'));
-            setIndicatorLight(indicatorTElement, classData.averageT, getIndicatorDisplayConfig('t'));
-            setIndicatorLight(indicatorAElement, classData.averageA, getIndicatorDisplayConfig('a'));
-            setIndicatorLight(indicatorCpcElement, classData.averageCpc, getIndicatorDisplayConfig('cpc'));
-            setIndicatorLight(indicatorC3dElement, classData.averageC3d, getIndicatorDisplayConfig('c3d'));
-            setIndicatorLight(indicatorCmqElement, classData.averageCmq, getIndicatorDisplayConfig('cmq'));
+            setIndicatorLight(indicatorT1BElement, computeAverage(classData.students.map((student) => student.t1b).filter((value) => value !== null)), getIndicatorDisplayConfig('t1b'));
+            setIndicatorLight(indicatorT1TElement, computeAverage(classData.students.map((student) => student.t1t).filter((value) => value !== null)), getIndicatorDisplayConfig('t1t'));
+            setIndicatorLight(indicatorT1AElement, computeAverage(classData.students.map((student) => student.t1a).filter((value) => value !== null)), getIndicatorDisplayConfig('t1a'));
+            setIndicatorLight(indicatorT2BElement, computeAverage(classData.students.map((student) => student.t2b).filter((value) => value !== null)), getIndicatorDisplayConfig('t2b'));
+            setIndicatorLight(indicatorT2TElement, computeAverage(classData.students.map((student) => student.t2t).filter((value) => value !== null)), getIndicatorDisplayConfig('t2t'));
+            setIndicatorLight(indicatorT2AElement, computeAverage(classData.students.map((student) => student.t2a).filter((value) => value !== null)), getIndicatorDisplayConfig('t2a'));
+            setIndicatorLight(indicatorT3BElement, computeAverage(classData.students.map((student) => student.t3b).filter((value) => value !== null)), getIndicatorDisplayConfig('t3b'));
+            setIndicatorLight(indicatorT3TElement, computeAverage(classData.students.map((student) => student.t3t).filter((value) => value !== null)), getIndicatorDisplayConfig('t3t'));
+            setIndicatorLight(indicatorT3AElement, computeAverage(classData.students.map((student) => student.t3a).filter((value) => value !== null)), getIndicatorDisplayConfig('t3a'));
             setIndicatorLight(indicatorT1Element, classData.averageT1, getIndicatorDisplayConfig('t1'));
             setIndicatorLight(indicatorT2Element, classData.averageT2, getIndicatorDisplayConfig('t2'));
             setIndicatorLight(indicatorT3Element, classData.averageT3, getIndicatorDisplayConfig('t3'));
@@ -845,15 +850,7 @@
             }
         } catch (error) {
             studentsCountElement.textContent = classConfig ? `Effectif (${classConfig.level}) : -` : 'Effectif : -';
-            setIndicatorLight(indicatorBElement, null);
-            setIndicatorLight(indicatorTElement, null);
-            setIndicatorLight(indicatorAElement, null);
-            setIndicatorLight(indicatorCpcElement, null);
-            setIndicatorLight(indicatorC3dElement, null);
-            setIndicatorLight(indicatorCmqElement, null);
-            setIndicatorLight(indicatorT1Element, null);
-            setIndicatorLight(indicatorT2Element, null);
-            setIndicatorLight(indicatorT3Element, null);
+            Object.entries(classIndicatorElements).forEach(([key, element]) => setIndicatorLight(element, null, getIndicatorDisplayConfig(key)));
             lastClassStudents = [];
             if (statusElement) {
                 statusElement.textContent = error instanceof Error ? error.message : 'Erreur lors du chargement des données.';
@@ -914,6 +911,18 @@
                 const payload = currentTeams.map((team) => team.map((student) => student.name));
                 setCookie(`${TEAMS_COOKIE_PREFIX}${className.toUpperCase()}`, JSON.stringify(payload));
                 teamsPopupStatusElement.textContent = 'Équipes sauvegardées.';
+            });
+        }
+        if (regenerateTeamsButton) {
+            regenerateTeamsButton.addEventListener('click', () => {
+                if (lastClassStudents.length < 24) {
+                    teamsPopupStatusElement.textContent = 'Impossible de générer 6 équipes de 4 à 6 élèves avec cet effectif.';
+                    return;
+                }
+                currentTeams = buildTeams(lastClassStudents.slice().sort(() => Math.random() - 0.5));
+                updateTeamStatusMessage();
+                renderTeams(currentTeams);
+                teamsPopupStatusElement.textContent = 'Nouvelles équipes générées.';
             });
         }
         if (classEvalButton) {
