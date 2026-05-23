@@ -846,11 +846,25 @@
             header = parsed.shift() || [];
             rows = parsed;
         } catch (error) {
-            const localResponse = await fetch('suivi_projet_data.json');
-            const localData = await localResponse.json();
-            header = localData.cols || [];
-            rows = localData.rows || [];
-            setStatus('Google Sheets indisponible : affichage des données locales.', true);
+            try {
+                const localResponse = await fetch('suivi_projet_data.json');
+                if (!localResponse.ok) {
+                    throw new Error(`HTTP ${localResponse.status}`);
+                }
+                const localData = await localResponse.json();
+                header = localData.cols || [];
+                rows = localData.rows || [];
+                setStatus('Google Sheets indisponible : affichage des données locales.', true);
+            } catch (localError) {
+                const fileProtocol = location.protocol === 'file:';
+                const hint = fileProtocol
+                    ? 'Mode fichier détecté : ouvrez le site via un serveur web local (http://...) pour autoriser le chargement des fichiers.'
+                    : 'Vérifiez la connexion réseau et la disponibilité des sources de données.';
+
+                header = ['Classe', 'Projet', 'Date', 'Tâche'];
+                rows = [];
+                setStatus(`Impossible de charger les données distantes et locales. ${hint}`, true);
+            }
         }
 
         classIdx = header.findIndex((col) => normalize(col) === 'classe');
