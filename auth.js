@@ -127,7 +127,17 @@
         const score = parseInt(localStorage.getItem('userScore')||'0',10);
         const badges = (localStorage.getItem('userBadges')||'');
         const classe = (localStorage.getItem('userClasse')||'');
-        const badgeProgress = JSON.parse(localStorage.getItem('userBadgeProgress') || '{}');
+        let badgeProgress = {};
+        const rawBadgeProgress = localStorage.getItem('userBadgeProgress');
+        if(rawBadgeProgress){
+            try {
+                const parsed = JSON.parse(rawBadgeProgress);
+                badgeProgress = parsed && typeof parsed === 'object' ? parsed : {};
+            } catch(e){
+                console.warn('userBadgeProgress invalide dans le stockage local, valeur réinitialisée.');
+                localStorage.removeItem('userBadgeProgress');
+            }
+        }
         return {pseudo, score, badges, classe, badgeProgress};
     }
 
