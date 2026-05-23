@@ -185,6 +185,9 @@
             at1: (row[idxMap.appreciationT1Idx] || '').trim(),
             at2: (row[idxMap.appreciationT2Idx] || '').trim(),
             at3: (row[idxMap.appreciationT3Idx] || '').trim(),
+            ct1: (row[idxMap.commentT1Idx] || '').trim(),
+            ct2: (row[idxMap.commentT2Idx] || '').trim(),
+            ct3: (row[idxMap.commentT3Idx] || '').trim(),
         };
     }
 
@@ -803,9 +806,12 @@
         const appreciationT1Idx = resolveCsvColumnIndex(header, 'at1', 17);
         const appreciationT2Idx = resolveCsvColumnIndex(header, 'at2', 18);
         const appreciationT3Idx = resolveCsvColumnIndex(header, 'at3', 19);
+        const commentT1Idx = resolveCsvColumnIndex(header, 'ct1', 20);
+        const commentT2Idx = resolveCsvColumnIndex(header, 'ct2', 21);
+        const commentT3Idx = resolveCsvColumnIndex(header, 'ct3', 22);
 
-        if (classIdx === -1 || nameIdx === -1 || indicatorT1BIdx === -1 || indicatorT1TIdx === -1 || indicatorT1AIdx === -1 || indicatorT2BIdx === -1 || indicatorT2TIdx === -1 || indicatorT2AIdx === -1 || indicatorT3BIdx === -1 || indicatorT3TIdx === -1 || indicatorT3AIdx === -1 || indicatorCpcIdx === -1 || indicatorC3dIdx === -1 || indicatorCmqIdx === -1 || indicatorT1Idx === -1 || indicatorT2Idx === -1 || indicatorT3Idx === -1 || appreciationT1Idx === -1 || appreciationT2Idx === -1 || appreciationT3Idx === -1) {
-            throw new Error('Colonnes attendues introuvables (classe / nom / T1B/T1T/T1A / T2B/T2T/T2A / T3B/T3T/T3A / CPC / C3D / CMQ / T1 / T2 / T3 / AT1 / AT2 / AT3).');
+        if (classIdx === -1 || nameIdx === -1 || indicatorT1BIdx === -1 || indicatorT1TIdx === -1 || indicatorT1AIdx === -1 || indicatorT2BIdx === -1 || indicatorT2TIdx === -1 || indicatorT2AIdx === -1 || indicatorT3BIdx === -1 || indicatorT3TIdx === -1 || indicatorT3AIdx === -1 || indicatorCpcIdx === -1 || indicatorC3dIdx === -1 || indicatorCmqIdx === -1 || indicatorT1Idx === -1 || indicatorT2Idx === -1 || indicatorT3Idx === -1 || appreciationT1Idx === -1 || appreciationT2Idx === -1 || appreciationT3Idx === -1 || commentT1Idx === -1 || commentT2Idx === -1 || commentT3Idx === -1) {
+            throw new Error('Colonnes attendues introuvables (classe / nom / T1B/T1T/T1A / T2B/T2T/T2A / T3B/T3T/T3A / CPC / C3D / CMQ / T1 / T2 / T3 / AT1 / AT2 / AT3 / CT1 / CT2 / CT3).');
         }
 
         const normalizedSelectedClass = normalize(selectedClass);
@@ -843,6 +849,9 @@
             appreciationT1Idx,
             appreciationT2Idx,
             appreciationT3Idx,
+            commentT1Idx,
+            commentT2Idx,
+            commentT3Idx,
         }));
 
         return {
@@ -1166,6 +1175,9 @@
                 const at1 = student.at1 || 'Appréciation T1 indisponible.';
                 const at2 = student.at2 || 'Appréciation T2 indisponible.';
                 const at3 = student.at3 || 'Appréciation T3 indisponible.';
+                const ct1 = student.ct1 || 'Aucune remarque.';
+                const ct2 = student.ct2 || 'Aucune remarque.';
+                const ct3 = student.ct3 || 'Aucune remarque.';
                 const t1Leds = [buildLed('t1b')(student.t1b), buildLed('t1t')(student.t1t), buildLed('t1a')(student.t1a), buildLed('t1')(student.t1)].join('');
                 const t2Leds = [buildLed('t2b')(student.t2b), buildLed('t2t')(student.t2t), buildLed('t2a')(student.t2a), buildLed('t2')(student.t2)].join('');
                 const t3Leds = [buildLed('t3b')(student.t3b), buildLed('t3t')(student.t3t), buildLed('t3a')(student.t3a), buildLed('t3')(student.t3)].join('');
@@ -1173,12 +1185,12 @@
                 const tPoints = buildLinePoints([student.t1t, student.t2t, student.t3t]);
                 const aPoints = buildLinePoints([student.t1a, student.t2a, student.t3a]);
                 const avgPoints = buildLinePoints([
-                    averageOnHundred(student.t1b, student.t1t, student.t1a),
-                    averageOnHundred(student.t2b, student.t2t, student.t2a),
-                    averageOnHundred(student.t3b, student.t3t, student.t3a)
+                    toHundredScale(student.t1),
+                    toHundredScale(student.t2),
+                    toHundredScale(student.t3)
                 ]);
 
-                return `<article class="student-card"><h4>${student.name}</h4><div class="student-block"><div class="student-subblock"><table class="inner-table"><thead><tr><th>T1B</th><th>T1T</th><th>T1A</th><th>T2B</th><th>T2T</th><th>T2A</th><th>T3B</th><th>T3T</th><th>T3A</th><th>CPC</th><th>C3D</th><th>CMQ</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody><tr>${cells}</tr></tbody></table></div><div class="student-content-row"><div class="appreciations-column"><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T1</h5><div class="term-leds">${t1Leds}</div></div><p>${at1}</p></div><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T2</h5><div class="term-leds">${t2Leds}</div></div><p>${at2}</p></div><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T3</h5><div class="term-leds">${t3Leds}</div></div><p>${at3}</p></div></div><div class="student-subblock evolution-subblock"><h5>Évolution <span class="title-b">B</span> / <span class="title-t">T</span> / <span class="title-a">A</span></h5><svg viewBox="0 0 200 130" class="evolution-chart" role="img" aria-label="Graphique évolution B T A"><line x1="26" y1="30" x2="26" y2="120" class="axis-line"></line><line x1="26" y1="120" x2="186" y2="120" class="axis-line"></line><line x1="26" y1="30" x2="186" y2="30" class="grid-line"></line><line x1="26" y1="75" x2="186" y2="75" class="grid-line"></line><polyline points="${bPoints}" class="line-b"></polyline><polyline points="${tPoints}" class="line-t"></polyline><polyline points="${aPoints}" class="line-a"></polyline><polyline points="${avgPoints}" class="line-avg"></polyline><text x="20" y="34" class="axis-label">100</text><text x="20" y="79" class="axis-label">50</text><text x="20" y="124" class="axis-label">0</text></svg></div></div></div></article>`;
+                return `<article class="student-card"><h4>${student.name}</h4><div class="student-block"><div class="student-subblock"><table class="inner-table"><thead><tr><th>T1B</th><th>T1T</th><th>T1A</th><th>T2B</th><th>T2T</th><th>T2A</th><th>T3B</th><th>T3T</th><th>T3A</th><th>CPC</th><th>C3D</th><th>CMQ</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody><tr>${cells}</tr></tbody></table></div><div class="student-content-row"><div class="appreciations-column"><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T1</h5><div class="term-leds">${t1Leds}</div></div><p>${at1}</p><p><em>remarques: ${ct1}</em></p></div><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T2</h5><div class="term-leds">${t2Leds}</div></div><p>${at2}</p><p><em>remarques: ${ct2}</em></p></div><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T3</h5><div class="term-leds">${t3Leds}</div></div><p>${at3}</p><p><em>remarques: ${ct3}</em></p></div></div><div class="student-subblock evolution-subblock"><h5>Évolution <span class="title-b">B</span> / <span class="title-t">T</span> / <span class="title-a">A</span></h5><svg viewBox="0 0 200 130" class="evolution-chart" role="img" aria-label="Graphique évolution B T A"><line x1="26" y1="30" x2="26" y2="120" class="axis-line"></line><line x1="26" y1="120" x2="186" y2="120" class="axis-line"></line><line x1="26" y1="30" x2="186" y2="30" class="grid-line"></line><line x1="26" y1="75" x2="186" y2="75" class="grid-line"></line><polyline points="${bPoints}" class="line-b"></polyline><polyline points="${tPoints}" class="line-t"></polyline><polyline points="${aPoints}" class="line-a"></polyline><polyline points="${avgPoints}" class="line-avg"></polyline><text x="20" y="34" class="axis-label">100</text><text x="20" y="79" class="axis-label">50</text><text x="20" y="124" class="axis-label">0</text></svg></div></div></div></article>`;
             }).join('');
 
             viewWindow.document.write(`<html><head><title>Export voyants ${selectedClass}</title><style>:root{--bg:#f3f4f6;--panel:#ffffff;--text:#111827;--border:#d1d5db;--header:#111827;--headerText:#f9fafb;--btn:#2563eb}*{box-sizing:border-box}body{font-family:Arial,sans-serif;padding:24px;background:var(--bg);color:var(--text)}.topbar{display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px}.close-btn{border:0;border-radius:8px;background:#374151;color:#fff;padding:8px 12px;cursor:pointer;font-weight:600}.panel{max-width:1200px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 8px 24px rgba(17,24,39,.08)}h3{margin:0 0 8px 0}p{margin:0;color:#374151;line-height:1.45;white-space:pre-wrap}.student-grid{display:grid;grid-template-columns:1fr;gap:12px}.student-card{border:1px solid var(--border);border-radius:12px;background:#f8fafc;padding:12px}.student-card h4{margin:0 0 10px 0}.student-block{display:grid;gap:10px}.student-content-row{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:10px;align-items:stretch}.appreciations-column{display:grid;gap:10px}.student-subblock{border:1px solid var(--border);border-radius:10px;background:#fff;padding:10px}.student-subblock h5{margin:0 0 8px 0}.subblock-title-row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.term-leds{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.mini-led-wrap{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-size:12px;color:#4b5563}table{border-collapse:collapse;width:100%}th,td{border:1px solid var(--border);padding:8px 10px;text-align:center}th{background:var(--header);color:var(--headerText);text-align:center}.inner-table th,.inner-table td{white-space:nowrap}.led{display:inline-block;width:13px;height:13px;border-radius:999px;background:var(--led-color,#6b7280);box-shadow:0 0 10px var(--led-glow,rgba(107,114,128,.45));margin-right:0;vertical-align:-1px}.led.na{background:#6b7280;box-shadow:0 0 10px rgba(107,114,128,.45)}.evolution-subblock{display:flex;flex-direction:column}.evolution-chart{width:100%;height:auto}.axis-line{stroke:#9ca3af;stroke-width:1}.grid-line{stroke:#e5e7eb;stroke-width:1}.line-b,.line-t,.line-a,.line-avg{fill:none;stroke-width:2.5}.line-b{stroke:#2563eb}.line-t{stroke:#16a34a}.line-a{stroke:#f97316}.line-avg{stroke:#dc2626}.axis-label{font-size:10px;fill:#6b7280;text-anchor:end}.title-b{color:#2563eb}.title-t{color:#16a34a}.title-a{color:#f97316}</style></head><body><div class="topbar"><button type="button" class="close-btn" id="close-export-window" onclick="window.close();return false;">Fermer</button></div><div class="panel"><h3>Bilan de la classe ${selectedClass}</h3><div class="student-grid">${exportRows || '<p>Aucun élève chargé.</p>'}</div></div><script>(function(){const closeBtn=document.getElementById('close-export-window');if(closeBtn){closeBtn.addEventListener('click',()=>{window.close();if(!window.closed){window.open('','_self');window.close();}});}})();</script></body></html>`);
