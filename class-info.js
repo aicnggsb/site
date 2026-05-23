@@ -815,8 +815,8 @@
         const commentT2Idx = resolveCsvColumnIndex(header, 'ct2', 22);
         const commentT3Idx = resolveCsvColumnIndex(header, 'ct3', 23);
 
-        if (classIdx === -1 || nameIdx === -1 || indicatorT1BIdx === -1 || indicatorT1TIdx === -1 || indicatorT1AIdx === -1 || indicatorT2BIdx === -1 || indicatorT2TIdx === -1 || indicatorT2AIdx === -1 || indicatorT3BIdx === -1 || indicatorT3TIdx === -1 || indicatorT3AIdx === -1 || indicatorCpcIdx === -1 || indicatorC3dIdx === -1 || indicatorCmqIdx === -1 || indicatorT1Idx === -1 || indicatorT2Idx === -1 || indicatorT3Idx === -1 || appreciationT1Idx === -1 || appreciationT2Idx === -1 || appreciationT3Idx === -1 || commentT1Idx === -1 || commentT2Idx === -1 || commentT3Idx === -1) {
-            throw new Error('Colonnes attendues introuvables (classe / nom / T1B/T1T/T1A / T2B/T2T/T2A / T3B/T3T/T3A / CPC / C3D / CMQ / [CPREZ] / T1 / T2 / T3 / AT1 / AT2 / AT3 / CT1 / CT2 / CT3).');
+        if (classIdx === -1 || nameIdx === -1 || indicatorT1BIdx === -1 || indicatorT1TIdx === -1 || indicatorT1AIdx === -1 || indicatorT2BIdx === -1 || indicatorT2TIdx === -1 || indicatorT2AIdx === -1 || indicatorT3BIdx === -1 || indicatorT3TIdx === -1 || indicatorT3AIdx === -1 || indicatorCpcIdx === -1 || indicatorC3dIdx === -1 || indicatorCmqIdx === -1 || indicatorCPrezIdx === -1 || indicatorT1Idx === -1 || indicatorT2Idx === -1 || indicatorT3Idx === -1 || appreciationT1Idx === -1 || appreciationT2Idx === -1 || appreciationT3Idx === -1 || commentT1Idx === -1 || commentT2Idx === -1 || commentT3Idx === -1) {
+            throw new Error('Colonnes attendues introuvables (classe / nom / T1B/T1T/T1A / T2B/T2T/T2A / T3B/T3T/T3A / CPC / C3D / CMQ / CPREZ / T1 / T2 / T3 / AT1 / AT2 / AT3 / CT1 / CT2 / CT3).');
         }
 
         const normalizedSelectedClass = normalize(selectedClass);
