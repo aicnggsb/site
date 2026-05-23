@@ -179,6 +179,7 @@
             cpc: parsePercentage(row[idxMap.indicatorCpcIdx]),
             c3d: parsePercentage(row[idxMap.indicatorC3dIdx]),
             cmq: parsePercentage(row[idxMap.indicatorCmqIdx]),
+            cprez: parsePercentage(row[idxMap.indicatorCPrezIdx]),
             t1: parsePercentage(row[idxMap.indicatorT1Idx]),
             t2: parsePercentage(row[idxMap.indicatorT2Idx]),
             t3: parsePercentage(row[idxMap.indicatorT3Idx]),
@@ -232,6 +233,7 @@
             cpc: 'CPC',
             c3d: 'C3D',
             cmq: 'CMQ',
+            cprez: 'CPREZ',
             t1: 'T1',
             t2: 'T2',
             t3: 'T3',
@@ -240,7 +242,7 @@
         if (['t1', 't2', 't3'].includes(key)) {
             return { maxValue: 20, suffix: '/20', label: labels[key] || key.toUpperCase() };
         }
-        if (['cpc', 'c3d', 'cmq'].includes(key)) {
+        if (['cpc', 'c3d', 'cmq', 'cprez'].includes(key)) {
             return { minValue: -3, maxValue: 3, suffix: '', label: labels[key] || key.toUpperCase() };
         }
         return { maxValue: 100, suffix: '%', label: labels[key] || key.toUpperCase() };
@@ -248,7 +250,7 @@
 
     function buildTeams(students) {
         const TEAM_COUNT = 6;
-        const METRICS = ['b', 't', 'a', 't1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 'cpc', 'c3d', 'cmq', 't1', 't2', 't3'];
+        const METRICS = ['b', 't', 'a', 't1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 'cpc', 'c3d', 'cmq', 'cprez', 't1', 't2', 't3'];
         const teams = Array.from({ length: TEAM_COUNT }, () => []);
         const remaining = students.slice();
 
@@ -386,10 +388,11 @@
                 cpc: computeAverage(team.map((student) => student.cpc).filter((value) => value !== null)),
                 c3d: computeAverage(team.map((student) => student.c3d).filter((value) => value !== null)),
                 cmq: computeAverage(team.map((student) => student.cmq).filter((value) => value !== null)),
+                cprez: computeAverage(team.map((student) => student.cprez).filter((value) => value !== null)),
                 t1: computeAverage(team.map((student) => student.t1).filter((value) => value !== null)),
                 t2: computeAverage(team.map((student) => student.t2).filter((value) => value !== null)),
                 t3: computeAverage(team.map((student) => student.t3).filter((value) => value !== null)),
-            }, ['t1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 't1', 't2', 't3']);
+            }, ['t1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 't1', 't2', 't3', 'cpc', 'c3d', 'cmq', 'cprez']);
             teamIndicators.classList.add('team-indicators');
             title.dataset.teamIndex = String(index);
             card.dataset.teamIndex = String(index);
@@ -460,10 +463,11 @@
                     cpc: student.cpc,
                     c3d: student.c3d,
                     cmq: student.cmq,
+                    cprez: student.cprez,
                     t1: student.t1,
                     t2: student.t2,
                     t3: student.t3
-                }, ['t1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 't1', 't2', 't3', 'cpc', 'c3d', 'cmq']);
+                }, ['t1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 't1', 't2', 't3', 'cpc', 'c3d', 'cmq', 'cprez']);
                 studentIndicators.classList.add('team-student-indicators');
 
                 const studentActions = document.createElement('div');
@@ -782,7 +786,7 @@
         const csvText = await response.text();
         const rows = parseCSV(csvText).filter((row) => row.some((cell) => (cell || '').trim()));
         if (!rows.length) {
-            return { studentsCount: 0, averageB: null, averageT: null, averageA: null, averageCpc: null, averageC3d: null, averageCmq: null, averageT1: null, averageT2: null, averageT3: null, students: [] };
+            return { studentsCount: 0, averageB: null, averageT: null, averageA: null, averageCpc: null, averageC3d: null, averageCmq: null, averageCPrez: null, averageT1: null, averageT2: null, averageT3: null, students: [] };
         }
 
         const header = rows[0].map((cell) => normalize(cell));
@@ -800,18 +804,19 @@
         const indicatorCpcIdx = resolveCsvColumnIndex(header, 'cpc', 11);
         const indicatorC3dIdx = resolveCsvColumnIndex(header, 'c3d', 12);
         const indicatorCmqIdx = resolveCsvColumnIndex(header, 'cmq', 13);
-        const indicatorT1Idx = resolveCsvColumnIndex(header, 't1', 14);
-        const indicatorT2Idx = resolveCsvColumnIndex(header, 't2', 15);
-        const indicatorT3Idx = resolveCsvColumnIndex(header, 't3', 16);
-        const appreciationT1Idx = resolveCsvColumnIndex(header, 'at1', 17);
-        const appreciationT2Idx = resolveCsvColumnIndex(header, 'at2', 18);
-        const appreciationT3Idx = resolveCsvColumnIndex(header, 'at3', 19);
-        const commentT1Idx = resolveCsvColumnIndex(header, 'ct1', 20);
-        const commentT2Idx = resolveCsvColumnIndex(header, 'ct2', 21);
-        const commentT3Idx = resolveCsvColumnIndex(header, 'ct3', 22);
+        const indicatorCPrezIdx = resolveCsvColumnIndex(header, 'cprez', 14);
+        const indicatorT1Idx = resolveCsvColumnIndex(header, 't1', 15);
+        const indicatorT2Idx = resolveCsvColumnIndex(header, 't2', 16);
+        const indicatorT3Idx = resolveCsvColumnIndex(header, 't3', 17);
+        const appreciationT1Idx = resolveCsvColumnIndex(header, 'at1', 18);
+        const appreciationT2Idx = resolveCsvColumnIndex(header, 'at2', 19);
+        const appreciationT3Idx = resolveCsvColumnIndex(header, 'at3', 20);
+        const commentT1Idx = resolveCsvColumnIndex(header, 'ct1', 21);
+        const commentT2Idx = resolveCsvColumnIndex(header, 'ct2', 22);
+        const commentT3Idx = resolveCsvColumnIndex(header, 'ct3', 23);
 
-        if (classIdx === -1 || nameIdx === -1 || indicatorT1BIdx === -1 || indicatorT1TIdx === -1 || indicatorT1AIdx === -1 || indicatorT2BIdx === -1 || indicatorT2TIdx === -1 || indicatorT2AIdx === -1 || indicatorT3BIdx === -1 || indicatorT3TIdx === -1 || indicatorT3AIdx === -1 || indicatorCpcIdx === -1 || indicatorC3dIdx === -1 || indicatorCmqIdx === -1 || indicatorT1Idx === -1 || indicatorT2Idx === -1 || indicatorT3Idx === -1 || appreciationT1Idx === -1 || appreciationT2Idx === -1 || appreciationT3Idx === -1 || commentT1Idx === -1 || commentT2Idx === -1 || commentT3Idx === -1) {
-            throw new Error('Colonnes attendues introuvables (classe / nom / T1B/T1T/T1A / T2B/T2T/T2A / T3B/T3T/T3A / CPC / C3D / CMQ / T1 / T2 / T3 / AT1 / AT2 / AT3 / CT1 / CT2 / CT3).');
+        if (classIdx === -1 || nameIdx === -1 || indicatorT1BIdx === -1 || indicatorT1TIdx === -1 || indicatorT1AIdx === -1 || indicatorT2BIdx === -1 || indicatorT2TIdx === -1 || indicatorT2AIdx === -1 || indicatorT3BIdx === -1 || indicatorT3TIdx === -1 || indicatorT3AIdx === -1 || indicatorCpcIdx === -1 || indicatorC3dIdx === -1 || indicatorCmqIdx === -1 || indicatorCPrezIdx === -1 || indicatorT1Idx === -1 || indicatorT2Idx === -1 || indicatorT3Idx === -1 || appreciationT1Idx === -1 || appreciationT2Idx === -1 || appreciationT3Idx === -1 || commentT1Idx === -1 || commentT2Idx === -1 || commentT3Idx === -1) {
+            throw new Error('Colonnes attendues introuvables (classe / nom / T1B/T1T/T1A / T2B/T2T/T2A / T3B/T3T/T3A / CPC / C3D / CMQ / CPREZ / T1 / T2 / T3 / AT1 / AT2 / AT3 / CT1 / CT2 / CT3).');
         }
 
         const normalizedSelectedClass = normalize(selectedClass);
@@ -825,6 +830,7 @@
         const cpcValues = classRows.map((row) => parsePercentage(row[indicatorCpcIdx])).filter((value) => value !== null);
         const c3dValues = classRows.map((row) => parsePercentage(row[indicatorC3dIdx])).filter((value) => value !== null);
         const cmqValues = classRows.map((row) => parsePercentage(row[indicatorCmqIdx])).filter((value) => value !== null);
+        const cprezValues = classRows.map((row) => parsePercentage(row[indicatorCPrezIdx])).filter((value) => value !== null);
         const t1Values = classRows.map((row) => parsePercentage(row[indicatorT1Idx])).filter((value) => value !== null);
         const t2Values = classRows.map((row) => parsePercentage(row[indicatorT2Idx])).filter((value) => value !== null);
         const t3Values = classRows.map((row) => parsePercentage(row[indicatorT3Idx])).filter((value) => value !== null);
@@ -843,6 +849,7 @@
             indicatorCpcIdx,
             indicatorC3dIdx,
             indicatorCmqIdx,
+            indicatorCPrezIdx,
             indicatorT1Idx,
             indicatorT2Idx,
             indicatorT3Idx,
@@ -862,6 +869,7 @@
             averageCpc: computeAverage(cpcValues),
             averageC3d: computeAverage(c3dValues),
             averageCmq: computeAverage(cmqValues),
+            averageCPrez: computeAverage(cprezValues),
             averageT1: computeAverage(t1Values),
             averageT2: computeAverage(t2Values),
             averageT3: computeAverage(t3Values),
@@ -1159,7 +1167,7 @@
             }).join(' ');
 
             const exportRows = lastClassStudents.map((student) => {
-                const cells = ['t1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 'cpc', 'c3d', 'cmq', 't1', 't2', 't3'].map((key) => {
+                const cells = ['t1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 'cpc', 'c3d', 'cmq', 'cprez', 't1', 't2', 't3'].map((key) => {
                     const config = getIndicatorDisplayConfig(key);
                     const rawValue = student[key];
                     if (rawValue === null || rawValue === undefined) {
@@ -1190,7 +1198,7 @@
                     toHundredScale(student.t3)
                 ]);
 
-                return `<article class="student-card"><h4>${student.name}</h4><div class="student-block"><div class="student-subblock"><table class="inner-table"><thead><tr><th>T1B</th><th>T1T</th><th>T1A</th><th>T2B</th><th>T2T</th><th>T2A</th><th>T3B</th><th>T3T</th><th>T3A</th><th>CPC</th><th>C3D</th><th>CMQ</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody><tr>${cells}</tr></tbody></table></div><div class="student-content-row"><div class="appreciations-column"><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T1</h5><div class="term-leds">${t1Leds}</div></div><p>${at1}</p><p><em>remarques: ${ct1}</em></p></div><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T2</h5><div class="term-leds">${t2Leds}</div></div><p>${at2}</p><p><em>remarques: ${ct2}</em></p></div><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T3</h5><div class="term-leds">${t3Leds}</div></div><p>${at3}</p><p><em>remarques: ${ct3}</em></p></div></div><div class="student-subblock evolution-subblock"><h5>Évolution <span class="title-b">B</span> / <span class="title-t">T</span> / <span class="title-a">A</span></h5><svg viewBox="0 0 200 130" class="evolution-chart" role="img" aria-label="Graphique évolution B T A"><line x1="26" y1="30" x2="26" y2="120" class="axis-line"></line><line x1="26" y1="120" x2="186" y2="120" class="axis-line"></line><line x1="26" y1="30" x2="186" y2="30" class="grid-line"></line><line x1="26" y1="75" x2="186" y2="75" class="grid-line"></line><polyline points="${bPoints}" class="line-b"></polyline><polyline points="${tPoints}" class="line-t"></polyline><polyline points="${aPoints}" class="line-a"></polyline><polyline points="${avgPoints}" class="line-avg"></polyline><text x="20" y="34" class="axis-label">100</text><text x="20" y="79" class="axis-label">50</text><text x="20" y="124" class="axis-label">0</text></svg></div></div></div></article>`;
+                return `<article class="student-card"><h4>${student.name}</h4><div class="student-block"><div class="student-subblock"><table class="inner-table"><thead><tr><th>T1B</th><th>T1T</th><th>T1A</th><th>T2B</th><th>T2T</th><th>T2A</th><th>T3B</th><th>T3T</th><th>T3A</th><th>CPC</th><th>C3D</th><th>CMQ</th><th>CPREZ</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody><tr>${cells}</tr></tbody></table></div><div class="student-content-row"><div class="appreciations-column"><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T1</h5><div class="term-leds">${t1Leds}</div></div><p>${at1}</p><p><em>remarques: ${ct1}</em></p></div><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T2</h5><div class="term-leds">${t2Leds}</div></div><p>${at2}</p><p><em>remarques: ${ct2}</em></p></div><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T3</h5><div class="term-leds">${t3Leds}</div></div><p>${at3}</p><p><em>remarques: ${ct3}</em></p></div></div><div class="student-subblock evolution-subblock"><h5>Évolution <span class="title-b">B</span> / <span class="title-t">T</span> / <span class="title-a">A</span></h5><svg viewBox="0 0 200 130" class="evolution-chart" role="img" aria-label="Graphique évolution B T A"><line x1="26" y1="30" x2="26" y2="120" class="axis-line"></line><line x1="26" y1="120" x2="186" y2="120" class="axis-line"></line><line x1="26" y1="30" x2="186" y2="30" class="grid-line"></line><line x1="26" y1="75" x2="186" y2="75" class="grid-line"></line><polyline points="${bPoints}" class="line-b"></polyline><polyline points="${tPoints}" class="line-t"></polyline><polyline points="${aPoints}" class="line-a"></polyline><polyline points="${avgPoints}" class="line-avg"></polyline><text x="20" y="34" class="axis-label">100</text><text x="20" y="79" class="axis-label">50</text><text x="20" y="124" class="axis-label">0</text></svg></div></div></div></article>`;
             }).join('');
 
             viewWindow.document.write(`<html><head><title>Export voyants ${selectedClass}</title><style>:root{--bg:#f3f4f6;--panel:#ffffff;--text:#111827;--border:#d1d5db;--header:#111827;--headerText:#f9fafb;--btn:#2563eb}*{box-sizing:border-box}body{font-family:Arial,sans-serif;padding:24px;background:var(--bg);color:var(--text)}.topbar{display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px}.close-btn{border:0;border-radius:8px;background:#374151;color:#fff;padding:8px 12px;cursor:pointer;font-weight:600}.panel{max-width:1200px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 8px 24px rgba(17,24,39,.08)}h3{margin:0 0 8px 0}p{margin:0;color:#374151;line-height:1.45;white-space:pre-wrap}.student-grid{display:grid;grid-template-columns:1fr;gap:12px}.student-card{border:1px solid var(--border);border-radius:12px;background:#f8fafc;padding:12px}.student-card h4{margin:0 0 10px 0}.student-block{display:grid;gap:10px}.student-content-row{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:10px;align-items:stretch}.appreciations-column{display:grid;gap:10px}.student-subblock{border:1px solid var(--border);border-radius:10px;background:#fff;padding:10px}.student-subblock h5{margin:0 0 8px 0}.subblock-title-row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.term-leds{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.mini-led-wrap{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-size:12px;color:#4b5563}table{border-collapse:collapse;width:100%}th,td{border:1px solid var(--border);padding:8px 10px;text-align:center}th{background:var(--header);color:var(--headerText);text-align:center}.inner-table th,.inner-table td{white-space:nowrap}.led{display:inline-block;width:13px;height:13px;border-radius:999px;background:var(--led-color,#6b7280);box-shadow:0 0 10px var(--led-glow,rgba(107,114,128,.45));margin-right:0;vertical-align:-1px}.led.na{background:#6b7280;box-shadow:0 0 10px rgba(107,114,128,.45)}.evolution-subblock{display:flex;flex-direction:column}.evolution-chart{width:100%;height:auto}.axis-line{stroke:#9ca3af;stroke-width:1}.grid-line{stroke:#e5e7eb;stroke-width:1}.line-b,.line-t,.line-a,.line-avg{fill:none;stroke-width:2.5}.line-b{stroke:#2563eb}.line-t{stroke:#16a34a}.line-a{stroke:#f97316}.line-avg{stroke:#dc2626}.axis-label{font-size:10px;fill:#6b7280;text-anchor:end}.title-b{color:#2563eb}.title-t{color:#16a34a}.title-a{color:#f97316}</style></head><body><div class="topbar"><button type="button" class="close-btn" id="close-export-window" onclick="window.close();return false;">Fermer</button></div><div class="panel"><h3>Bilan de la classe ${selectedClass}</h3><div class="student-grid">${exportRows || '<p>Aucun élève chargé.</p>'}</div></div><script>(function(){const closeBtn=document.getElementById('close-export-window');if(closeBtn){closeBtn.addEventListener('click',()=>{window.close();if(!window.closed){window.open('','_self');window.close();}});}})();</script></body></html>`);
