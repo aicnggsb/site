@@ -760,15 +760,15 @@
     function getClassConfig(selectedClass) {
         const normalizedClass = (selectedClass || '').toUpperCase().trim();
 
-        if (TROISIEME_CLASSES.has(normalizedClass)) {
-            return { level: '3E', csvUrl: SHEET_3E_CSV_URL, sheetLabel: 'Suivi Eleve 3E' };
-        }
-        if (QUATRIEME_CLASSES.has(normalizedClass)) {
-            return { level: '4E', csvUrl: SHEET_4E_CSV_URL, sheetLabel: 'Suivi Eleve 4E' };
-        }
-        if (CINQUIEME_CLASSES.has(normalizedClass)) {
-            return { level: '5E', csvUrl: SHEET_5E_CSV_URL, sheetLabel: 'Suivi Eleve 5E' };
-        }
+  //      if (TROISIEME_CLASSES.has(normalizedClass)) {
+  //          return { level: '3E', csvUrl: SHEET_3E_CSV_URL, sheetLabel: 'Suivi Eleve 3E' };
+  //      }
+  //      if (QUATRIEME_CLASSES.has(normalizedClass)) {
+  //          return { level: '4E', csvUrl: SHEET_4E_CSV_URL, sheetLabel: 'Suivi Eleve 4E' };
+  //      }
+  //      if (CINQUIEME_CLASSES.has(normalizedClass)) {
+  //          return { level: '5E', csvUrl: SHEET_5E_CSV_URL, sheetLabel: 'Suivi Eleve 5E' };
+  //      }
 
         return null;
     }
