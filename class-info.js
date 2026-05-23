@@ -718,10 +718,23 @@
         document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
     }
 
+    function deleteCookie(name) {
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
+    }
+
     function getCookie(name) {
         const prefix = `${name}=`;
         const cookie = document.cookie.split('; ').find((entry) => entry.startsWith(prefix));
-        return cookie ? decodeURIComponent(cookie.slice(prefix.length)) : null;
+        if (!cookie) {
+            return null;
+        }
+        try {
+            return decodeURIComponent(cookie.slice(prefix.length));
+        } catch (error) {
+            console.warn(`Cookie ${name} invalide, suppression de la valeur corrompue.`);
+            deleteCookie(name);
+            return null;
+        }
     }
 
 
@@ -949,6 +962,9 @@
         }
         try {
             const savedTeams = JSON.parse(raw);
+            if (!Array.isArray(savedTeams) || !savedTeams.every((team) => Array.isArray(team))) {
+                throw new Error('invalid teams structure');
+            }
             const byName = new Map(lastClassStudents.map((student) => [student.name, student]));
             currentTeams = savedTeams.map((team) => team.map((name) => byName.get(name)).filter(Boolean));
             renderTeams(currentTeams);
@@ -957,6 +973,7 @@
             return true;
         } catch (error) {
             teamsPopupStatusElement.textContent = 'Sauvegarde invalide.';
+            deleteCookie(`${TEAMS_COOKIE_PREFIX}${className.toUpperCase()}`);
             return false;
         }
     }
