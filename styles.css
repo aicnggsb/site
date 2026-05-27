@@ -1949,6 +1949,24 @@ svg.axe { display: block; margin: 0.5em 0; }
     gap: 6px;
 }
 
+
+.team-quick-action-button {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    min-width: 30px;
+    height: 24px;
+    padding: 0 5px;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    font-size: 0.74rem;
+    line-height: 1;
+}
+
+.team-quick-action-button:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
 .eval-popup {
     position: fixed;
     inset: 0;
