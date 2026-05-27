@@ -1949,6 +1949,10 @@ svg.axe { display: block; margin: 0.5em 0; }
     gap: 6px;
 }
 
+.team-details-panel:not(.indicators-hidden) .team-student-actions {
+    display: none;
+}
+
 
 .team-quick-action-button {
     border: 1px solid rgba(255, 255, 255, 0.2);
