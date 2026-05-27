@@ -473,6 +473,22 @@
                 const studentActions = document.createElement('div');
                 studentActions.className = 'team-student-actions';
                 studentActions.appendChild(studentEvalButton);
+                const quickActions = [
+                    { label: 'B-', payload: { bDelta: -1 } },
+                    { label: 'T-', payload: { tDelta: -1 } },
+                    { label: 'T+', payload: { tDelta: 1 } },
+                    { label: 'C-', payload: { bDelta: -1, tDelta: -1 } },
+                    { label: 'A-', payload: { aDelta: -1 } },
+                ];
+                quickActions.forEach((action) => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'team-quick-action-button';
+                    button.textContent = action.label;
+                    button.title = `${action.label} sur ${student.name}`;
+                    button.addEventListener('click', () => applySessionEvaluation([student.name], action.payload));
+                    studentActions.appendChild(button);
+                });
 
                 item.appendChild(name);
                 item.appendChild(studentActions);
@@ -1085,59 +1101,65 @@
         });
     }
 
+    function applySessionEvaluation(studentNames, evaluation, comment = '', isClassEvaluation = false) {
+        const sessionMap = getSessionScoresMap();
+        studentNames.forEach((studentName) => {
+            if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
+                sessionMap[studentName] = { b: 3, t: 3, a: 3, comments: [] };
+            }
+            if (evaluation.markAbsent) {
+                sessionMap[studentName].absent = true;
+                if (!Array.isArray(sessionMap[studentName].comments)) {
+                    sessionMap[studentName].comments = [];
+                }
+                sessionMap[studentName].comments.push('Absent à la séance');
+                return;
+            }
+            sessionMap[studentName].absent = false;
+            if (Array.isArray(sessionMap[studentName].comments)) {
+                sessionMap[studentName].comments = sessionMap[studentName].comments.filter((entry) => entry !== 'Absent à la séance');
+            }
+            const currentB = numberOrDefault(sessionMap[studentName].b, 3);
+            const currentT = numberOrDefault(sessionMap[studentName].t, 3);
+            const currentA = numberOrDefault(sessionMap[studentName].a, 3);
+
+            let nextB = clamp(currentB + numberOrDefault(evaluation.bDelta, 0), -3, 3);
+            let nextT = clamp(currentT + numberOrDefault(evaluation.tDelta, 0), -3, 3);
+            const nextA = clamp(currentA + numberOrDefault(evaluation.aDelta, 0), -3, 3);
+
+            if (nextB < 0) {
+                nextT = clamp(nextT - 1, -3, 3);
+            }
+            if (nextT < 0) {
+                nextB = clamp(nextB - 1, -3, 3);
+            }
+
+            sessionMap[studentName].b = nextB;
+            sessionMap[studentName].t = nextT;
+            sessionMap[studentName].a = nextA;
+            if (!Array.isArray(sessionMap[studentName].comments)) {
+                sessionMap[studentName].comments = [];
+            }
+            if (comment && !isClassEvaluation) {
+                sessionMap[studentName].comments.push(comment);
+            }
+        });
+        if (comment && isClassEvaluation) {
+            if (!Array.isArray(sessionMap.__classComments)) {
+                sessionMap.__classComments = [];
+            }
+            sessionMap.__classComments.push(comment);
+        }
+        saveSessionScoresMap(sessionMap);
+    }
+
     if (evalValidateButton) {
         evalValidateButton.addEventListener('click', () => {
             if (!pendingEvaluation) return;
             const comment = (evalCommentElement.value || '').trim();
-            const sessionMap = getSessionScoresMap();
-            pendingEvaluation.studentNames.forEach((studentName) => {
-                if (!sessionMap[studentName] || typeof sessionMap[studentName] !== 'object') {
-                    sessionMap[studentName] = { b: 3, t: 3, a: 3, comments: [] };
-                }
-                if (pendingEvaluation.markAbsent) {
-                    sessionMap[studentName].absent = true;
-                    if (!Array.isArray(sessionMap[studentName].comments)) {
-                        sessionMap[studentName].comments = [];
-                    }
-                    sessionMap[studentName].comments.push('Absent à la séance');
-                    return;
-                }
-                sessionMap[studentName].absent = false;
-                if (Array.isArray(sessionMap[studentName].comments)) {
-                    sessionMap[studentName].comments = sessionMap[studentName].comments.filter((entry) => entry !== 'Absent à la séance');
-                }
-                const currentB = numberOrDefault(sessionMap[studentName].b, 3);
-                const currentT = numberOrDefault(sessionMap[studentName].t, 3);
-                const currentA = numberOrDefault(sessionMap[studentName].a, 3);
-
-                let nextB = clamp(currentB + pendingEvaluation.bDelta, -3, 3);
-                let nextT = clamp(currentT + pendingEvaluation.tDelta, -3, 3);
-                const nextA = clamp(currentA + pendingEvaluation.aDelta, -3, 3);
-
-                if (nextB < 0) {
-                    nextT = clamp(nextT - 1, -3, 3);
-                }
-                if (nextT < 0) {
-                    nextB = clamp(nextB - 1, -3, 3);
-                }
-
-                sessionMap[studentName].b = nextB;
-                sessionMap[studentName].t = nextT;
-                sessionMap[studentName].a = nextA;
-                if (!Array.isArray(sessionMap[studentName].comments)) {
-                    sessionMap[studentName].comments = [];
-                }
-                if (comment && !pendingEvaluation.isClassEvaluation) {
-                    sessionMap[studentName].comments.push(comment);
-                }
-            });
-            if (comment && pendingEvaluation.isClassEvaluation) {
-                if (!Array.isArray(sessionMap.__classComments)) {
-                    sessionMap.__classComments = [];
-                }
-                sessionMap.__classComments.push(comment);
-            }
-            saveSessionScoresMap(sessionMap);
+            applySessionEvaluation(pendingEvaluation.studentNames, pendingEvaluation, comment, pendingEvaluation.isClassEvaluation);
+            renderTeams(currentTeams);
+            updateClassIndicatorsAndCount(lastClassStudents, getSelectedClass());
             evalPopupElement.hidden = true;
             pendingEvaluation = null;
         });
