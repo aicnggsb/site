@@ -1153,15 +1153,22 @@
         saveSessionScoresMap(sessionMap);
     }
 
+    function closeEvaluationPopup() {
+        if (evalPopupElement) {
+            evalPopupElement.hidden = true;
+        }
+        pendingEvaluation = null;
+    }
+
     if (evalValidateButton) {
         evalValidateButton.addEventListener('click', () => {
             if (!pendingEvaluation) return;
+            const evaluation = pendingEvaluation;
             const comment = (evalCommentElement.value || '').trim();
-            applySessionEvaluation(pendingEvaluation.studentNames, pendingEvaluation, comment, pendingEvaluation.isClassEvaluation);
+            applySessionEvaluation(evaluation.studentNames, evaluation, comment, evaluation.isClassEvaluation);
+            closeEvaluationPopup();
             renderTeams(currentTeams);
             updateClassIndicatorsAndCount(lastClassStudents, getSelectedClass());
-            evalPopupElement.hidden = true;
-            pendingEvaluation = null;
         });
     }
 
