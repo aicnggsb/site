@@ -669,11 +669,8 @@
         return Boolean(sessionMap && sessionMap[studentName] && sessionMap[studentName].absent);
     }
 
-    function clampSessionScore(value, indicator) {
-        const numericValue = Number(value) || 0;
-        return indicator === 't'
-            ? Math.max(SESSION_SCORE_MIN, numericValue)
-            : clamp(numericValue, SESSION_SCORE_MIN, SESSION_SCORE_MAX);
+    function normalizeSessionScore(value) {
+        return Number(value) || 0;
     }
 
     function setSessionIndicatorLight(indicatorElement, value) {
@@ -695,14 +692,14 @@
         const bDelta = pendingEvaluation ? pendingEvaluation.bDelta : 0;
         const tDelta = pendingEvaluation ? pendingEvaluation.tDelta : 0;
         const aDelta = pendingEvaluation ? pendingEvaluation.aDelta : 0;
-        let tentativeB = clampSessionScore(baseB + bDelta, 'b');
-        let tentativeT = clampSessionScore(baseT + tDelta, 't');
-        const tentativeA = clampSessionScore(baseA + aDelta, 'a');
+        let tentativeB = normalizeSessionScore(baseB + bDelta);
+        let tentativeT = normalizeSessionScore(baseT + tDelta);
+        const tentativeA = normalizeSessionScore(baseA + aDelta);
         if (tentativeB < 0) {
-            tentativeT = clampSessionScore(tentativeT - 1, 't');
+            tentativeT = normalizeSessionScore(tentativeT - 1);
         }
         if (tentativeT < 0) {
-            tentativeB = clampSessionScore(tentativeB - 1, 'b');
+            tentativeB = normalizeSessionScore(tentativeB - 1);
         }
         if (pendingEvaluation && pendingEvaluation.markAbsent) {
             [evalSessionLedB, evalSessionLedT, evalSessionLedA].forEach((indicatorElement) => {
@@ -1134,15 +1131,15 @@
             const currentT = numberOrDefault(sessionMap[studentName].t, 3);
             const currentA = numberOrDefault(sessionMap[studentName].a, 3);
 
-            let nextB = clampSessionScore(currentB + numberOrDefault(evaluation.bDelta, 0), 'b');
-            let nextT = clampSessionScore(currentT + numberOrDefault(evaluation.tDelta, 0), 't');
-            const nextA = clampSessionScore(currentA + numberOrDefault(evaluation.aDelta, 0), 'a');
+            let nextB = normalizeSessionScore(currentB + numberOrDefault(evaluation.bDelta, 0));
+            let nextT = normalizeSessionScore(currentT + numberOrDefault(evaluation.tDelta, 0));
+            const nextA = normalizeSessionScore(currentA + numberOrDefault(evaluation.aDelta, 0));
 
             if (nextB < 0) {
-                nextT = clampSessionScore(nextT - 1, 't');
+                nextT = normalizeSessionScore(nextT - 1);
             }
             if (nextT < 0) {
-                nextB = clampSessionScore(nextB - 1, 'b');
+                nextB = normalizeSessionScore(nextB - 1);
             }
 
             sessionMap[studentName].b = nextB;
