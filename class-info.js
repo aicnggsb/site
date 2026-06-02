@@ -55,6 +55,9 @@
     const classInfoExportButton = document.getElementById('class-info-export-button');
     const TEAMS_COOKIE_PREFIX = 'savedTeams_';
     const SESSION_SCORES_COOKIE_PREFIX = 'sessionScores_';
+    const SESSION_SCORE_MIN = -3;
+    const SESSION_SCORE_MAX = 3;
+
 
     let lastClassStudents = [];
     let currentTeams = [];
@@ -666,13 +669,21 @@
         return Boolean(sessionMap && sessionMap[studentName] && sessionMap[studentName].absent);
     }
 
+    function clampSessionScore(value, indicator) {
+        const numericValue = Number(value) || 0;
+        return indicator === 't'
+            ? Math.max(SESSION_SCORE_MIN, numericValue)
+            : clamp(numericValue, SESSION_SCORE_MIN, SESSION_SCORE_MAX);
+    }
+
     function setSessionIndicatorLight(indicatorElement, value) {
         if (!indicatorElement) return;
-        const boundedValue = clamp(Number(value) || 0, -3, 3);
-        const hue = ((boundedValue + 3) / 6) * 120;
+        const numericValue = Number(value) || 0;
+        const boundedValue = clamp(numericValue, SESSION_SCORE_MIN, SESSION_SCORE_MAX);
+        const hue = ((boundedValue - SESSION_SCORE_MIN) / (SESSION_SCORE_MAX - SESSION_SCORE_MIN)) * 120;
         indicatorElement.style.setProperty('--indicator-color', `hsl(${hue} 88% 48%)`);
         indicatorElement.style.setProperty('--indicator-glow', `hsl(${hue} 92% 55% / 0.6)`);
-        indicatorElement.title = `${boundedValue}`;
+        indicatorElement.title = `${numericValue}`;
     }
 
     function updateSessionLeds(studentNames) {
@@ -684,14 +695,14 @@
         const bDelta = pendingEvaluation ? pendingEvaluation.bDelta : 0;
         const tDelta = pendingEvaluation ? pendingEvaluation.tDelta : 0;
         const aDelta = pendingEvaluation ? pendingEvaluation.aDelta : 0;
-        let tentativeB = clamp(baseB + bDelta, -3, 3);
-        let tentativeT = clamp(baseT + tDelta, -3, 3);
-        const tentativeA = clamp(baseA + aDelta, -3, 3);
+        let tentativeB = clampSessionScore(baseB + bDelta, 'b');
+        let tentativeT = clampSessionScore(baseT + tDelta, 't');
+        const tentativeA = clampSessionScore(baseA + aDelta, 'a');
         if (tentativeB < 0) {
-            tentativeT = clamp(tentativeT - 1, -3, 3);
+            tentativeT = clampSessionScore(tentativeT - 1, 't');
         }
         if (tentativeT < 0) {
-            tentativeB = clamp(tentativeB - 1, -3, 3);
+            tentativeB = clampSessionScore(tentativeB - 1, 'b');
         }
         if (pendingEvaluation && pendingEvaluation.markAbsent) {
             [evalSessionLedB, evalSessionLedT, evalSessionLedA].forEach((indicatorElement) => {
@@ -1123,15 +1134,15 @@
             const currentT = numberOrDefault(sessionMap[studentName].t, 3);
             const currentA = numberOrDefault(sessionMap[studentName].a, 3);
 
-            let nextB = clamp(currentB + numberOrDefault(evaluation.bDelta, 0), -3, 3);
-            let nextT = clamp(currentT + numberOrDefault(evaluation.tDelta, 0), -3, 3);
-            const nextA = clamp(currentA + numberOrDefault(evaluation.aDelta, 0), -3, 3);
+            let nextB = clampSessionScore(currentB + numberOrDefault(evaluation.bDelta, 0), 'b');
+            let nextT = clampSessionScore(currentT + numberOrDefault(evaluation.tDelta, 0), 't');
+            const nextA = clampSessionScore(currentA + numberOrDefault(evaluation.aDelta, 0), 'a');
 
             if (nextB < 0) {
-                nextT = clamp(nextT - 1, -3, 3);
+                nextT = clampSessionScore(nextT - 1, 't');
             }
             if (nextT < 0) {
-                nextB = clamp(nextB - 1, -3, 3);
+                nextB = clampSessionScore(nextB - 1, 'b');
             }
 
             sessionMap[studentName].b = nextB;
