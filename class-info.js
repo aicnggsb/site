@@ -163,6 +163,18 @@
         return Number.isFinite(parsed) ? parsed : defaultValue;
     }
 
+    function sanitizeExportRemark(value) {
+        const cleaned = String(value || '')
+            .replace(/\b(?:CPC|PC|C3D|CMQ|CPREZ)\s*(?:[+＋\-−]|plus|moins)\s*\d*/gi, '')
+            .replace(/\s+([,;:.!?])/g, '$1')
+            .replace(/([,;|/])(?:\s*\1)+/g, '$1')
+            .replace(/^\s*[,;|/.\-]+\s*/, '')
+            .replace(/\s*[,;|/.\-]+\s*$/, '')
+            .replace(/\s{2,}/g, ' ')
+            .trim();
+        return cleaned || 'Aucune remarque.';
+    }
+
     function parseStudentData(row, idxMap) {
         const name = (row[idxMap.nameIdx] || '').trim();
         return {
@@ -1315,9 +1327,9 @@
                 const at1 = student.at1 || 'Appréciation T1 indisponible.';
                 const at2 = student.at2 || 'Appréciation T2 indisponible.';
                 const at3 = student.at3 || 'Appréciation T3 indisponible.';
-                const ct1 = student.ct1 || 'Aucune remarque.';
-                const ct2 = student.ct2 || 'Aucune remarque.';
-                const ct3 = student.ct3 || 'Aucune remarque.';
+                const ct1 = sanitizeExportRemark(student.ct1);
+                const ct2 = sanitizeExportRemark(student.ct2);
+                const ct3 = sanitizeExportRemark(student.ct3);
                 const t1Leds = [buildLed('t1b')(student.t1b), buildLed('t1t')(student.t1t), buildLed('t1a')(student.t1a), buildLed('t1')(student.t1)].join('');
                 const t2Leds = [buildLed('t2b')(student.t2b), buildLed('t2t')(student.t2t), buildLed('t2a')(student.t2a), buildLed('t2')(student.t2)].join('');
                 const t3Leds = [buildLed('t3b')(student.t3b), buildLed('t3t')(student.t3t), buildLed('t3a')(student.t3a), buildLed('t3')(student.t3)].join('');
