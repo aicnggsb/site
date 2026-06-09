@@ -1341,10 +1341,6 @@
                 return values.length ? computeAverage(values) : null;
             };
             const escapeSummaryHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
-            const countEvaluatedStudents = (students, predicate) => {
-                const results = students.map(predicate).filter((result) => result !== null);
-                return results.length ? results.filter(Boolean).length : null;
-            };
             const formatSummaryCount = (value) => value === null ? 'N/A' : value;
             const buildPeriodSummary = (label, prefix) => {
                 const keys = prefix ? [`${prefix}b`, `${prefix}t`, `${prefix}a`] : ['b', 't', 'a'];
@@ -1365,7 +1361,9 @@
                 const studentAssessments = lastClassStudents.map((student) => {
                     const studentGradeAverage = getStudentAverage(student, gradeKeys);
                     const difficultyReasons = [];
-                    const belowAverageReasons = [];
+                    const inactivityReasons = [];
+                    const bValue = toNumericValue(student[bKey]);
+                    const tValue = toNumericValue(student[tKey]);
                     const aValue = toNumericValue(student[aKey]);
                     const cValue = toNumericValue(student.c);
 
@@ -1373,14 +1371,13 @@
                     if (cValue !== null && cValue < 0) difficultyReasons.push(`C négatif (${formatSummaryValue(cValue, '')})`);
                     if (studentGradeAverage !== null && studentGradeAverage < 10) difficultyReasons.push(`moyenne faible (${formatSummaryValue(studentGradeAverage, '/20')})`);
 
-                    if (aValue !== null && indicators.a !== null && aValue < indicators.a) belowAverageReasons.push(`A ${formatSummaryValue(aValue)} < classe ${formatSummaryValue(indicators.a)}`);
-                    if (cValue !== null && indicators.c !== null && cValue < indicators.c) belowAverageReasons.push(`C ${formatSummaryValue(cValue, '')} < classe ${formatSummaryValue(indicators.c, '')}`);
-                    if (studentGradeAverage !== null && gradeAverage !== null && studentGradeAverage < gradeAverage) belowAverageReasons.push(`moyenne ${formatSummaryValue(studentGradeAverage, '/20')} < classe ${formatSummaryValue(gradeAverage, '/20')}`);
+                    if (bValue !== null && bValue < 40) inactivityReasons.push(`B inférieur à 40 % (${formatSummaryValue(bValue)})`);
+                    if (tValue !== null && tValue < 40) inactivityReasons.push(`T inférieur à 40 % (${formatSummaryValue(tValue)})`);
 
                     return {
                         name: student.name || 'Élève sans nom',
                         difficultyReasons,
-                        belowAverageReasons,
+                        inactivityReasons,
                     };
                 });
                 return {
@@ -1388,12 +1385,8 @@
                     ...indicators,
                     overall,
                     gradeAverage,
-                    inactiveAndDisruptive: countEvaluatedStudents(lastClassStudents, (student) => {
-                        if (student[bKey] === null || student[bKey] === undefined || student[tKey] === null || student[tKey] === undefined || !Number.isFinite(Number(student[bKey])) || !Number.isFinite(Number(student[tKey]))) return null;
-                        return Number(student[bKey]) < 40 && Number(student[tKey]) < 40;
-                    }),
+                    inactiveAndDisruptiveStudents: studentAssessments.filter((assessment) => assessment.inactivityReasons.length === 2),
                     strugglingStudents: studentAssessments.filter((assessment) => assessment.difficultyReasons.length),
-                    belowAverageStudents: studentAssessments.filter((assessment) => assessment.belowAverageReasons.length),
                 };
             };
             const classPeriodSummaries = [
@@ -1403,32 +1396,44 @@
             ];
             const yearlySummary = buildPeriodSummary('Année', '');
             const buildEvolution = (label, fromSummary, toSummary) => {
-                if (fromSummary.overall === null || toSummary.overall === null) {
-                    return { label, value: null, direction: 'non calculable', className: 'neutral' };
+                const indicatorLabels = { b: 'B', t: 'T', a: 'A' };
+                const changes = ['b', 't', 'a'].map((key) => ({
+                    label: indicatorLabels[key],
+                    value: fromSummary[key] === null || toSummary[key] === null ? null : toSummary[key] - fromSummary[key],
+                })).filter((change) => change.value !== null);
+                if (!changes.length || fromSummary.overall === null || toSummary.overall === null) {
+                    return { label, statement: 'Évolution non calculable : les indicateurs disponibles sont insuffisants.', className: 'neutral' };
                 }
-                const value = toSummary.overall - fromSummary.overall;
-                if (Math.abs(value) < 0.05) return { label, value: 0, direction: 'stable', className: 'neutral' };
-                return { label, value, direction: value > 0 ? 'progression' : 'recul', className: value > 0 ? 'positive' : 'negative' };
+
+                const overallChange = toSummary.overall - fromSummary.overall;
+                const threshold = 2;
+                const direction = overallChange > threshold ? 'progresse' : overallChange < -threshold ? 'recule' : 'stagne';
+                const className = direction === 'progresse' ? 'positive' : direction === 'recule' ? 'negative' : 'neutral';
+                const rising = changes.filter((change) => change.value > threshold).map((change) => change.label);
+                const falling = changes.filter((change) => change.value < -threshold).map((change) => change.label);
+                const stable = changes.filter((change) => Math.abs(change.value) <= threshold).map((change) => change.label);
+                const reasons = [];
+                if (rising.length) reasons.push(`${rising.join(', ')} ${rising.length > 1 ? 'augmentent' : 'augmente'}`);
+                if (falling.length) reasons.push(`${falling.join(', ')} ${falling.length > 1 ? 'reculent' : 'recule'}`);
+                if (stable.length) reasons.push(`${stable.join(', ')} ${stable.length > 1 ? 'restent stables' : 'reste stable'}`);
+                return { label, statement: `La classe ${direction}, car ${reasons.join(' ; ')}.`, className };
             };
             const classEvolutions = [
                 buildEvolution('T1 → T2', classPeriodSummaries[0], classPeriodSummaries[1]),
                 buildEvolution('T2 → T3', classPeriodSummaries[1], classPeriodSummaries[2]),
                 buildEvolution('Sur l’année (T1 → T3)', classPeriodSummaries[0], classPeriodSummaries[2]),
             ];
-            const evolutionCards = classEvolutions.map((evolution) => {
-                const delta = evolution.value === null ? 'N/A' : `${evolution.value > 0 ? '+' : ''}${formatSummaryValue(evolution.value, ' points')}`;
-                return `<article class="summary-stat evolution ${evolution.className}"><span>${evolution.label}</span><strong>${delta}</strong><small>${evolution.direction}</small></article>`;
-            }).join('');
+            const evolutionCards = classEvolutions.map((evolution) => `<article class="summary-stat evolution ${evolution.className}"><span>${evolution.label}</span><p>${evolution.statement}</p></article>`).join('');
             const allPeriodSummaries = [yearlySummary, ...classPeriodSummaries];
-            const termSummaryRows = allPeriodSummaries.map((term) => `<tr><th scope="row">${term.label}</th><td>${formatSummaryValue(term.b)}</td><td>${formatSummaryValue(term.t)}</td><td>${formatSummaryValue(term.a)}</td><td>${formatSummaryValue(term.c, '')}</td><td>${formatSummaryValue(term.gradeAverage, '/20')}</td><td>${formatSummaryValue(term.overall)}</td><td>${formatSummaryCount(term.inactiveAndDisruptive)}</td><td>${term.strugglingStudents.length}</td></tr>`).join('');
+            const termSummaryRows = allPeriodSummaries.map((term) => `<tr><th scope="row">${term.label}</th><td>${formatSummaryValue(term.b)}</td><td>${formatSummaryValue(term.t)}</td><td>${formatSummaryValue(term.a)}</td><td>${formatSummaryValue(term.c, '')}</td><td>${formatSummaryValue(term.gradeAverage, '/20')}</td><td>${formatSummaryValue(term.overall)}</td><td>${formatSummaryCount(term.inactiveAndDisruptiveStudents.length)}</td><td>${term.strugglingStudents.length}</td></tr>`).join('');
             const buildStudentFlagList = (students, reasonKey, emptyLabel) => students.length
                 ? `<ul>${students.map((student) => `<li><strong>${escapeSummaryHtml(student.name)}</strong><span>${student[reasonKey].map(escapeSummaryHtml).join(' · ')}</span></li>`).join('')}</ul>`
                 : `<p class="empty-summary-list">${emptyLabel}</p>`;
-            const buildDetailedPeriodSummary = (summary, className = '') => `<article class="period-summary-card ${className}"><div class="period-summary-header"><h6>${summary.label}</h6><span>${summary.strugglingStudents.length} en difficulté · ${summary.belowAverageStudents.length} sous au moins une moyenne</span></div><div class="period-summary-columns"><section><h6>Élèves en difficulté</h6>${buildStudentFlagList(summary.strugglingStudents, 'difficultyReasons', 'Aucun élève repéré avec les critères disponibles.')}</section><section><h6>Sous les moyennes de classe</h6>${buildStudentFlagList(summary.belowAverageStudents, 'belowAverageReasons', 'Aucun élève sous les moyennes de classe disponibles.')}</section></div></article>`;
+            const buildDetailedPeriodSummary = (summary, className = '') => `<article class="period-summary-card ${className}"><div class="period-summary-header"><h6>${summary.label}</h6><span>${summary.strugglingStudents.length} en difficulté · ${summary.inactiveAndDisruptiveStudents.length} sans travail / perturbation</span></div><div class="period-summary-columns"><section><h6>Élèves en difficulté</h6>${buildStudentFlagList(summary.strugglingStudents, 'difficultyReasons', 'Aucun élève repéré avec les critères disponibles.')}</section><section><h6>Ne travaillent pas et peuvent perturber</h6>${buildStudentFlagList(summary.inactiveAndDisruptiveStudents, 'inactivityReasons', 'Aucun élève repéré avec B et T inférieurs à 40 %.')}</section></div></article>`;
             const yearlyDetailHtml = buildDetailedPeriodSummary(yearlySummary, 'yearly-period-summary');
             const quarterlyDetailsHtml = classPeriodSummaries.map((summary) => buildDetailedPeriodSummary(summary)).join('');
-            const classSummaryStyles = `<style>.period-summary-list{display:grid;gap:12px;margin-top:12px}.period-summary-card{border:1px solid var(--border);border-radius:12px;background:#fff;padding:12px}.period-summary-card.yearly-period-summary{border:2px solid #2563eb;background:#eff6ff}.period-summary-header{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}.period-summary-header h6,.period-summary-columns h6{margin:0;font-size:14px}.period-summary-header span{font-size:12px;color:#475569}.period-summary-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.period-summary-columns section{border:1px solid var(--border);border-radius:9px;padding:10px;background:#f8fafc}.period-summary-columns ul{margin:8px 0 0;padding-left:20px;display:grid;gap:7px}.period-summary-columns li span{display:block;color:#475569;font-size:12px;margin-top:2px}.empty-summary-list{margin-top:8px;font-size:12px;color:#64748b}@media(max-width:760px){.period-summary-columns{grid-template-columns:1fr}.period-summary-header{align-items:flex-start;flex-direction:column}}</style>`;
-            const classSummaryHtml = `${classSummaryStyles}<section class="class-summary" aria-labelledby="class-summary-title"><div class="class-summary-heading"><h4 id="class-summary-title">Bilan de la classe</h4><p>Un élève est repéré « en difficulté » si son indicateur A est inférieur à 50 %, si C est négatif, ou si sa moyenne scolaire est inférieure à 10/20. Les listes indiquent aussi les élèves dont A, C ou la moyenne scolaire est sous la moyenne de la classe pour la période.</p></div><div class="summary-stat-grid"><article class="summary-stat warning"><span>Ne travaillent pas et peuvent perturber</span><strong>${formatSummaryCount(yearlySummary.inactiveAndDisruptive)}</strong><small>élève${yearlySummary.inactiveAndDisruptive !== 1 ? 's' : ''} sur l’année</small></article><article class="summary-stat difficulty"><span>Élèves en difficulté</span><strong>${yearlySummary.strugglingStudents.length}</strong><small>élève${yearlySummary.strugglingStudents.length !== 1 ? 's' : ''} sur l’année</small></article><article class="summary-stat"><span>Niveau global annuel</span><strong>${formatSummaryValue(yearlySummary.overall)}</strong><small>moyenne B / T / A</small></article></div><h5>Évolution de la classe</h5><div class="summary-stat-grid evolution-grid">${evolutionCards}</div><h5>Synthèse annuelle et trimestrielle</h5><div class="summary-table-wrap"><table class="summary-table"><thead><tr><th>Période</th><th>B</th><th>T</th><th>A</th><th>C</th><th>Moyenne</th><th>Global B/T/A</th><th>Sans travail / perturbation</th><th>En difficulté</th></tr></thead><tbody>${termSummaryRows}</tbody></table></div><h5>Bilan annuel détaillé</h5><div class="period-summary-list">${yearlyDetailHtml}</div><h5>Bilans détaillés par trimestre</h5><div class="period-summary-list">${quarterlyDetailsHtml}</div></section>`;
+            const classSummaryStyles = `<style>.period-summary-list{display:grid;gap:12px;margin-top:12px}.period-summary-card{border:1px solid var(--border);border-radius:12px;background:#fff;padding:12px}.period-summary-card.yearly-period-summary{border:2px solid #2563eb;background:#eff6ff}.period-summary-header{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}.period-summary-header h6,.period-summary-columns h6{margin:0;font-size:14px}.period-summary-header span{font-size:12px;color:#475569}.summary-stat.evolution p{margin:8px 0 0;font-size:13px;line-height:1.45;color:#334155}.period-summary-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.period-summary-columns section{border:1px solid var(--border);border-radius:9px;padding:10px;background:#f8fafc}.period-summary-columns ul{margin:8px 0 0;padding-left:20px;display:grid;gap:7px}.period-summary-columns li span{display:block;color:#475569;font-size:12px;margin-top:2px}.empty-summary-list{margin-top:8px;font-size:12px;color:#64748b}@media(max-width:760px){.period-summary-columns{grid-template-columns:1fr}.period-summary-header{align-items:flex-start;flex-direction:column}}</style>`;
+            const classSummaryHtml = `${classSummaryStyles}<section class="class-summary" aria-labelledby="class-summary-title"><div class="class-summary-heading"><h4 id="class-summary-title">Bilan de la classe</h4><p>Un élève est repéré « en difficulté » si son indicateur A est inférieur à 50 %, si C est négatif, ou si sa moyenne scolaire est inférieure à 10/20. Un élève est repéré « sans travail / perturbation » lorsque ses indicateurs B et T sont tous les deux inférieurs à 40 %. L’avis d’évolution compare la moyenne des indicateurs B, T et A entre deux trimestres : une variation supérieure à 2 est une progression ou un recul ; sinon la classe stagne. La phrase précise quels indicateurs expliquent cet avis.</p></div><div class="summary-stat-grid"><article class="summary-stat warning"><span>Ne travaillent pas et peuvent perturber</span><strong>${formatSummaryCount(yearlySummary.inactiveAndDisruptiveStudents.length)}</strong><small>élève${yearlySummary.inactiveAndDisruptiveStudents.length !== 1 ? 's' : ''} sur l’année</small></article><article class="summary-stat difficulty"><span>Élèves en difficulté</span><strong>${yearlySummary.strugglingStudents.length}</strong><small>élève${yearlySummary.strugglingStudents.length !== 1 ? 's' : ''} sur l’année</small></article><article class="summary-stat"><span>Niveau global annuel</span><strong>${formatSummaryValue(yearlySummary.overall)}</strong><small>moyenne B / T / A</small></article></div><h5>Évolution de la classe</h5><div class="summary-stat-grid evolution-grid">${evolutionCards}</div><h5>Synthèse annuelle et trimestrielle</h5><div class="summary-table-wrap"><table class="summary-table"><thead><tr><th>Période</th><th>B</th><th>T</th><th>A</th><th>C</th><th>Moyenne</th><th>Global B/T/A</th><th>Sans travail / perturbation</th><th>En difficulté</th></tr></thead><tbody>${termSummaryRows}</tbody></table></div><h5>Bilan annuel détaillé</h5><div class="period-summary-list">${yearlyDetailHtml}</div><h5>Bilans détaillés par trimestre</h5><div class="period-summary-list">${quarterlyDetailsHtml}</div></section>`;
             const classBarChart = (() => {
                 const metrics = [
                     { key: 'b', label: 'B', className: 'bar-b' },
