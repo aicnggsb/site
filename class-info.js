@@ -1397,39 +1397,92 @@
             const yearlySummary = buildPeriodSummary('Année', '');
             const buildClassAppreciation = (summary) => {
                 const availableIndicators = [
-                    { key: 'b', label: 'B', value: summary.b },
-                    { key: 't', label: 'T', value: summary.t },
-                    { key: 'a', label: 'A', value: summary.a },
+                    { key: 'b', value: summary.b },
+                    { key: 't', value: summary.t },
+                    { key: 'a', value: summary.a },
                 ].filter((indicator) => indicator.value !== null && indicator.value !== undefined && Number.isFinite(Number(indicator.value)));
 
                 if (!availableIndicators.length) {
-                    return 'Données insuffisantes pour générer une appréciation de classe sur ce trimestre.';
+                    return 'Les éléments disponibles ne permettent pas encore de formuler une appréciation de classe.';
                 }
 
+                const variationIndex = [...summary.label].reduce((total, character) => total + character.charCodeAt(0), 0);
+                const pickVariation = (sentences, offset = 0) => sentences[(variationIndex + offset) % sentences.length];
+                const getIndicatorLevel = (value) => value >= 80 ? 'excellent' : value >= 65 ? 'satisfying' : value >= 50 ? 'fragile' : 'difficult';
+                const getComprehensionLevel = (value) => value >= 1.5 ? 'excellent' : value >= 0.5 ? 'satisfying' : value >= -0.5 ? 'fragile' : 'difficult';
                 const overall = computeAverage(availableIndicators.map((indicator) => Number(indicator.value)));
-                const levelSentence = overall >= 80
-                    ? 'La classe réalise un excellent trimestre.'
-                    : overall >= 65
-                        ? 'La classe réalise un trimestre satisfaisant.'
-                        : overall >= 50
-                            ? 'Le bilan du trimestre reste fragile et doit être consolidé.'
-                            : 'Le trimestre est difficile et nécessite une mobilisation collective.';
+                const overallLevel = getIndicatorLevel(overall);
+                const openingSentences = {
+                    excellent: [
+                        'La classe s’est montrée très investie et a réalisé un trimestre particulièrement convaincant.',
+                        'Le groupe a travaillé avec constance et efficacité tout au long du trimestre.',
+                        'La dynamique collective est très positive et porte pleinement le travail de la classe.',
+                    ],
+                    satisfying: [
+                        'Le trimestre est satisfaisant, avec une classe globalement impliquée dans son travail.',
+                        'La classe affiche une dynamique positive et un engagement régulier.',
+                        'Le groupe avance de manière sérieuse et fournit un travail d’ensemble satisfaisant.',
+                    ],
+                    fragile: [
+                        'Le bilan reste encourageant, mais l’implication de la classe manque encore de régularité.',
+                        'La classe dispose de bases intéressantes qui demandent encore à être consolidées.',
+                        'Le groupe progresse, même si son engagement demeure inégal selon les séances.',
+                    ],
+                    difficult: [
+                        'Le trimestre a été difficile et la classe doit retrouver une dynamique de travail plus constructive.',
+                        'Le groupe doit se mobiliser davantage pour installer des habitudes de travail efficaces.',
+                        'L’investissement collectif reste trop fragile et nécessite une réaction de la classe.',
+                    ],
+                };
+                const indicatorSentences = {
+                    b: {
+                        excellent: ['Le sérieux du groupe est remarquable.', 'Les élèves adoptent une attitude particulièrement sérieuse.', 'Le comportement de la classe favorise pleinement les apprentissages.'],
+                        satisfying: ['Le sérieux des élèves est satisfaisant.', 'La classe adopte dans l’ensemble une attitude sérieuse.', 'Le comportement du groupe contribue à un climat de travail positif.'],
+                        fragile: ['Le sérieux reste irrégulier et doit gagner en constance.', 'L’attitude de la classe est encore inégale selon les séances.', 'Le groupe doit veiller à adopter une posture plus constante.'],
+                        difficult: ['Le manque de sérieux pénalise encore le travail collectif.', 'L’attitude du groupe doit évoluer pour permettre un climat plus propice aux apprentissages.', 'La classe doit rapidement retrouver un comportement plus sérieux.'],
+                    },
+                    t: {
+                        excellent: ['La mise au travail est rapide et soutenue.', 'Les élèves entrent dans les activités avec efficacité.', 'Le groupe se met au travail avec beaucoup de constance.'],
+                        satisfying: ['La mise au travail est généralement efficace.', 'Les élèves s’engagent volontiers dans les activités proposées.', 'L’entrée dans le travail est satisfaisante dans l’ensemble.'],
+                        fragile: ['La mise au travail demeure parfois hésitante.', 'L’engagement dans les activités doit devenir plus régulier.', 'Le groupe gagnerait à entrer plus rapidement dans le travail.'],
+                        difficult: ['La mise au travail est trop laborieuse.', 'Les élèves peinent encore à s’engager durablement dans les activités.', 'L’entrée dans le travail doit devenir une priorité pour le groupe.'],
+                    },
+                    a: {
+                        excellent: ['La classe travaille avec une grande autonomie.', 'Les élèves savent avancer seuls avec assurance.', 'Le groupe fait preuve d’une autonomie très solide.'],
+                        satisfying: ['L’autonomie de la classe est satisfaisante.', 'Les élèves savent généralement avancer seuls dans leur travail.', 'Le groupe fait preuve d’une autonomie appréciable.'],
+                        fragile: ['L’autonomie reste à consolider.', 'Les élèves ont encore besoin d’être davantage guidés.', 'Le groupe gagnerait à prendre plus d’initiatives dans son travail.'],
+                        difficult: ['Le manque d’autonomie freine nettement les apprentissages.', 'La classe dépend encore trop fortement de l’accompagnement du professeur.', 'Les élèves doivent apprendre à avancer plus souvent par eux-mêmes.'],
+                    },
+                };
                 const sortedIndicators = availableIndicators.slice().sort((left, right) => Number(right.value) - Number(left.value));
                 const strongest = sortedIndicators[0];
                 const weakest = sortedIndicators[sortedIndicators.length - 1];
-                const indicatorSentence = strongest.key === weakest.key
-                    ? `L’indicateur ${strongest.label} atteint ${formatSummaryValue(strongest.value)}.`
-                    : `Le point fort est l’indicateur ${strongest.label} (${formatSummaryValue(strongest.value)}), tandis que l’indicateur ${weakest.label} (${formatSummaryValue(weakest.value)}) reste prioritaire.`;
-                const gradeSentence = summary.gradeAverage === null
-                    ? 'La moyenne de classe n’est pas disponible.'
-                    : `La moyenne de classe est de ${formatSummaryValue(summary.gradeAverage, '/20')}.`;
-                const difficultyCount = summary.strugglingStudents.length;
-                const inactiveCount = summary.inactiveAndDisruptiveStudents.length;
-                const attentionSentence = difficultyCount || inactiveCount
-                    ? `${difficultyCount} élève${difficultyCount !== 1 ? 's restent' : ' reste'} repéré${difficultyCount !== 1 ? 's' : ''} en difficulté et ${inactiveCount} élève${inactiveCount !== 1 ? 's cumulent' : ' cumule'} un manque de travail et des perturbations.`
-                    : 'Aucun élève n’est repéré en difficulté ou en manque de travail avec les critères disponibles.';
+                const indicatorSummary = strongest.key === weakest.key
+                    ? pickVariation(indicatorSentences[strongest.key][getIndicatorLevel(strongest.value)], 1)
+                    : [
+                        pickVariation(indicatorSentences[strongest.key][getIndicatorLevel(strongest.value)], 1),
+                        pickVariation(indicatorSentences[weakest.key][getIndicatorLevel(weakest.value)], 2),
+                    ].join(' ');
+                const comprehensionValue = summary.c === null || summary.c === undefined || !Number.isFinite(Number(summary.c)) ? null : Number(summary.c);
+                const comprehensionSentences = comprehensionValue === null
+                    ? ['Le niveau de compréhension du groupe reste à préciser.']
+                    : {
+                        excellent: ['La compréhension des notions étudiées est très solide.', 'Les élèves maîtrisent avec assurance les notions abordées.', 'Le groupe montre une excellente compréhension des apprentissages.'],
+                        satisfying: ['La compréhension des notions étudiées est satisfaisante.', 'Les élèves assimilent correctement les apprentissages abordés.', 'Le groupe montre une bonne compréhension d’ensemble.'],
+                        fragile: ['La compréhension demeure inégale et mérite d’être consolidée.', 'Certaines notions doivent encore être reprises pour stabiliser les acquis.', 'Le groupe comprend l’essentiel, mais les acquis restent parfois fragiles.'],
+                        difficult: ['La compréhension des notions étudiées reste préoccupante.', 'Les apprentissages essentiels doivent être repris et davantage accompagnés.', 'Le groupe rencontre encore des difficultés importantes de compréhension.'],
+                    }[getComprehensionLevel(comprehensionValue)];
+                const hasStrugglingStudents = summary.strugglingStudents.length > 0;
+                const hasInactiveStudents = summary.inactiveAndDisruptiveStudents.length > 0;
+                const attentionSentences = hasStrugglingStudents && hasInactiveStudents
+                    ? ['Une partie du groupe a encore besoin d’un accompagnement attentif, tandis que certains élèves doivent davantage s’engager dans le travail.', 'Plusieurs élèves doivent être accompagnés avec vigilance et l’engagement dans le travail reste à renforcer pour une partie de la classe.']
+                    : hasStrugglingStudents
+                        ? ['Une partie de la classe a encore besoin d’un accompagnement attentif pour progresser.', 'Certains élèves doivent continuer à être soutenus afin de consolider leurs acquis.']
+                        : hasInactiveStudents
+                            ? ['Certains élèves doivent désormais s’engager plus activement dans le travail.', 'Une partie du groupe doit encore adopter une attitude plus constructive face au travail.']
+                            : ['La dynamique actuelle permet à l’ensemble du groupe d’avancer sereinement.', 'Le groupe dispose de conditions favorables pour poursuivre ses progrès.'];
 
-                return `${levelSentence} ${indicatorSentence} ${gradeSentence} ${attentionSentence}`;
+                return `${pickVariation(openingSentences[overallLevel])} ${indicatorSummary} ${pickVariation(comprehensionSentences, 3)} ${pickVariation(attentionSentences, 4)}`;
             };
             const classAppreciationsHtml = classPeriodSummaries.map((summary) => `<article class="class-appreciation-card"><h6>${summary.label}</h6><p>${escapeSummaryHtml(buildClassAppreciation(summary))}</p></article>`).join('');
             const buildEvolution = (label, fromSummary, toSummary) => {
