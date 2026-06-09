@@ -165,7 +165,7 @@
 
     function sanitizeExportRemark(value) {
         const cleaned = String(value || '')
-            .replace(/\b(?:CPC|PC|C3D|CMQ|CPREZ)\s*(?:[+＋\-−]|plus|moins)\s*\d*/gi, '')
+            .replace(/\b(?:CPC|PC|C3D|CMQ|CPREZ|C)\s*(?:[+＋\-−]|plus|moins)\s*\d*/gi, '')
             .replace(/\s+([,;:.!?])/g, '$1')
             .replace(/([,;|/])(?:\s*\1)+/g, '$1')
             .replace(/^\s*[,;|/.\-]+\s*/, '')
@@ -195,6 +195,7 @@
             c3d: parsePercentage(row[idxMap.indicatorC3dIdx]),
             cmq: parsePercentage(row[idxMap.indicatorCmqIdx]),
             cprez: parsePercentage(row[idxMap.indicatorCPrezIdx]),
+            c: parsePercentage(row[idxMap.indicatorCIdx]),
             t1: parsePercentage(row[idxMap.indicatorT1Idx]),
             t2: parsePercentage(row[idxMap.indicatorT2Idx]),
             t3: parsePercentage(row[idxMap.indicatorT3Idx]),
@@ -249,6 +250,7 @@
             c3d: 'C3D',
             cmq: 'CMQ',
             cprez: 'CPREZ',
+            c: 'C',
             t1: 'T1',
             t2: 'T2',
             t3: 'T3',
@@ -257,7 +259,7 @@
         if (['t1', 't2', 't3'].includes(key)) {
             return { maxValue: 20, suffix: '/20', label: labels[key] || key.toUpperCase() };
         }
-        if (['cpc', 'c3d', 'cmq', 'cprez'].includes(key)) {
+        if (['cpc', 'c3d', 'cmq', 'cprez', 'c'].includes(key)) {
             return { minValue: -3, maxValue: 3, suffix: '', label: labels[key] || key.toUpperCase() };
         }
         return { maxValue: 100, suffix: '%', label: labels[key] || key.toUpperCase() };
@@ -854,18 +856,19 @@
         const indicatorC3dIdx = resolveCsvColumnIndex(header, 'c3d', 12);
         const indicatorCmqIdx = resolveCsvColumnIndex(header, 'cmq', 13);
         const indicatorCPrezIdx = resolveCsvColumnIndex(header, 'cprez', 14);
-        const indicatorT1Idx = resolveCsvColumnIndex(header, 't1', 15);
-        const indicatorT2Idx = resolveCsvColumnIndex(header, 't2', 16);
-        const indicatorT3Idx = resolveCsvColumnIndex(header, 't3', 17);
-        const appreciationT1Idx = resolveCsvColumnIndex(header, 'at1', 18);
-        const appreciationT2Idx = resolveCsvColumnIndex(header, 'at2', 19);
-        const appreciationT3Idx = resolveCsvColumnIndex(header, 'at3', 20);
-        const commentT1Idx = resolveCsvColumnIndex(header, 'ct1', 21);
-        const commentT2Idx = resolveCsvColumnIndex(header, 'ct2', 22);
-        const commentT3Idx = resolveCsvColumnIndex(header, 'ct3', 23);
+        const indicatorCIdx = resolveCsvColumnIndex(header, 'c', 15);
+        const indicatorT1Idx = resolveCsvColumnIndex(header, 't1', 16);
+        const indicatorT2Idx = resolveCsvColumnIndex(header, 't2', 17);
+        const indicatorT3Idx = resolveCsvColumnIndex(header, 't3', 18);
+        const appreciationT1Idx = resolveCsvColumnIndex(header, 'at1', 19);
+        const appreciationT2Idx = resolveCsvColumnIndex(header, 'at2', 20);
+        const appreciationT3Idx = resolveCsvColumnIndex(header, 'at3', 21);
+        const commentT1Idx = resolveCsvColumnIndex(header, 'ct1', 22);
+        const commentT2Idx = resolveCsvColumnIndex(header, 'ct2', 23);
+        const commentT3Idx = resolveCsvColumnIndex(header, 'ct3', 24);
 
-        if (classIdx === -1 || nameIdx === -1 || indicatorT1BIdx === -1 || indicatorT1TIdx === -1 || indicatorT1AIdx === -1 || indicatorT2BIdx === -1 || indicatorT2TIdx === -1 || indicatorT2AIdx === -1 || indicatorT3BIdx === -1 || indicatorT3TIdx === -1 || indicatorT3AIdx === -1 || indicatorCpcIdx === -1 || indicatorC3dIdx === -1 || indicatorCmqIdx === -1 || indicatorCPrezIdx === -1 || indicatorT1Idx === -1 || indicatorT2Idx === -1 || indicatorT3Idx === -1 || appreciationT1Idx === -1 || appreciationT2Idx === -1 || appreciationT3Idx === -1 || commentT1Idx === -1 || commentT2Idx === -1 || commentT3Idx === -1) {
-            throw new Error('Colonnes attendues introuvables (classe / nom / T1B/T1T/T1A / T2B/T2T/T2A / T3B/T3T/T3A / CPC / C3D / CMQ / CPREZ / T1 / T2 / T3 / AT1 / AT2 / AT3 / CT1 / CT2 / CT3).');
+        if (classIdx === -1 || nameIdx === -1 || indicatorT1BIdx === -1 || indicatorT1TIdx === -1 || indicatorT1AIdx === -1 || indicatorT2BIdx === -1 || indicatorT2TIdx === -1 || indicatorT2AIdx === -1 || indicatorT3BIdx === -1 || indicatorT3TIdx === -1 || indicatorT3AIdx === -1 || indicatorCpcIdx === -1 || indicatorC3dIdx === -1 || indicatorCmqIdx === -1 || indicatorCPrezIdx === -1 || indicatorCIdx === -1 || indicatorT1Idx === -1 || indicatorT2Idx === -1 || indicatorT3Idx === -1 || appreciationT1Idx === -1 || appreciationT2Idx === -1 || appreciationT3Idx === -1 || commentT1Idx === -1 || commentT2Idx === -1 || commentT3Idx === -1) {
+            throw new Error('Colonnes attendues introuvables (classe / nom / T1B/T1T/T1A / T2B/T2T/T2A / T3B/T3T/T3A / CPC / C3D / CMQ / CPREZ / C / T1 / T2 / T3 / AT1 / AT2 / AT3 / CT1 / CT2 / CT3).');
         }
 
         const normalizedSelectedClass = normalize(selectedClass);
@@ -899,6 +902,7 @@
             indicatorC3dIdx,
             indicatorCmqIdx,
             indicatorCPrezIdx,
+            indicatorCIdx,
             indicatorT1Idx,
             indicatorT2Idx,
             indicatorT3Idx,
@@ -1252,12 +1256,13 @@
                 return Number.isFinite(parsedValue) ? clamp(parsedValue, -3, 3) : null;
             };
 
+            const competencyCount = 5;
             const buildRadarPoint = (value, index, radius = 48) => {
                 const centerX = 100;
                 const centerY = 76;
                 const boundedValue = clampCompetencyValue(value);
                 const ratio = boundedValue === null ? 0 : (boundedValue + 3) / 6;
-                const angle = (-90 + (index * 90)) * (Math.PI / 180);
+                const angle = (-90 + (index * (360 / competencyCount))) * (Math.PI / 180);
                 const pointRadius = ratio * radius;
                 return {
                     x: centerX + (Math.cos(angle) * pointRadius),
@@ -1265,8 +1270,8 @@
                 };
             };
 
-            const buildRadarRingPoints = (ratio) => [0, 1, 2, 3].map((_, index) => {
-                const angle = (-90 + (index * 90)) * (Math.PI / 180);
+            const buildRadarRingPoints = (ratio) => Array.from({ length: competencyCount }, (_, index) => {
+                const angle = (-90 + (index * (360 / competencyCount))) * (Math.PI / 180);
                 const pointRadius = ratio * 48;
                 return `${100 + (Math.cos(angle) * pointRadius)},${76 + (Math.sin(angle) * pointRadius)}`;
             }).join(' ');
@@ -1277,6 +1282,7 @@
                     { key: 'cpc', label: 'CPC', value: clampCompetencyValue(student.cpc) },
                     { key: 'cmq', label: 'CMQ', value: clampCompetencyValue(student.cmq) },
                     { key: 'cprez', label: 'CPRez', value: clampCompetencyValue(student.cprez) },
+                    { key: 'c', label: 'C', value: clampCompetencyValue(student.c) },
                 ];
                 const points = competencies.map((competency, index) => buildRadarPoint(competency.value, index));
                 const polygonPoints = points.map((point) => `${point.x},${point.y}`).join(' ');
@@ -1285,7 +1291,7 @@
                     const displayValue = competency.value === null ? 'N/A' : competency.value;
                     return `<text x="${point.x}" y="${point.y}" class="radar-label">${competency.label} (${displayValue})</text>`;
                 }).join('');
-                const axes = [0, 1, 2, 3].map((_, index) => {
+                const axes = Array.from({ length: competencyCount }, (_, index) => {
                     const point = buildRadarPoint(3, index);
                     return `<line x1="100" y1="76" x2="${point.x}" y2="${point.y}" class="radar-axis"></line>`;
                 }).join('');
@@ -1311,7 +1317,7 @@
             const studentSortDataJson = JSON.stringify(studentSortData).replace(/</g, '\\u003c');
 
             const exportRows = lastClassStudents.map((student) => {
-                const cells = ['t1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 'cpc', 'c3d', 'cmq', 'cprez', 't1', 't2', 't3'].map((key) => {
+                const cells = ['t1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 'cpc', 'c3d', 'cmq', 'cprez', 'c', 't1', 't2', 't3'].map((key) => {
                     const config = getIndicatorDisplayConfig(key);
                     const rawValue = student[key];
                     if (rawValue === null || rawValue === undefined) {
@@ -1344,7 +1350,7 @@
 
                 const competencyRadar = buildCompetencyRadar(student);
 
-                return `<article class="student-card"><h4>${student.name}</h4><div class="student-block"><div class="student-subblock"><table class="inner-table"><thead><tr><th>T1B</th><th>T1T</th><th>T1A</th><th>T2B</th><th>T2T</th><th>T2A</th><th>T3B</th><th>T3T</th><th>T3A</th><th>CPC</th><th>C3D</th><th>CMQ</th><th>CPREZ</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody><tr>${cells}</tr></tbody></table></div><div class="student-content-row"><div class="appreciations-column"><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T1</h5><div class="term-leds">${t1Leds}</div></div><p>${at1}</p><p><em>remarques: ${ct1}</em></p></div><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T2</h5><div class="term-leds">${t2Leds}</div></div><p>${at2}</p><p><em>remarques: ${ct2}</em></p></div><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T3</h5><div class="term-leds">${t3Leds}</div></div><p>${at3}</p><p><em>remarques: ${ct3}</em></p></div></div><div class="student-subblock evolution-subblock"><h5>Évolution <span class="title-b">B</span> / <span class="title-t">T</span> / <span class="title-a">A</span> / <span class="title-avg">moyenne</span></h5><svg viewBox="0 0 200 130" class="evolution-chart" role="img" aria-label="Graphique évolution B T A"><line x1="26" y1="30" x2="26" y2="120" class="axis-line"></line><line x1="26" y1="120" x2="186" y2="120" class="axis-line"></line><line x1="26" y1="30" x2="186" y2="30" class="grid-line"></line><line x1="26" y1="75" x2="186" y2="75" class="grid-line"></line><polyline points="${bPoints}" class="line-b"></polyline><polyline points="${tPoints}" class="line-t"></polyline><polyline points="${aPoints}" class="line-a"></polyline><polyline points="${avgPoints}" class="line-avg"></polyline><text x="20" y="34" class="axis-label">100</text><text x="20" y="79" class="axis-label">50</text><text x="20" y="124" class="axis-label">0</text></svg>${competencyRadar}</div></div></div></article>`;
+                return `<article class="student-card"><h4>${student.name}</h4><div class="student-block"><div class="student-subblock"><table class="inner-table"><thead><tr><th>T1B</th><th>T1T</th><th>T1A</th><th>T2B</th><th>T2T</th><th>T2A</th><th>T3B</th><th>T3T</th><th>T3A</th><th>CPC</th><th>C3D</th><th>CMQ</th><th>CPREZ</th><th>C</th><th>T1</th><th>T2</th><th>T3</th></tr></thead><tbody><tr>${cells}</tr></tbody></table></div><div class="student-content-row"><div class="appreciations-column"><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T1</h5><div class="term-leds">${t1Leds}</div></div><p>${at1}</p><p><em>remarques: ${ct1}</em></p></div><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T2</h5><div class="term-leds">${t2Leds}</div></div><p>${at2}</p><p><em>remarques: ${ct2}</em></p></div><div class="student-subblock"><div class="subblock-title-row"><h5>Appréciation T3</h5><div class="term-leds">${t3Leds}</div></div><p>${at3}</p><p><em>remarques: ${ct3}</em></p></div></div><div class="student-subblock evolution-subblock"><h5>Évolution <span class="title-b">B</span> / <span class="title-t">T</span> / <span class="title-a">A</span> / <span class="title-avg">moyenne</span></h5><svg viewBox="0 0 200 130" class="evolution-chart" role="img" aria-label="Graphique évolution B T A"><line x1="26" y1="30" x2="26" y2="120" class="axis-line"></line><line x1="26" y1="120" x2="186" y2="120" class="axis-line"></line><line x1="26" y1="30" x2="186" y2="30" class="grid-line"></line><line x1="26" y1="75" x2="186" y2="75" class="grid-line"></line><polyline points="${bPoints}" class="line-b"></polyline><polyline points="${tPoints}" class="line-t"></polyline><polyline points="${aPoints}" class="line-a"></polyline><polyline points="${avgPoints}" class="line-avg"></polyline><text x="20" y="34" class="axis-label">100</text><text x="20" y="79" class="axis-label">50</text><text x="20" y="124" class="axis-label">0</text></svg>${competencyRadar}</div></div></div></article>`;
             }).join('');
 
             viewWindow.document.write(`<html><head><title>Export voyants ${selectedClass}</title><style>:root{--bg:#f3f4f6;--panel:#ffffff;--text:#111827;--border:#d1d5db;--header:#111827;--headerText:#f9fafb;--btn:#2563eb}*{box-sizing:border-box}body{font-family:Arial,sans-serif;padding:24px;background:var(--bg);color:var(--text)}.topbar{display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px}.close-btn,.export-action-btn{border:0;border-radius:8px;background:#374151;color:#fff;padding:8px 12px;cursor:pointer;font-weight:600}.export-action-btn{background:var(--btn)}.panel{max-width:1200px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 8px 24px rgba(17,24,39,.08)}h3{margin:0 0 8px 0}p{margin:0;color:#374151;line-height:1.45;white-space:pre-wrap}.student-grid{display:grid;grid-template-columns:1fr;gap:12px}.student-card{border:1px solid var(--border);border-radius:12px;background:#f8fafc;padding:12px}.student-card h4{margin:0 0 10px 0}.student-block{display:grid;gap:10px}.student-content-row{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:10px;align-items:stretch}.appreciations-column{display:grid;gap:10px}.student-subblock{border:1px solid var(--border);border-radius:10px;background:#fff;padding:10px}.student-subblock h5{margin:0 0 8px 0}.subblock-title-row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.term-leds{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.mini-led-wrap{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-size:12px;color:#4b5563}.value-mode{display:none;font-weight:700;color:#111827}.value-pill{border:1px solid var(--border);border-radius:999px;background:#f9fafb;padding:2px 7px;white-space:nowrap}body.values-mode .led-mode{display:none}body.values-mode .value-mode{display:inline-flex}table{border-collapse:collapse;width:100%}th,td{border:1px solid var(--border);padding:8px 10px;text-align:center}th{background:var(--header);color:var(--headerText);text-align:center}.inner-table th,.inner-table td{white-space:nowrap}.led{display:inline-block;width:13px;height:13px;border-radius:999px;background:var(--led-color,#6b7280);box-shadow:0 0 10px var(--led-glow,rgba(107,114,128,.45));margin-right:0;vertical-align:-1px}.led.na{background:#6b7280;box-shadow:0 0 10px rgba(107,114,128,.45)}.evolution-subblock{display:flex;flex-direction:column}.evolution-chart,.radar-chart{width:100%;height:auto}.radar-chart-wrap{border-top:1px solid var(--border);margin-top:10px;padding-top:10px}.radar-chart-wrap h5{margin:0 0 6px 0}.axis-line{stroke:#9ca3af;stroke-width:1}.grid-line{stroke:#e5e7eb;stroke-width:1}.line-b,.line-t,.line-a,.line-avg{fill:none;stroke-width:2.5}.line-b{stroke:#2563eb}.line-t{stroke:#16a34a}.line-a{stroke:#f97316}.line-avg{stroke:#dc2626}.axis-label{font-size:10px;fill:#6b7280;text-anchor:end}.radar-ring{fill:none;stroke:#d1d5db;stroke-width:1}.radar-ring-max{stroke:#9ca3af}.radar-axis{stroke:#e5e7eb;stroke-width:1}.radar-area{fill:rgba(124,58,237,.18);stroke:none}.radar-line{fill:none;stroke:#7c3aed;stroke-width:2.4}.radar-center{fill:#6b7280}.radar-label{font-size:10px;fill:#374151;text-anchor:middle;font-weight:700}.radar-scale{font-size:9px;fill:#6b7280}.title-b{color:#2563eb}.title-t{color:#16a34a}.title-a{color:#f97316}.title-avg{color:#dc2626}.modal-backdrop{position:fixed;inset:0;background:rgba(17,24,39,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:10}.modal-backdrop[hidden]{display:none}.student-list-modal{width:min(720px,100%);max-height:86vh;overflow:auto}.modal-header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}.modal-header h3{margin:0}.sort-controls,.period-controls{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.period-controls{margin-bottom:4px}.sort-controls button,.period-controls button{border:1px solid var(--border);border-radius:999px;background:#fff;padding:7px 12px;cursor:pointer;font-weight:700}.sort-controls button.active,.period-controls button.active{background:var(--header);color:var(--headerText)}.list-context{margin:6px 0 0 0;color:#374151;font-weight:700}.student-list-table td:first-child,.student-list-table th:first-child{text-align:left}</style></head><body><div class="topbar"><button type="button" class="export-action-btn" id="toggle-export-values">Valeurs affichées</button><button type="button" class="export-action-btn" id="open-student-list">Liste des élèves</button><button type="button" class="close-btn" id="close-export-window" onclick="window.close();return false;">Fermer</button></div><div class="panel"><h3>Bilan de la classe ${selectedClass}</h3><div class="student-grid">${exportRows || '<p>Aucun élève chargé.</p>'}</div></div><div class="modal-backdrop" id="student-list-modal" hidden><div class="panel student-list-modal" role="dialog" aria-modal="true" aria-labelledby="student-list-title"><div class="modal-header"><div><h3 id="student-list-title">Liste des élèves - ${selectedClass}</h3><p>Tri décroissant par B, T ou A selon la période choisie.</p><p id="student-list-context" class="list-context">Période : année • tri : B</p></div><button type="button" class="close-btn" id="close-student-list">Fermer</button></div><div class="period-controls" aria-label="Choisir la période"><button type="button" data-period="year" class="active">Année</button><button type="button" data-period="t1">T1</button><button type="button" data-period="t2">T2</button><button type="button" data-period="t3">T3</button></div><div class="sort-controls" aria-label="Trier les élèves"><button type="button" data-sort="b" class="active">B</button><button type="button" data-sort="t">T</button><button type="button" data-sort="a">A</button></div><table class="student-list-table"><thead><tr><th>Élève</th><th>B</th><th>T</th><th>A</th></tr></thead><tbody id="student-list-body"></tbody></table></div></div><script>(function(){const closeBtn=document.getElementById('close-export-window');if(closeBtn){closeBtn.addEventListener('click',()=>{window.close();if(!window.closed){window.open('','_self');window.close();}});}const toggleBtn=document.getElementById('toggle-export-values');if(toggleBtn){toggleBtn.addEventListener('click',()=>{const isValues=document.body.classList.toggle('values-mode');toggleBtn.textContent=isValues?'Voyants LED':'Valeurs affichées';});}const students=${studentSortDataJson};const periods={year:{label:'Année',keys:{b:'b',t:'t',a:'a'}},t1:{label:'T1',keys:{b:'t1b',t:'t1t',a:'t1a'}},t2:{label:'T2',keys:{b:'t2b',t:'t2t',a:'t2a'}},t3:{label:'T3',keys:{b:'t3b',t:'t3t',a:'t3a'}}};let activeSort='b';let activePeriod='year';const modal=document.getElementById('student-list-modal');const listBody=document.getElementById('student-list-body');const context=document.getElementById('student-list-context');const formatValue=(value)=>{const numericValue=Number(value);if(!Number.isFinite(numericValue))return 'N/A';const rounded=Math.round(numericValue*10)/10;return rounded+'%';};const escapeHtml=(value)=>String(value).replace(/[&<>"']/g,(char)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));const getPeriodValue=(student,periodKey,metricKey)=>{const period=periods[periodKey]||periods.year;return student[period.keys[metricKey]];};const renderList=(sortKey=activeSort,periodKey=activePeriod)=>{if(!listBody)return;activeSort=sortKey;activePeriod=periods[periodKey]?periodKey:'year';const period=periods[activePeriod];const sorted=[...students].sort((lhs,rhs)=>{const left=Number.isFinite(Number(getPeriodValue(lhs,activePeriod,activeSort)))?Number(getPeriodValue(lhs,activePeriod,activeSort)):-Infinity;const right=Number.isFinite(Number(getPeriodValue(rhs,activePeriod,activeSort)))?Number(getPeriodValue(rhs,activePeriod,activeSort)):-Infinity;return right-left||String(lhs.name).localeCompare(String(rhs.name),'fr');});listBody.innerHTML=sorted.map((student)=>'<tr><td>'+escapeHtml(student.name)+'</td><td>'+formatValue(getPeriodValue(student,activePeriod,'b'))+'</td><td>'+formatValue(getPeriodValue(student,activePeriod,'t'))+'</td><td>'+formatValue(getPeriodValue(student,activePeriod,'a'))+'</td></tr>').join('')||'<tr><td colspan="4">Aucun élève chargé.</td></tr>';document.querySelectorAll('[data-sort]').forEach((button)=>button.classList.toggle('active',button.dataset.sort===activeSort));document.querySelectorAll('[data-period]').forEach((button)=>button.classList.toggle('active',button.dataset.period===activePeriod));if(context){context.textContent='Période : '+period.label+' • tri : '+activeSort.toUpperCase();}};const openListBtn=document.getElementById('open-student-list');if(openListBtn&&modal){openListBtn.addEventListener('click',()=>{renderList(activeSort,activePeriod);modal.hidden=false;});}const closeListBtn=document.getElementById('close-student-list');if(closeListBtn&&modal){closeListBtn.addEventListener('click',()=>{modal.hidden=true;});modal.addEventListener('click',(event)=>{if(event.target===modal)modal.hidden=true;});}document.querySelectorAll('[data-sort]').forEach((button)=>button.addEventListener('click',()=>renderList(button.dataset.sort,activePeriod)));document.querySelectorAll('[data-period]').forEach((button)=>button.addEventListener('click',()=>renderList(activeSort,button.dataset.period)));})();<\/script></body></html>`);
