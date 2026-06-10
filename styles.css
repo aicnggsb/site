@@ -2064,6 +2064,12 @@ svg.axe { display: block; margin: 0.5em 0; }
 
 .class-info-actions {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     gap: 8px;
     margin-left: auto;
+}
+
+.class-info-actions .generate-teams-button {
+    margin-left: 0;
 }
