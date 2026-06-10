@@ -9,18 +9,18 @@
             { label: 'EMC', aliases: ['emc', 'enseignement moral et civique'] },
             { label: 'ANG', aliases: ['ang', 'anglais'] },
             { label: 'ESP', aliases: ['esp', 'espagnol'] },
-            { label: 'Latin', aliases: ['latin'] }
+            { label: 'Latin', aliases: ['latin'], hideWhenMissing: true }
         ] },
         { label: 'Matières scientifiques', color: '#0284c7', subjects: [
             { label: 'Maths', aliases: ['maths', 'math', 'mathematiques', 'mathématiques'] },
-            { label: 'Physique', aliases: ['physique', 'physique chimie', 'physique-chimie'] },
+            { label: 'Physique', aliases: ['pc', 'physique', 'physique chimie', 'physique-chimie'] },
             { label: 'SVT', aliases: ['svt', 'sciences de la vie et de la terre'] },
             { label: 'Techno', aliases: ['techno', 'technologie'] }
         ] },
         { label: 'Autres matières', color: '#ea580c', subjects: [
             { label: 'Musique', aliases: ['musique', 'education musicale', 'éducation musicale'] },
             { label: 'EPS', aliases: ['eps', 'education physique et sportive', 'éducation physique et sportive'] },
-            { label: 'Arts plast.', aliases: ['art plast', 'arts plast', 'arts plastiques', 'art plastique'] }
+            { label: 'Arts plast.', aliases: ['arts pl', 'art plast', 'arts plast', 'arts plastiques', 'art plastique'] }
         ] }
     ];
 
@@ -111,13 +111,11 @@
     }
 
     function getRadarIndicators(term, row) {
-        return SUBJECT_GROUPS.flatMap((group) => group.subjects.map((subject) => {
+        return SUBJECT_GROUPS.flatMap((group) => group.subjects.flatMap((subject) => {
             const column = findSubjectColumn(term, subject.aliases);
-            return {
-                label: subject.label,
-                color: group.color,
-                value: column ? parseGrade(row[column.index]) : null
-            };
+            const value = column ? parseGrade(row[column.index]) : null;
+            if (subject.hideWhenMissing && value === null) return [];
+            return [{ label: subject.label, color: group.color, value }];
         }));
     }
 
@@ -180,9 +178,7 @@
                     && !column.normalized.includes('rang'))
                 .map((column) => ({ label: column.label.replace(new RegExp(`^T${number}\\s+`, 'i'), ''), index: column.index }));
             return { number, averageIndex, rankIndex, subjects };
-        }).filter((term) => term.averageIndex !== -1 || term.subjects.length);
-
-        if (!terms.length) throw new Error('Aucune colonne trimestrielle T1, T2 ou T3 n’a été trouvée.');
+        });
 
         const normalizedClass = normalize(selectedClass);
         const allStudents = parsedRows.filter((row) => String(row[nameIndex] || '').trim());
@@ -194,8 +190,10 @@
     }
 
     function buildReportHtml(report, selectedClass) {
-        const latestTerm = report.terms[report.terms.length - 1];
-        const latestAverages = report.rows.map((row) => parseGrade(row[latestTerm.averageIndex])).filter((value) => value !== null);
+        const latestTerm = [...report.terms].reverse().find((term) => term.averageIndex !== -1 || term.subjects.length);
+        const latestAverages = latestTerm && latestTerm.averageIndex !== -1
+            ? report.rows.map((row) => parseGrade(row[latestTerm.averageIndex])).filter((value) => value !== null)
+            : [];
         const classAverage = latestAverages.length
             ? latestAverages.reduce((sum, value) => sum + value, 0) / latestAverages.length
             : null;
