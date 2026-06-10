@@ -2,6 +2,27 @@
     const PP_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRgz3Y15bbDovMG-vtfT0rBMeR-BDMfSRZsj_m3vlzsbGybW6xe5qWEfzB7fFCQyHmf9qJ7lMsDIUY6/pub?gid=1467143461&single=true&output=csv';
     const followupButton = document.getElementById('pp-followup-button');
     const classFilterElement = document.getElementById('progression-class-filter');
+    const SUBJECT_GROUPS = [
+        { label: 'Matières littéraires', color: '#7c3aed', subjects: [
+            { label: 'FR', aliases: ['fr', 'francais', 'français'] },
+            { label: 'HG', aliases: ['hg', 'histoire geo', 'histoire-geographie', 'histoire géographie'] },
+            { label: 'EMC', aliases: ['emc', 'enseignement moral et civique'] },
+            { label: 'ANG', aliases: ['ang', 'anglais'] },
+            { label: 'ESP', aliases: ['esp', 'espagnol'] },
+            { label: 'Latin', aliases: ['latin'] }
+        ] },
+        { label: 'Matières scientifiques', color: '#0284c7', subjects: [
+            { label: 'Maths', aliases: ['maths', 'math', 'mathematiques', 'mathématiques'] },
+            { label: 'Physique', aliases: ['physique', 'physique chimie', 'physique-chimie'] },
+            { label: 'SVT', aliases: ['svt', 'sciences de la vie et de la terre'] },
+            { label: 'Techno', aliases: ['techno', 'technologie'] }
+        ] },
+        { label: 'Autres matières', color: '#ea580c', subjects: [
+            { label: 'Musique', aliases: ['musique', 'education musicale', 'éducation musicale'] },
+            { label: 'EPS', aliases: ['eps', 'education physique et sportive', 'éducation physique et sportive'] },
+            { label: 'Arts plast.', aliases: ['art plast', 'arts plast', 'arts plastiques', 'art plastique'] }
+        ] }
+    ];
 
     if (!followupButton) return;
 
@@ -81,6 +102,61 @@
         return `hsl(${hue} 78% 42%)`;
     }
 
+    function findSubjectColumn(term, aliases) {
+        const normalizedAliases = aliases.map(normalize);
+        return term.subjects.find((subject) => {
+            const normalizedLabel = normalize(subject.label);
+            return normalizedAliases.some((alias) => normalizedLabel === alias || normalizedLabel.includes(alias));
+        });
+    }
+
+    function getRadarIndicators(term, row) {
+        return SUBJECT_GROUPS.flatMap((group) => group.subjects.map((subject) => {
+            const column = findSubjectColumn(term, subject.aliases);
+            return {
+                label: subject.label,
+                color: group.color,
+                value: column ? parseGrade(row[column.index]) : null
+            };
+        }));
+    }
+
+    function getRadarPoint(index, total, radius, centerX, centerY) {
+        const angle = ((Math.PI * 2 * index) / total) - (Math.PI / 2);
+        return {
+            x: centerX + (Math.cos(angle) * radius),
+            y: centerY + (Math.sin(angle) * radius),
+            angle
+        };
+    }
+
+    function buildRadarSvg(term, row, studentName) {
+        const indicators = getRadarIndicators(term, row);
+        const centerX = 300;
+        const centerY = 250;
+        const radius = 168;
+        const rings = [5, 10, 15, 20].map((value) => {
+            const points = indicators.map((_, index) => getRadarPoint(index, indicators.length, radius * (value / 20), centerX, centerY));
+            return `<polygon points="${points.map((point) => `${point.x},${point.y}`).join(' ')}" class="radar-ring"></polygon><text x="${centerX + 5}" y="${centerY - (radius * (value / 20)) + 12}" class="radar-scale">${value}</text>`;
+        }).join('');
+        const axes = indicators.map((indicator, index) => {
+            const end = getRadarPoint(index, indicators.length, radius, centerX, centerY);
+            const labelPoint = getRadarPoint(index, indicators.length, radius + 34, centerX, centerY);
+            const anchor = Math.abs(Math.cos(end.angle)) < 0.15 ? 'middle' : (Math.cos(end.angle) > 0 ? 'start' : 'end');
+            return `<line x1="${centerX}" y1="${centerY}" x2="${end.x}" y2="${end.y}" class="radar-axis" style="--axis-color:${indicator.color}"></line><text x="${labelPoint.x}" y="${labelPoint.y}" text-anchor="${anchor}" class="radar-label" style="--axis-color:${indicator.color}">${escapeHtml(indicator.label)}</text>`;
+        }).join('');
+        const valuePoints = indicators.map((indicator, index) => getRadarPoint(index, indicators.length, radius * ((indicator.value ?? 0) / 20), centerX, centerY));
+        const polygon = `<polygon points="${valuePoints.map((point) => `${point.x},${point.y}`).join(' ')}" class="radar-area"></polygon><polyline points="${valuePoints.concat(valuePoints[0]).map((point) => `${point.x},${point.y}`).join(' ')}" class="radar-line"></polyline>`;
+        const dots = indicators.map((indicator, index) => {
+            const point = valuePoints[index];
+            const value = indicator.value === null ? 'N/A' : formatGrade(indicator.value);
+            return `<circle cx="${point.x}" cy="${point.y}" r="4" class="radar-dot" style="--dot-color:${indicator.color}"><title>${escapeHtml(indicator.label)} : ${value}</title></circle>`;
+        }).join('');
+        const legend = SUBJECT_GROUPS.map((group) => `<span><i style="--legend-color:${group.color}"></i>${escapeHtml(group.label)}</span>`).join('');
+        const missingCount = indicators.filter((indicator) => indicator.value === null).length;
+        return `<div class="radar-wrap"><svg viewBox="0 0 600 500" class="average-radar" role="img" aria-label="Radar des moyennes de ${escapeHtml(studentName)}, trimestre ${term.number}">${rings}${axes}${polygon}${dots}</svg><div class="radar-legend">${legend}</div>${missingCount ? `<p class="radar-note">${missingCount} matière${missingCount > 1 ? 's' : ''} sans moyenne affichée${missingCount > 1 ? 's' : ''} au centre.</p>` : ''}</div>`;
+    }
+
     function getReportData(csvText, selectedClass) {
         const parsedRows = parseCSV(csvText).filter((row) => row.some((cell) => String(cell || '').trim()));
         if (parsedRows.length < 2) throw new Error('Le CSV de suivi PP ne contient aucun élève.');
@@ -128,19 +204,14 @@
             const termsHtml = report.terms.map((term) => {
                 const average = term.averageIndex === -1 ? null : row[term.averageIndex];
                 const rank = term.rankIndex === -1 ? '' : String(row[term.rankIndex] || '').trim();
-                const subjectRows = term.subjects.map((subject) => {
-                    const value = row[subject.index];
-                    const grade = parseGrade(value);
-                    const width = grade === null ? 0 : Math.max(0, Math.min(100, grade * 5));
-                    return `<tr><th scope="row">${escapeHtml(subject.label)}</th><td><span class="grade">${formatGrade(value)}</span><span class="grade-bar"><i style="width:${width}%;--grade-color:${getGradeColor(value)}"></i></span></td></tr>`;
-                }).join('');
-                return `<section class="term-card"><div class="term-header"><h3>Trimestre ${term.number}</h3><div class="term-summary"><strong style="--grade-color:${getGradeColor(average)}">${formatGrade(average)}</strong>${rank ? `<span>Rang : ${escapeHtml(rank)}</span>` : ''}</div></div><table><tbody>${subjectRows || '<tr><td>Aucune moyenne par matière.</td></tr>'}</tbody></table></section>`;
+                const radar = buildRadarSvg(term, row, row[report.nameIndex]);
+                return `<section class="term-card"><div class="term-header"><h3>Trimestre ${term.number}</h3><div class="term-summary"><strong style="--grade-color:${getGradeColor(average)}">${formatGrade(average)}</strong>${rank ? `<span>Rang : ${escapeHtml(rank)}</span>` : ''}</div></div>${radar}</section>`;
             }).join('');
             return `<article class="student-card"><h2>${escapeHtml(row[report.nameIndex])}</h2><div class="terms-grid">${termsHtml}</div></article>`;
         }).join('');
 
         return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Suivi PP - ${escapeHtml(selectedClass)}</title><style>
-            :root{--bg:#eef2f7;--panel:#fff;--text:#172033;--muted:#64748b;--border:#dbe3ee;--accent:#2563eb}*{box-sizing:border-box}body{margin:0;padding:24px;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}.topbar{max-width:1400px;margin:0 auto 18px;display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.topbar h1{margin:0 0 5px}.topbar p{margin:0;color:var(--muted)}button{border:0;border-radius:9px;background:#334155;color:#fff;padding:9px 14px;font-weight:700;cursor:pointer}.class-summary{max-width:1400px;margin:0 auto 18px;padding:14px 18px;border-radius:14px;background:linear-gradient(135deg,#1d4ed8,#4f46e5);color:#fff;display:flex;gap:24px;flex-wrap:wrap}.class-summary strong{font-size:1.45rem}.students{max-width:1400px;margin:auto;display:grid;gap:18px}.student-card{break-inside:avoid;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:0 8px 24px rgba(15,23,42,.07)}.student-card>h2{margin:0 0 14px;font-size:1.25rem}.terms-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}.term-card{border:1px solid var(--border);border-radius:12px;overflow:hidden}.term-header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;background:#f8fafc}.term-header h3{margin:0;font-size:1rem}.term-summary{display:flex;align-items:center;gap:10px;color:var(--muted)}.term-summary strong{color:var(--grade-color);font-size:1.15rem}table{width:100%;border-collapse:collapse}th,td{padding:8px 12px;border-top:1px solid var(--border);font-size:.92rem}th{text-align:left;width:34%}td{display:flex;align-items:center;gap:10px}.grade{width:62px;font-weight:700}.grade-bar{height:8px;flex:1;border-radius:999px;background:#e2e8f0;overflow:hidden}.grade-bar i{display:block;height:100%;border-radius:inherit;background:var(--grade-color)}.error{max-width:720px;margin:80px auto;background:#fff;border:1px solid #fecaca;border-radius:14px;padding:22px;color:#991b1b}@media print{body{padding:0;background:#fff}.topbar button{display:none}.student-card{box-shadow:none;page-break-inside:avoid}.class-summary{background:#fff;color:#172033;border:1px solid var(--border)}}@media(max-width:650px){body{padding:12px}.topbar{display:block}.topbar button{margin-top:12px}.terms-grid{grid-template-columns:1fr}td{display:table-cell}.grade-bar{display:none}}
+            :root{--bg:#eef2f7;--panel:#fff;--text:#172033;--muted:#64748b;--border:#dbe3ee;--accent:#2563eb}*{box-sizing:border-box}body{margin:0;padding:24px;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}.topbar{max-width:1400px;margin:0 auto 18px;display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.topbar h1{margin:0 0 5px}.topbar p{margin:0;color:var(--muted)}button{border:0;border-radius:9px;background:#334155;color:#fff;padding:9px 14px;font-weight:700;cursor:pointer}.class-summary{max-width:1400px;margin:0 auto 18px;padding:14px 18px;border-radius:14px;background:linear-gradient(135deg,#1d4ed8,#4f46e5);color:#fff;display:flex;gap:24px;flex-wrap:wrap}.class-summary strong{font-size:1.45rem}.students{max-width:1400px;margin:auto;display:grid;gap:18px}.student-card{break-inside:avoid;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:0 8px 24px rgba(15,23,42,.07)}.student-card>h2{margin:0 0 14px;font-size:1.25rem}.terms-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}.term-card{border:1px solid var(--border);border-radius:12px;overflow:hidden}.term-header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;background:#f8fafc}.term-header h3{margin:0;font-size:1rem}.term-summary{display:flex;align-items:center;gap:10px;color:var(--muted)}.term-summary strong{color:var(--grade-color);font-size:1.15rem}.radar-wrap{padding:10px 12px 14px}.average-radar{display:block;width:100%;height:auto;max-height:430px}.radar-ring{fill:none;stroke:#dbe3ee;stroke-width:1}.radar-axis{stroke:var(--axis-color);stroke-width:1;stroke-opacity:.35}.radar-area{fill:rgba(37,99,235,.18);stroke:none}.radar-line{fill:none;stroke:#2563eb;stroke-width:2.5;stroke-linejoin:round}.radar-dot{fill:var(--dot-color);stroke:#fff;stroke-width:2}.radar-label{fill:var(--axis-color);font-size:12px;font-weight:700}.radar-scale{fill:#94a3b8;font-size:10px}.radar-legend{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:.78rem;font-weight:700}.radar-legend span{display:inline-flex;align-items:center;gap:5px}.radar-legend i{width:9px;height:9px;border-radius:50%;background:var(--legend-color)}.radar-note{margin:8px 0 0;text-align:center;color:var(--muted);font-size:.75rem}.error{max-width:720px;margin:80px auto;background:#fff;border:1px solid #fecaca;border-radius:14px;padding:22px;color:#991b1b}@media print{body{padding:0;background:#fff}.topbar button{display:none}.student-card{box-shadow:none;page-break-inside:avoid}.class-summary{background:#fff;color:#172033;border:1px solid var(--border)}}@media(max-width:650px){body{padding:12px}.topbar{display:block}.topbar button{margin-top:12px}.terms-grid{grid-template-columns:1fr}.radar-label{font-size:11px}}
         </style></head><body><header class="topbar"><div><h1>Suivi PP · ${escapeHtml(selectedClass)}</h1><p>Bilan élève par élève à partir des trimestres disponibles dans le CSV.</p></div><button type="button" onclick="window.print()">Imprimer / PDF</button></header><section class="class-summary"><span><strong>${report.rows.length}</strong><br>élèves</span><span><strong>${latestTerm ? `T${latestTerm.number}` : '—'}</strong><br>dernier trimestre disponible</span><span><strong>${classAverage === null ? 'N/A' : formatGrade(classAverage)}</strong><br>moyenne de classe</span></section><main class="students">${studentCards}</main></body></html>`;
     }
 
