@@ -55,6 +55,7 @@
     const classInfoExportButton = document.getElementById('class-info-export-button');
     const TEAMS_COOKIE_PREFIX = 'savedTeams_';
     const SESSION_SCORES_COOKIE_PREFIX = 'sessionScores_';
+    const STORAGE_PREFIX = 'classInfo_';
     const SESSION_SCORE_MIN = -3;
     const SESSION_SCORE_MAX = 3;
 
@@ -599,7 +600,7 @@
     }
 
     function getSessionScoresMap() {
-        const raw = getCookie(getSessionScoresCookieName());
+        const raw = getStoredValue(getSessionScoresCookieName());
         if (!raw) {
             return {};
         }
@@ -612,7 +613,7 @@
     }
 
     function saveSessionScoresMap(sessionMap) {
-        setCookie(getSessionScoresCookieName(), JSON.stringify(sessionMap), 30);
+        setStoredValue(getSessionScoresCookieName(), JSON.stringify(sessionMap));
     }
 
     function updateSessionScore(studentName, indicator, delta) {
@@ -751,11 +752,6 @@
         updateTeamStatusMessage();
     }
 
-    function setCookie(name, value, days = 30) {
-        const expires = new Date(Date.now() + (days * 24 * 60 * 60 * 1000)).toUTCString();
-        document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
-    }
-
     function deleteCookie(name) {
         document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
     }
@@ -774,6 +770,56 @@
             return null;
         }
     }
+
+    function getStoredValue(name) {
+        try {
+            const storedValue = localStorage.getItem(`${STORAGE_PREFIX}${name}`);
+            if (storedValue !== null) {
+                deleteCookie(name);
+                return storedValue;
+            }
+        } catch (error) {
+            console.warn(`Stockage local indisponible pour ${name}.`, error);
+        }
+
+        const legacyCookieValue = getCookie(name);
+        if (legacyCookieValue !== null) {
+            setStoredValue(name, legacyCookieValue);
+        }
+        return legacyCookieValue;
+    }
+
+    function setStoredValue(name, value) {
+        try {
+            localStorage.setItem(`${STORAGE_PREFIX}${name}`, value);
+            deleteCookie(name);
+            return true;
+        } catch (error) {
+            console.warn(`Impossible de sauvegarder ${name} dans le stockage local.`, error);
+            return false;
+        }
+    }
+
+    function deleteStoredValue(name) {
+        try {
+            localStorage.removeItem(`${STORAGE_PREFIX}${name}`);
+        } catch (error) {
+            console.warn(`Impossible de supprimer ${name} du stockage local.`, error);
+        }
+        deleteCookie(name);
+    }
+
+    function migrateLargeCookiesToLocalStorage() {
+        document.cookie.split('; ').forEach((entry) => {
+            const separatorIndex = entry.indexOf('=');
+            const name = separatorIndex === -1 ? entry : entry.slice(0, separatorIndex);
+            if (name.startsWith(TEAMS_COOKIE_PREFIX) || name.startsWith(SESSION_SCORES_COOKIE_PREFIX)) {
+                getStoredValue(name);
+            }
+        });
+    }
+
+    migrateLargeCookiesToLocalStorage();
 
 
     function clamp(value, min, max) {
@@ -996,7 +1042,7 @@
             teamsPopupStatusElement.textContent = 'Aucune classe sélectionnée.';
             return false;
         }
-        const raw = getCookie(`${TEAMS_COOKIE_PREFIX}${className.toUpperCase()}`);
+        const raw = getStoredValue(`${TEAMS_COOKIE_PREFIX}${className.toUpperCase()}`);
         if (!raw) {
             return false;
         }
@@ -1013,7 +1059,7 @@
             return true;
         } catch (error) {
             teamsPopupStatusElement.textContent = 'Sauvegarde invalide.';
-            deleteCookie(`${TEAMS_COOKIE_PREFIX}${className.toUpperCase()}`);
+            deleteStoredValue(`${TEAMS_COOKIE_PREFIX}${className.toUpperCase()}`);
             return false;
         }
     }
@@ -1045,7 +1091,7 @@
                     return;
                 }
                 const payload = currentTeams.map((team) => team.map((student) => student.name));
-                setCookie(`${TEAMS_COOKIE_PREFIX}${className.toUpperCase()}`, JSON.stringify(payload));
+                setStoredValue(`${TEAMS_COOKIE_PREFIX}${className.toUpperCase()}`, JSON.stringify(payload));
                 teamsPopupStatusElement.textContent = 'Équipes sauvegardées.';
             });
         }
