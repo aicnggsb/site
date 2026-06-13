@@ -698,11 +698,14 @@
     }
 
     function populateClassFilter() {
+        const selectableClasses = ['3E1', '3E2', '3E3', '3E4', '3E5', '4E1', '4E2', '4E3', '4E4', '4E5', '5E1', '5E2', '5E3', '5E4', '5E5'];
         const classes = Array.from(
             new Set(
-                allRows
-                    .map((row) => (row[classIdx] || '').trim())
-                    .filter(Boolean)
+                selectableClasses.concat(
+                    allRows
+                        .map((row) => (row[classIdx] || '').trim())
+                        .filter(Boolean)
+                )
             )
         ).sort((a, b) => a.localeCompare(b));
 
