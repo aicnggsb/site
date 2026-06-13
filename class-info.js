@@ -166,9 +166,10 @@
 
     function sanitizeExportRemark(value) {
         const cleaned = String(value || '')
-            .replace(/\b(?:CPC|PC|C3D|CMQ|CPREZ|C)\s*(?:[+＋\-−]|plus|moins)\s*\d*/gi, '')
+            .replace(/\b(?:CPC|PC|C3D|3D|CMQ|MQ|CPREZ|C)\s*(?:(?:[+＋\-−]\s*)+|plus|moins)\s*\d*/gi, '')
             .replace(/\s+([,;:.!?])/g, '$1')
             .replace(/([,;|/])(?:\s*\1)+/g, '$1')
+            .replace(/(?:\s*[,;|/]\s*){2,}/g, '; ')
             .replace(/^\s*[,;|/.\-]+\s*/, '')
             .replace(/\s*[,;|/.\-]+\s*$/, '')
             .replace(/\s{2,}/g, ' ')
