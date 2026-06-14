@@ -494,10 +494,12 @@
                 studentActions.appendChild(studentEvalButton);
                 const quickActions = [
                     { label: 'B-', payload: { bDelta: -1 }, indicator: 'b' },
+                    { label: 'B+', payload: { bDelta: 1 }, indicator: 'b' },
                     { label: 'T-', payload: { tDelta: -1 }, indicator: 't' },
                     { label: 'T+', payload: { tDelta: 1 }, indicator: 't' },
                     { label: 'C-', payload: { commentOnly: true }, comment: 'C-' },
                     { label: 'A-', payload: { aDelta: -1 }, indicator: 'a' },
+                    { label: 'A+', payload: { aDelta: 1 }, indicator: 'a' },
                 ];
                 const sessionScore = getSessionScoresMap()[student.name] || {};
                 quickActions.forEach((action) => {
@@ -508,7 +510,7 @@
                     button.title = `${action.label} sur ${student.name}`;
                     if (action.indicator) {
                         const score = normalizeSessionScore(numberOrDefault(sessionScore[action.indicator], 3));
-                        button.dataset.sessionScore = String(score);
+                        button.dataset.sessionScore = String(clamp(score, SESSION_SCORE_MIN, SESSION_SCORE_MAX));
                     }
                     button.addEventListener('click', () => {
                         applySessionEvaluation([student.name], action.payload, action.comment || '');
@@ -719,11 +721,8 @@
         let tentativeB = normalizeSessionScore(baseB + bDelta);
         let tentativeT = normalizeSessionScore(baseT + tDelta);
         const tentativeA = normalizeSessionScore(baseA + aDelta);
-        if (tentativeB < 0) {
+        if (bDelta < 0 && baseB < 0) {
             tentativeT = normalizeSessionScore(tentativeT - 1);
-        }
-        if (tentativeT < 0) {
-            tentativeB = normalizeSessionScore(tentativeB - 1);
         }
         if (pendingEvaluation && pendingEvaluation.markAbsent) {
             [evalSessionLedB, evalSessionLedT, evalSessionLedA].forEach((indicatorElement) => {
@@ -1215,11 +1214,8 @@
             let nextT = normalizeSessionScore(currentT + numberOrDefault(evaluation.tDelta, 0));
             const nextA = normalizeSessionScore(currentA + numberOrDefault(evaluation.aDelta, 0));
 
-            if (nextB < 0) {
+            if (numberOrDefault(evaluation.bDelta, 0) < 0 && currentB < 0) {
                 nextT = normalizeSessionScore(nextT - 1);
-            }
-            if (nextT < 0) {
-                nextB = normalizeSessionScore(nextB - 1);
             }
 
             sessionMap[studentName].b = nextB;
