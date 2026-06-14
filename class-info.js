@@ -33,6 +33,7 @@
     const saveTeamsButton = document.getElementById('save-teams-button');
     const loadTeamsButton = document.getElementById('load-teams-button');
     const regenerateTeamsButton = document.getElementById('regenerate-teams-button');
+    const toggleBtaGradientsButton = document.getElementById('toggle-bta-gradients-button');
     const classEvalButton = document.getElementById('class-eval-button');
     const exportBminusCsvButton = document.getElementById('export-bminus-csv-button');
     const evalPopupElement = document.getElementById('eval-popup');
@@ -58,6 +59,7 @@
     const STORAGE_PREFIX = 'classInfo_';
     const SESSION_SCORE_MIN = -3;
     const SESSION_SCORE_MAX = 3;
+    const BTA_GRADIENTS_STORAGE_KEY = 'btaIndicatorGradientsEnabled';
 
 
     let lastClassStudents = [];
@@ -66,6 +68,7 @@
     let hasSelectedSession = false;
     let selectedSessionKey = '';
     let selectedSessionLabel = '';
+    let btaGradientsEnabled = localStorage.getItem(BTA_GRADIENTS_STORAGE_KEY) !== 'false';
 
     if (!classNameElement || !studentsCountElement || !indicatorT1BElement || !indicatorT1TElement || !indicatorT1AElement || !indicatorT2BElement || !indicatorT2TElement || !indicatorT2AElement || !indicatorT3BElement || !indicatorT3TElement || !indicatorT3AElement || !indicatorT1Element || !indicatorT2Element || !indicatorT3Element) {
         return;
@@ -264,7 +267,12 @@
         if (['cpc', 'c3d', 'cmq', 'cprez', 'c'].includes(key)) {
             return { minValue: -3, maxValue: 3, suffix: '', label: labels[key] || key.toUpperCase() };
         }
-        return { maxValue: 100, suffix: '%', label: labels[key] || key.toUpperCase() };
+        return {
+            maxValue: 100,
+            suffix: '%',
+            label: labels[key] || key.toUpperCase(),
+            useBtaGradient: /^(?:t[123])?[bta]$/.test(key),
+        };
     }
 
     function buildTeams(students) {
@@ -852,7 +860,10 @@
 
         const boundedValue = clamp(value, minValue, maxValue);
         const range = maxValue - minValue;
-        const hue = ((boundedValue - minValue) / range) * 120;
+        const continuousHue = ((boundedValue - minValue) / range) * 120;
+        const hue = options.useBtaGradient && !btaGradientsEnabled
+            ? (boundedValue >= minValue + range * 0.67 ? 120 : boundedValue >= minValue + range * 0.34 ? 45 : 0)
+            : continuousHue;
         const color = `hsl(${hue} 88% 48%)`;
         const glow = `hsl(${hue} 92% 55% / 0.6)`;
 
@@ -860,6 +871,16 @@
         indicatorElement.style.setProperty('--indicator-glow', glow);
         const formattedValue = suffix === '%' ? `${boundedValue.toFixed(1)} %` : `${boundedValue.toFixed(1)}${suffix ? ` ${suffix}` : ''}`;
         indicatorElement.title = `${label}: ${formattedValue}`;
+    }
+
+    function updateBtaGradientsButton() {
+        if (!toggleBtaGradientsButton) return;
+        const action = btaGradientsEnabled ? 'Désactiver' : 'Activer';
+        const description = `${action} les dégradés de couleurs des indicateurs B, T et A`;
+        toggleBtaGradientsButton.setAttribute('aria-pressed', String(btaGradientsEnabled));
+        toggleBtaGradientsButton.setAttribute('aria-label', description);
+        toggleBtaGradientsButton.title = description;
+        toggleBtaGradientsButton.textContent = btaGradientsEnabled ? '🌈' : '🎨';
     }
 
     function getClassConfig(selectedClass) {
@@ -1113,6 +1134,16 @@
                 updateTeamStatusMessage();
                 renderTeams(currentTeams);
                 teamsPopupStatusElement.textContent = 'Nouvelles équipes générées.';
+            });
+        }
+        if (toggleBtaGradientsButton) {
+            updateBtaGradientsButton();
+            toggleBtaGradientsButton.addEventListener('click', () => {
+                btaGradientsEnabled = !btaGradientsEnabled;
+                localStorage.setItem(BTA_GRADIENTS_STORAGE_KEY, String(btaGradientsEnabled));
+                updateBtaGradientsButton();
+                renderTeams(currentTeams);
+                refreshClassInfo();
             });
         }
         if (classEvalButton) {
