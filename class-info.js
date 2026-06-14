@@ -493,19 +493,27 @@
                 studentActions.className = 'team-student-actions';
                 studentActions.appendChild(studentEvalButton);
                 const quickActions = [
-                    { label: 'B-', payload: { bDelta: -1 } },
-                    { label: 'T-', payload: { tDelta: -1 } },
-                    { label: 'T+', payload: { tDelta: 1 } },
+                    { label: 'B-', payload: { bDelta: -1 }, indicator: 'b' },
+                    { label: 'T-', payload: { tDelta: -1 }, indicator: 't' },
+                    { label: 'T+', payload: { tDelta: 1 }, indicator: 't' },
                     { label: 'C-', payload: { commentOnly: true }, comment: 'C-' },
-                    { label: 'A-', payload: { aDelta: -1 } },
+                    { label: 'A-', payload: { aDelta: -1 }, indicator: 'a' },
                 ];
+                const sessionScore = getSessionScoresMap()[student.name] || {};
                 quickActions.forEach((action) => {
                     const button = document.createElement('button');
                     button.type = 'button';
                     button.className = 'team-quick-action-button';
                     button.textContent = action.label;
                     button.title = `${action.label} sur ${student.name}`;
-                    button.addEventListener('click', () => applySessionEvaluation([student.name], action.payload, action.comment || ''));
+                    if (action.indicator) {
+                        const score = normalizeSessionScore(numberOrDefault(sessionScore[action.indicator], 3));
+                        button.dataset.sessionScore = String(score);
+                    }
+                    button.addEventListener('click', () => {
+                        applySessionEvaluation([student.name], action.payload, action.comment || '');
+                        renderTeams(currentTeams);
+                    });
                     studentActions.appendChild(button);
                 });
 
