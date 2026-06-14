@@ -271,7 +271,6 @@
             maxValue: 100,
             suffix: '%',
             label: labels[key] || key.toUpperCase(),
-            useBtaGradient: /^(?:t[123])?[bta]$/.test(key),
         };
     }
 
@@ -515,7 +514,7 @@
                     button.className = 'team-quick-action-button';
                     button.textContent = action.label;
                     button.title = `${action.label} sur ${student.name}`;
-                    if (action.indicator) {
+                    if (action.indicator && btaGradientsEnabled) {
                         const score = normalizeSessionScore(numberOrDefault(sessionScore[action.indicator], 3));
                         button.dataset.sessionScore = String(clamp(score, SESSION_SCORE_MIN, SESSION_SCORE_MAX));
                     }
@@ -860,9 +859,7 @@
         const boundedValue = clamp(value, minValue, maxValue);
         const range = maxValue - minValue;
         const continuousHue = ((boundedValue - minValue) / range) * 120;
-        const hue = options.useBtaGradient && !btaGradientsEnabled
-            ? (boundedValue >= minValue + range * 0.67 ? 120 : boundedValue >= minValue + range * 0.34 ? 45 : 0)
-            : continuousHue;
+        const hue = continuousHue;
         const color = `hsl(${hue} 88% 48%)`;
         const glow = `hsl(${hue} 92% 55% / 0.6)`;
 
@@ -875,7 +872,7 @@
     function updateBtaGradientsButton() {
         if (!toggleBtaGradientsButton) return;
         const action = btaGradientsEnabled ? 'Désactiver' : 'Activer';
-        const description = `${action} les dégradés de couleurs des indicateurs B, T et A`;
+        const description = `${action} les couleurs des raccourcis B, T et A`;
         toggleBtaGradientsButton.setAttribute('aria-pressed', String(btaGradientsEnabled));
         toggleBtaGradientsButton.setAttribute('aria-label', description);
         toggleBtaGradientsButton.title = description;
@@ -1142,7 +1139,6 @@
                 localStorage.setItem(BTA_GRADIENTS_STORAGE_KEY, String(btaGradientsEnabled));
                 updateBtaGradientsButton();
                 renderTeams(currentTeams);
-                refreshClassInfo();
             });
         }
         if (classEvalButton) {
