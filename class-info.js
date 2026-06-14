@@ -507,7 +507,6 @@
                     { label: 'T+', payload: { tDelta: 1 }, indicator: 't' },
                     { label: 'C-', payload: { commentOnly: true }, comment: 'C-' },
                     { label: 'A-', payload: { aDelta: -1 }, indicator: 'a' },
-                    { label: 'A+', payload: { aDelta: 1 }, indicator: 'a' },
                 ];
                 const sessionScore = getSessionScoresMap()[student.name] || {};
                 quickActions.forEach((action) => {
