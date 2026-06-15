@@ -57,8 +57,11 @@
     const projectRolesPopupTitle = document.getElementById('project-roles-popup-title');
     const projectRolesStudentsElement = document.getElementById('project-roles-students');
     const modelEvaluationTitle = document.getElementById('model-evaluation-title');
+    const commandEvaluationTitle = document.getElementById('command-evaluation-title');
+    const mockupEvaluationTitle = document.getElementById('mockup-evaluation-title');
     const modelEvaluationCriteriaElement = document.getElementById('model-evaluation-criteria');
     const commandEvaluationCriteriaElement = document.getElementById('command-evaluation-criteria');
+    const mockupEvaluationCriteriaElement = document.getElementById('mockup-evaluation-criteria');
     const closeProjectRolesPopupButton = document.getElementById('close-project-roles-popup');
     const saveProjectRolesButton = document.getElementById('save-project-roles');
     const classInfoExportButton = document.getElementById('class-info-export-button');
@@ -71,6 +74,7 @@
     const PROJECT_ROLES_STORAGE_PREFIX = 'projectRoles_';
     const MODEL_EVALUATION_STORAGE_PREFIX = 'modelEvaluation_';
     const COMMAND_EVALUATION_STORAGE_PREFIX = 'commandEvaluation_';
+    const MOCKUP_EVALUATION_STORAGE_PREFIX = 'mockupEvaluation_';
     const PROJECT_ROLES = [
         { key: '3D' },
         { key: 'PC' },
@@ -89,6 +93,12 @@
         'Autonomie dans la réalisation du dernier montage',
         'Respect du matériel (matériel grillé, cassé)',
         'Montage présent dans la maquette'
+    ];
+    const MOCKUP_EVALUATION_CRITERIA = [
+        'Qualité de la maquette',
+        'Respect du cahier des charges',
+        'Respect du modèle 3D',
+        'Emplacement pour partie électrique'
     ];
 
 
@@ -626,12 +636,24 @@
         }
     }
 
-    function updateModelEvaluationTitle() {
-        if (!modelEvaluationTitle || !modelEvaluationCriteriaElement) return;
-        const values = Array.from(modelEvaluationCriteriaElement.querySelectorAll('.model-evaluation-level[aria-pressed="true"]'))
+    function getMockupEvaluationStorageKey() {
+        return `${MOCKUP_EVALUATION_STORAGE_PREFIX}${(getSelectedClass() || 'inconnue').toUpperCase().trim()}`;
+    }
+
+    function getMockupEvaluations() {
+        try {
+            return JSON.parse(localStorage.getItem(getMockupEvaluationStorageKey()) || '{}');
+        } catch (error) {
+            return {};
+        }
+    }
+
+    function updateEvaluationTitle(title, container, criteria, label) {
+        if (!title || !container) return;
+        const values = Array.from(container.querySelectorAll('.model-evaluation-level[aria-pressed="true"]'))
             .map((button) => Number(button.dataset.value));
-        const score = values.reduce((sum, value) => sum + value, 0) / (MODEL_EVALUATION_CRITERIA.length * 3) * 10;
-        modelEvaluationTitle.textContent = `Evaluation du modèle 3D — ${Math.ceil(score)}/10`;
+        const score = values.reduce((sum, value) => sum + value, 0) / (criteria.length * 3) * 10;
+        title.textContent = `${label} — ${Math.ceil(score)}/10`;
     }
 
     function renderEvaluationCriteria(container, criteria, savedValues, onChange) {
@@ -669,14 +691,23 @@
             modelEvaluationCriteriaElement,
             MODEL_EVALUATION_CRITERIA,
             getModelEvaluations()[teamIndex] || [],
-            updateModelEvaluationTitle
+            () => updateEvaluationTitle(modelEvaluationTitle, modelEvaluationCriteriaElement, MODEL_EVALUATION_CRITERIA, 'Evaluation du modèle 3D')
         );
-        updateModelEvaluationTitle();
+        updateEvaluationTitle(modelEvaluationTitle, modelEvaluationCriteriaElement, MODEL_EVALUATION_CRITERIA, 'Evaluation du modèle 3D');
         renderEvaluationCriteria(
             commandEvaluationCriteriaElement,
             COMMAND_EVALUATION_CRITERIA,
-            getCommandEvaluations()[teamIndex] || []
+            getCommandEvaluations()[teamIndex] || [],
+            () => updateEvaluationTitle(commandEvaluationTitle, commandEvaluationCriteriaElement, COMMAND_EVALUATION_CRITERIA, 'Evaluation de la partie commande (PC)')
         );
+        updateEvaluationTitle(commandEvaluationTitle, commandEvaluationCriteriaElement, COMMAND_EVALUATION_CRITERIA, 'Evaluation de la partie commande (PC)');
+        renderEvaluationCriteria(
+            mockupEvaluationCriteriaElement,
+            MOCKUP_EVALUATION_CRITERIA,
+            getMockupEvaluations()[teamIndex] || [],
+            () => updateEvaluationTitle(mockupEvaluationTitle, mockupEvaluationCriteriaElement, MOCKUP_EVALUATION_CRITERIA, 'Evaluation de la maquette')
+        );
+        updateEvaluationTitle(mockupEvaluationTitle, mockupEvaluationCriteriaElement, MOCKUP_EVALUATION_CRITERIA, 'Evaluation de la maquette');
     }
 
     function openProjectRolesPopup(teamIndex, team) {
@@ -711,6 +742,14 @@
             projectRolesStudentsElement.appendChild(row);
         });
         renderModelEvaluation(teamIndex);
+        projectRolesPopupElement.querySelectorAll('[data-project-collapsible]').forEach((section) => {
+            section.classList.add('is-collapsed');
+            const button = section.querySelector('.project-evaluation-toggle');
+            if (button) {
+                button.textContent = '+';
+                button.setAttribute('aria-expanded', 'false');
+            }
+        });
         projectRolesPopupElement.hidden = false;
     }
 
@@ -748,9 +787,26 @@
                 });
                 localStorage.setItem(getCommandEvaluationStorageKey(), JSON.stringify(commandEvaluations));
             }
+            if (mockupEvaluationCriteriaElement) {
+                const mockupEvaluations = getMockupEvaluations();
+                mockupEvaluations[pendingProjectRolesTeamIndex] = MOCKUP_EVALUATION_CRITERIA.map((_, criterionIndex) => {
+                    const selected = mockupEvaluationCriteriaElement.querySelector(`.model-evaluation-level[data-criterion="${criterionIndex}"][aria-pressed="true"]`);
+                    return selected ? Number(selected.dataset.value) : 0;
+                });
+                localStorage.setItem(getMockupEvaluationStorageKey(), JSON.stringify(mockupEvaluations));
+            }
             closeProjectRolesPopup();
         });
     }
+
+    document.querySelectorAll('.project-evaluation-toggle').forEach((button) => {
+        button.addEventListener('click', () => {
+            const section = button.closest('[data-project-collapsible]');
+            const isCollapsed = section.classList.toggle('is-collapsed');
+            button.textContent = isCollapsed ? '+' : '−';
+            button.setAttribute('aria-expanded', String(!isCollapsed));
+        });
+    });
 
     if (closeProjectRolesPopupButton) closeProjectRolesPopupButton.addEventListener('click', closeProjectRolesPopup);
     if (projectRolesPopupElement) {
