@@ -185,9 +185,19 @@
                 </div>
                 <div id="command-evaluation-criteria" class="model-evaluation-criteria project-evaluation-content"></div>
             </section>
-            <section class="model-evaluation-block">
-                <h4 id="mockup-evaluation-title">Evaluation de la maquette — 0/10</h4>
-                <div id="mockup-evaluation-criteria" class="model-evaluation-criteria"></div>
+            <section class="model-evaluation-block is-collapsed" data-project-collapsible>
+                <div class="project-evaluation-header">
+                    <h4 id="mockup-evaluation-title">Evaluation de la maquette — 0/10</h4>
+                    <button type="button" class="project-evaluation-toggle" aria-expanded="false" aria-label="Afficher l'évaluation de la maquette">+</button>
+                </div>
+                <div id="mockup-evaluation-criteria" class="model-evaluation-criteria project-evaluation-content"></div>
+            </section>
+            <section class="model-evaluation-block is-collapsed" data-project-collapsible>
+                <div class="project-evaluation-header">
+                    <h4 id="presentation-evaluation-title">Evaluation de la présentation — 0/10</h4>
+                    <button type="button" class="project-evaluation-toggle" aria-expanded="false" aria-label="Afficher l'évaluation de la présentation">+</button>
+                </div>
+                <div id="presentation-evaluation-criteria" class="model-evaluation-criteria project-evaluation-content"></div>
             </section>
             <button id="save-project-roles" type="button" class="generate-teams-button">Valider</button>
         </div>

@@ -59,9 +59,11 @@
     const modelEvaluationTitle = document.getElementById('model-evaluation-title');
     const commandEvaluationTitle = document.getElementById('command-evaluation-title');
     const mockupEvaluationTitle = document.getElementById('mockup-evaluation-title');
+    const presentationEvaluationTitle = document.getElementById('presentation-evaluation-title');
     const modelEvaluationCriteriaElement = document.getElementById('model-evaluation-criteria');
     const commandEvaluationCriteriaElement = document.getElementById('command-evaluation-criteria');
     const mockupEvaluationCriteriaElement = document.getElementById('mockup-evaluation-criteria');
+    const presentationEvaluationCriteriaElement = document.getElementById('presentation-evaluation-criteria');
     const closeProjectRolesPopupButton = document.getElementById('close-project-roles-popup');
     const saveProjectRolesButton = document.getElementById('save-project-roles');
     const classInfoExportButton = document.getElementById('class-info-export-button');
@@ -75,6 +77,7 @@
     const MODEL_EVALUATION_STORAGE_PREFIX = 'modelEvaluation_';
     const COMMAND_EVALUATION_STORAGE_PREFIX = 'commandEvaluation_';
     const MOCKUP_EVALUATION_STORAGE_PREFIX = 'mockupEvaluation_';
+    const PRESENTATION_EVALUATION_STORAGE_PREFIX = 'presentationEvaluation_';
     const PROJECT_ROLES = [
         { key: '3D' },
         { key: 'PC' },
@@ -99,6 +102,10 @@
         'Respect du cahier des charges',
         'Respect du modèle 3D',
         'Emplacement pour partie électrique'
+    ];
+    const PRESENTATION_EVALUATION_CRITERIA = [
+        'Qualité du powerpoint',
+        'Qualité de l’oral'
     ];
 
 
@@ -648,12 +655,51 @@
         }
     }
 
-    function updateEvaluationTitle(title, container, criteria, label) {
-        if (!title || !container) return;
+    function getPresentationEvaluationStorageKey() {
+        return `${PRESENTATION_EVALUATION_STORAGE_PREFIX}${(getSelectedClass() || 'inconnue').toUpperCase().trim()}`;
+    }
+
+    function getPresentationEvaluations() {
+        try {
+            return JSON.parse(localStorage.getItem(getPresentationEvaluationStorageKey()) || '{}');
+        } catch (error) {
+            return {};
+        }
+    }
+
+    function getEvaluationScore(container, criteria) {
+        if (!container) return 0;
         const values = Array.from(container.querySelectorAll('.model-evaluation-level[aria-pressed="true"]'))
             .map((button) => Number(button.dataset.value));
-        const score = values.reduce((sum, value) => sum + value, 0) / (criteria.length * 3) * 10;
+        return values.reduce((sum, value) => sum + value, 0) / (criteria.length * 3) * 10;
+    }
+
+    function updateStudentProjectScores() {
+        if (!projectRolesStudentsElement) return;
+        const roleScores = {
+            '3D': getEvaluationScore(modelEvaluationCriteriaElement, MODEL_EVALUATION_CRITERIA),
+            PC: getEvaluationScore(commandEvaluationCriteriaElement, COMMAND_EVALUATION_CRITERIA),
+            Prez: getEvaluationScore(presentationEvaluationCriteriaElement, PRESENTATION_EVALUATION_CRITERIA),
+            MQ: getEvaluationScore(mockupEvaluationCriteriaElement, MOCKUP_EVALUATION_CRITERIA)
+        };
+        projectRolesStudentsElement.querySelectorAll('.project-role-student').forEach((row) => {
+            const selectedRoles = Array.from(row.querySelectorAll('.project-role-button[aria-pressed="true"]'));
+            const scoreElement = row.querySelector('.project-role-score');
+            if (!scoreElement) return;
+            if (!selectedRoles.length) {
+                scoreElement.textContent = '—/10';
+                return;
+            }
+            const average = selectedRoles.reduce((sum, button) => sum + roleScores[button.dataset.role], 0) / selectedRoles.length;
+            scoreElement.textContent = `${Math.round(average * 10) / 10}/10`;
+        });
+    }
+
+    function updateEvaluationTitle(title, container, criteria, label) {
+        if (!title || !container) return;
+        const score = getEvaluationScore(container, criteria);
         title.textContent = `${label} — ${Math.ceil(score)}/10`;
+        updateStudentProjectScores();
     }
 
     function renderEvaluationCriteria(container, criteria, savedValues, onChange) {
@@ -708,6 +754,13 @@
             () => updateEvaluationTitle(mockupEvaluationTitle, mockupEvaluationCriteriaElement, MOCKUP_EVALUATION_CRITERIA, 'Evaluation de la maquette')
         );
         updateEvaluationTitle(mockupEvaluationTitle, mockupEvaluationCriteriaElement, MOCKUP_EVALUATION_CRITERIA, 'Evaluation de la maquette');
+        renderEvaluationCriteria(
+            presentationEvaluationCriteriaElement,
+            PRESENTATION_EVALUATION_CRITERIA,
+            getPresentationEvaluations()[teamIndex] || [],
+            () => updateEvaluationTitle(presentationEvaluationTitle, presentationEvaluationCriteriaElement, PRESENTATION_EVALUATION_CRITERIA, 'Evaluation de la présentation')
+        );
+        updateEvaluationTitle(presentationEvaluationTitle, presentationEvaluationCriteriaElement, PRESENTATION_EVALUATION_CRITERIA, 'Evaluation de la présentation');
     }
 
     function openProjectRolesPopup(teamIndex, team) {
@@ -722,6 +775,10 @@
             const name = document.createElement('strong');
             name.textContent = student.name;
             row.appendChild(name);
+            const score = document.createElement('strong');
+            score.className = 'project-role-score';
+            score.textContent = '—/10';
+            row.appendChild(score);
             const actions = document.createElement('div');
             actions.className = 'project-role-actions';
             PROJECT_ROLES.forEach((role) => {
@@ -735,6 +792,7 @@
                 button.textContent = role.key;
                 button.addEventListener('click', () => {
                     button.setAttribute('aria-pressed', String(button.getAttribute('aria-pressed') !== 'true'));
+                    updateStudentProjectScores();
                 });
                 actions.appendChild(button);
             });
@@ -742,6 +800,7 @@
             projectRolesStudentsElement.appendChild(row);
         });
         renderModelEvaluation(teamIndex);
+        updateStudentProjectScores();
         projectRolesPopupElement.querySelectorAll('[data-project-collapsible]').forEach((section) => {
             section.classList.add('is-collapsed');
             const button = section.querySelector('.project-evaluation-toggle');
@@ -794,6 +853,14 @@
                     return selected ? Number(selected.dataset.value) : 0;
                 });
                 localStorage.setItem(getMockupEvaluationStorageKey(), JSON.stringify(mockupEvaluations));
+            }
+            if (presentationEvaluationCriteriaElement) {
+                const presentationEvaluations = getPresentationEvaluations();
+                presentationEvaluations[pendingProjectRolesTeamIndex] = PRESENTATION_EVALUATION_CRITERIA.map((_, criterionIndex) => {
+                    const selected = presentationEvaluationCriteriaElement.querySelector(`.model-evaluation-level[data-criterion="${criterionIndex}"][aria-pressed="true"]`);
+                    return selected ? Number(selected.dataset.value) : 0;
+                });
+                localStorage.setItem(getPresentationEvaluationStorageKey(), JSON.stringify(presentationEvaluations));
             }
             closeProjectRolesPopup();
         });

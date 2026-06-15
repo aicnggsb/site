@@ -1897,12 +1897,18 @@ svg.axe { display: block; margin: 0.5em 0; }
 
 .project-role-student {
     display: grid;
-    grid-template-columns: minmax(140px, 1fr) auto;
+    grid-template-columns: minmax(140px, 1fr) auto auto;
     align-items: center;
     gap: 12px;
     padding: 10px;
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.07);
+}
+
+.project-role-score {
+    min-width: 58px;
+    color: #bfdbfe;
+    text-align: right;
 }
 
 .project-role-actions {
