@@ -1863,6 +1863,10 @@ svg.axe { display: block; margin: 0.5em 0; }
     max-width: 190px;
 }
 
+.team-indicators.indicators-hidden {
+    display: none;
+}
+
 .team-details-button {
     border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: 999px;

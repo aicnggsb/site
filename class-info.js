@@ -420,6 +420,7 @@
                 t3: computeAverage(team.map((student) => student.t3).filter((value) => value !== null)),
             }, ['t1b', 't1t', 't1a', 't2b', 't2t', 't2a', 't3b', 't3t', 't3a', 't1', 't2', 't3', 'cpc', 'c3d', 'cmq', 'cprez']);
             teamIndicators.classList.add('team-indicators');
+            teamIndicators.classList.add('indicators-hidden');
             title.dataset.teamIndex = String(index);
             card.dataset.teamIndex = String(index);
 
@@ -535,6 +536,7 @@
 
             detailsButton.addEventListener('click', () => {
                 const showIndicators = detailsPanel.classList.toggle('indicators-hidden') === false;
+                teamIndicators.classList.toggle('indicators-hidden', !showIndicators);
                 detailsButton.setAttribute('aria-pressed', String(showIndicators));
                 detailsButton.textContent = showIndicators ? '−' : '+';
                 detailsList.classList.toggle('hide-action-buttons', showIndicators);
