@@ -56,6 +56,8 @@
     const projectRolesPopupElement = document.getElementById('project-roles-popup');
     const projectRolesPopupTitle = document.getElementById('project-roles-popup-title');
     const projectRolesStudentsElement = document.getElementById('project-roles-students');
+    const modelEvaluationTitle = document.getElementById('model-evaluation-title');
+    const modelEvaluationCriteriaElement = document.getElementById('model-evaluation-criteria');
     const closeProjectRolesPopupButton = document.getElementById('close-project-roles-popup');
     const saveProjectRolesButton = document.getElementById('save-project-roles');
     const classInfoExportButton = document.getElementById('class-info-export-button');
@@ -66,12 +68,20 @@
     const SESSION_SCORE_MAX = 3;
     const BTA_GRADIENTS_STORAGE_KEY = 'btaIndicatorGradientsEnabled';
     const PROJECT_ROLES_STORAGE_PREFIX = 'projectRoles_';
+    const MODEL_EVALUATION_STORAGE_PREFIX = 'modelEvaluation_';
     const PROJECT_ROLES = [
-        { key: '3D', icon: '🧊' },
-        { key: 'PC', icon: '💻' },
-        { key: 'Prez', icon: '🎤' },
-        { key: 'MQ', icon: '✅' }
+        { key: '3D' },
+        { key: 'PC' },
+        { key: 'Prez' },
+        { key: 'MQ' }
     ];
+    const MODEL_EVALUATION_CRITERIA = [
+        'Qualité du modèle 3D',
+        'Complexité/détail du modèle 3D',
+        'Respect du cahier des charges',
+        'Partie électrique dans le modèle 3D'
+    ];
+    const MODEL_EVALUATION_LEVELS = ['-', '~', '+', '++'];
 
 
     let lastClassStudents = [];
@@ -584,11 +594,63 @@
         }
     }
 
+    function getModelEvaluationStorageKey() {
+        return `${MODEL_EVALUATION_STORAGE_PREFIX}${(getSelectedClass() || 'inconnue').toUpperCase().trim()}`;
+    }
+
+    function getModelEvaluations() {
+        try {
+            return JSON.parse(localStorage.getItem(getModelEvaluationStorageKey()) || '{}');
+        } catch (error) {
+            return {};
+        }
+    }
+
+    function updateModelEvaluationTitle() {
+        if (!modelEvaluationTitle || !modelEvaluationCriteriaElement) return;
+        const values = Array.from(modelEvaluationCriteriaElement.querySelectorAll('.model-evaluation-level[aria-pressed="true"]'))
+            .map((button) => Number(button.dataset.value));
+        const score = values.reduce((sum, value) => sum + value, 0) / (MODEL_EVALUATION_CRITERIA.length * 3) * 10;
+        modelEvaluationTitle.textContent = `Evaluation du modèle 3D — ${Number(score.toFixed(1)).toLocaleString('fr-FR')}/10`;
+    }
+
+    function renderModelEvaluation(teamIndex) {
+        if (!modelEvaluationCriteriaElement) return;
+        const savedValues = getModelEvaluations()[teamIndex] || [];
+        modelEvaluationCriteriaElement.innerHTML = '';
+        MODEL_EVALUATION_CRITERIA.forEach((criterion, criterionIndex) => {
+            const row = document.createElement('div');
+            row.className = 'model-evaluation-criterion';
+            const label = document.createElement('strong');
+            label.textContent = criterion;
+            const actions = document.createElement('div');
+            actions.className = 'model-evaluation-levels';
+            MODEL_EVALUATION_LEVELS.forEach((level, value) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'model-evaluation-level';
+                button.textContent = level;
+                button.dataset.criterion = String(criterionIndex);
+                button.dataset.value = String(value);
+                button.setAttribute('aria-pressed', String(savedValues[criterionIndex] === value));
+                button.addEventListener('click', () => {
+                    actions.querySelectorAll('.model-evaluation-level').forEach((item) => item.setAttribute('aria-pressed', 'false'));
+                    button.setAttribute('aria-pressed', 'true');
+                    updateModelEvaluationTitle();
+                });
+                actions.appendChild(button);
+            });
+            row.append(label, actions);
+            modelEvaluationCriteriaElement.appendChild(row);
+        });
+        updateModelEvaluationTitle();
+    }
+
     function openProjectRolesPopup(teamIndex, team) {
         if (!projectRolesPopupElement || !projectRolesStudentsElement || !projectRolesPopupTitle) return;
         pendingProjectRolesTeamIndex = teamIndex;
         const rolesMap = getProjectRolesMap();
-        projectRolesPopupTitle.textContent = `Rôles du projet — Équipe ${teamIndex + 1}`;
+        projectRolesPopupTitle.textContent = `Evaluation du projet — Équipe ${teamIndex + 1}`;
         projectRolesStudentsElement.innerHTML = '';
         team.forEach((student) => {
             const row = document.createElement('div');
@@ -606,7 +668,7 @@
                 button.dataset.role = role.key;
                 button.setAttribute('aria-pressed', String((rolesMap[student.name] || []).includes(role.key)));
                 button.title = `${role.key} — ${student.name}`;
-                button.innerHTML = `<span aria-hidden="true">${role.icon}</span><span>${role.key}</span>`;
+                button.textContent = role.key;
                 button.addEventListener('click', () => {
                     button.setAttribute('aria-pressed', String(button.getAttribute('aria-pressed') !== 'true'));
                 });
@@ -615,6 +677,7 @@
             row.appendChild(actions);
             projectRolesStudentsElement.appendChild(row);
         });
+        renderModelEvaluation(teamIndex);
         projectRolesPopupElement.hidden = false;
     }
 
@@ -636,6 +699,14 @@
                     .map((button) => button.dataset.role);
             });
             localStorage.setItem(getProjectRolesStorageKey(), JSON.stringify(rolesMap));
+            if (modelEvaluationCriteriaElement) {
+                const modelEvaluations = getModelEvaluations();
+                modelEvaluations[pendingProjectRolesTeamIndex] = MODEL_EVALUATION_CRITERIA.map((_, criterionIndex) => {
+                    const selected = modelEvaluationCriteriaElement.querySelector(`.model-evaluation-level[data-criterion="${criterionIndex}"][aria-pressed="true"]`);
+                    return selected ? Number(selected.dataset.value) : 0;
+                });
+                localStorage.setItem(getModelEvaluationStorageKey(), JSON.stringify(modelEvaluations));
+            }
             closeProjectRolesPopup();
         });
     }

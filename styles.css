@@ -1889,10 +1889,6 @@ svg.axe { display: block; margin: 0.5em 0; }
     position: relative;
 }
 
-.project-roles-help {
-    color: rgba(255, 255, 255, 0.75);
-}
-
 .project-roles-students {
     display: grid;
     gap: 10px;
@@ -1933,8 +1929,54 @@ svg.axe { display: block; margin: 0.5em 0; }
     box-shadow: 0 0 0 2px rgba(134, 239, 172, 0.25);
 }
 
+.model-evaluation-block {
+    margin: 0 0 18px;
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.model-evaluation-block h4 {
+    margin: 0 0 12px;
+}
+
+.model-evaluation-criteria {
+    display: grid;
+    gap: 8px;
+}
+
+.model-evaluation-criterion {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+}
+
+.model-evaluation-levels {
+    display: flex;
+    gap: 6px;
+}
+
+.model-evaluation-level {
+    min-width: 38px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 8px;
+    padding: 6px 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.model-evaluation-level[aria-pressed="true"] {
+    border-color: #93c5fd;
+    background: #2563eb;
+    box-shadow: 0 0 0 2px rgba(147, 197, 253, 0.25);
+}
+
 @media (max-width: 600px) {
-    .project-role-student {
+    .project-role-student,
+    .model-evaluation-criterion {
         grid-template-columns: 1fr;
     }
 }
