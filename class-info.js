@@ -53,6 +53,11 @@
     const evalSessionLedA = document.getElementById('eval-session-led-a');
     const evalCommentElement = document.getElementById('eval-comment');
     const evalValidateButton = document.getElementById('eval-validate');
+    const projectRolesPopupElement = document.getElementById('project-roles-popup');
+    const projectRolesPopupTitle = document.getElementById('project-roles-popup-title');
+    const projectRolesStudentsElement = document.getElementById('project-roles-students');
+    const closeProjectRolesPopupButton = document.getElementById('close-project-roles-popup');
+    const saveProjectRolesButton = document.getElementById('save-project-roles');
     const classInfoExportButton = document.getElementById('class-info-export-button');
     const TEAMS_COOKIE_PREFIX = 'savedTeams_';
     const SESSION_SCORES_COOKIE_PREFIX = 'sessionScores_';
@@ -60,11 +65,19 @@
     const SESSION_SCORE_MIN = -3;
     const SESSION_SCORE_MAX = 3;
     const BTA_GRADIENTS_STORAGE_KEY = 'btaIndicatorGradientsEnabled';
+    const PROJECT_ROLES_STORAGE_PREFIX = 'projectRoles_';
+    const PROJECT_ROLES = [
+        { key: '3D', icon: '🧊' },
+        { key: 'PC', icon: '💻' },
+        { key: 'Prez', icon: '🎤' },
+        { key: 'MQ', icon: '✅' }
+    ];
 
 
     let lastClassStudents = [];
     let currentTeams = [];
     let pendingEvaluation = null;
+    let pendingProjectRolesTeamIndex = null;
     let hasSelectedSession = false;
     let selectedSessionKey = '';
     let selectedSessionLabel = '';
@@ -401,6 +414,15 @@
             teamEvalButton.addEventListener('click', () => openEvaluationPopup(`Équipe ${index + 1}`, team.map((student) => student.name)));
             teamHeader.appendChild(teamEvalButton);
 
+            const projectRolesButton = document.createElement('button');
+            projectRolesButton.type = 'button';
+            projectRolesButton.className = 'team-details-button';
+            projectRolesButton.textContent = '🎯';
+            projectRolesButton.title = 'Évaluer les rôles du projet';
+            projectRolesButton.setAttribute('aria-label', `Évaluer les rôles du projet de l’équipe ${index + 1}`);
+            projectRolesButton.addEventListener('click', () => openProjectRolesPopup(index, team));
+            teamHeader.appendChild(projectRolesButton);
+
             const teamIndicators = createIndicatorsRow({
                 t1b: computeAverage(team.map((student) => student.t1b).filter((value) => value !== null)),
                 t1t: computeAverage(team.map((student) => student.t1t).filter((value) => value !== null)),
@@ -547,6 +569,81 @@
             card.appendChild(teamIndicators);
             card.appendChild(detailsPanel);
             teamsPopupListElement.appendChild(card);
+        });
+    }
+
+    function getProjectRolesStorageKey() {
+        return `${PROJECT_ROLES_STORAGE_PREFIX}${(getSelectedClass() || 'inconnue').toUpperCase().trim()}`;
+    }
+
+    function getProjectRolesMap() {
+        try {
+            return JSON.parse(localStorage.getItem(getProjectRolesStorageKey()) || '{}');
+        } catch (error) {
+            return {};
+        }
+    }
+
+    function openProjectRolesPopup(teamIndex, team) {
+        if (!projectRolesPopupElement || !projectRolesStudentsElement || !projectRolesPopupTitle) return;
+        pendingProjectRolesTeamIndex = teamIndex;
+        const rolesMap = getProjectRolesMap();
+        projectRolesPopupTitle.textContent = `Rôles du projet — Équipe ${teamIndex + 1}`;
+        projectRolesStudentsElement.innerHTML = '';
+        team.forEach((student) => {
+            const row = document.createElement('div');
+            row.className = 'project-role-student';
+            const name = document.createElement('strong');
+            name.textContent = student.name;
+            row.appendChild(name);
+            const actions = document.createElement('div');
+            actions.className = 'project-role-actions';
+            PROJECT_ROLES.forEach((role) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'project-role-button';
+                button.dataset.student = student.name;
+                button.dataset.role = role.key;
+                button.setAttribute('aria-pressed', String((rolesMap[student.name] || []).includes(role.key)));
+                button.title = `${role.key} — ${student.name}`;
+                button.innerHTML = `<span aria-hidden="true">${role.icon}</span><span>${role.key}</span>`;
+                button.addEventListener('click', () => {
+                    button.setAttribute('aria-pressed', String(button.getAttribute('aria-pressed') !== 'true'));
+                });
+                actions.appendChild(button);
+            });
+            row.appendChild(actions);
+            projectRolesStudentsElement.appendChild(row);
+        });
+        projectRolesPopupElement.hidden = false;
+    }
+
+    function closeProjectRolesPopup() {
+        if (projectRolesPopupElement) projectRolesPopupElement.hidden = true;
+        pendingProjectRolesTeamIndex = null;
+    }
+
+    if (saveProjectRolesButton) {
+        saveProjectRolesButton.addEventListener('click', () => {
+            if (pendingProjectRolesTeamIndex === null || !projectRolesStudentsElement) return;
+            const rolesMap = getProjectRolesMap();
+            projectRolesStudentsElement.querySelectorAll('.project-role-student').forEach((row) => {
+                const buttons = Array.from(row.querySelectorAll('.project-role-button'));
+                if (!buttons.length) return;
+                const studentName = buttons[0].dataset.student;
+                rolesMap[studentName] = buttons
+                    .filter((button) => button.getAttribute('aria-pressed') === 'true')
+                    .map((button) => button.dataset.role);
+            });
+            localStorage.setItem(getProjectRolesStorageKey(), JSON.stringify(rolesMap));
+            closeProjectRolesPopup();
+        });
+    }
+
+    if (closeProjectRolesPopupButton) closeProjectRolesPopupButton.addEventListener('click', closeProjectRolesPopup);
+    if (projectRolesPopupElement) {
+        projectRolesPopupElement.addEventListener('click', (event) => {
+            if (event.target === projectRolesPopupElement) closeProjectRolesPopup();
         });
     }
     function ensureSessionScoresInitialized(studentNames) {
