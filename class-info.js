@@ -58,6 +58,7 @@
     const projectRolesStudentsElement = document.getElementById('project-roles-students');
     const modelEvaluationTitle = document.getElementById('model-evaluation-title');
     const modelEvaluationCriteriaElement = document.getElementById('model-evaluation-criteria');
+    const commandEvaluationCriteriaElement = document.getElementById('command-evaluation-criteria');
     const closeProjectRolesPopupButton = document.getElementById('close-project-roles-popup');
     const saveProjectRolesButton = document.getElementById('save-project-roles');
     const classInfoExportButton = document.getElementById('class-info-export-button');
@@ -69,6 +70,7 @@
     const BTA_GRADIENTS_STORAGE_KEY = 'btaIndicatorGradientsEnabled';
     const PROJECT_ROLES_STORAGE_PREFIX = 'projectRoles_';
     const MODEL_EVALUATION_STORAGE_PREFIX = 'modelEvaluation_';
+    const COMMAND_EVALUATION_STORAGE_PREFIX = 'commandEvaluation_';
     const PROJECT_ROLES = [
         { key: '3D' },
         { key: 'PC' },
@@ -82,6 +84,12 @@
         'Partie électrique dans le modèle 3D'
     ];
     const MODEL_EVALUATION_LEVELS = ['-', '~', '+', '++'];
+    const COMMAND_EVALUATION_CRITERIA = [
+        'Réalisation des montages (nombre d’erreurs)',
+        'Autonomie dans la réalisation du dernier montage',
+        'Respect du matériel (matériel grillé, cassé)',
+        'Montage présent dans la maquette'
+    ];
 
 
     let lastClassStudents = [];
@@ -606,22 +614,33 @@
         }
     }
 
+    function getCommandEvaluationStorageKey() {
+        return `${COMMAND_EVALUATION_STORAGE_PREFIX}${(getSelectedClass() || 'inconnue').toUpperCase().trim()}`;
+    }
+
+    function getCommandEvaluations() {
+        try {
+            return JSON.parse(localStorage.getItem(getCommandEvaluationStorageKey()) || '{}');
+        } catch (error) {
+            return {};
+        }
+    }
+
     function updateModelEvaluationTitle() {
         if (!modelEvaluationTitle || !modelEvaluationCriteriaElement) return;
         const values = Array.from(modelEvaluationCriteriaElement.querySelectorAll('.model-evaluation-level[aria-pressed="true"]'))
             .map((button) => Number(button.dataset.value));
         const score = values.reduce((sum, value) => sum + value, 0) / (MODEL_EVALUATION_CRITERIA.length * 3) * 10;
-        modelEvaluationTitle.textContent = `Evaluation du modèle 3D — ${Number(score.toFixed(1)).toLocaleString('fr-FR')}/10`;
+        modelEvaluationTitle.textContent = `Evaluation du modèle 3D — ${Math.ceil(score)}/10`;
     }
 
-    function renderModelEvaluation(teamIndex) {
-        if (!modelEvaluationCriteriaElement) return;
-        const savedValues = getModelEvaluations()[teamIndex] || [];
-        modelEvaluationCriteriaElement.innerHTML = '';
-        MODEL_EVALUATION_CRITERIA.forEach((criterion, criterionIndex) => {
+    function renderEvaluationCriteria(container, criteria, savedValues, onChange) {
+        if (!container) return;
+        container.innerHTML = '';
+        criteria.forEach((criterion, criterionIndex) => {
             const row = document.createElement('div');
             row.className = 'model-evaluation-criterion';
-            const label = document.createElement('strong');
+            const label = document.createElement('span');
             label.textContent = criterion;
             const actions = document.createElement('div');
             actions.className = 'model-evaluation-levels';
@@ -636,14 +655,28 @@
                 button.addEventListener('click', () => {
                     actions.querySelectorAll('.model-evaluation-level').forEach((item) => item.setAttribute('aria-pressed', 'false'));
                     button.setAttribute('aria-pressed', 'true');
-                    updateModelEvaluationTitle();
+                    if (onChange) onChange();
                 });
                 actions.appendChild(button);
             });
             row.append(label, actions);
-            modelEvaluationCriteriaElement.appendChild(row);
+            container.appendChild(row);
         });
+    }
+
+    function renderModelEvaluation(teamIndex) {
+        renderEvaluationCriteria(
+            modelEvaluationCriteriaElement,
+            MODEL_EVALUATION_CRITERIA,
+            getModelEvaluations()[teamIndex] || [],
+            updateModelEvaluationTitle
+        );
         updateModelEvaluationTitle();
+        renderEvaluationCriteria(
+            commandEvaluationCriteriaElement,
+            COMMAND_EVALUATION_CRITERIA,
+            getCommandEvaluations()[teamIndex] || []
+        );
     }
 
     function openProjectRolesPopup(teamIndex, team) {
@@ -706,6 +739,14 @@
                     return selected ? Number(selected.dataset.value) : 0;
                 });
                 localStorage.setItem(getModelEvaluationStorageKey(), JSON.stringify(modelEvaluations));
+            }
+            if (commandEvaluationCriteriaElement) {
+                const commandEvaluations = getCommandEvaluations();
+                commandEvaluations[pendingProjectRolesTeamIndex] = COMMAND_EVALUATION_CRITERIA.map((_, criterionIndex) => {
+                    const selected = commandEvaluationCriteriaElement.querySelector(`.model-evaluation-level[data-criterion="${criterionIndex}"][aria-pressed="true"]`);
+                    return selected ? Number(selected.dataset.value) : 0;
+                });
+                localStorage.setItem(getCommandEvaluationStorageKey(), JSON.stringify(commandEvaluations));
             }
             closeProjectRolesPopup();
         });
