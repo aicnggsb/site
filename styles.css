@@ -1884,6 +1884,61 @@ svg.axe { display: block; margin: 0.5em 0; }
     justify-content: center;
 }
 
+.project-roles-popup-panel {
+    width: min(760px, 94vw);
+    position: relative;
+}
+
+.project-roles-help {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.project-roles-students {
+    display: grid;
+    gap: 10px;
+    margin: 18px 0;
+}
+
+.project-role-student {
+    display: grid;
+    grid-template-columns: minmax(140px, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.project-role-actions {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.project-role-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 9px;
+    padding: 7px 9px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    cursor: pointer;
+}
+
+.project-role-button[aria-pressed="true"] {
+    border-color: #86efac;
+    background: #15803d;
+    box-shadow: 0 0 0 2px rgba(134, 239, 172, 0.25);
+}
+
+@media (max-width: 600px) {
+    .project-role-student {
+        grid-template-columns: 1fr;
+    }
+}
+
 .team-details-panel {
     margin-top: 10px;
 }
