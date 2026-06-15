@@ -164,14 +164,30 @@
                 <h3 id="project-roles-popup-title">Évaluer le projet</h3>
                 <button id="close-project-roles-popup" type="button" class="teams-popup-close" aria-label="Fermer">✖️</button>
             </div>
-            <div id="project-roles-students" class="project-roles-students"></div>
-            <section class="model-evaluation-block">
-                <h4 id="model-evaluation-title">Evaluation du modèle 3D — 0/10</h4>
-                <div id="model-evaluation-criteria" class="model-evaluation-criteria"></div>
+            <section class="model-evaluation-block is-collapsed" data-project-collapsible>
+                <div class="project-evaluation-header">
+                    <h4>Liste et rôles des élèves</h4>
+                    <button type="button" class="project-evaluation-toggle" aria-expanded="false" aria-label="Afficher la liste et les rôles des élèves">+</button>
+                </div>
+                <div id="project-roles-students" class="project-roles-students project-evaluation-content"></div>
+            </section>
+            <section class="model-evaluation-block is-collapsed" data-project-collapsible>
+                <div class="project-evaluation-header">
+                    <h4 id="model-evaluation-title">Evaluation du modèle 3D — 0/10</h4>
+                    <button type="button" class="project-evaluation-toggle" aria-expanded="false" aria-label="Afficher l'évaluation du modèle 3D">+</button>
+                </div>
+                <div id="model-evaluation-criteria" class="model-evaluation-criteria project-evaluation-content"></div>
+            </section>
+            <section class="model-evaluation-block is-collapsed" data-project-collapsible>
+                <div class="project-evaluation-header">
+                    <h4 id="command-evaluation-title">Evaluation de la partie commande (PC) — 0/10</h4>
+                    <button type="button" class="project-evaluation-toggle" aria-expanded="false" aria-label="Afficher l'évaluation de la partie commande">+</button>
+                </div>
+                <div id="command-evaluation-criteria" class="model-evaluation-criteria project-evaluation-content"></div>
             </section>
             <section class="model-evaluation-block">
-                <h4>Evaluation de la partie commande (PC)</h4>
-                <div id="command-evaluation-criteria" class="model-evaluation-criteria"></div>
+                <h4 id="mockup-evaluation-title">Evaluation de la maquette — 0/10</h4>
+                <div id="mockup-evaluation-criteria" class="model-evaluation-criteria"></div>
             </section>
             <button id="save-project-roles" type="button" class="generate-teams-button">Valider</button>
         </div>
