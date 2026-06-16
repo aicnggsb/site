@@ -1743,8 +1743,8 @@ svg.axe { display: block; margin: 0.5em 0; }
 }
 
 .teams-popup-panel {
-    width: min(1120px, 96vw);
-    max-height: 92vh;
+    width: min(1800px, 98vw);
+    max-height: 94vh;
     overflow-y: auto;
     background: #0f172a;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1768,7 +1768,7 @@ svg.axe { display: block; margin: 0.5em 0; }
 
 .teams-popup-list {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(320px, 1fr));
     gap: 8px;
     margin-top: 12px;
 }
@@ -1788,7 +1788,7 @@ svg.axe { display: block; margin: 0.5em 0; }
 .teams-popup-actions {
     display: flex;
     gap: 10px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
 .noise-alert-popup {
@@ -1885,11 +1885,11 @@ svg.axe { display: block; margin: 0.5em 0; }
 }
 
 .project-roles-popup-panel {
-    width: min(1180px, 96vw);
-    max-height: 92vh;
+    width: min(1800px, 98vw);
+    max-height: 94vh;
     overflow: auto;
     position: relative;
-    grid-template-columns: minmax(260px, 0.75fr) minmax(420px, 1.25fr);
+    grid-template-columns: minmax(420px, 0.85fr) minmax(900px, 1.15fr);
     align-items: start;
     gap: 10px 14px;
 }
@@ -2004,7 +2004,7 @@ svg.axe { display: block; margin: 0.5em 0; }
 
 .model-evaluation-criterion {
     display: grid;
-    grid-template-columns: minmax(180px, 1fr) auto;
+    grid-template-columns: minmax(420px, 1fr) auto;
     align-items: center;
     gap: 8px;
 }
