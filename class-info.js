@@ -559,7 +559,6 @@
                 studentActions.appendChild(studentEvalButton);
                 const quickActions = [
                     { label: 'B-', payload: { bDelta: -1 }, indicator: 'b' },
-                    { label: 'B+', payload: { bDelta: 1 }, indicator: 'b' },
                     { label: 'T-', payload: { tDelta: -1 }, indicator: 't' },
                     { label: 'T+', payload: { tDelta: 1 }, indicator: 't' },
                     { label: 'C-', payload: { commentOnly: true }, comment: 'C-' },
@@ -802,11 +801,11 @@
         renderModelEvaluation(teamIndex);
         updateStudentProjectScores();
         projectRolesPopupElement.querySelectorAll('[data-project-collapsible]').forEach((section) => {
-            section.classList.add('is-collapsed');
+            section.classList.remove('is-collapsed');
             const button = section.querySelector('.project-evaluation-toggle');
             if (button) {
-                button.textContent = '+';
-                button.setAttribute('aria-expanded', 'false');
+                button.textContent = '−';
+                button.setAttribute('aria-expanded', 'true');
             }
         });
         projectRolesPopupElement.hidden = false;
