@@ -2265,3 +2265,31 @@ svg.axe { display: block; margin: 0.5em 0; }
 .class-info-actions .generate-teams-button {
     margin-left: 0;
 }
+
+.project-evaluation-tab-body {
+    min-height: 100vh;
+    margin: 0;
+    background: #020617;
+    color: #fff;
+}
+
+.project-evaluation-tab-shell {
+    width: min(1180px, calc(100% - 24px));
+    margin: 0 auto;
+    padding: 12px 0;
+}
+
+.project-evaluation-tab-panel {
+    width: 100%;
+    max-height: none;
+}
+
+.project-evaluation-tab-panel h1 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.project-evaluation-tab-context {
+    margin: 4px 0 0;
+    color: #cbd5e1;
+}
