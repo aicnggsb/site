@@ -1731,10 +1731,13 @@ svg.axe { display: block; margin: 0.5em 0; }
 .teams-popup {
     position: fixed;
     inset: 0;
+    box-sizing: border-box;
     background: rgba(0, 0, 0, 0.55);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
+    overflow: auto;
+    padding: 12px;
     z-index: 5000;
 }
 
@@ -1743,10 +1746,10 @@ svg.axe { display: block; margin: 0.5em 0; }
 }
 
 .teams-popup-panel {
-    width: calc(100vw - 24px);
-    min-height: calc(100vh - 24px);
-    max-height: none;
-    overflow: visible;
+    width: 100%;
+    min-height: min-content;
+    max-height: calc(100vh - 24px);
+    overflow: auto;
     box-sizing: border-box;
     background: #0f172a;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1887,13 +1890,12 @@ svg.axe { display: block; margin: 0.5em 0; }
 }
 
 .project-roles-popup-panel {
-    width: calc(100vw - 24px);
-    min-height: calc(100vh - 24px);
-    max-height: none;
-    overflow: visible;
+    width: 100%;
+    max-height: calc(100vh - 24px);
+    overflow: auto;
     box-sizing: border-box;
     position: relative;
-    grid-template-columns: minmax(420px, 0.85fr) minmax(900px, 1.15fr);
+    grid-template-columns: minmax(320px, 0.85fr) minmax(0, 1.15fr);
     align-items: start;
     gap: 10px 14px;
 }
@@ -2008,7 +2010,7 @@ svg.axe { display: block; margin: 0.5em 0; }
 
 .model-evaluation-criterion {
     display: grid;
-    grid-template-columns: minmax(420px, 1fr) auto;
+    grid-template-columns: minmax(260px, 1fr) auto;
     align-items: center;
     gap: 8px;
 }
@@ -2161,10 +2163,13 @@ svg.axe { display: block; margin: 0.5em 0; }
 .eval-popup {
     position: fixed;
     inset: 0;
+    box-sizing: border-box;
     background: rgba(0, 0, 0, 0.55);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
+    overflow: auto;
+    padding: 12px;
     z-index: 5300;
 }
 
@@ -2173,7 +2178,7 @@ svg.axe { display: block; margin: 0.5em 0; }
 }
 
 .eval-popup-panel {
-    width: min(460px, 92vw);
+    width: min(460px, 100%);
     background: #0f172a;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 14px;
