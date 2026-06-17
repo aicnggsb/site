@@ -455,7 +455,7 @@
             projectRolesButton.textContent = '🎯';
             projectRolesButton.title = 'Évaluer les rôles du projet';
             projectRolesButton.setAttribute('aria-label', `Évaluer les rôles du projet de l’équipe ${index + 1}`);
-            projectRolesButton.addEventListener('click', () => openProjectRolesPopup(index, team));
+            projectRolesButton.addEventListener('click', () => openProjectEvaluationTab(index, team));
             teamHeader.appendChild(projectRolesButton);
 
             const teamIndicators = createIndicatorsRow({
@@ -762,53 +762,110 @@
         updateEvaluationTitle(presentationEvaluationTitle, presentationEvaluationCriteriaElement, PRESENTATION_EVALUATION_CRITERIA, 'Evaluation de la présentation');
     }
 
-    function openProjectRolesPopup(teamIndex, team) {
-        if (!projectRolesPopupElement || !projectRolesStudentsElement || !projectRolesPopupTitle) return;
-        pendingProjectRolesTeamIndex = teamIndex;
-        const rolesMap = getProjectRolesMap();
-        projectRolesPopupTitle.textContent = `Evaluation du projet — Équipe ${teamIndex + 1}`;
-        projectRolesStudentsElement.innerHTML = '';
-        team.forEach((student) => {
-            const row = document.createElement('div');
-            row.className = 'project-role-student';
-            const name = document.createElement('strong');
-            name.textContent = student.name;
-            row.appendChild(name);
-            const score = document.createElement('strong');
-            score.className = 'project-role-score';
-            score.textContent = '—/10';
-            row.appendChild(score);
-            const actions = document.createElement('div');
-            actions.className = 'project-role-actions';
-            PROJECT_ROLES.forEach((role) => {
-                const button = document.createElement('button');
-                button.type = 'button';
-                button.className = 'project-role-button';
-                button.dataset.student = student.name;
-                button.dataset.role = role.key;
-                button.setAttribute('aria-pressed', String((rolesMap[student.name] || []).includes(role.key)));
-                button.title = `${role.key} — ${student.name}`;
-                button.textContent = role.key;
-                button.addEventListener('click', () => {
-                    button.setAttribute('aria-pressed', String(button.getAttribute('aria-pressed') !== 'true'));
-                    updateStudentProjectScores();
-                });
-                actions.appendChild(button);
-            });
-            row.appendChild(actions);
-            projectRolesStudentsElement.appendChild(row);
-        });
-        renderModelEvaluation(teamIndex);
-        updateStudentProjectScores();
-        projectRolesPopupElement.querySelectorAll('[data-project-collapsible]').forEach((section) => {
-            section.classList.remove('is-collapsed');
-            const button = section.querySelector('.project-evaluation-toggle');
-            if (button) {
-                button.textContent = '−';
-                button.setAttribute('aria-expanded', 'true');
+    function escapeProjectEvaluationHtml(value) {
+        return String(value).replace(/[&<>"']/g, (char) => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[char]));
+    }
+
+    function openProjectEvaluationTab(teamIndex, team) {
+        const selectedClass = getSelectedClass() || 'inconnue';
+        const evaluationWindow = window.open('', `_blank`);
+        if (!evaluationWindow) {
+            alert('Impossible d’ouvrir un nouvel onglet. Autorisez les popups pour afficher l’évaluation du projet.');
+            return;
+        }
+
+        const projectEvaluationData = {
+            teamIndex,
+            teamName: `Équipe ${teamIndex + 1}`,
+            selectedClass,
+            students: team.map((student) => student.name),
+            roles: PROJECT_ROLES,
+            modelCriteria: MODEL_EVALUATION_CRITERIA,
+            commandCriteria: COMMAND_EVALUATION_CRITERIA,
+            mockupCriteria: MOCKUP_EVALUATION_CRITERIA,
+            presentationCriteria: PRESENTATION_EVALUATION_CRITERIA,
+            levels: MODEL_EVALUATION_LEVELS,
+            storageKeys: {
+                roles: getProjectRolesStorageKey(),
+                model: getModelEvaluationStorageKey(),
+                command: getCommandEvaluationStorageKey(),
+                mockup: getMockupEvaluationStorageKey(),
+                presentation: getPresentationEvaluationStorageKey()
             }
-        });
-        projectRolesPopupElement.hidden = false;
+        };
+        const serializedData = JSON.stringify(projectEvaluationData).replace(/</g, '\\u003c');
+        const title = `Evaluation du projet — ${projectEvaluationData.teamName}`;
+        const baseHref = new URL('.', window.location.href).href;
+
+        evaluationWindow.document.open();
+        evaluationWindow.document.write(`<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${escapeProjectEvaluationHtml(title)}</title>
+    <base href="${escapeProjectEvaluationHtml(baseHref)}">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="project-evaluation-tab-body">
+    <main class="project-evaluation-tab-shell">
+        <div class="eval-popup-panel project-roles-popup-panel project-evaluation-tab-panel">
+            <div class="eval-popup-header">
+                <div>
+                    <h1 id="project-roles-popup-title">${escapeProjectEvaluationHtml(title)}</h1>
+                    <p class="project-evaluation-tab-context">Classe : ${escapeProjectEvaluationHtml(selectedClass)}</p>
+                </div>
+                <button id="close-project-evaluation-tab" type="button" class="generate-teams-button">Fermer</button>
+            </div>
+            <section class="model-evaluation-block project-students-block" data-project-collapsible>
+                <div class="project-evaluation-header">
+                    <h4>Liste et rôles des élèves</h4>
+                    <button type="button" class="project-evaluation-toggle" aria-expanded="true" aria-label="Masquer la liste et les rôles des élèves">−</button>
+                </div>
+                <div id="project-roles-students" class="project-roles-students project-evaluation-content"></div>
+            </section>
+            <section class="model-evaluation-block project-eval-block" data-project-collapsible>
+                <div class="project-evaluation-header">
+                    <h4 id="model-evaluation-title">Evaluation du modèle 3D — 0/10</h4>
+                    <button type="button" class="project-evaluation-toggle" aria-expanded="true" aria-label="Masquer l'évaluation du modèle 3D">−</button>
+                </div>
+                <div id="model-evaluation-criteria" class="model-evaluation-criteria project-evaluation-content"></div>
+            </section>
+            <section class="model-evaluation-block project-eval-block" data-project-collapsible>
+                <div class="project-evaluation-header">
+                    <h4 id="command-evaluation-title">Evaluation de la partie commande (PC) — 0/10</h4>
+                    <button type="button" class="project-evaluation-toggle" aria-expanded="true" aria-label="Masquer l'évaluation de la partie commande">−</button>
+                </div>
+                <div id="command-evaluation-criteria" class="model-evaluation-criteria project-evaluation-content"></div>
+            </section>
+            <section class="model-evaluation-block project-eval-block" data-project-collapsible>
+                <div class="project-evaluation-header">
+                    <h4 id="mockup-evaluation-title">Evaluation de la maquette — 0/10</h4>
+                    <button type="button" class="project-evaluation-toggle" aria-expanded="true" aria-label="Masquer l'évaluation de la maquette">−</button>
+                </div>
+                <div id="mockup-evaluation-criteria" class="model-evaluation-criteria project-evaluation-content"></div>
+            </section>
+            <section class="model-evaluation-block project-eval-block" data-project-collapsible>
+                <div class="project-evaluation-header">
+                    <h4 id="presentation-evaluation-title">Evaluation de la présentation — 0/10</h4>
+                    <button type="button" class="project-evaluation-toggle" aria-expanded="true" aria-label="Masquer l'évaluation de la présentation">−</button>
+                </div>
+                <div id="presentation-evaluation-criteria" class="model-evaluation-criteria project-evaluation-content"></div>
+            </section>
+            <button id="save-project-roles" type="button" class="generate-teams-button">Valider</button>
+        </div>
+    </main>
+    <script>window.PROJECT_EVALUATION_DATA = ${serializedData};<\/script>
+    <script src="project-evaluation-tab.js"><\/script>
+</body>
+</html>`);
+        evaluationWindow.document.close();
     }
 
     function closeProjectRolesPopup() {
