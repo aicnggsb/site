@@ -61,3 +61,14 @@ qui tombent rebondissent également entre elles pour un rendu plus vivant.
 ## Dépenser ses étoiles
 
 Les élèves de 6E disposent d'une page spéciale `depenser.html` pour convertir leurs étoiles en récompenses virtuelles. La liste des récompenses est désormais chargée automatiquement depuis une feuille Google Sheets publiée au format CSV afin de pouvoir être mise à jour facilement. Si le téléchargement échoue, les données locales du fichier `depenser_data.json` sont utilisées. Lors de la conversion, un montant négatif est envoyé dans la feuille d'historique afin de tracer les dépenses.
+
+## Accès privé
+
+Le site charge désormais `private-access.js` sur toutes les pages HTML afin de demander un mot de passe avant d'afficher le contenu. Le mot de passe par défaut est `techno2026` et il reste valable uniquement pour l'onglet courant du navigateur grâce à `sessionStorage`.
+
+Pour changer le mot de passe :
+
+1. Calculez le hash SHA-256 du nouveau mot de passe, par exemple avec `python3 -c "import hashlib; print(hashlib.sha256('nouveau-mot-de-passe'.encode()).hexdigest())"`.
+2. Remplacez la valeur de `PASSWORD_HASH` dans `private-access.js`.
+
+Important : cette protection masque l'interface dans le navigateur, mais ne remplace pas une vraie protection serveur. Pour rendre le site réellement privé, il faut aussi activer une restriction côté hébergeur, par exemple une authentification HTTP, une règle d'accès Netlify/Vercel/Cloudflare, ou un hébergement nécessitant une connexion.
