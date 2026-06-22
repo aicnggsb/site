@@ -1964,6 +1964,39 @@ svg.axe { display: block; margin: 0.5em 0; }
     box-shadow: 0 0 0 2px rgba(134, 239, 172, 0.25);
 }
 
+
+.teamwork-evaluation-students {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.teamwork-evaluation-student {
+    display: grid;
+    grid-template-columns: minmax(140px, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.teamwork-evaluation-comment {
+    grid-column: 1 / -1;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    padding: 7px 9px;
+    background: rgba(15, 23, 42, 0.72);
+    color: #fff;
+    resize: vertical;
+}
+
+.teamwork-evaluation-comment::placeholder {
+    color: rgba(255, 255, 255, 0.55);
+}
+
 .model-evaluation-block {
     margin: 0;
     padding: 10px;
@@ -2055,6 +2088,7 @@ svg.axe { display: block; margin: 0.5em 0; }
 
 @media (max-width: 600px) {
     .project-role-student,
+    .teamwork-evaluation-student,
     .model-evaluation-criterion {
         grid-template-columns: 1fr;
     }

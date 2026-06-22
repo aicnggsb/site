@@ -78,6 +78,7 @@
     const COMMAND_EVALUATION_STORAGE_PREFIX = 'commandEvaluation_';
     const MOCKUP_EVALUATION_STORAGE_PREFIX = 'mockupEvaluation_';
     const PRESENTATION_EVALUATION_STORAGE_PREFIX = 'presentationEvaluation_';
+    const TEAMWORK_EVALUATION_STORAGE_PREFIX = 'teamworkEvaluation_';
     const PROJECT_ROLES = [
         { key: '3D' },
         { key: 'PC' },
@@ -105,6 +106,7 @@
     ];
     const PRESENTATION_EVALUATION_CRITERIA = [
         'Qualité du powerpoint',
+        'Qualité de l’affiche',
         'Qualité de l’oral'
     ];
 
@@ -669,11 +671,15 @@
         }
     }
 
+    function getTeamworkEvaluationStorageKey() {
+        return `${TEAMWORK_EVALUATION_STORAGE_PREFIX}${(getSelectedClass() || 'inconnue').toUpperCase().trim()}`;
+    }
+
     function getEvaluationScore(container, criteria) {
         if (!container) return 0;
         const values = Array.from(container.querySelectorAll('.model-evaluation-level[aria-pressed="true"]'))
             .map((button) => Number(button.dataset.value));
-        return values.reduce((sum, value) => sum + value, 0) / (criteria.length * 3) * 10;
+        return values.reduce((sum, value) => sum + value, 0) / (criteria.length * 3) * 8;
     }
 
     function updateStudentProjectScores() {
@@ -693,14 +699,14 @@
                 return;
             }
             const average = selectedRoles.reduce((sum, button) => sum + roleScores[button.dataset.role], 0) / selectedRoles.length;
-            scoreElement.textContent = `${Math.round(average * 10) / 10}/10`;
+            scoreElement.textContent = `${Math.round(average * 10) / 10}/8 + travail d'équipe/2`;
         });
     }
 
     function updateEvaluationTitle(title, container, criteria, label) {
         if (!title || !container) return;
         const score = getEvaluationScore(container, criteria);
-        title.textContent = `${label} — ${Math.ceil(score)}/10`;
+        title.textContent = `${label} — ${Math.ceil(score)}/8`;
         updateStudentProjectScores();
     }
 
@@ -799,7 +805,8 @@
                 model: getModelEvaluationStorageKey(),
                 command: getCommandEvaluationStorageKey(),
                 mockup: getMockupEvaluationStorageKey(),
-                presentation: getPresentationEvaluationStorageKey()
+                presentation: getPresentationEvaluationStorageKey(),
+                teamwork: getTeamworkEvaluationStorageKey()
             }
         };
         const serializedData = JSON.stringify(projectEvaluationData).replace(/</g, '\\u003c');
@@ -835,31 +842,38 @@
             </section>
             <section class="model-evaluation-block project-eval-block" data-project-collapsible>
                 <div class="project-evaluation-header">
-                    <h4 id="model-evaluation-title">Evaluation du modèle 3D — 0/10</h4>
+                    <h4 id="model-evaluation-title">Evaluation du modèle 3D — 0/8</h4>
                     <button type="button" class="project-evaluation-toggle" aria-expanded="true" aria-label="Masquer l'évaluation du modèle 3D">−</button>
                 </div>
                 <div id="model-evaluation-criteria" class="model-evaluation-criteria project-evaluation-content"></div>
             </section>
             <section class="model-evaluation-block project-eval-block" data-project-collapsible>
                 <div class="project-evaluation-header">
-                    <h4 id="command-evaluation-title">Evaluation de la partie commande (PC) — 0/10</h4>
+                    <h4 id="command-evaluation-title">Evaluation de la partie commande (PC) — 0/8</h4>
                     <button type="button" class="project-evaluation-toggle" aria-expanded="true" aria-label="Masquer l'évaluation de la partie commande">−</button>
                 </div>
                 <div id="command-evaluation-criteria" class="model-evaluation-criteria project-evaluation-content"></div>
             </section>
             <section class="model-evaluation-block project-eval-block" data-project-collapsible>
                 <div class="project-evaluation-header">
-                    <h4 id="mockup-evaluation-title">Evaluation de la maquette — 0/10</h4>
+                    <h4 id="mockup-evaluation-title">Evaluation de la maquette — 0/8</h4>
                     <button type="button" class="project-evaluation-toggle" aria-expanded="true" aria-label="Masquer l'évaluation de la maquette">−</button>
                 </div>
                 <div id="mockup-evaluation-criteria" class="model-evaluation-criteria project-evaluation-content"></div>
             </section>
             <section class="model-evaluation-block project-eval-block" data-project-collapsible>
                 <div class="project-evaluation-header">
-                    <h4 id="presentation-evaluation-title">Evaluation de la présentation — 0/10</h4>
+                    <h4 id="presentation-evaluation-title">Evaluation de la présentation — 0/8</h4>
                     <button type="button" class="project-evaluation-toggle" aria-expanded="true" aria-label="Masquer l'évaluation de la présentation">−</button>
                 </div>
                 <div id="presentation-evaluation-criteria" class="model-evaluation-criteria project-evaluation-content"></div>
+            </section>
+            <section class="model-evaluation-block project-eval-block" data-project-collapsible>
+                <div class="project-evaluation-header">
+                    <h4 id="teamwork-evaluation-title">Evaluation travail d'équipe — 0/2</h4>
+                    <button type="button" class="project-evaluation-toggle" aria-expanded="true" aria-label="Masquer l'évaluation du travail d'équipe">−</button>
+                </div>
+                <div id="teamwork-evaluation-students" class="teamwork-evaluation-students project-evaluation-content"></div>
             </section>
             <button id="save-project-roles" type="button" class="generate-teams-button">Valider</button>
         </div>
