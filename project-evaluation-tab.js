@@ -35,10 +35,31 @@
         return readStorageMap(data.storageKeys.teamwork);
     }
 
-    function getTeamworkScore(studentName) {
+    function getSelectedTeamworkScore(studentName) {
+        if (teamworkEvaluationStudentsElement) {
+            const studentRow = Array.from(teamworkEvaluationStudentsElement.querySelectorAll('.teamwork-evaluation-student'))
+                .find((row) => row.dataset.student === studentName);
+            const selected = studentRow && studentRow.querySelector('.teamwork-evaluation-level[aria-pressed="true"]');
+            if (selected) return Number(selected.dataset.value);
+        }
         const teamEvaluations = getTeamworkEvaluations()[data.teamIndex] || {};
         const studentEvaluation = teamEvaluations[studentName] || {};
         return Number(studentEvaluation.score || 0);
+    }
+
+    function saveTeamworkEvaluations() {
+        if (!teamworkEvaluationStudentsElement) return;
+        const teamworkEvaluations = getTeamworkEvaluations();
+        teamworkEvaluations[data.teamIndex] = {};
+        teamworkEvaluationStudentsElement.querySelectorAll('.teamwork-evaluation-student').forEach((row) => {
+            const selected = row.querySelector('.teamwork-evaluation-level[aria-pressed="true"]');
+            const comment = row.querySelector('.teamwork-evaluation-comment');
+            teamworkEvaluations[data.teamIndex][row.dataset.student] = {
+                score: selected ? Number(selected.dataset.value) : 0,
+                comment: comment ? comment.value.trim() : ''
+            };
+        });
+        localStorage.setItem(data.storageKeys.teamwork, JSON.stringify(teamworkEvaluations));
     }
 
     function updateStudentProjectScores() {
@@ -54,12 +75,12 @@
             const scoreElement = row.querySelector('.project-role-score');
             if (!scoreElement) return;
             if (!selectedRoles.length) {
-                const teamworkScore = getTeamworkScore(row.dataset.student);
+                const teamworkScore = getSelectedTeamworkScore(row.dataset.student);
                 scoreElement.textContent = `${Math.round(teamworkScore * 10) / 10}/2`;
                 return;
             }
             const roleAverage = selectedRoles.reduce((sum, button) => sum + roleScores[button.dataset.role], 0) / selectedRoles.length;
-            const teamworkScore = getTeamworkScore(row.dataset.student);
+            const teamworkScore = getSelectedTeamworkScore(row.dataset.student);
             const total = roleAverage + teamworkScore;
             scoreElement.textContent = `${Math.round(total * 10) / 10}/10 (${Math.round(roleAverage * 10) / 10}/8 + ${Math.round(teamworkScore * 10) / 10}/2)`;
         });
@@ -145,7 +166,7 @@
         const selectedScores = Array.from(teamworkEvaluationStudentsElement.querySelectorAll('.teamwork-evaluation-level[aria-pressed="true"]'))
             .map((button) => Number(button.dataset.value));
         const average = selectedScores.length ? selectedScores.reduce((sum, value) => sum + value, 0) / selectedScores.length : 0;
-        teamworkEvaluationTitle.textContent = `Evaluation travail d'équipe — ${Math.round(average * 10) / 10}/2`;
+        teamworkEvaluationTitle.textContent = `Evaluation du travail d'équipe — ${Math.round(average * 10) / 10}/2`;
         updateStudentProjectScores();
     }
 
@@ -173,6 +194,7 @@
                 button.addEventListener('click', () => {
                     actions.querySelectorAll('.teamwork-evaluation-level').forEach((item) => item.setAttribute('aria-pressed', 'false'));
                     button.setAttribute('aria-pressed', 'true');
+                    saveTeamworkEvaluations();
                     updateTeamworkTitle();
                 });
                 actions.appendChild(button);
@@ -182,6 +204,7 @@
             comment.rows = 2;
             comment.placeholder = 'Commentaire...';
             comment.value = savedEvaluation.comment || '';
+            comment.addEventListener('input', saveTeamworkEvaluations);
             row.append(name, actions, comment);
             teamworkEvaluationStudentsElement.appendChild(row);
         });
@@ -213,19 +236,7 @@
         });
         localStorage.setItem(data.storageKeys.roles, JSON.stringify(rolesMap));
 
-        if (teamworkEvaluationStudentsElement) {
-            const teamworkEvaluations = getTeamworkEvaluations();
-            teamworkEvaluations[data.teamIndex] = {};
-            teamworkEvaluationStudentsElement.querySelectorAll('.teamwork-evaluation-student').forEach((row) => {
-                const selected = row.querySelector('.teamwork-evaluation-level[aria-pressed="true"]');
-                const comment = row.querySelector('.teamwork-evaluation-comment');
-                teamworkEvaluations[data.teamIndex][row.dataset.student] = {
-                    score: selected ? Number(selected.dataset.value) : 0,
-                    comment: comment ? comment.value.trim() : ''
-                };
-            });
-            localStorage.setItem(data.storageKeys.teamwork, JSON.stringify(teamworkEvaluations));
-        }
+        saveTeamworkEvaluations();
 
         [
             [data.storageKeys.model, data.modelCriteria, modelEvaluationCriteriaElement],

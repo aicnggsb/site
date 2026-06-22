@@ -870,10 +870,10 @@
             </section>
             <section class="model-evaluation-block project-eval-block" data-project-collapsible>
                 <div class="project-evaluation-header">
-                    <h4 id="teamwork-evaluation-title">Evaluation travail d'équipe — 0/2</h4>
+                    <h4 id="teamwork-evaluation-title">Evaluation du travail d'équipe — 0/2</h4>
                     <button type="button" class="project-evaluation-toggle" aria-expanded="true" aria-label="Masquer l'évaluation du travail d'équipe">−</button>
                 </div>
-                <div id="teamwork-evaluation-students" class="teamwork-evaluation-students project-evaluation-content"></div>
+                <div id="teamwork-evaluation-students" class="model-evaluation-criteria teamwork-evaluation-students project-evaluation-content"></div>
             </section>
             <button id="save-project-roles" type="button" class="generate-teams-button">Valider</button>
         </div>
