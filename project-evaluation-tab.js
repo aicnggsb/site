@@ -63,8 +63,12 @@
     }
 
 
-    function roundOne(value) {
-        return Math.round(Number(value || 0) * 10) / 10;
+    function roundUpHalf(value) {
+        return Math.ceil(Number(value || 0) * 2) / 2;
+    }
+
+    function formatScore(value) {
+        return Number.isInteger(value) ? String(value) : value.toFixed(1);
     }
 
     function getSelectedCriteriaDetails(container, criteria) {
@@ -110,33 +114,33 @@
     }
 
     function generateStudentAppreciation(row) {
-        const studentName = row.dataset.student || 'Cet élève';
+        const studentName = row.dataset.student || '';
         const selectedRoles = Array.from(row.querySelectorAll('.project-role-button[aria-pressed="true"]')).map((button) => button.dataset.role);
-        const teamworkScore = roundOne(getSelectedTeamworkScore(studentName));
+        const teamworkScore = getSelectedTeamworkScore(studentName);
         const teamworkComment = (getTeamworkEvaluations()[data.teamIndex]?.[studentName]?.comment || '').trim();
         const roleParts = selectedRoles.map((roleKey) => {
             const evaluation = getRoleEvaluation(roleKey);
             if (!evaluation) return null;
-            const score = roundOne(getEvaluationScore(evaluation.container, evaluation.criteria));
+            const score = getEvaluationScore(evaluation.container, evaluation.criteria);
             const details = getSelectedCriteriaDetails(evaluation.container, evaluation.criteria);
             return { label: evaluation.label, labelWithArticle: evaluation.labelWithArticle, score, details };
         }).filter(Boolean);
 
-        const roleAverage = roleParts.length ? roundOne(roleParts.reduce((sum, part) => sum + part.score, 0) / roleParts.length) : 0;
-        const total = roundOne(roleAverage + teamworkScore);
+        const roleAverage = roleParts.length ? roleParts.reduce((sum, part) => sum + part.score, 0) / roleParts.length : 0;
+        const total = roundUpHalf(roleAverage + teamworkScore);
         const intro = selectedRoles.length
-            ? `${studentName} obtient ${total}/10 : ${roleAverage}/8 pour ${roleParts.map((part) => part.labelWithArticle).join(' et ')} et ${teamworkScore}/2 pour le travail d'équipe.`
-            : `${studentName} obtient ${teamworkScore}/2 pour le travail d'équipe, aucun rôle de projet n'étant sélectionné.`;
+            ? `Note globale : ${formatScore(total)}/10.`
+            : `Note globale : ${formatScore(roundUpHalf(teamworkScore))}/2.`;
         const roleSentences = roleParts.map((part) => {
             const levelText = describeLevel(part.score / 8 * 3);
-            return `Dans son rôle lié à la ${part.label}, le résultat est ${levelText} (${part.score}/8). ${buildCriterionSentence(part.details)}`;
+            return `Pour ${part.labelWithArticle}, le travail est ${levelText}. ${buildCriterionSentence(part.details)}`;
         });
         const teamworkSentence = teamworkScore >= 1.5
-            ? `Son implication dans le groupe est positive (${teamworkScore}/2).`
+            ? 'L’implication dans le groupe est positive et contribue à l’avancée du projet.'
             : teamworkScore >= 0.75
-                ? `Le travail d'équipe est présent mais encore irrégulier (${teamworkScore}/2).`
-                : `Le travail d'équipe pèse sur la note et doit progresser (${teamworkScore}/2).`;
-        const commentSentence = teamworkComment ? `Remarque d'équipe : ${teamworkComment}` : '';
+                ? 'Le travail d’équipe existe, mais il gagnerait à devenir plus régulier et plus autonome.'
+                : 'Le travail d’équipe reste un point important à renforcer pour mieux participer à la dynamique du groupe.';
+        const commentSentence = teamworkComment ? `À noter également : ${teamworkComment}` : '';
         return [intro, ...roleSentences, teamworkSentence, commentSentence].filter(Boolean).join(' ');
     }
 
@@ -158,20 +162,20 @@
             if (!scoreElement) return;
             if (!selectedRoles.length) {
                 const teamworkScore = getSelectedTeamworkScore(row.dataset.student);
-                scoreElement.textContent = `${Math.round(teamworkScore * 10) / 10}/2`;
+                scoreElement.textContent = `${formatScore(roundUpHalf(teamworkScore))}/2`;
                 return;
             }
             const roleAverage = selectedRoles.reduce((sum, button) => sum + roleScores[button.dataset.role], 0) / selectedRoles.length;
             const teamworkScore = getSelectedTeamworkScore(row.dataset.student);
             const total = roleAverage + teamworkScore;
-            scoreElement.textContent = `${Math.round(total * 10) / 10}/10 (${Math.round(roleAverage * 10) / 10}/8 + ${Math.round(teamworkScore * 10) / 10}/2)`;
+            scoreElement.textContent = `${formatScore(roundUpHalf(total))}/10 (${formatScore(roundUpHalf(roleAverage))}/8 + ${formatScore(roundUpHalf(teamworkScore))}/2)`;
         });
     }
 
     function updateEvaluationTitle(title, container, criteria, label) {
         if (!title || !container) return;
         const score = getEvaluationScore(container, criteria);
-        title.textContent = `${label} — ${Math.ceil(score)}/8`;
+        title.textContent = `${label} — ${formatScore(roundUpHalf(score))}/8`;
         updateStudentProjectScores();
     }
 
@@ -258,7 +262,7 @@
         const selectedScores = Array.from(teamworkEvaluationStudentsElement.querySelectorAll('.teamwork-evaluation-level[aria-pressed="true"]'))
             .map((button) => Number(button.dataset.value));
         const average = selectedScores.length ? selectedScores.reduce((sum, value) => sum + value, 0) / selectedScores.length : 0;
-        teamworkEvaluationTitle.textContent = `Evaluation du travail d'équipe — ${Math.round(average * 10) / 10}/2`;
+        teamworkEvaluationTitle.textContent = `Evaluation du travail d'équipe — ${formatScore(roundUpHalf(average))}/2`;
         updateStudentProjectScores();
     }
 
