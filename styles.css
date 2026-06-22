@@ -1916,6 +1916,10 @@ svg.axe { display: block; margin: 0.5em 0; }
     grid-column: 2;
 }
 
+.project-eval-block.is-collapsed + .project-eval-block.is-collapsed {
+    margin-top: -8px;
+}
+
 .project-roles-students {
     display: grid;
     gap: 8px;
@@ -1932,10 +1936,34 @@ svg.axe { display: block; margin: 0.5em 0; }
     background: rgba(255, 255, 255, 0.07);
 }
 
+.project-role-score-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
 .project-role-score {
     min-width: 58px;
     color: #bfdbfe;
     text-align: right;
+}
+
+.project-role-appreciation-button {
+    width: 24px;
+    height: 24px;
+    border: 1px solid rgba(191, 219, 254, 0.75);
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.35);
+    color: #fff;
+    cursor: pointer;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.project-role-appreciation-button:hover,
+.project-role-appreciation-button:focus-visible {
+    background: #2563eb;
 }
 
 .project-role-actions {
@@ -2032,8 +2060,21 @@ svg.axe { display: block; margin: 0.5em 0; }
     font-weight: 700;
 }
 
+.model-evaluation-block.is-collapsed {
+    padding: 6px 8px;
+}
+
 .model-evaluation-block.is-collapsed .project-evaluation-content {
     display: none;
+}
+
+.model-evaluation-block.is-collapsed h4 {
+    font-size: 0.95rem;
+}
+
+.model-evaluation-block.is-collapsed .project-evaluation-toggle {
+    min-width: 28px;
+    padding: 1px 7px;
 }
 
 .model-evaluation-criteria {

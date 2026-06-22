@@ -62,6 +62,88 @@
         localStorage.setItem(data.storageKeys.teamwork, JSON.stringify(teamworkEvaluations));
     }
 
+
+    function roundOne(value) {
+        return Math.round(Number(value || 0) * 10) / 10;
+    }
+
+    function getSelectedCriteriaDetails(container, criteria) {
+        if (!container) return [];
+        return criteria.map((criterion, criterionIndex) => {
+            const selected = container.querySelector(`.model-evaluation-level[data-criterion="${criterionIndex}"][aria-pressed="true"]`);
+            const value = selected ? Number(selected.dataset.value) : 0;
+            return { criterion, value, level: selected ? selected.textContent.trim() : data.levels[value] || 'Non évalué' };
+        });
+    }
+
+    function getRoleEvaluation(roleKey) {
+        const roleEvaluations = {
+            '3D': { label: 'modèle 3D', labelWithArticle: 'le modèle 3D', container: modelEvaluationCriteriaElement, criteria: data.modelCriteria },
+            PC: { label: 'partie commande', labelWithArticle: 'la partie commande', container: commandEvaluationCriteriaElement, criteria: data.commandCriteria },
+            Prez: { label: 'présentation', labelWithArticle: 'la présentation', container: presentationEvaluationCriteriaElement, criteria: data.presentationCriteria },
+            MQ: { label: 'maquette', labelWithArticle: 'la maquette', container: mockupEvaluationCriteriaElement, criteria: data.mockupCriteria }
+        };
+        return roleEvaluations[roleKey] || null;
+    }
+
+    function describeLevel(value) {
+        if (value >= 2.5) return 'très solide';
+        if (value >= 1.5) return 'satisfaisant';
+        if (value >= 0.5) return 'fragile';
+        return 'insuffisant ou non renseigné';
+    }
+
+    function buildCriterionSentence(details) {
+        const strengths = details.filter((item) => item.value >= 2).map((item) => item.criterion);
+        const weaknesses = details.filter((item) => item.value <= 1).map((item) => item.criterion);
+        const sentences = [];
+        if (strengths.length) {
+            sentences.push(`Les points les plus réussis concernent ${strengths.slice(0, 2).join(' et ')}.`);
+        }
+        if (weaknesses.length) {
+            sentences.push(`La note est limitée par ${weaknesses.slice(0, 2).join(' et ')}, qui restent à renforcer.`);
+        }
+        if (!sentences.length && details.length) {
+            sentences.push('Les critères sélectionnés montrent un travail globalement équilibré, sans point très marqué.');
+        }
+        return sentences.join(' ');
+    }
+
+    function generateStudentAppreciation(row) {
+        const studentName = row.dataset.student || 'Cet élève';
+        const selectedRoles = Array.from(row.querySelectorAll('.project-role-button[aria-pressed="true"]')).map((button) => button.dataset.role);
+        const teamworkScore = roundOne(getSelectedTeamworkScore(studentName));
+        const teamworkComment = (getTeamworkEvaluations()[data.teamIndex]?.[studentName]?.comment || '').trim();
+        const roleParts = selectedRoles.map((roleKey) => {
+            const evaluation = getRoleEvaluation(roleKey);
+            if (!evaluation) return null;
+            const score = roundOne(getEvaluationScore(evaluation.container, evaluation.criteria));
+            const details = getSelectedCriteriaDetails(evaluation.container, evaluation.criteria);
+            return { label: evaluation.label, labelWithArticle: evaluation.labelWithArticle, score, details };
+        }).filter(Boolean);
+
+        const roleAverage = roleParts.length ? roundOne(roleParts.reduce((sum, part) => sum + part.score, 0) / roleParts.length) : 0;
+        const total = roundOne(roleAverage + teamworkScore);
+        const intro = selectedRoles.length
+            ? `${studentName} obtient ${total}/10 : ${roleAverage}/8 pour ${roleParts.map((part) => part.labelWithArticle).join(' et ')} et ${teamworkScore}/2 pour le travail d'équipe.`
+            : `${studentName} obtient ${teamworkScore}/2 pour le travail d'équipe, aucun rôle de projet n'étant sélectionné.`;
+        const roleSentences = roleParts.map((part) => {
+            const levelText = describeLevel(part.score / 8 * 3);
+            return `Dans son rôle lié à la ${part.label}, le résultat est ${levelText} (${part.score}/8). ${buildCriterionSentence(part.details)}`;
+        });
+        const teamworkSentence = teamworkScore >= 1.5
+            ? `Son implication dans le groupe est positive (${teamworkScore}/2).`
+            : teamworkScore >= 0.75
+                ? `Le travail d'équipe est présent mais encore irrégulier (${teamworkScore}/2).`
+                : `Le travail d'équipe pèse sur la note et doit progresser (${teamworkScore}/2).`;
+        const commentSentence = teamworkComment ? `Remarque d'équipe : ${teamworkComment}` : '';
+        return [intro, ...roleSentences, teamworkSentence, commentSentence].filter(Boolean).join(' ');
+    }
+
+    function showStudentAppreciation(row) {
+        window.alert(generateStudentAppreciation(row));
+    }
+
     function updateStudentProjectScores() {
         if (!projectRolesStudentsElement) return;
         const roleScores = {
@@ -134,10 +216,20 @@
             const name = document.createElement('strong');
             name.textContent = studentName;
             row.appendChild(name);
+            const scoreWrap = document.createElement('div');
+            scoreWrap.className = 'project-role-score-wrap';
             const score = document.createElement('strong');
             score.className = 'project-role-score';
             score.textContent = '—/10';
-            row.appendChild(score);
+            const appreciationButton = document.createElement('button');
+            appreciationButton.type = 'button';
+            appreciationButton.className = 'project-role-appreciation-button';
+            appreciationButton.textContent = '?';
+            appreciationButton.title = `Afficher l'appréciation de ${studentName}`;
+            appreciationButton.setAttribute('aria-label', `Afficher l'appréciation de ${studentName}`);
+            appreciationButton.addEventListener('click', () => showStudentAppreciation(row));
+            scoreWrap.append(score, appreciationButton);
+            row.appendChild(scoreWrap);
             const actions = document.createElement('div');
             actions.className = 'project-role-actions';
             data.roles.forEach((role) => {
