@@ -1101,6 +1101,83 @@
         }[char]));
     }
 
+    function roundUpHalf(value) {
+        return Math.ceil(Number(value || 0) * 2) / 2;
+    }
+
+    function formatEvaluationScore(value) {
+        const rounded = Math.round(Number(value || 0) * 10) / 10;
+        return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+    }
+
+    function describeProjectLevel(value) {
+        if (value >= 2.5) return 'très solide';
+        if (value >= 1.5) return 'satisfaisant';
+        if (value >= 0.5) return 'fragile';
+        return 'insuffisant ou non renseigné';
+    }
+
+    function buildProjectCriterionSentence(details) {
+        const strengths = details.filter((item) => item.value >= 2).map((item) => item.criterion);
+        const weaknesses = details.filter((item) => item.value <= 1).map((item) => item.criterion);
+        const sentences = [];
+        if (strengths.length) {
+            sentences.push(`Les points les plus réussis concernent ${strengths.slice(0, 2).join(' et ')}.`);
+        }
+        if (weaknesses.length) {
+            sentences.push(`La note est limitée par ${weaknesses.slice(0, 2).join(' et ')}, qui restent à renforcer.`);
+        }
+        if (!sentences.length && details.length) {
+            sentences.push('Les critères sélectionnés montrent un travail globalement équilibré, sans point très marqué.');
+        }
+        return sentences.join(' ');
+    }
+
+    function getSavedRoleEvaluation(roleKey, teamIndex) {
+        const configs = {
+            '3D': { label: 'modèle 3D', labelWithArticle: 'le modèle 3D', evaluations: getModelEvaluations(), criteria: MODEL_EVALUATION_CRITERIA },
+            PC: { label: 'partie commande', labelWithArticle: 'la partie commande', evaluations: getCommandEvaluations(), criteria: COMMAND_EVALUATION_CRITERIA },
+            Prez: { label: 'présentation', labelWithArticle: 'la présentation', evaluations: getPresentationEvaluations(), criteria: PRESENTATION_EVALUATION_CRITERIA },
+            MQ: { label: 'maquette', labelWithArticle: 'la maquette', evaluations: getMockupEvaluations(), criteria: MOCKUP_EVALUATION_CRITERIA }
+        };
+        const config = configs[roleKey];
+        if (!config) return null;
+        const values = config.evaluations[teamIndex];
+        if (!Array.isArray(values)) return null;
+        const details = config.criteria.map((criterion, criterionIndex) => ({
+            criterion,
+            value: numberOrDefault(values[criterionIndex], 0)
+        }));
+        const score = values.reduce((sum, value) => sum + numberOrDefault(value, 0), 0) / (config.criteria.length * 3) * 8;
+        return { ...config, score, details };
+    }
+
+    function buildStudentProjectAppreciation(teamIndex, roles, roleComments, teamwork) {
+        const roleParts = roles.map((roleKey) => {
+            const evaluation = getSavedRoleEvaluation(roleKey, teamIndex);
+            if (!evaluation) return null;
+            return { ...evaluation, comment: (roleComments[roleKey] || '').trim() };
+        }).filter(Boolean);
+        const teamworkScore = numberOrDefault(teamwork.score, 0);
+        const roleAverage = roleParts.length ? roleParts.reduce((sum, part) => sum + part.score, 0) / roleParts.length : 0;
+        const total = roleParts.length ? roundUpHalf(roleAverage + teamworkScore) : roundUpHalf(teamworkScore);
+        const intro = roleParts.length
+            ? `Appréciation projet : note globale ${formatEvaluationScore(total)}/10.`
+            : `Appréciation projet : note de travail d'équipe ${formatEvaluationScore(total)}/2.`;
+        const roleSentences = roleParts.map((part) => {
+            const levelText = describeProjectLevel(part.score / 8 * 3);
+            const roleComment = part.comment ? ` Commentaire : ${part.comment}` : '';
+            return `Pour ${part.labelWithArticle}, le travail est ${levelText}. ${buildProjectCriterionSentence(part.details)}${roleComment}`;
+        });
+        const teamworkSentence = teamworkScore >= 1.5
+            ? 'L’implication dans le groupe est positive et contribue à l’avancée du projet.'
+            : teamworkScore >= 0.75
+                ? 'Le travail d’équipe existe, mais il gagnerait à devenir plus régulier et plus autonome.'
+                : 'Le travail d’équipe reste un point important à renforcer pour mieux participer à la dynamique du groupe.';
+        const commentSentence = (teamwork.comment || '').trim() ? `À noter également : ${teamwork.comment.trim()}` : '';
+        return [intro, ...roleSentences, teamworkSentence, commentSentence].filter(Boolean).join(' ');
+    }
+
     function getSavedRoleScore(roleKey, teamIndex) {
         const configs = {
             '3D': { evaluations: getModelEvaluations(), criteria: MODEL_EVALUATION_CRITERIA },
@@ -1146,6 +1223,8 @@
             if (roleComment) parts.push(roleComment);
         });
         if ((teamwork.comment || '').trim()) parts.push(teamwork.comment.trim());
+        const appreciation = buildStudentProjectAppreciation(teamIndex, roles, roleComments, teamwork);
+        if (appreciation) parts.push(appreciation);
         return parts;
     }
 
