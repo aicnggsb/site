@@ -79,6 +79,7 @@
     const MOCKUP_EVALUATION_STORAGE_PREFIX = 'mockupEvaluation_';
     const PRESENTATION_EVALUATION_STORAGE_PREFIX = 'presentationEvaluation_';
     const TEAMWORK_EVALUATION_STORAGE_PREFIX = 'teamworkEvaluation_';
+    const ROLE_EVALUATION_COMMENTS_STORAGE_PREFIX = 'roleEvaluationComments_';
     const PROJECT_ROLES = [
         { key: '3D' },
         { key: 'PC' },
@@ -675,6 +676,26 @@
         return `${TEAMWORK_EVALUATION_STORAGE_PREFIX}${(getSelectedClass() || 'inconnue').toUpperCase().trim()}`;
     }
 
+    function getTeamworkEvaluations() {
+        try {
+            return JSON.parse(localStorage.getItem(getTeamworkEvaluationStorageKey()) || '{}');
+        } catch (error) {
+            return {};
+        }
+    }
+
+    function getRoleEvaluationCommentsStorageKey() {
+        return `${ROLE_EVALUATION_COMMENTS_STORAGE_PREFIX}${(getSelectedClass() || 'inconnue').toUpperCase().trim()}`;
+    }
+
+    function getRoleEvaluationComments() {
+        try {
+            return JSON.parse(localStorage.getItem(getRoleEvaluationCommentsStorageKey()) || '{}');
+        } catch (error) {
+            return {};
+        }
+    }
+
     function getEvaluationScore(container, criteria) {
         if (!container) return 0;
         const values = Array.from(container.querySelectorAll('.model-evaluation-level[aria-pressed="true"]'))
@@ -806,7 +827,8 @@
                 command: getCommandEvaluationStorageKey(),
                 mockup: getMockupEvaluationStorageKey(),
                 presentation: getPresentationEvaluationStorageKey(),
-                teamwork: getTeamworkEvaluationStorageKey()
+                teamwork: getTeamworkEvaluationStorageKey(),
+                roleComments: getRoleEvaluationCommentsStorageKey()
             }
         };
         const serializedData = JSON.stringify(projectEvaluationData).replace(/</g, '\\u003c');
@@ -846,6 +868,7 @@
                     <button type="button" class="project-evaluation-toggle" aria-expanded="true" aria-label="Masquer l'évaluation du modèle 3D">−</button>
                 </div>
                 <div id="model-evaluation-criteria" class="model-evaluation-criteria project-evaluation-content"></div>
+                <textarea id="model-evaluation-comment" class="role-evaluation-comment project-evaluation-content" rows="2" placeholder="Commentaire pour les élèves ayant le rôle 3D..."></textarea>
             </section>
             <section class="model-evaluation-block project-eval-block" data-project-collapsible>
                 <div class="project-evaluation-header">
@@ -853,6 +876,7 @@
                     <button type="button" class="project-evaluation-toggle" aria-expanded="true" aria-label="Masquer l'évaluation de la partie commande">−</button>
                 </div>
                 <div id="command-evaluation-criteria" class="model-evaluation-criteria project-evaluation-content"></div>
+                <textarea id="command-evaluation-comment" class="role-evaluation-comment project-evaluation-content" rows="2" placeholder="Commentaire pour les élèves ayant le rôle PC..."></textarea>
             </section>
             <section class="model-evaluation-block project-eval-block" data-project-collapsible>
                 <div class="project-evaluation-header">
@@ -860,6 +884,7 @@
                     <button type="button" class="project-evaluation-toggle" aria-expanded="true" aria-label="Masquer l'évaluation de la maquette">−</button>
                 </div>
                 <div id="mockup-evaluation-criteria" class="model-evaluation-criteria project-evaluation-content"></div>
+                <textarea id="mockup-evaluation-comment" class="role-evaluation-comment project-evaluation-content" rows="2" placeholder="Commentaire pour les élèves ayant le rôle MQ..."></textarea>
             </section>
             <section class="model-evaluation-block project-eval-block" data-project-collapsible>
                 <div class="project-evaluation-header">
@@ -867,6 +892,7 @@
                     <button type="button" class="project-evaluation-toggle" aria-expanded="true" aria-label="Masquer l'évaluation de la présentation">−</button>
                 </div>
                 <div id="presentation-evaluation-criteria" class="model-evaluation-criteria project-evaluation-content"></div>
+                <textarea id="presentation-evaluation-comment" class="role-evaluation-comment project-evaluation-content" rows="2" placeholder="Commentaire pour les élèves ayant le rôle présentation..."></textarea>
             </section>
             <section class="model-evaluation-block project-eval-block" data-project-collapsible>
                 <div class="project-evaluation-header">
@@ -1064,6 +1090,65 @@
         }
     }
 
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[char]));
+    }
+
+    function getSavedRoleScore(roleKey, teamIndex) {
+        const configs = {
+            '3D': { evaluations: getModelEvaluations(), criteria: MODEL_EVALUATION_CRITERIA },
+            PC: { evaluations: getCommandEvaluations(), criteria: COMMAND_EVALUATION_CRITERIA },
+            Prez: { evaluations: getPresentationEvaluations(), criteria: PRESENTATION_EVALUATION_CRITERIA },
+            MQ: { evaluations: getMockupEvaluations(), criteria: MOCKUP_EVALUATION_CRITERIA }
+        };
+        const config = configs[roleKey];
+        if (!config) return null;
+        const values = config.evaluations[teamIndex];
+        if (!Array.isArray(values)) return null;
+        const rawScore = values.reduce((sum, value) => sum + numberOrDefault(value, 0), 0) / (config.criteria.length * 3) * 8;
+        return rawScore / 8 * 10;
+    }
+
+    function formatProjectScore(value) {
+        const rounded = Math.round(Number(value || 0) * 10) / 10;
+        return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+    }
+
+    function getRoleIndicator(roleKey, score) {
+        if (score === null || score === undefined) return '';
+        if (score === 10) return `${roleKey}++`;
+        if (score > 7) return `${roleKey}+`;
+        if (score < 5) return `${roleKey}-`;
+        return '';
+    }
+
+    function buildStudentProjectCommentParts(studentName) {
+        const teamIndex = currentTeams.findIndex((team) => team.some((student) => student.name === studentName));
+        if (teamIndex < 0) return [];
+        const roles = getProjectRolesMap()[studentName] || [];
+        const roleComments = getRoleEvaluationComments()[teamIndex] || {};
+        const teamwork = getTeamworkEvaluations()[teamIndex]?.[studentName] || {};
+        const parts = [];
+        roles.forEach((roleKey) => {
+            const score = getSavedRoleScore(roleKey, teamIndex);
+            const exportRoleKey = roleKey === 'Prez' ? 'P' : roleKey;
+            const indicator = getRoleIndicator(exportRoleKey, score);
+            if (score !== null && score !== undefined) parts.push(`${exportRoleKey} : ${formatProjectScore(score)}/10`);
+            if (indicator) parts.push(indicator);
+            const roleComment = (roleComments[roleKey] || '').trim();
+            if (roleComment) parts.push(roleComment);
+        });
+        if ((teamwork.comment || '').trim()) parts.push(teamwork.comment.trim());
+        return parts;
+    }
+
     function renderSessionTable() {
         const sessionMap = getSessionScoresMap();
         const classComments = Array.isArray(sessionMap.__classComments) ? sessionMap.__classComments : [];
@@ -1083,14 +1168,19 @@
             const bHue = ((clamp(b, -3, 3) + 3) / 6) * 120;
             const tHue = ((clamp(t, -3, 3) + 3) / 6) * 120;
             const aHue = ((clamp(a, -3, 3) + 3) / 6) * 120;
-            const comments = Array.isArray(scores.comments) ? scores.comments.join(' | ') : '';
+            const commentParts = Array.isArray(scores.comments) ? [...scores.comments] : [];
+            commentParts.push(...buildStudentProjectCommentParts(name));
+            const comments = commentParts.filter(Boolean).map(escapeHtml).join('<br>');
+            const safeClass = escapeHtml(selectedClass);
+            const safeTeam = escapeHtml(getTeamLabelForStudent(name));
+            const safeName = escapeHtml(name);
             if (isAbsent) {
-                return `<tr style="background:#f3f4f6;color:#6b7280"><td>${selectedClass}</td><td>${getTeamLabelForStudent(name)}</td><td>${name}</td><td>-</td><td>-</td><td>-</td><td>${comments}</td></tr>`;
+                return `<tr style="background:#f3f4f6;color:#6b7280"><td>${safeClass}</td><td>${safeTeam}</td><td>${safeName}</td><td>-</td><td>-</td><td>-</td><td>${comments}</td></tr>`;
             }
-            return `<tr><td>${selectedClass}</td><td>${getTeamLabelForStudent(name)}</td><td>${name}</td><td style="background:hsl(${bHue} 90% 50% / .2);color:hsl(${bHue} 90% 38%)">${b}</td><td style="background:hsl(${tHue} 90% 50% / .2);color:hsl(${tHue} 90% 38%)">${t}</td><td style="background:hsl(${aHue} 90% 50% / .2);color:hsl(${aHue} 90% 38%)">${a}</td><td>${comments}</td></tr>`;
+            return `<tr><td>${safeClass}</td><td>${safeTeam}</td><td>${safeName}</td><td style="background:hsl(${bHue} 90% 50% / .2);color:hsl(${bHue} 90% 38%)">${b}</td><td style="background:hsl(${tHue} 90% 50% / .2);color:hsl(${tHue} 90% 38%)">${t}</td><td style="background:hsl(${aHue} 90% 50% / .2);color:hsl(${aHue} 90% 38%)">${a}</td><td>${comments}</td></tr>`;
         }).join('') : '<tr><td colspan="7">Aucune donnée de séance.</td></tr>';
         const classCommentsHtml = classComments.length
-            ? `<div style="border:1px solid #ccc;padding:10px;margin:12px 0 16px 0;background:#f8fafc"><strong>Commentaire classe</strong><br>${classComments.join('<br>')}</div>`
+            ? `<div style="border:1px solid #ccc;padding:10px;margin:12px 0 16px 0;background:#f8fafc"><strong>Commentaire classe</strong><br>${classComments.map(escapeHtml).join('<br>')}</div>`
             : `<div style="border:1px solid #ccc;padding:10px;margin:12px 0 16px 0;background:#f8fafc"><strong>Commentaire classe</strong><br>Aucun commentaire classe.</div>`;
         viewWindow.document.write(`<html><head><title>Tableau séance ${selectedClass}</title><style>body{font-family:Arial,sans-serif;padding:20px}table{border-collapse:collapse;width:100%;max-width:680px}th,td{border:1px solid #ccc;padding:8px 10px}th{background:#111827;color:#fff;text-align:left}</style></head><body><h3>Tableau séance ${selectedClass} (${sessionDate})</h3><p><button id="reset-session">Réinitialiser</button> <button id="copy-session">Copier</button></p>${classCommentsHtml}<p>Ordre export: Classe, Équipe, Élève, B, T, A et commentaire.</p><table><thead><tr><th>Classe</th><th>Équipe</th><th>Élève</th><th>B</th><th>T</th><th>A</th><th>Commentaire</th></tr></thead><tbody>${tableRows}</tbody></table><script>const copyBtn=document.getElementById('copy-session');copyBtn.addEventListener('click',async()=>{const rows=[...document.querySelectorAll('tbody tr')].filter(r=>r.querySelectorAll('td').length>=7).map(r=>{const cells=r.querySelectorAll('td');return [cells[3].textContent.trim(),cells[4].textContent.trim(),cells[5].textContent.trim(),cells[6].textContent.trim()].join('\\t');}).join('\\n');try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(rows);}else{const ta=document.createElement('textarea');ta.value=rows;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}copyBtn.textContent='Copié ✓';if(window.opener){window.opener.postMessage({type:'session-export-copied',sessionClass:'${selectedClass}',sessionKey:'${sessionDate}'}, '*');}setTimeout(()=>{copyBtn.textContent='Copier';},1400);}catch(e){copyBtn.textContent='Échec copie';setTimeout(()=>{copyBtn.textContent='Copier';},1700);}});document.getElementById('reset-session').addEventListener('click',()=>{if(window.opener){window.opener.postMessage({type:'reset-session-scores'}, '*');}window.close();});</script></body></html>`);
         viewWindow.document.close();

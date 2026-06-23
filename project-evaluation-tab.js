@@ -11,6 +11,10 @@
     const commandEvaluationCriteriaElement = document.getElementById('command-evaluation-criteria');
     const mockupEvaluationCriteriaElement = document.getElementById('mockup-evaluation-criteria');
     const presentationEvaluationCriteriaElement = document.getElementById('presentation-evaluation-criteria');
+    const modelEvaluationCommentElement = document.getElementById('model-evaluation-comment');
+    const commandEvaluationCommentElement = document.getElementById('command-evaluation-comment');
+    const mockupEvaluationCommentElement = document.getElementById('mockup-evaluation-comment');
+    const presentationEvaluationCommentElement = document.getElementById('presentation-evaluation-comment');
     const teamworkEvaluationTitle = document.getElementById('teamwork-evaluation-title');
     const teamworkEvaluationStudentsElement = document.getElementById('teamwork-evaluation-students');
     const saveProjectRolesButton = document.getElementById('save-project-roles');
@@ -33,6 +37,22 @@
 
     function getTeamworkEvaluations() {
         return readStorageMap(data.storageKeys.teamwork);
+    }
+
+    function getRoleEvaluationComments() {
+        return readStorageMap(data.storageKeys.roleComments);
+    }
+
+    function saveRoleEvaluationComments() {
+        if (!data.storageKeys.roleComments) return;
+        const comments = getRoleEvaluationComments();
+        comments[data.teamIndex] = {
+            '3D': (modelEvaluationCommentElement?.value || '').trim(),
+            PC: (commandEvaluationCommentElement?.value || '').trim(),
+            MQ: (mockupEvaluationCommentElement?.value || '').trim(),
+            Prez: (presentationEvaluationCommentElement?.value || '').trim()
+        };
+        localStorage.setItem(data.storageKeys.roleComments, JSON.stringify(comments));
     }
 
     function getSelectedTeamworkScore(studentName) {
@@ -118,12 +138,13 @@
         const selectedRoles = Array.from(row.querySelectorAll('.project-role-button[aria-pressed="true"]')).map((button) => button.dataset.role);
         const teamworkScore = getSelectedTeamworkScore(studentName);
         const teamworkComment = (getTeamworkEvaluations()[data.teamIndex]?.[studentName]?.comment || '').trim();
+        const roleComments = getRoleEvaluationComments()[data.teamIndex] || {};
         const roleParts = selectedRoles.map((roleKey) => {
             const evaluation = getRoleEvaluation(roleKey);
             if (!evaluation) return null;
             const score = getEvaluationScore(evaluation.container, evaluation.criteria);
             const details = getSelectedCriteriaDetails(evaluation.container, evaluation.criteria);
-            return { label: evaluation.label, labelWithArticle: evaluation.labelWithArticle, score, details };
+            return { label: evaluation.label, labelWithArticle: evaluation.labelWithArticle, score, details, comment: (roleComments[roleKey] || '').trim() };
         }).filter(Boolean);
 
         const roleAverage = roleParts.length ? roleParts.reduce((sum, part) => sum + part.score, 0) / roleParts.length : 0;
@@ -133,7 +154,8 @@
             : `Note globale : ${formatScore(roundUpHalf(teamworkScore))}/2.`;
         const roleSentences = roleParts.map((part) => {
             const levelText = describeLevel(part.score / 8 * 3);
-            return `Pour ${part.labelWithArticle}, le travail est ${levelText}. ${buildCriterionSentence(part.details)}`;
+            const roleComment = part.comment ? ` Commentaire : ${part.comment}` : '';
+            return `Pour ${part.labelWithArticle}, le travail est ${levelText}. ${buildCriterionSentence(part.details)}${roleComment}`;
         });
         const teamworkSentence = teamworkScore >= 1.5
             ? 'L’implication dans le groupe est positive et contribue à l’avancée du projet.'
@@ -307,6 +329,20 @@
         updateTeamworkTitle();
     }
 
+    function renderRoleEvaluationComments() {
+        const savedComments = getRoleEvaluationComments()[data.teamIndex] || {};
+        [
+            [modelEvaluationCommentElement, '3D'],
+            [commandEvaluationCommentElement, 'PC'],
+            [mockupEvaluationCommentElement, 'MQ'],
+            [presentationEvaluationCommentElement, 'Prez']
+        ].forEach(([element, roleKey]) => {
+            if (!element) return;
+            element.value = savedComments[roleKey] || '';
+            element.addEventListener('input', saveRoleEvaluationComments);
+        });
+    }
+
     function renderEvaluations() {
         renderEvaluationCriteria(modelEvaluationCriteriaElement, data.modelCriteria, readStorageMap(data.storageKeys.model)[data.teamIndex] || [], () => updateEvaluationTitle(modelEvaluationTitle, modelEvaluationCriteriaElement, data.modelCriteria, 'Evaluation du modèle 3D'));
         updateEvaluationTitle(modelEvaluationTitle, modelEvaluationCriteriaElement, data.modelCriteria, 'Evaluation du modèle 3D');
@@ -317,6 +353,7 @@
         renderEvaluationCriteria(presentationEvaluationCriteriaElement, data.presentationCriteria, readStorageMap(data.storageKeys.presentation)[data.teamIndex] || [], () => updateEvaluationTitle(presentationEvaluationTitle, presentationEvaluationCriteriaElement, data.presentationCriteria, 'Evaluation de la présentation'));
         updateEvaluationTitle(presentationEvaluationTitle, presentationEvaluationCriteriaElement, data.presentationCriteria, 'Evaluation de la présentation');
         renderTeamworkEvaluation();
+        renderRoleEvaluationComments();
     }
 
     function saveEvaluation() {
@@ -333,6 +370,7 @@
         localStorage.setItem(data.storageKeys.roles, JSON.stringify(rolesMap));
 
         saveTeamworkEvaluations();
+        saveRoleEvaluationComments();
 
         [
             [data.storageKeys.model, data.modelCriteria, modelEvaluationCriteriaElement],

@@ -2009,7 +2009,8 @@ svg.axe { display: block; margin: 0.5em 0; }
     background: rgba(255, 255, 255, 0.07);
 }
 
-.teamwork-evaluation-comment {
+.teamwork-evaluation-comment,
+.role-evaluation-comment {
     grid-column: 1 / -1;
     width: 100%;
     box-sizing: border-box;
@@ -2021,7 +2022,8 @@ svg.axe { display: block; margin: 0.5em 0; }
     resize: vertical;
 }
 
-.teamwork-evaluation-comment::placeholder {
+.teamwork-evaluation-comment::placeholder,
+.role-evaluation-comment::placeholder {
     color: rgba(255, 255, 255, 0.55);
 }
 
@@ -2037,7 +2039,8 @@ svg.axe { display: block; margin: 0.5em 0; }
 }
 
 .model-evaluation-block > .model-evaluation-criteria,
-.model-evaluation-block > .project-roles-students {
+.model-evaluation-block > .project-roles-students,
+.model-evaluation-block > .role-evaluation-comment {
     margin-top: 12px;
 }
 
